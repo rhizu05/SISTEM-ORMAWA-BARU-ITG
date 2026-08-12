@@ -1,0 +1,149 @@
+# 01 — Pendahuluan
+
+## 1.1 Gambaran Umum
+
+SI-Keuangan (Sistem Informasi Keuangan) adalah aplikasi web yang mengelola **seluruh siklus keuangan organisasi kemahasiswaan (Ormawa)** di Institut Teknologi Garut (ITG). Sistem ini mencakup:
+
+1. **Pengajuan Dana** — Ormawa mengajukan proposal kegiatan beserta RAB dan dokumen pendukung.
+2. **Verifikasi Berjenjang** — Proposal diverifikasi oleh BEM → BPM → BKKH → WR3 sebelum disetujui.
+3. **Pencairan Dana** — BKKH meneruskan proposal disetujui ke Bendahara untuk proses pencairan.
+4. **Laporan Pertanggungjawaban (LPJ)** — Ormawa mengunggah LPJ yang kemudian diverifikasi BKKH.
+5. **Peminjaman Sarana & Prasarana** — Peminjaman tempat dan barang dengan verifikasi dua tahap.
+6. **Persuratan Digital** — Pembuatan proposal otomatis, surat resmi, LPJ otomatis, arsip digital, dan QR code verifikasi.
+7. **Komunikasi & Informasi** — Pusat informasi, jadwal rapat, aspirasi publik, regulasi, dan surat peringatan.
+8. **Administrasi** — Manajemen pengguna, saldo, arsip surat, dan pengaturan sistem (kop surat, logo, dll).
+
+## 1.2 Identitas Sistem
+
+| Atribut | Nilai |
+|---------|-------|
+| Nama sistem | SI-Keuangan / SKIN / skin-itg |
+| Institusi | Institut Teknologi Garut (ITG) |
+| Jenis aplikasi | Web application (PHP custom MVC) |
+| Bahasa pemrograman | PHP 8.0.30 |
+| Database | MariaDB 10.4 / MySQL 8.0 |
+| Nama database | `db_pengajuan` |
+| Frontend | Bootstrap 5.3.3 (via CDN) |
+| Server pengembangan | Laragon (Apache, port 80) |
+| License / kepemilikan | Internal ITG |
+
+## 1.3 Repository GitHub
+
+- **URL:** <https://github.com/rdreikhan-commits/SISTEM-ORMAWA-BARU-ITG.git>
+- **Branch utama:** `main`, `develop`
+- **Branch aktif (restrukturisasi):** `refactor/structure`
+
+> Catatan: Saat dokumentasi ini ditulis, sistem sedang dalam proses restrukturisasi struktur project menjadi arsitektur MVC (folder `app/`). Dokumentasi ini menggambarkan kondisi setelah restrukturisasi tersebut.
+
+## 1.4 Kebutuhan Environment Pengembangan
+
+### Perangkat Lunak Wajib
+
+| Komponen | Versi yang Disarankan | Keterangan |
+|----------|----------------------|------------|
+| Laragon | >= 5.x | Bundled Apache + MySQL/MariaDB + PHP |
+| PHP | 8.0+ | Dengan ekstensi `mysqli`, `gd`, `fileinfo` |
+| MariaDB / MySQL | 10.4 / 8.0 | RDBMS untuk `db_pengajuan` |
+| Browser | Modern | Chrome/Edge/Firefox terbaru |
+| Git | >= 2.x | Untuk clone repository |
+
+### Ekstensi PHP yang Dibutuhkan
+
+- `mysqli` — koneksi database (digunakan di `config.php`)
+- `gd` — image processing (profil, logo, tanda tangan)
+- `session` — otentikasi pengguna
+- `fileinfo` — (opsional) deteksi tipe file
+- `json` — (opsional) untuk JavaScript interop
+
+## 1.5 Cara Menjalankan Sistem
+
+### Langkah 1 — Clone Repository
+
+```bash
+git clone https://github.com/rdreikhan-commits/SISTEM-ORMAWA-BARU-ITG.git
+cd sistem_keuangan
+```
+
+> Folder project lokal pada environment saat ini: `C:\laragon\www\sistem_keuangan`
+
+### Langkah 2 — Menyiapkan Database
+
+**Opsi A (rekomendasi) — Import file SQL:**
+
+1. Buka phpMyAdmin / MySQL CLI.
+2. Buat database baru dengan nama `db_pengajuan`.
+3. Import `scripts/db_pengajuan.sql`.
+
+**Opsi B — Jalankan script setup lengkap:**
+
+```bash
+# Dari folder project
+php scripts/setup_complete.php
+```
+
+Script ini otomatis membuat database, tabel, seed data, user default, dan folder uploads.
+
+### Langkah 3 — Konfigurasi Koneksi Database
+
+Edit `config.php` di root project sesuai environment Anda:
+
+```php
+define('DB_HOST', 'localhost');
+define('DB_USER', 'root');
+define('DB_PASS', '');           // Sesuaikan dengan password MySQL Anda
+define('DB_NAME', 'db_pengajuan');
+define('DB_PORT', 3306);
+```
+
+> `BASE_URL` dihitung otomatis dari request (`HTTP_HOST` + path), sehingga tidak perlu diubah manual.
+
+### Langkah 4 — Menjalankan Server
+
+Akses melalui Laragon virtual host:
+
+```
+http://localhost/sistem_keuangan
+```
+
+Atau jalankan PHP built-in server:
+
+```bash
+php -S localhost:8000
+# lalu buka http://localhost:8000
+```
+
+### Langkah 5 — Login
+
+| Username | Password | Role |
+|----------|----------|------|
+| `bem` | *(dari SQL dump)* | BEM |
+| `bpm` | *(dari SQL dump)* | BPM |
+| `bkkh` | *(dari SQL dump)* | BKKH |
+| `himatif` | *(dari SQL dump)* | Ormawa |
+| `wr3` | *(dari SQL dump)* | Wakil Rektor 3 |
+| `bendahara` | *(dari SQL dump)* | Bendahara |
+| `sarpras_ruangan` | `sarpras123` | Sarpras Ruangan |
+| `sarpras_barang` | `barang123` | Sarpras Barang |
+
+> Password default user lama mengikuti isi SQL dump (`db_pengajuan.sql`). Jika perlu reset, gunakan `scripts/setup_complete.php` atau script reset yang tersedia.
+
+## 1.6 Verifikasi Sistem Berjalan
+
+Setelah semua langkah selesai:
+
+1. Buka `http://localhost/sistem_keuangan`.
+2. Sistem akan otomatis mengarahkan ke halaman login.
+3. Masukkan kredensial salah satu akun di atas.
+4. Pastikan dashboard sesuai role muncul tanpa error.
+
+## 1.7 Struktur Halaman Utama (Entry Point)
+
+| File | Fungsi |
+|------|--------|
+| `index.php` | Front controller — bootstrap aplikasi & memanggil Router |
+| `config.php` | Konfigurasi DB, konstanta `ROOT_PATH`/`BASE_URL`, session |
+| `app/core/Router.php` | Peta halaman, hak akses, render view, notifikasi |
+| `app/core/Controller.php` | Base class untuk semua controller |
+| `app/helpers/functions.php` | Helper: session, sanitasi, redirect, check_role, add_history |
+| `app/controllers/*.php` | Logika bisnis (POST/GET action) per modul |
+| `app/views/**/*.php` | Template/halaman UI per role |

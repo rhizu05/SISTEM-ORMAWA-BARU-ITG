@@ -19,7 +19,13 @@ if (!$user) {
     die("User tidak ditemukan.");
 }
 
-$foto_path = !empty($user['foto_profil']) ? 'uploads/profil/' . $user['foto_profil'] : 'assets/images/default-avatar.png'; // Ganti dengan path avatar default Anda
+$foto_path = 'assets/images/default-avatar.svg';
+if (!empty($user['foto_profil'])) {
+    $potential_foto = 'uploads/profil/' . $user['foto_profil'];
+    if (file_exists($potential_foto)) {
+        $foto_path = $potential_foto;
+    }
+}
 
 ?>
 

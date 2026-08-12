@@ -4,8 +4,8 @@
  * Deskripsi: Pusat Informasi Terpadu (Berita BEM & Regulasi BPM).
  */
 
-$user_role = $_SESSION['user_role'];
-$user_id = $_SESSION['user_id'];
+$user_role = $_SESSION['user_role'] ?? null;
+$user_id = $_SESSION['user_id'] ?? null;
 
 // Ambil Berita/Pengumuman (BEM)
 $query_news = "SELECT p.*, u.nama_lengkap as pengunggah 
@@ -56,7 +56,7 @@ $reg_result = $conn->query($query_reg);
         <!-- Tab Berita & Pengumuman -->
         <div class="tab-pane fade show active" id="pills-news" role="tabpanel">
             <div class="row">
-                <?php if ($news_result->num_rows > 0): ?>
+                <?php if ($news_result && $news_result->num_rows > 0): ?>
                     <?php while ($row = $news_result->fetch_assoc()): ?>
                         <div class="col-lg-6 mb-4">
                             <div class="card border-0 shadow-sm rounded-4 h-100 overflow-hidden news-card">

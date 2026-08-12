@@ -4,10 +4,9 @@
  * Deskripsi: Halaman login pengguna yang aman dan lengkap dengan logo dinamis.
  */
 
-// === PERBAIKAN: Memuat file konfigurasi agar koneksi DB tersedia ===
-require_once 'config.php';
-require_once 'functions.php';
-// === AKHIR PERBAIKAN ===
+if (!defined('APP_RUNNING')) {
+    require_once dirname(__DIR__, 3) . '/config.php';
+}
 
 // --- BLOK PHP INI TIDAK DIUBAH, HANYA DIBERSIHKAN DARI ERROR ---
 if (isset($_SESSION['user_id'])) {
@@ -296,7 +295,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     </button>
                 </div>
                 <button type="submit" class="btn btn-login mt-3">Masuk</button>
-                <a href="panduan.php" class="text-left text-secondary small">Panduan Pengajuan </a>
+                <a href="index.php?page=panduan" class="text-left text-secondary small">Panduan Pengajuan </a>
             </form>
         </div>
       

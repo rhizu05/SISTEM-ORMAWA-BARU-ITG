@@ -231,7 +231,7 @@ $path_ttd = (file_exists($ttd_path) && !empty($ttd_path)) ? $ttd_path : '';
                                 }
                             ?>
                         </div>
-                        <div style="margin-top: 8px; font-weight: bold; border-top: 1px solid #ddd; pt-1;">
+                        <div style="margin-top: 8px; font-weight: bold; border-top: 1px solid #ddd; padding-top: 5px;">
                             <?php echo htmlspecialchars($ttd_name ?: ($surat['ttd_nama_kustom'] ?? '')); ?>
                         </div>
                     </div>

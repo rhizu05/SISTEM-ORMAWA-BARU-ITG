@@ -4,9 +4,9 @@
  * Deskripsi: Halaman publik untuk memverifikasi keaslian surat persetujuan melalui QR Code.
  */
 
-// Sertakan file konfigurasi dan fungsi dasar
-require_once 'config.php';
-require_once 'functions.php';
+if (!defined('APP_RUNNING')) {
+    require_once dirname(__DIR__, 3) . '/config.php';
+}
 
 // Ambil parameter dari URL
 $id_pengajuan = isset($_GET['id']) ? (int)$_GET['id'] : 0;

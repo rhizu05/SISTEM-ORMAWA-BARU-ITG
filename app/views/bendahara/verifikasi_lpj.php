@@ -13,7 +13,7 @@ $id_user = $_SESSION['user_id'];
 
 // --- Proses Form Verifikasi Jika Disubmit ---
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $catatan = sanitize($conn, $_POST['catatan']);
+    $catatan = sanitize_input($conn, $_POST['catatan']);
     $aksi = $_POST['aksi']; // 'selesai' atau 'tolak'
     
     $status_baru = '';

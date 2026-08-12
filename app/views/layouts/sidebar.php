@@ -362,9 +362,14 @@ body.dark-mode .theme-icon-current {
                 <div class="dropdown ms-auto">
                     <a href="#" class="d-flex align-items-center text-dark text-decoration-none dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
                         <?php
-                            $foto_profil_path = !empty($_SESSION['foto_profil']) 
-                                              ? 'uploads/profil/' . htmlspecialchars($_SESSION['foto_profil']) 
-                                              : 'assets/images/default-avatar.png';
+                            $default_avatar = 'assets/images/default-avatar.svg';
+                            $foto_profil_path = $default_avatar;
+                            if (!empty($_SESSION['foto_profil'])) {
+                                $potential_foto = 'uploads/profil/' . $_SESSION['foto_profil'];
+                                if (file_exists($potential_foto)) {
+                                    $foto_profil_path = $potential_foto;
+                                }
+                            }
                         ?>
                         <img src="<?php echo $foto_profil_path; ?>" alt="Foto" width="32" height="32" class="rounded-circle me-2" style="object-fit: cover;">
                         <strong><?php echo isset($_SESSION['nama_lengkap']) ? htmlspecialchars($_SESSION['nama_lengkap']) : 'Pengguna'; ?></strong>
@@ -372,7 +377,7 @@ body.dark-mode .theme-icon-current {
                     <ul class="dropdown-menu dropdown-menu-end text-small shadow">
                         <li><a class="dropdown-item" href="index.php?page=profil"><i class="bi bi-person-fill me-2"></i>Atur Profil</a></li>
                         <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item" href="logout.php"><i class="bi bi-box-arrow-right me-2"></i>Sign out</a></li>
+                        <li><a class="dropdown-item" href="index.php?page=logout"><i class="bi bi-box-arrow-right me-2"></i>Sign out</a></li>
                     </ul>
                 </div>
             </div>

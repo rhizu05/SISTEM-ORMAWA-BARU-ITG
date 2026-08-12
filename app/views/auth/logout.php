@@ -4,12 +4,12 @@
  * Deskripsi: Menghancurkan session dan mengeluarkan pengguna dari sistem.
  */
 
-// Memulai session untuk bisa mengakses dan menghancurkannya
-session_start();
-
-// Memanggil file konfigurasi dan fungsi
-require_once 'config.php';
-require_once 'functions.php';
+if (!defined('APP_RUNNING')) {
+    require_once dirname(__DIR__, 3) . '/config.php';
+}
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 
 // Menghapus semua variabel session
 $_SESSION = array();
@@ -18,5 +18,5 @@ $_SESSION = array();
 session_destroy();
 
 // Mengarahkan pengguna kembali ke halaman login
-redirect('login.php');
+redirect('index.php?page=login');
 ?>
