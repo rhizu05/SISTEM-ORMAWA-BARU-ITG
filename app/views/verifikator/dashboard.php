@@ -8,7 +8,7 @@
  * Menambahkan CSS untuk memperbaiki warna teks tebal (nama kegiatan) 
  * pada popup SweetAlert2 di mode gelap (baris 160-166).
  */
-check_role(['bem', 'bpm', 'bkh', 'wr3']);
+check_role(['bem', 'bpm', 'bkh', 'wr3', 'admin']);
 $user_role = $_SESSION['user_role'];
 $user_id = $_SESSION['user_id'];
 $nama_lengkap = $_SESSION['nama_lengkap'];

@@ -77,12 +77,12 @@ if ($res) {
                             <?php $i = 1; foreach($peminjaman as $row): ?>
                                 <tr>
                                     <td><?php echo $i++; ?></td>
-                                    <td><?php echo htmlspecialchars($row['nama_ormawa']); ?></td>
+                                    <td><?php echo htmlspecialchars($row['nama_ormawa'], ENT_QUOTES, 'UTF-8'); ?></td>
                                     <td>
-                                        <strong><?php echo htmlspecialchars($row['nama_kegiatan']); ?></strong><br>
-                                        <small class="text-muted"><?php echo htmlspecialchars($row['deskripsi_kegiatan']); ?></small>
+                                        <strong><?php echo htmlspecialchars($row['nama_kegiatan'], ENT_QUOTES, 'UTF-8'); ?></strong><br>
+                                        <small class="text-muted"><?php echo htmlspecialchars($row['deskripsi_kegiatan'], ENT_QUOTES, 'UTF-8'); ?></small>
                                     </td>
-                                    <td><?php echo htmlspecialchars($row['nama_ruangan']); ?></td>
+                                    <td><?php echo htmlspecialchars($row['nama_ruangan'], ENT_QUOTES, 'UTF-8'); ?></td>
                                     <td>
                                         <?php echo date('d M Y', strtotime($row['tgl_mulai'])); ?> s/d <?php echo date('d M Y', strtotime($row['tgl_selesai'])); ?><br>
                                         <small class="text-muted"><i class="bi bi-clock"></i> <?php echo date('H:i', strtotime($row['jam_mulai'])); ?> - <?php echo date('H:i', strtotime($row['jam_selesai'])); ?></small>
@@ -111,37 +111,7 @@ if ($res) {
                                         <?php endif; ?>
                                     </td>
                                 </tr>
-
-                                <!-- Modal Aksi -->
-                                <div class="modal fade" id="modalAksi<?php echo $row['id_peminjaman']; ?>" tabindex="-1">
-                                    <div class="modal-dialog">
-                                        <div class="modal-content">
-                                            <form action="index.php?page=verifikasi_tempat" method="POST">
-                                                <div class="modal-header">
-                                                    <h5 class="modal-title">Verifikasi Peminjaman Tempat</h5>
-                                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                                                </div>
-                                                <div class="modal-body">
-                                                    <p>Ormawa: <strong><?php echo htmlspecialchars($row['nama_ormawa']); ?></strong></p>
-                                                    <p>Kegiatan: <strong><?php echo htmlspecialchars($row['nama_kegiatan']); ?></strong></p>
-                                                    <input type="hidden" name="id_peminjaman" value="<?php echo $row['id_peminjaman']; ?>">
-                                                    <div class="mb-3">
-                                                        <label class="form-label">Catatan (Wajib jika ditolak)</label>
-                                                        <textarea name="catatan_penolakan" class="form-control" rows="3" placeholder="Alasan penolakan / Instruksi khusus..."></textarea>
-                                                    </div>
-                                                </div>
-                                                <div class="modal-footer">
-                                                    <button type="submit" name="aksi" value="tolak" class="btn btn-danger">Tolak Peminjaman</button>
-                                                    <button type="submit" name="aksi" value="setuju" class="btn btn-success">Setujui Peminjaman</button>
-                                                </div>
-                                            </form>
-                                        </div>
-                                    </div>
-                                </div>
-
                             <?php endforeach; ?>
-                        <?php else: ?>
-                            <tr><td colspan="7" class="text-center py-3">Belum ada pengajuan peminjaman tempat.</td></tr>
                         <?php endif; ?>
                     </tbody>
                 </table>
@@ -150,6 +120,35 @@ if ($res) {
     </div>
 </div>
 
+<?php if(count($peminjaman) > 0): foreach($peminjaman as $row): ?>
+<!-- Modal Aksi -->
+<div class="modal fade" id="modalAksi<?php echo $row['id_peminjaman']; ?>" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form action="index.php?page=verifikasi_tempat" method="POST">
+                <div class="modal-header">
+                    <h5 class="modal-title">Verifikasi Peminjaman Tempat</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Ormawa: <strong><?php echo htmlspecialchars($row['nama_ormawa']); ?></strong></p>
+                    <p>Kegiatan: <strong><?php echo htmlspecialchars($row['nama_kegiatan']); ?></strong></p>
+                    <input type="hidden" name="id_peminjaman" value="<?php echo $row['id_peminjaman']; ?>">
+                    <div class="mb-3">
+                        <label class="form-label">Catatan (Wajib jika ditolak)</label>
+                        <textarea name="catatan_penolakan" class="form-control" rows="3" placeholder="Alasan penolakan / Instruksi khusus..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" name="aksi" value="tolak" class="btn btn-danger">Tolak Peminjaman</button>
+                    <button type="submit" name="aksi" value="setuju" class="btn btn-success">Setujui Peminjaman</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<?php endforeach; endif; ?>
+
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
@@ -157,7 +156,12 @@ if ($res) {
 <script>
     $(document).ready(function() {
         $('#tabelPeminjaman').DataTable({
-            "language": { "url": "//cdn.datatables.net/plug-ins/1.13.7/i18n/id.json" }
+            destroy: true,
+            columnDefs: [{ orderable: false, targets: -1 }],
+            language: {
+                emptyTable: "Belum ada pengajuan peminjaman tempat.",
+                url: "//cdn.datatables.net/plug-ins/1.13.7/i18n/id.json"
+            }
         });
     });
 </script>

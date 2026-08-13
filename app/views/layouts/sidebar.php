@@ -294,22 +294,21 @@ body.dark-mode .theme-icon-current {
                     </a>
                 </li>
                 
-                <?php if (in_array($user_role, ['bem', 'bpm', 'bkh', 'wr3'])): ?>
+                <?php if (in_array($user_role, ['bem', 'bpm', 'bkh', 'wr3', 'admin'])): ?>
                 <?php endif; ?>
 
-                <?php if (in_array($user_role, ['bkh', 'wr3'])): ?>
+                <?php if (in_array($user_role, ['bkh', 'wr3', 'admin'])): ?>
                     <li>
         <a href="index.php?page=manage_saldo" class="nav-link text-white <?php echo ($currentPage == 'manage_saldo' || $currentPage == 'atur_saldo') ? 'active' : ''; ?>">
             <i class="bi bi-cash-coin me-2"></i> 
             <?php 
-                // Jika user adalah wr3, tampilkan 'Rincian Saldo', selain itu 'Manajemen Saldo'
                 echo ($user_role === 'wr3') ? 'Rincian Saldo' : 'Manajemen Saldo'; 
             ?>
         </a>
     </li>
                 <?php endif; ?>
 
-                <?php if ($user_role == 'bkh'): 
+                <?php if (in_array($user_role, ['bkh', 'admin'])): 
                     $isManageUserPage = in_array($currentPage, ['manage_users', 'tambah_user', 'edit_user']);
                 ?>
                     <li>

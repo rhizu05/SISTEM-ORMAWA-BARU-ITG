@@ -3,7 +3,7 @@
  * File: roles/verifikator/buat_surat_peringatan.php
  * Deskripsi: Generator Surat Peringatan (SP) untuk ORMAWA dari BPM/BKKH.
  */
-check_role(['bpm', 'bkh']);
+check_role(['bpm', 'bkh', 'admin']);
 $user_id = $_SESSION['user_id'];
 
 // Ambil daftar ormawa (user dengan role ormawa/bem/bpm)

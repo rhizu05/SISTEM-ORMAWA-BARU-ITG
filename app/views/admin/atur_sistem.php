@@ -1,6 +1,6 @@
 <?php
 // Keamanan sudah ditangani oleh router di index.php
-if ($_SESSION['user_role'] !== 'bkh') {
+if (!in_array($_SESSION['user_role'], ['bkh', 'admin'])) {
     exit('Akses ditolak.');
 }
 
