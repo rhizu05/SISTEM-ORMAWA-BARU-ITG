@@ -6,7 +6,7 @@ require_once ROOT_PATH . '/app/core/Controller.php';
 class VerifikasiController extends Controller {
 
     public function ajukanPencairan() {
-        $this->requireRole(['bkh']);
+        $this->requireRole(['bkh', 'admin']);
 
         $id     = isset($_POST['id']) ? intval($_POST['id']) : 0;
         $userId = $_SESSION['user_id'];
@@ -44,7 +44,7 @@ class VerifikasiController extends Controller {
     }
 
     public function simpanNomorSurat() {
-        $this->requireRole(['bkh']);
+        $this->requireRole(['bkh', 'admin']);
 
         $id          = isset($_POST['id_pengajuan']) ? intval($_POST['id_pengajuan']) : 0;
         $nomorSurat  = $this->sanitize($_POST['nomor_surat']);

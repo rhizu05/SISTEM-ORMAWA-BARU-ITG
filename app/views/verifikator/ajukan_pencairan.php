@@ -7,7 +7,7 @@
 
 // Pastikan hanya BKKH yang bisa mengakses halaman ini.
 // Asumsikan fungsi check_role() sudah didefinisikan di tempat lain.
-check_role(['bkh']);
+check_role(['bkh', 'admin']);
 
 $id_pengajuan = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 $error_message = '';

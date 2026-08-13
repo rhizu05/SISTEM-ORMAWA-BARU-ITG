@@ -8,7 +8,7 @@
  */
 
 // Memeriksa peran pengguna, sekarang BKKH yang bisa mengakses
-check_role(['bkh']);
+check_role(['bkh', 'admin']);
 
 // Mengambil ID pengguna yang sedang login agar tidak ditampilkan di daftar
 $id_user_saat_ini = $_SESSION['user_id'];

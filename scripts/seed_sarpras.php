@@ -4,17 +4,17 @@ require_once __DIR__ . '/../config.php';
 $users_to_seed = [
     [
         'username'    => 'sarpras_ruangan',
-        'password'    => password_hash('sarpras123', PASSWORD_DEFAULT),
+        'password'    => password_hash('password123', PASSWORD_DEFAULT),
         'role'        => 'sarpras',
         'nama_lengkap' => 'Bagian Sarpras Ruangan',
-        'label'       => 'sarpras_ruangan (pass: sarpras123)',
+        'label'       => 'sarpras_ruangan (pass: password123)',
     ],
     [
         'username'    => 'sarpras_barang',
-        'password'    => password_hash('barang123', PASSWORD_DEFAULT),
+        'password'    => password_hash('password123', PASSWORD_DEFAULT),
         'role'        => 'sarpras_barang',
         'nama_lengkap' => 'Bagian Sarpras Barang',
-        'label'       => 'sarpras_barang (pass: barang123)',
+        'label'       => 'sarpras_barang (pass: password123)',
     ],
 ];
 

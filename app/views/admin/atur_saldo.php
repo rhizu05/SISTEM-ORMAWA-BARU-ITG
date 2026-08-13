@@ -3,7 +3,7 @@
  * File: atur_saldo.php
  * Deskripsi: Halaman untuk BKKH mengatur saldo pengguna.
  */
-check_role(['bkh']);
+check_role(['bkh', 'admin']);
 $id_pengguna = isset($_GET['id']) ? intval($_GET['id']) : 0;
 
 // Ambil data Pengguna yang akan diubah

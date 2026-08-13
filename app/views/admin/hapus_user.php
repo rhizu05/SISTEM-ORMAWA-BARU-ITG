@@ -5,7 +5,7 @@
  */
 
 // Memeriksa peran pengguna
-check_role(['bkh']);
+check_role(['bkh', 'admin']);
 
 // Mengambil ID pengguna yang akan dihapus dari URL
 $id_user_hapus = isset($_GET['id']) ? intval($_GET['id']) : 0;

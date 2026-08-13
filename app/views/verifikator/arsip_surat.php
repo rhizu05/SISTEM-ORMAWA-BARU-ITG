@@ -4,7 +4,7 @@
  * Deskripsi: Halaman untuk BKKH melihat, menginput nomor, dan mencetak ulang surat balasan.
  * Versi: Final dengan fitur input nomor surat melalui modal.
  */
-check_role(['bkh']);
+check_role(['bkh', 'admin']);
 
 // --- LOGIKA HAPUS DATA (TIDAK ADA PERUBAHAN) ---
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['hapus_semua_arsip'])) {

@@ -4,7 +4,7 @@
  * Deskripsi: Halaman khusus untuk BKKH dan WR3 mengelola dan memantau rincian saldo pengguna.
  */
 // PERBAIKAN: Menambahkan 'wr3' ke dalam array peran yang diizinkan
-check_role(['bkh', 'wr3']);
+check_role(['bkh', 'wr3', 'admin']);
 
 // Ambil role pengguna yang sedang login untuk membedakan tampilan
 $current_user_role = $_SESSION['user_role'] ?? null;

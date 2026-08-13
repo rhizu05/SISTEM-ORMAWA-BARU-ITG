@@ -5,7 +5,7 @@
  * --- PERBAIKAN ---
  * 1. (BARU) Menambahkan path 'uploads/lpj/' pada link file LPJ agar bisa diakses.
  */
-check_role(['bkh']); // Hak akses sekarang hanya untuk BKKH
+check_role(['bkh', 'admin']); // Hak akses sekarang hanya untuk BKKH
 
 $id_pengajuan = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 if ($id_pengajuan == 0) {

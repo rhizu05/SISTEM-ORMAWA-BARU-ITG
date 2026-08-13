@@ -4,7 +4,7 @@
  * Deskripsi: Halaman bagi BKKH untuk memverifikasi pengajuan peminjaman ruangan.
  */
 
-check_role(['bkh']);
+check_role(['bkh', 'admin']);
 
 // Proses Aksi Setuju / Tolak
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['aksi'])) {

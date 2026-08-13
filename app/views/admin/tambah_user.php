@@ -3,7 +3,7 @@
  * File: roles/admin/tambah_user.php
  * Deskripsi: HANYA MENAMPILKAN form untuk menambah pengguna baru.
  */
-check_role(['bkh']);
+check_role(['bkh', 'admin']);
 ?>
 
 <div class="container-fluid px-4">

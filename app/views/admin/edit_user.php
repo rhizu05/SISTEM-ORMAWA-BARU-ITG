@@ -3,7 +3,7 @@
  * File: roles/admin/edit_user.php
  * Deskripsi: HANYA MENAMPILKAN form untuk BKKH mengedit data pengguna.
  */
-check_role(['bkh']);
+check_role(['bkh', 'admin']);
 $id_user_edit = isset($_GET['id']) ? intval($_GET['id']) : 0;
 
 // Mengambil Data Pengguna yang Akan Diedit

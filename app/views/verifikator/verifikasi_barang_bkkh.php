@@ -3,7 +3,7 @@
  * File: roles/verifikator/verifikasi_barang_bkkh.php
  */
 
-check_role(['bkh']);
+check_role(['bkh', 'admin']);
 
 // Proses Aksi BKKH
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['aksi_bkkh_barang'])) {

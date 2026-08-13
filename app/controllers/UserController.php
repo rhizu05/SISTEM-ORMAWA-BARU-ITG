@@ -6,7 +6,7 @@ require_once ROOT_PATH . '/app/core/Controller.php';
 class UserController extends Controller {
 
     public function toggleStatus() {
-        $this->requireRole(['bkh']);
+        $this->requireRole(['bkh', 'admin']);
         $id        = intval($_GET['id']);
         $newStatus = $this->sanitize($_GET['new_status']) === 'aktif' ? 'aktif' : 'nonaktif';
 
@@ -27,7 +27,7 @@ class UserController extends Controller {
     }
 
     public function tambahUser() {
-        $this->requireRole(['bkh']);
+        $this->requireRole(['bkh', 'admin']);
 
         if (!isset($_POST['nama_lengkap'])) return;
 
@@ -59,7 +59,7 @@ class UserController extends Controller {
     }
 
     public function editUser() {
-        $this->requireRole(['bkh']);
+        $this->requireRole(['bkh', 'admin']);
 
         $id = isset($_GET['id']) ? intval($_GET['id']) : 0;
         if ($id <= 0) {
@@ -113,7 +113,7 @@ class UserController extends Controller {
     }
 
     public function aturSaldo() {
-        $this->requireRole(['bkh']);
+        $this->requireRole(['bkh', 'admin']);
 
         $id    = isset($_GET['id']) ? intval($_GET['id']) : 0;
         if ($id <= 0) {
