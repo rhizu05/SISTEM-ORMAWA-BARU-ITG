@@ -101,6 +101,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['simpan_lpj'])) {
     </div>
 
     <form action="" method="POST" enctype="multipart/form-data">
+    <?php echo csrf_field(); ?>
         <div class="row">
             <div class="col-lg-8">
                 <!-- Konten Narasi LPJ -->

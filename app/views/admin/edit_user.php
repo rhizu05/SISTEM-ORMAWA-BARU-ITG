@@ -48,6 +48,7 @@ if (!$user) {
             }
             ?>
             <form action="index.php?page=edit_user&id=<?php echo $id_user_edit; ?>" method="POST">
+    <?php echo csrf_field(); ?>
                 <div class="mb-3">
                     <label for="nama_lengkap" class="form-label">Nama Lengkap</label>
                     <input type="text" class="form-control" id="nama_lengkap" name="nama_lengkap" value="<?php echo htmlspecialchars($user['nama_lengkap']); ?>" required>

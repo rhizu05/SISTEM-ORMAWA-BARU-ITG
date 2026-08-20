@@ -73,6 +73,7 @@ $reg_result = $conn->query($query_reg);
                                                 <span class="badge bg-primary-subtle text-primary rounded-pill px-3">BEM News</span>
                                                 <?php if ($user_role === 'bem'): ?>
                                                 <form action="index.php?page=pusat_informasi" method="POST" onsubmit="return confirm('Hapus berita ini?')">
+    <?php echo csrf_field(); ?>
                                                     <input type="hidden" name="id_pengumuman" value="<?php echo $row['id_pengumuman']; ?>">
                                                     <button type="submit" name="hapus_pengumuman" class="btn btn-link text-danger p-0">
                                                         <i class="bi bi-trash"></i>
@@ -207,6 +208,7 @@ $reg_result = $conn->query($query_reg);
 <?php if ($user_role === 'bem'): ?>
 <div class="modal fade" id="modalTambahNews" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg">
+    <?php echo csrf_field(); ?>
         <form action="index.php?page=pusat_informasi" method="POST" enctype="multipart/form-data">
             <div class="modal-content rounded-4 border-0 shadow">
                 <div class="modal-header bg-primary text-white rounded-top-4 p-4">

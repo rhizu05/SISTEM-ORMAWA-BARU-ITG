@@ -80,6 +80,7 @@
                         </div>
                     <?php else: ?>
                         <form action="index.php?page=aspirasi" method="POST">
+    <?php echo csrf_field(); ?>
                             <div class="row g-4">
                                 <div class="col-md-6">
                                     <label class="form-label fw-bold">Nama Lengkap (Opsional)</label>

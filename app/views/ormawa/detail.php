@@ -314,6 +314,7 @@ $status_info = [
                 <div class="modal-body">
                     <p class="mb-3">Kirim pesan singkat ke verifikator saat ini untuk menanyakan status pengajuan ini.</p>
                     <form id="formFollowUp" method="POST" action="index.php?page=followup_pengajuan">
+    <?php echo csrf_field(); ?>
                         <input type="hidden" name="id_pengajuan" value="<?php echo htmlspecialchars($id_pengajuan); ?>">
                         <div class="mb-3">
                             <label for="pesan_followup" class="form-label">Pesan Follow-Up</label>

@@ -54,6 +54,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['generate_sp'])) {
     </div>
 
     <form action="" method="POST">
+    <?php echo csrf_field(); ?>
         <div class="row">
             <div class="col-lg-8">
                 <div class="card shadow-sm border-0 rounded-4 mb-4">

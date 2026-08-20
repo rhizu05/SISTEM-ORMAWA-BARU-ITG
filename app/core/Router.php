@@ -151,8 +151,42 @@ class Router {
         }
     }
 
+    /**
+     * Apply security middleware for all requests.
+     * - CSRF protection for POST requests
+     * - Session validation
+     * - Rate limiting (to be implemented in Phase 3)
+     */
+    private function applySecurityMiddleware() {
+        // CSRF protection for POST requests
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            csrf_verify();
+        }
+        
+        // Session validation (inactivity check)
+        $this->validateSessionActivity();
+        
+        // Rate limiting will be added in Phase 3
+        // $this->checkRateLimit();
+    }
+    
+    /**
+     * Validate session activity to prevent stale sessions
+     */
+    private function validateSessionActivity() {
+        if (!isset($_SESSION['user_id'])) {
+            return; // No user session, nothing to validate
+        }
+        
+        // Update last activity timestamp
+        $_SESSION['last_activity'] = time();
+    }
+
     private function handlePostActions($page_action) {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') return;
+        
+        // Apply security middleware before executing controller action
+        $this->applySecurityMiddleware();
 
         $controllers = [
             'tambah_user'         => [UserController::class,        'tambahUser'],

@@ -283,6 +283,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             <?php endif; ?>
 
             <form action="index.php?page=login" method="POST">
+    <?php echo csrf_field(); ?>
                 <div class="form-group">
                     <i class="bi bi-person input-icon"></i>
                     <input type="text" class="form-control" id="username" name="username" placeholder="Username" required>

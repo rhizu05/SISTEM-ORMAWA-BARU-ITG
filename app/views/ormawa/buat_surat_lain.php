@@ -80,6 +80,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['generate_surat'])) {
     <h1 class="h3 mb-4">Generator Surat Otomatis</h1>
 
     <form action="" method="POST" enctype="multipart/form-data">
+    <?php echo csrf_field(); ?>
         <div class="row">
             <div class="col-lg-8">
                 <div class="card shadow-sm mb-4">

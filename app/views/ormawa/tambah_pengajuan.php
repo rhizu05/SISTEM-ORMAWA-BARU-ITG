@@ -219,6 +219,7 @@ if ($status_akun == 'nonaktif') {
                 <?php endif; ?>
 
                 <form method="POST" action="" enctype="multipart/form-data">
+    <?php echo csrf_field(); ?>
                     <div class="mb-4">
                         <label for="nama_kegiatan" class="form-label"><i class="bi bi-journal-text me-1"></i> Nama Kegiatan</label>
                         <input type="text" class="form-control" id="nama_kegiatan" name="nama_kegiatan" required>

@@ -229,7 +229,70 @@
     }
 
     /* ------------------------------------------------------------------
-       4. PONDASI NOTIFIKASI (siap integrasi realtime SSE)
+       4. CSRF PROTECTION FOR AJAX REQUESTS
+       - Automatically inject CSRF token into all fetch requests
+       - Ensure AJAX compatibility with CSRF middleware
+       ------------------------------------------------------------------ */
+    function setupCsrfInterceptor() {
+        if (typeof window.CSRF_TOKEN === 'undefined') {
+            console.warn('CSRF_TOKEN not defined. CSRF protection may not work for AJAX requests.');
+            return;
+        }
+
+        // Store original fetch
+        const originalFetch = window.fetch;
+
+        // Override fetch to inject CSRF token
+        window.fetch = function(resource, options = {}) {
+            // Clone options to avoid mutation
+            const newOptions = { ...options };
+
+            // Check if this is a POST request
+            const method = (newOptions.method || 'GET').toUpperCase();
+            const isPostRequest = method === 'POST';
+
+            // Only inject CSRF for POST requests to our own domain
+            if (isPostRequest && window.CSRF_TOKEN) {
+                // Ensure headers exist
+                newOptions.headers = newOptions.headers || {};
+
+                // Convert headers to Headers object if needed
+                if (!(newOptions.headers instanceof Headers)) {
+                    newOptions.headers = new Headers(newOptions.headers);
+                }
+
+                // Add CSRF token
+                newOptions.headers.set('X-CSRF-Token', window.CSRF_TOKEN);
+                newOptions.headers.set('X-Requested-With', 'XMLHttpRequest');
+            }
+
+            return originalFetch.call(this, resource, newOptions);
+        };
+
+        // Also patch XMLHttpRequest for legacy AJAX calls
+        const originalXHROpen = XMLHttpRequest.prototype.open;
+        const originalXHRSend = XMLHttpRequest.prototype.send;
+
+        XMLHttpRequest.prototype.open = function(method, url) {
+            this._method = method.toUpperCase();
+            this._url = url;
+            return originalXHROpen.apply(this, arguments);
+        };
+
+        XMLHttpRequest.prototype.send = function(body) {
+            if (this._method === 'POST' && window.CSRF_TOKEN) {
+                if (!this.requestHeaders) {
+                    this.requestHeaders = {};
+                }
+                this.setRequestHeader('X-CSRF-Token', window.CSRF_TOKEN);
+                this.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+            }
+            return originalXHRSend.apply(this, arguments);
+        };
+    }
+
+    /* ------------------------------------------------------------------
+       5. PONDASI NOTIFIKASI (siap integrasi realtime SSE)
        - Ditampilkan sebagai toast Bootstrap. Nanti endpoint SSE/notifikasi
          akan memanggil SKIN.notify() saat ada peristiwa baru.
        ------------------------------------------------------------------ */
@@ -262,4 +325,7 @@
     // Ekspos helper global agar dipakai modul lain (mis. SSE/Polling notifikasi)
     window.SKIN = window.SKIN || {};
     window.SKIN.notify = notify;
+
+    // Initialize CSRF protection for AJAX requests
+    setupCsrfInterceptor();
 })();

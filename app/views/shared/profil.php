@@ -38,6 +38,7 @@ if (!empty($user['foto_profil'])) {
                 </div>
                 <div class="card-body">
                     <form action="index.php?page=profil" method="POST" enctype="multipart/form-data">
+    <?php echo csrf_field(); ?>
                         <div class="text-center mb-4">
                             <img src="<?php echo htmlspecialchars($foto_path); ?>" alt="Foto Profil" class="rounded-circle" width="120" height="120" style="object-fit: cover; border: 4px solid #eee;">
                         </div>

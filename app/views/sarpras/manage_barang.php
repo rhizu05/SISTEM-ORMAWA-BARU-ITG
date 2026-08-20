@@ -23,6 +23,7 @@ $barang = $conn->query("SELECT * FROM master_barang");
                 <div class="card-header bg-primary text-white">Tambah Barang Baru</div>
                 <div class="card-body">
                     <form action="" method="POST">
+    <?php echo csrf_field(); ?>
                         <div class="mb-3">
                             <label class="form-label">Nama Barang</label>
                             <input type="text" name="nama_barang" class="form-control" required>

@@ -105,6 +105,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['simpan_proposal']) |
 <div class="container-fluid px-4 py-4">
     <h1 class="mt-4">Edit Proposal</h1>
     <form action="" method="POST" id="proposalForm">
+    <?php echo csrf_field(); ?>
         <div class="row">
             <div class="col-lg-7">
                 <div class="card shadow-sm mb-4">

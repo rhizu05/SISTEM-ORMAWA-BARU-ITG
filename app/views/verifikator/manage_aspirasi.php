@@ -58,6 +58,7 @@ $result = $conn->query($query);
                 <div class="modal fade" id="modalTanggapi<?php echo $row['id_aspirasi']; ?>" tabindex="-1" aria-hidden="true">
                     <div class="modal-dialog modal-lg">
                         <form action="index.php?page=manage_aspirasi" method="POST">
+    <?php echo csrf_field(); ?>
                             <input type="hidden" name="id_aspirasi" value="<?php echo $row['id_aspirasi']; ?>">
                             <div class="modal-content rounded-4 border-0">
                                 <div class="modal-header border-0 pb-0">

@@ -91,6 +91,7 @@ if (!$data) {
                 </div>
                 <div class="card-body">
                     <form action="index.php?page=verifikasi_lpj&id=<?php echo $id_pengajuan; ?>" method="POST">
+    <?php echo csrf_field(); ?>
                         <div class="mb-3">
                             <label for="catatan" class="form-label">Catatan (Wajib diisi jika menolak)</label>
                             <textarea class="form-control" id="catatan" name="catatan" rows="5"></textarea>

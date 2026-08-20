@@ -106,6 +106,7 @@ $result = $stmt->get_result();
             
             <?php if ($result->num_rows > 0): ?>
             <form id="formHapusArsip" method="POST" action="index.php?page=arsip_surat">
+    <?php echo csrf_field(); ?>
                 <input type="hidden" name="hapus_semua_arsip" value="1">
                 <button type="submit" class="btn btn-danger btn-sm">
                     <i class="bi bi-trash-fill me-1"></i> Hapus Semua Arsip
@@ -165,6 +166,7 @@ $result = $stmt->get_result();
                                 <div class="modal fade" id="inputNomorModal-<?php echo $row['id_pengajuan']; ?>" tabindex="-1" aria-labelledby="modalLabel-<?php echo $row['id_pengajuan']; ?>" aria-hidden="true">
                                     <div class="modal-dialog modal-dialog-centered">
                                         <div class="modal-content">
+    <?php echo csrf_field(); ?>
                                             <form action="index.php?page=input_nomor_surat" method="POST">
                                                 <div class="modal-header">
                                                     <h5 class="modal-title" id="modalLabel-<?php echo $row['id_pengajuan']; ?>">Input Nomor Surat Resmi</h5>

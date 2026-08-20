@@ -72,6 +72,7 @@ $catatan_penolakan = $pengajuan['catatan_revisi'] ?? '';
             }
             ?>
             <form method="POST" action="index.php?page=revisi_lpj&id=<?php echo $id_pengajuan; ?>" enctype="multipart/form-data">
+    <?php echo csrf_field(); ?>
                 <div class="mb-3">
                     <label for="file_lpj" class="form-label">Pilih File LPJ Baru (PDF, maks 5MB)</label>
                     <input class="form-control" type="file" id="file_lpj" name="file_lpj" accept=".pdf" required>

@@ -86,6 +86,7 @@ $stmt_riwayat->close();
                 <div class="card-header bg-white"><i class="bi bi-calendar-plus me-1"></i> Form Pengajuan Baru</div>
                 <div class="card-body">
                     <form action="index.php?page=peminjaman_tempat" method="POST">
+    <?php echo csrf_field(); ?>
                         <div class="mb-3">
                             <label class="form-label fw-bold">Pilih Ruangan</label>
                             <select name="id_ruangan" class="form-select" required>
