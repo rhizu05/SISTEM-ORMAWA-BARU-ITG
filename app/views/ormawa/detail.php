@@ -196,6 +196,31 @@ $status_info = [
                             </tr>
                         <?php endif; ?>
 
+                        <?php
+                        // --- Tombol Follow-Up: Muncul jika status masih dalam proses dan bukan 'Ditolak' ---
+                        $status_proses = [
+                            'diajukan ke bem',
+                            'diajukan ke bpm',
+                            'verifikasi bem',
+                            'verifikasi bpm',
+                            'verifikasi bkkh',
+                            'verifikasi wr3',
+                            'diajukan ke bendahara',
+                            'lpj diajukan'
+                        ];
+                        $is_active = in_array(strtolower(trim($pengajuan['status'])), $status_proses);
+                        if ($is_active):
+                        ?>
+                            <tr>
+                                <th>Follow-Up</th>
+                                <td>:
+                                    <button type="button" class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#modalFollowUp">
+                                        <i class="bi bi-chat-text-fill me-1"></i> Tanyakan Status
+                                    </button>
+                                </td>
+                            </tr>
+                        <?php endif; ?>
+
                     </table>
                 </div>
             </div>
@@ -277,5 +302,34 @@ $status_info = [
             </div>
         </div>
     </div>
+
+    <!-- Modal Follow-Up -->
+    <div class="modal fade" id="modalFollowUp" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Tanyakan Status Pengajuan</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="mb-3">Kirim pesan singkat ke verifikator saat ini untuk menanyakan status pengajuan ini.</p>
+                    <form id="formFollowUp" method="POST" action="index.php?page=followup_pengajuan">
+    <?php echo csrf_field(); ?>
+                        <input type="hidden" name="id_pengajuan" value="<?php echo htmlspecialchars($id_pengajuan); ?>">
+                        <div class="mb-3">
+                            <label for="pesan_followup" class="form-label">Pesan Follow-Up</label>
+                            <textarea class="form-control" id="pesan_followup" name="pesan_followup" rows="3" required maxlength="255" placeholder="Contoh: Mohon info kenapa dana belum cair padahal sudah disetujui H-3"></textarea>
+                            <div class="form-text">Pesan akan dikirim sebagai notifikasi ke verifikator yang memegang pengajuan ini saat ini.</div>
+                        </div>
+                        <div class="d-flex justify-content-end gap-2">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                            <button type="submit" class="btn btn-warning">Kirim Follow-Up</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
 </div>
 

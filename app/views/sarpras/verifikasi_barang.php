@@ -128,6 +128,7 @@ $res = $conn->query($sql);
                             <div class="modal-dialog">
                                 <div class="modal-content">
                                     <form action="" method="POST">
+    <?php echo csrf_field(); ?>
                                         <div class="modal-header">
                                             <h5 class="modal-title">Konfirmasi Persetujuan Barang</h5>
                                             <button type="button" class="btn-close" data-bs-dismiss="modal"></button>

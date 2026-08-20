@@ -141,10 +141,146 @@ class Router {
         if ($page_action === 'toggle_status' && isset($_GET['id'], $_GET['new_status'])) {
             (new UserController($this->conn))->toggleStatus();
         }
+
+        if ($page_action === 'api_notifikasi_belum_baca') {
+            (new NotifikasiController($this->conn))->belumBaca();
+        }
+
+        if ($page_action === 'api_kalender_peminjaman') {
+            (new ApiController($this->conn))->kalenderPeminjaman();
+        }
     }
+
+/**
+ * Apply security middleware for all requests.
+ * - CSRF protection for POST requests
+ * - Session validation & security (Phase 4)
+ * - Rate limiting (Phase 3)
+ * - Security headers propagation
+ */
+private function applySecurityMiddleware() {
+    // CSRF protection for POST requests
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        csrf_verify();
+    }
+    
+    // Session validation & security (Phase 4)
+    $this->validateSessionSecurity();
+    
+    // Rate limiting (Phase 3)
+    $this->checkRateLimit();
+    
+    // Security headers (always applied)
+    $this->applySecurityHeaders();
+}
+
+/**
+ * Validate session activity and security (Phase 4)
+ * - Inactivity timeout check
+ * - Session ID regeneration
+ * - Last activity timestamp update
+ */
+private function validateSessionSecurity() {
+    // If user is logged in, update activity timestamp
+    if (isset($_SESSION['user_id'])) {
+        // Check for session timeout
+        if (check_session_timeout(1800)) {
+            // Session timed out (30 minutes inactivity)
+            session_unset();
+            session_destroy();
+            header("Location: index.php?page=login?expired=1");
+            exit();
+        }
+        
+        // Update last activity timestamp
+        $_SESSION['last_activity'] = time();
+        
+        // Regenerate session ID periodically (every 2 hours max)
+        if (!isset($_SESSION['id_regenerated'])) {
+            session_regenerate_id(true);
+            $_SESSION['id_regenerated'] = true;
+        }
+    }
+}
+
+/**
+ * Apply security headers to all responses (Phase 4)
+ */
+private function applySecurityHeaders() {
+    // X-Frame-Options: Prevent clickjacking
+    header("X-Frame-Options: DENY");
+    
+    // X-Content-Type-Options: Prevent MIME type sniffing
+    header("X-Content-Type-Options: nosniff");
+    
+    // Referrer-Policy: Control referrer information
+    header("Referrer-Policy: strict-origin-when-cross-origin");
+    
+    // Cache control for security-sensitive pages
+    if (!isset($_SESSION['user_id']) || !$_SESSION['user_id']) {
+        header("Cache-Control: no-cache, no-store, must-revalidate");
+        header("Pragma: no-cache");
+        header("Expires: 0");
+    }
+}
+    
+/**
+ * Validate session activity to prevent stale sessions
+ */
+private function validateSessionActivity() {
+    if (!isset($_SESSION['user_id'])) {
+        return; // No user session, nothing to validate
+    }
+    
+    // Update last activity timestamp
+    $_SESSION['last_activity'] = time();
+}
+
+/**
+ * Cek rate limit untuk mencegah brute force dan spam
+ */
+private function checkRateLimit() {
+    // Hanya aktif untuk halaman login (ada POST username)
+    if (!isset($_POST['username'])) {
+        return;
+    }
+    
+    $ip = get_client_ip();
+    $username = isset($_POST['username']) ? $_POST['username'] : '';
+    $limit = 5; // 5 percobaan login per 15 menit
+    $window_seconds = 900; // 15 menit
+    
+    if (check_rate_limit($this->conn, $ip, $username, $limit, $window_seconds)) {
+        // Masih dalam batas, lanjutkan
+        return;
+    }
+    
+    // Melebihi limit - hentikan proses
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['username'])) {
+        $_SESSION['rate_limit_exceeded'] = true;
+        http_response_code(429);
+        die('Terlalu banyak percobaan login. Coba lagi dalam 15 menit.');
+    }
+}
+
+function get_client_ip_from_router(): string
+{
+    $ip = '::1';
+    if (!empty($_SERVER['REMOTE_ADDR'])) {
+        $ip = $_SERVER['REMOTE_ADDR'];
+    } elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+        $ip = explode(',', $_SERVER['HTTP_X_FORWARDED_FOR'])[0];
+    } elseif (!empty($_SERVER['HTTP_CLIENT_IP'])) {
+        $ip = $_SERVER['HTTP_CLIENT_IP'];
+    }
+    return $ip;
+}
 
     private function handlePostActions($page_action) {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') return;
+        
+        // Apply security middleware before executing controller action
+        $this->applySecurityMiddleware();
 
         $controllers = [
             'tambah_user'         => [UserController::class,        'tambahUser'],
@@ -153,12 +289,17 @@ class Router {
             'tambah'              => [PengajuanController::class,   'tambah'],
             'edit'                => [PengajuanController::class,   'edit'],
             'ajukan_pencairan'    => [VerifikasiController::class,  'ajukanPencairan'],
+            'verifikasi'          => [VerifikasiController::class,  'verifikasiProposal'],
+            'verifikasi_lpj'      => [VerifikasiController::class,  'verifikasiLpj'],
             'verifikasi_bendahara'=> [BendaharaController::class,   'verifikasi'],
             'profil'              => [ProfilController::class,      'update'],
             'pusat_informasi'     => [InformasiController::class,   'handlePengumuman'],
             'jadwal_rapat'        => [InformasiController::class,   'handleJadwalRapat'],
             'aspirasi'            => [AspirasiController::class,    'submit'],
             'manage_aspirasi'     => [AspirasiController::class,    'tanggapi'],
+            'tandai_notif_terlihat' => [NotifikasiController::class, 'tandaiTerlihat'],
+            'tandai_notif_baca'     => [NotifikasiController::class, 'tandaiBaca'],
+            'followup_pengajuan'    => [PengajuanController::class,  'followup'],
         ];
 
         if (isset($controllers[$page_action])) {
@@ -259,6 +400,7 @@ class Router {
                 'aspirasi_sukses'   => 'Aspirasi berhasil dikirim.',
                 'tanggapan_sukses'  => 'Tanggapan berhasil disimpan.',
                 'nomor_sukses'      => 'Nomor surat berhasil disimpan.',
+                'followup_sukses'   => 'Follow-up berhasil dikirim ke verifikator.',
             ];
             $message = $statusMap[$statusKey] ?? 'Operasi berhasil.';
         }

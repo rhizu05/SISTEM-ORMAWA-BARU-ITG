@@ -38,6 +38,7 @@ $result = $conn->query($query);
                                 <span class="badge bg-primary-subtle text-primary"><?php echo date('d M Y', strtotime($row['tanggal_upload'])); ?></span>
                                 <?php if ($user_role === 'bem'): ?>
                                 <form action="index.php?page=pengumuman" method="POST" onsubmit="return confirm('Hapus pengumuman ini?')">
+    <?php echo csrf_field(); ?>
                                     <input type="hidden" name="id_pengumuman" value="<?php echo $row['id_pengumuman']; ?>">
                                     <button type="submit" name="hapus_pengumuman" class="btn btn-link text-danger p-0">
                                         <i class="bi bi-trash"></i>
@@ -116,6 +117,7 @@ $result = $conn->query($query);
 <!-- Modal Tambah -->
 <div class="modal fade" id="modalTambah" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog">
+    <?php echo csrf_field(); ?>
         <form action="index.php?page=pengumuman" method="POST" enctype="multipart/form-data">
             <div class="modal-content">
                 <div class="modal-header bg-primary text-white">

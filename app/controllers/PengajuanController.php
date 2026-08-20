@@ -25,7 +25,7 @@ class PengajuanController extends Controller {
 
         $stmtTerpakai = $this->conn->prepare(
             "SELECT SUM(dana_diajukan) AS total FROM pengajuan 
-             WHERE id_user_ormawa = ? AND status NOT IN ('Ditolak BEM', 'Ditolak BKH', 'Ditolak WR3', 'Ditolak Bendahara')"
+             WHERE id_user_ormawa = ? AND status NOT IN ('Ditolak BEM', 'Ditolak BKKH', 'Ditolak WR3', 'Ditolak Bendahara')"
         );
         $stmtTerpakai->bind_param("i", $userId);
         $stmtTerpakai->execute();
@@ -35,22 +35,31 @@ class PengajuanController extends Controller {
             $this->redirect('index.php?page=tambah&error=saldo_tidak_cukup');
         }
 
-        if (!isset($_FILES['file_proposal']) || $_FILES['file_proposal']['error'] != 0) {
+if (!isset($_FILES['file_proposal']) || $_FILES['file_proposal']['error'] != 0) {
             $this->redirect('index.php?page=tambah&error=file_kosong');
+        }
+
+        // Validasi unggapan file komprehensif
+        $allowed_pdf_types = ['application/pdf'];
+        $max_pdf_size_mb = 5;
+        $validation = validate_uploaded_file(
+            $_FILES['file_proposal'],
+            $allowed_pdf_types,
+            $max_pdf_size_mb,
+            'proposal_'
+        );
+
+        if ($validation === false) {
+            $this->redirect('index.php?page=tambah&error=upload_gagal');
         }
 
         $targetDir = ROOT_PATH . '/uploads/proposal/';
         if (!is_dir($targetDir)) { mkdir($targetDir, 0777, true); }
 
-        $ext = strtolower(pathinfo($_FILES['file_proposal']['name'], PATHINFO_EXTENSION));
-        if ($ext !== 'pdf') {
-            $this->redirect('index.php?page=tambah&error=bukan_pdf');
-        }
-
-        $fileName   = "proposal_{$userId}_" . time() . ".{$ext}";
+        $fileName   = $validation['safe_name'];
         $targetFile = $targetDir . $fileName;
 
-        if (move_uploaded_file($_FILES['file_proposal']['tmp_name'], $targetFile)) {
+        if (move_uploaded_file($validation['tmp_name'], $targetFile)) {
             $status = ($userRole === 'bem' || $userRole === 'bpm') ? 'Verifikasi BKKH' : 'Diajukan Ke BEM';
             $stmt   = $this->conn->prepare(
                 "INSERT INTO pengajuan (id_user_ormawa, nama_kegiatan, dana_diajukan, tanggal_pengajuan, file_proposal, status)
@@ -60,6 +69,13 @@ class PengajuanController extends Controller {
             $stmt->bind_param("isdsss", $userId, $namaKegiatan, $dana, $tanggal, $fileName, $status);
             if ($stmt->execute()) {
                 $this->addHistory($this->conn->insert_id, $userId, $status, 'Proposal awal telah diajukan oleh Ormawa.');
+
+                if ($status === 'Diajukan Ke BEM') {
+                    notify_role($this->conn, 'bem', 'Pengajuan baru: "' . $namaKegiatan . '" menunggu verifikasi Anda.');
+                } else {
+                    notify_role($this->conn, 'bkh', 'Pengajuan baru: "' . $namaKegiatan . '" menunggu verifikasi Anda.');
+                }
+
                 $this->redirect('index.php?page=riwayat&status=tambah_sukses');
             } else {
                 unlink($targetFile);
@@ -105,7 +121,7 @@ class PengajuanController extends Controller {
         if (isset($_FILES['file_proposal']) && $_FILES['file_proposal']['error'] == 0) {
             $targetDir = ROOT_PATH . '/uploads/proposal/';
             $ext       = strtolower(pathinfo($_FILES['file_proposal']['name'], PATHINFO_EXTENSION));
-            if ($ext !== 'pdf') { $this->redirect('index.php?page=edit&id=' . $id . '&error=bukan_pdf'); }
+            if ($ext !== 'pdf' || !is_valid_pdf($_FILES['file_proposal']['tmp_name'])) { $this->redirect('index.php?page=edit&id=' . $id . '&error=bukan_pdf'); }
 
             $newFileName = "proposal_{$userId}_" . time() . ".{$ext}";
             $targetFile  = $targetDir . $newFileName;
@@ -137,6 +153,49 @@ class PengajuanController extends Controller {
         } else {
             $this->redirect('index.php?page=edit&id=' . $id . '&error=db_gagal');
         }
+    }
+
+    public function followup() {
+        $this->requireRole(['ormawa']);
+
+        $idPengajuan = (int) $this->sanitize($_POST['id_pengajuan']);
+        $pesan       = $this->sanitize($_POST['pesan_followup']);
+
+        if (empty($idPengajuan) || empty($pesan)) {
+            $this->redirect('index.php?page=detail&id=' . $idPengajuan . '&error=form_kosong');
+        }
+
+        $stmtCheck = $this->conn->prepare("SELECT status FROM pengajuan WHERE id_pengajuan = ?");
+        $stmtCheck->bind_param("i", $idPengajuan);
+        $stmtCheck->execute();
+        $status = $stmtCheck->get_result()->fetch_assoc()['status'] ?? null;
+
+        if (!$status) {
+            $this->redirect('index.php?page=detail&id=' . $idPengajuan . '&error=pengajuan_tidak_ditemukan');
+        }
+
+        $statusLower = strtolower(trim($status));
+
+        $statusToRole = [
+            'diajukan ke bem'           => 'bem',
+            'verifikasi bem'            => 'bem',
+            'diajukan ke bpm'           => 'bpm',
+            'verifikasi bpm'            => 'bpm',
+            'verifikasi bkkh'           => 'bkkh',
+            'verifikasi wr3'            => 'wr3',
+            'diajukan ke bendahara'     => 'bendahara',
+            'lpj diajukan'              => 'bkkh',
+        ];
+
+        $targetRole = $statusToRole[$statusLower] ?? null;
+
+        if (!$targetRole) {
+            $this->redirect('index.php?page=detail&id=' . $idPengajuan . '&error=status_tidak_memungkinkan_followup');
+        }
+
+        notify_role($this->conn, $targetRole, "Follow-up: Ormawa menanyakan status pengajuan <strong>" . htmlspecialchars($status) . "</strong>.<br>Pesan: " . htmlspecialchars($pesan));
+
+        $this->redirect('index.php?page=detail&id=' . $idPengajuan . '&status=followup_sukses');
     }
 }
 ?>

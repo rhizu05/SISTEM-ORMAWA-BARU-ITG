@@ -14,41 +14,8 @@ if ($id_pengajuan == 0) {
 $user_id = $_SESSION['user_id'];
 $user_role = $_SESSION['user_role'];
 
-// 1. Logika untuk memproses form verifikasi (POST)
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['aksi'])) {
-    $aksi = $_POST['aksi'];
-    $catatan = $_POST['catatan'] ?? '';
-    $new_status = '';
-    $history_message = '';
-
-    if ($aksi === 'tolak') {
-        if (empty($catatan)) {
-            header("Location: index.php?page=verifikasi_lpj&id=$id_pengajuan&error=catatan_kosong");
-            exit;
-        }
-        $new_status = 'LPJ Ditolak BKKH';
-        $history_message = 'LPJ ditolak oleh BKKH. Catatan: ' . $catatan;
-
-    } elseif ($aksi === 'setuju') {
-        $new_status = 'Selesai'; // LANGSUNG SELESAI
-        $history_message = 'LPJ telah diverifikasi dan disetujui oleh BKKH. Proses pengajuan telah selesai.' . ($catatan ? ' Catatan: ' . $catatan : '');
-    } else {
-        header("Location: index.php?page=verifikasi_lpj&id=$id_pengajuan&error=aksi_invalid");
-        exit;
-    }
-
-    // Update status dan simpan riwayat
-    $stmt_update = $conn->prepare("UPDATE pengajuan SET status = ?, catatan_revisi = ? WHERE id_pengajuan = ?");
-    $stmt_update->bind_param("ssi", $new_status, $catatan, $id_pengajuan);
-    if ($stmt_update->execute()) {
-        add_history($conn, $id_pengajuan, $user_id, $new_status, $history_message);
-        header("Location: index.php?page=dashboard&status=verifikasi_lpj_sukses");
-        exit;
-    } else {
-        header("Location: index.php?page=verifikasi_lpj&id=$id_pengajuan&error=update_gagal");
-        exit;
-    }
-}
+// Logika POST verifikasi LPJ dipindah ke VerifikasiController::verifikasiLpj
+// (route ?page=verifikasi_lpj). View ini hanya menampilkan detail + form.
 
 // 2. Tampilkan halaman verifikasi (GET)
 $stmt = $conn->prepare("SELECT p.*, u.nama_lengkap AS nama_ormawa FROM pengajuan p JOIN users u ON p.id_user_ormawa = u.id_user WHERE p.id_pengajuan = ?");
@@ -120,6 +87,7 @@ if (trim($pengajuan['status']) !== 'LPJ Diajukan') {
                     ?>
                     
                     <form method="POST" action="index.php?page=verifikasi_lpj&id=<?php echo $id_pengajuan; ?>">
+                        <?php echo csrf_field(); ?>
                         <div class="mb-3">
                             <label for="catatan" class="form-label">Catatan (Wajib diisi jika menolak)</label>
                             <textarea name="catatan" id="catatan" class="form-control" rows="4"></textarea>

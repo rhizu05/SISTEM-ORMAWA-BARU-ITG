@@ -24,6 +24,9 @@
             const stored = localStorage.getItem('theme');
             const theme = stored || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
             document.documentElement.setAttribute('data-bs-theme', theme);
+            
+            // Make CSRF token available globally for AJAX requests
+            window.CSRF_TOKEN = "<?php echo htmlspecialchars(csrf_token(), ENT_QUOTES, 'UTF-8'); ?>";
         })();
     </script>
 </head>

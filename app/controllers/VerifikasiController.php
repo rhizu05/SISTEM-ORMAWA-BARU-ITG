@@ -15,7 +15,7 @@ class VerifikasiController extends Controller {
             $this->redirect('index.php?page=dashboard&error=invalid_id');
         }
 
-        $stmt = $this->conn->prepare("SELECT status FROM pengajuan WHERE id_pengajuan = ?");
+        $stmt = $this->conn->prepare("SELECT status, nama_kegiatan FROM pengajuan WHERE id_pengajuan = ?");
         if (!$stmt) { $this->redirect('index.php?page=dashboard&error=db_prepare_gagal'); }
         $stmt->bind_param("i", $id);
         $stmt->execute();
@@ -37,6 +37,7 @@ class VerifikasiController extends Controller {
 
         if ($stmtUpdate->execute()) {
             $this->addHistory($id, $userId, $newStatus, 'Pengajuan pencairan dana telah diajukan ke Bendahara.');
+            notify_role($this->conn, 'bendahara', 'Pengajuan "' . ($pengajuan['nama_kegiatan'] ?? 'Kegiatan') . '" menunggu proses pencairan Anda.');
             $this->redirect('index.php?page=dashboard&success=bendahara_sukses');
         } else {
             $this->redirect('index.php?page=dashboard&error=db_gagal');
@@ -61,6 +62,197 @@ class VerifikasiController extends Controller {
         } else {
             $this->redirect('index.php?page=arsip_surat&error=nomor_gagal');
         }
+    }
+
+    /**
+     * Verifikasi proposal berjenjang (BEM → BPM → BKKH → WR3).
+     * Dipanggil via POST ?page=verifikasi&id=<id> dengan field `aksi` & `catatan`.
+     * Status sekarang diverifikasi sesuai peran (menghindari state corruption),
+     * dan form dilindungi token CSRF.
+     */
+    public function verifikasiProposal() {
+        $this->requireRole(['bem', 'bpm', 'bkh', 'wr3']);
+        csrf_verify();
+
+        $id      = isset($_GET['id']) ? (int) $_GET['id'] : 0;
+        $userId  = $_SESSION['user_id'];
+        $userRole = $_SESSION['user_role'];
+
+        if ($id <= 0) {
+            $this->redirect('index.php?page=verifikasi&id=' . $id . '&error=aksi_invalid');
+        }
+
+        $aksi   = $this->sanitize($_POST['aksi'] ?? '');
+        $catatan = $this->sanitize($_POST['catatan'] ?? '');
+
+        if (empty($aksi) || !in_array($aksi, ['setuju', 'tolak'])) {
+            $this->redirect("index.php?page=verifikasi&id=$id&error=aksi_invalid");
+        }
+        if ($aksi === 'tolak' && empty($catatan)) {
+            $this->redirect("index.php?page=verifikasi&id=$id&error=catatan_kosong");
+        }
+
+        // Ambil status saat ini dan pastikan sesuai tahap role ini
+        $stmt = $this->conn->prepare("SELECT status, id_user_ormawa, nama_kegiatan FROM pengajuan WHERE id_pengajuan = ?");
+        if (!$stmt) { $this->redirect("index.php?page=verifikasi&id=$id&error=db_prepare_gagal"); }
+        $stmt->bind_param("i", $id);
+        $stmt->execute();
+        $row = $stmt->get_result()->fetch_assoc();
+        $stmt->close();
+
+        if (!$row) {
+            $this->redirect("index.php?page=verifikasi&id=$id&error=status_error");
+        }
+
+        $expected = [
+            'bem' => 'diajukan ke bem',
+            'bpm' => 'diajukan ke bpm',
+            'bkh' => 'verifikasi bkkh',
+            'wr3' => 'verifikasi wr3',
+        ];
+        if (trim(strtolower($row['status'])) !== ($expected[$userRole] ?? '')) {
+            $this->redirect("index.php?page=verifikasi&id=$id&error=status_error");
+        }
+
+        // Tentukan status & pesan histori sesuai peran dan aksi
+        $newStatus = '';
+        $historyMessage = '';
+        $prefixSetuju = [
+            'bem' => 'Diajukan Ke BPM',
+            'bpm' => 'Verifikasi BKKH',
+            'bkh' => 'Verifikasi WR3',
+            'wr3' => 'Disetujui WR3, Siap Diajukan ke Bendahara',
+        ];
+        $prefixTolak = [
+            'bem' => 'Ditolak BEM',
+            'bpm' => 'Ditolak BPM',
+            'bkh' => 'Ditolak BKKH',
+            'wr3' => 'Ditolak WR3',
+        ];
+
+        if ($aksi === 'setuju') {
+            $newStatus = $prefixSetuju[$userRole];
+            if ($userRole === 'wr3') {
+                $historyMessage = 'Proposal disetujui oleh WR3. Menunggu diteruskan ke Bendahara oleh BKKH.' . ($catatan ? ' Catatan: ' . $catatan : ' Catatan: -');
+            } else {
+                $historyMessage = 'Disetujui oleh ' . strtoupper($userRole) . '.' . ($catatan ? ' Catatan: ' . $catatan : ' Catatan: -');
+            }
+        } else {
+            $newStatus = $prefixTolak[$userRole];
+            $historyMessage = 'Ditolak oleh ' . strtoupper($userRole) . '. Catatan: ' . $catatan;
+        }
+
+        if (empty($newStatus)) {
+            $this->redirect("index.php?page=verifikasi&id=$id&error=status_error");
+        }
+
+        $catatanUpdate = ($aksi === 'tolak') ? $catatan : null;
+        $stmtUpdate = $this->conn->prepare("UPDATE pengajuan SET status = ?, catatan_revisi = ? WHERE id_pengajuan = ?");
+        if (!$stmtUpdate) { $this->redirect("index.php?page=verifikasi&id=$id&error=db_prepare_gagal"); }
+        $stmtUpdate->bind_param("ssi", $newStatus, $catatanUpdate, $id);
+
+        if ($stmtUpdate->execute()) {
+            $this->addHistory($id, $userId, $newStatus, $historyMessage);
+
+            $ormawaPengaju = (int) ($row['id_user_ormawa'] ?? 0);
+            $namaKegiatan  = (string) ($row['nama_kegiatan'] ?? 'Kegiatan');
+
+            if ($aksi === 'setuju') {
+                $nextRoleMap = [
+                    'Diajukan Ke BPM'                   => 'bpm',
+                    'Verifikasi BKKH'                   => 'bkh',
+                    'Verifikasi WR3'                    => 'wr3',
+                    'Disetujui WR3, Siap Diajukan ke Bendahara' => 'bkh',
+                ];
+                $nextRole = $nextRoleMap[$newStatus] ?? '';
+                if ($nextRole) {
+                    notify_role($this->conn, $nextRole, 'Pengajuan "' . $namaKegiatan . '" menunggu verifikasi Anda.');
+                }
+                if ($newStatus === 'Disetujui WR3, Siap Diajukan ke Bendahara' && $ormawaPengaju) {
+                    add_notifikasi($this->conn, $ormawaPengaju, 'Pengajuan "' . $namaKegiatan . '" telah disetujui. Menunggu diteruskan ke Bendahara oleh BKKH.');
+                }
+            } else {
+                if ($ormawaPengaju) {
+                    add_notifikasi($this->conn, $ormawaPengaju, 'Pengajuan "' . $namaKegiatan . '" ditolak oleh ' . strtoupper($userRole) . '. Catatan: ' . $catatan);
+                }
+            }
+
+            $this->redirect('index.php?page=dashboard&status=verifikasi_sukses');
+        }
+
+        $this->redirect("index.php?page=verifikasi&id=$id&error=update_gagal");
+    }
+
+    /**
+     * Verifikasi LPJ (status awal 'LPJ Diajukan').
+     * Setuju → 'Selesai'; Tolak → 'LPJ Ditolak BKKH' (catatan wajib).
+     * Dipanggil via POST ?page=verifikasi_lpj&id=<id>. Dilindungi CSRF.
+     */
+    public function verifikasiLpj() {
+        $this->requireRole(['bkh', 'wr3', 'admin']);
+        csrf_verify();
+
+        $id = isset($_GET['id']) ? (int) $_GET['id'] : 0;
+        $userId = $_SESSION['user_id'];
+
+        if ($id <= 0) {
+            $this->redirect('index.php?page=dashboard');
+        }
+
+        $aksi    = $this->sanitize($_POST['aksi'] ?? '');
+        $catatan = $this->sanitize($_POST['catatan'] ?? '');
+
+        if ($aksi === 'tolak' && empty($catatan)) {
+            $this->redirect("index.php?page=verifikasi_lpj&id=$id&error=catatan_kosong");
+        }
+
+        if ($aksi === 'setuju') {
+            $newStatus = 'Selesai';
+            $historyMessage = 'LPJ telah diverifikasi dan disetujui oleh BKKH. Proses pengajuan telah selesai.' . ($catatan ? ' Catatan: ' . $catatan : '');
+        } elseif ($aksi === 'tolak') {
+            $newStatus = 'LPJ Ditolak BKKH';
+            $historyMessage = 'LPJ ditolak oleh BKKH. Catatan: ' . $catatan;
+        } else {
+            $this->redirect("index.php?page=verifikasi_lpj&id=$id&error=aksi_invalid");
+        }
+
+        // Pastikan status saat ini masih 'LPJ Diajukan' (hindari proses ganda)
+        $stmt = $this->conn->prepare("SELECT status, id_user_ormawa, nama_kegiatan FROM pengajuan WHERE id_pengajuan = ?");
+        if ($stmt) {
+            $stmt->bind_param("i", $id);
+            $stmt->execute();
+            $row = $stmt->get_result()->fetch_assoc();
+            $stmt->close();
+            if (!$row || trim($row['status']) !== 'LPJ Diajukan') {
+                $this->redirect("index.php?page=verifikasi_lpj&id=$id&error=status_error");
+            }
+        }
+
+        $catatanUpdate = ($aksi === 'tolak') ? $catatan : null;
+        $stmtUpdate = $this->conn->prepare("UPDATE pengajuan SET status = ?, catatan_revisi = ? WHERE id_pengajuan = ?");
+        if (!$stmtUpdate) {
+            $this->redirect("index.php?page=verifikasi_lpj&id=$id&error=update_gagal");
+        }
+        $stmtUpdate->bind_param("ssi", $newStatus, $catatanUpdate, $id);
+
+        if ($stmtUpdate->execute()) {
+            $this->addHistory($id, $userId, $newStatus, $historyMessage);
+
+            $ormawaPengaju = (int) ($row['id_user_ormawa'] ?? 0);
+            $namaKegiatan  = (string) ($row['nama_kegiatan'] ?? 'Kegiatan');
+
+            if ($ormawaPengaju) {
+                if ($newStatus === 'Selesai') {
+                    add_notifikasi($this->conn, $ormawaPengaju, 'LPJ "' . $namaKegiatan . '" disetujui. Proses pengajuan selesai.');
+                } else {
+                    add_notifikasi($this->conn, $ormawaPengaju, 'LPJ "' . $namaKegiatan . '" ditolak BKKH. Catatan: ' . $catatan);
+                }
+            }
+
+            $this->redirect('index.php?page=dashboard&status=verifikasi_lpj_sukses');
+        }
+
+        $this->redirect("index.php?page=verifikasi_lpj&id=$id&error=update_gagal");
     }
 }
 ?>

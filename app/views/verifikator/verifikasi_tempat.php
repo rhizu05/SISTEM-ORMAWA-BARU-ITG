@@ -126,6 +126,7 @@ if ($res) {
     <div class="modal-dialog">
         <div class="modal-content">
             <form action="index.php?page=verifikasi_tempat" method="POST">
+    <?php echo csrf_field(); ?>
                 <div class="modal-header">
                     <h5 class="modal-title">Verifikasi Peminjaman Tempat</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>

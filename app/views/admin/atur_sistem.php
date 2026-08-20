@@ -215,6 +215,7 @@ if (!empty($kop_logo_saat_ini) && file_exists('uploads/sistem/' . $kop_logo_saat
                 </div>
                 <div class="card-body">
                     <form action="index.php?page=atur_sistem" method="post" enctype="multipart/form-data">
+    <?php echo csrf_field(); ?>
                         
                         <!-- Input Nama Aplikasi -->
                         <div class="mb-4">

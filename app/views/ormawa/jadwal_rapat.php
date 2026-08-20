@@ -87,6 +87,7 @@ $result = $conn->query($query);
                                             
                                             <?php if (in_array($user_role, ['bem', 'bpm'])): ?>
                                             <form action="index.php?page=jadwal_rapat" method="POST" class="d-inline" onsubmit="return confirm('Hapus jadwal rapat ini?')">
+    <?php echo csrf_field(); ?>
                                                 <input type="hidden" name="id_rapat" value="<?php echo $row['id_rapat']; ?>">
                                                 <button type="submit" name="hapus_rapat" class="btn btn-sm btn-outline-danger border-0">
                                                     <i class="bi bi-trash"></i>
@@ -116,6 +117,7 @@ $result = $conn->query($query);
 <!-- Modal Tambah Rapat -->
 <div class="modal fade" id="modalTambahRapat" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg">
+    <?php echo csrf_field(); ?>
         <form action="index.php?page=jadwal_rapat" method="POST">
             <div class="modal-content">
                 <div class="modal-header bg-success text-white">

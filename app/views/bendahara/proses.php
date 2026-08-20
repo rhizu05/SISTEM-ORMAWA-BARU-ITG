@@ -6,31 +6,6 @@
 
 check_role(['bendahara']);
 
-// --- LOGIKA PEMROSESAN FORMULIR ---
-if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['cairkan_dana'])) {
-    $id_pengajuan = isset($_POST['id_pengajuan']) ? (int)$_POST['id_pengajuan'] : 0;
-    
-    // Siapkan query untuk update status pengajuan menjadi 'Dana Cair'
-    $stmt = $conn->prepare("UPDATE pengajuan SET status = 'Dana Cair' WHERE id_pengajuan = ?");
-    
-    if ($stmt === false) {
-        // Handle error: Gagal menyiapkan query
-        redirect('index.php?page=riwayat&error=db_prepare_gagal&debug=' . urlencode(mysqli_error($conn)));
-    }
-    
-    $stmt->bind_param("i", $id_pengajuan);
-    
-    if ($stmt->execute()) {
-        // Redirect ke halaman dashboard dengan pesan sukses
-        redirect('index.php?page=dashboard&status=pencairan_sukses');
-    } else {
-        // Redirect dengan pesan error jika eksekusi gagal
-        redirect('index.php?page=proses&id=' . $id_pengajuan . '&error=pencairan_gagal');
-    }
-}
-// --- AKHIR LOGIKA PEMROSESAN FORMULIR ---
-
-
 $id_pengajuan = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 
 // Ambil data pengajuan untuk ditampilkan
@@ -92,11 +67,27 @@ if ($pengajuan['status'] !== 'Diajukan ke Bendahara') {
                 <strong>Perhatian!</strong> Pastikan Anda sudah melakukan transfer dana sebelum melanjutkan. Tindakan ini tidak dapat diurungkan.
             </div>
 
-            <form method="POST" action="index.php?page=proses">
+            <form method="POST" action="index.php?page=verifikasi_bendahara">
+                <?php echo csrf_field(); ?>
                 <input type="hidden" name="id_pengajuan" value="<?php echo $id_pengajuan; ?>">
-                <div class="d-flex justify-content-end gap-2">
+                
+                <div class="mb-3">
+                    <label class="form-label">Dana Disetujui (Rp)</label>
+                    <input type="text" name="dana_disetujui" class="form-control" value="<?php echo number_format($pengajuan['dana_diajukan'], 0, ',', '.'); ?>" required>
+                    <small class="text-muted">Masukkan nominal dana yang akan/telah ditransfer.</small>
+                </div>
+                
+                <div class="mb-3">
+                    <label class="form-label">Catatan</label>
+                    <textarea name="catatan" class="form-control" rows="3" placeholder="Opsional (wajib diisi jika menolak pencairan)"></textarea>
+                </div>
+
+                <div class="d-flex justify-content-end gap-2 mt-4">
+                    <button type="submit" name="status_verifikasi" value="ditolak" class="btn btn-danger">
+                        <i class="bi bi-x-circle-fill me-1"></i> Tolak Pencairan
+                    </button>
                     <a href="index.php?page=dashboard" class="btn btn-secondary">Batal</a>
-                    <button type="submit" name="cairkan_dana" class="btn btn-success">
+                    <button type="submit" name="status_verifikasi" value="disetujui" class="btn btn-success">
                         <i class="bi bi-check-circle-fill me-1"></i> Ya, Konfirmasi Pencairan
                     </button>
                 </div>

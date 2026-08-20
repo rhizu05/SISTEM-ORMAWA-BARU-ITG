@@ -183,48 +183,11 @@ if ($status_akun == 'nonaktif') {
     $pesan_blokir = "Akun Anda saat ini sedang dinonaktifkan oleh BKKH. Anda tidak dapat membuat pengajuan proposal baru.";
 }
 
-// 3. Cek proposal aktif atau saldo habis (hanya jika akun aktif)
-if ($bisa_mengajukan) {
+// 3. (Dihapus) Aturan pembatasan satu proposal aktif telah dihapus atas persetujuan stakeholder.
+// Ormawa kini bebas mengajukan banyak proposal sekaligus selama sisa saldo mereka mencukupi.
 
-    // --- PERBAIKAN LOGIKA BLOKING v3 ---
-    // Daftar status yang dianggap sudah SELESAI (gunakan lowercase)
-    // Sekarang HANYA 'selesai' yang dianggap selesai. Status ditolak akan memblokir.
-    $status_benar_benar_selesai = ['selesai'];
-
-    // Buat placeholder '?' sejumlah status di atas
-    $placeholders = implode(',', array_fill(0, count($status_benar_benar_selesai), '?'));
-
-    // Query untuk mencari proposal yang statusnya BUKAN 'selesai' (gunakan LOWER() dan TRIM())
-    // Jika ada proposal dengan status selain 'selesai', maka $bisa_mengajukan = false
-    $query_check = "SELECT nama_kegiatan, status FROM pengajuan WHERE id_user_ormawa = ? AND TRIM(LOWER(status)) NOT IN ($placeholders)";
-
-    $stmt_check = $conn->prepare($query_check);
-    if ($stmt_check) {
-        // Gabungkan tipe data dan nilainya untuk bind_param
-        $types = 'i' . str_repeat('s', count($status_benar_benar_selesai));
-        $params = array_merge([$user_id], $status_benar_benar_selesai); // Array status sudah lowercase
-
-        // Gunakan spread operator (...) untuk bind_param dinamis
-        $stmt_check->bind_param($types, ...$params);
-        $stmt_check->execute();
-
-        $result_check = $stmt_check->get_result();
-        if ($result_check->num_rows > 0) {
-            $proposal_aktif = $result_check->fetch_assoc();
-            $bisa_mengajukan = false;
-            // Pesan disesuaikan agar lebih umum
-            $pesan_blokir = "Anda belum bisa mengajukan proposal baru karena masih ada proposal/LPJ yang belum selesai diproses atau ditolak. <br><b>Nama Kegiatan:</b> " . htmlspecialchars($proposal_aktif['nama_kegiatan']) . " <br><b>Status Saat Ini:</b> " . htmlspecialchars($proposal_aktif['status']);
-        }
-        $stmt_check->close();
-    }
-    // --- AKHIR PERBAIKAN LOGIKA BLOKING v3 ---
-
-    // LOGIKA BARU: Cek jika sisa saldo habis dan tidak ada proposal aktif lain
-    if ($bisa_mengajukan && $sisa_saldo <= 0) {
-        $bisa_mengajukan = false;
-        $pesan_blokir = "Anda tidak dapat mengajukan proposal baru karena sisa saldo Anda saat ini adalah <strong>Rp 0</strong>.";
-    }
-}
+// Jika tidak bisa mengajukan, tampilkan pesan error
+// (Blok HTML di bawah akan merender pesan error jika $bisa_mengajukan bernilai false)
 ?>
 
 <div class="container-fluid px-4">
@@ -256,6 +219,7 @@ if ($bisa_mengajukan) {
                 <?php endif; ?>
 
                 <form method="POST" action="" enctype="multipart/form-data">
+    <?php echo csrf_field(); ?>
                     <div class="mb-4">
                         <label for="nama_kegiatan" class="form-label"><i class="bi bi-journal-text me-1"></i> Nama Kegiatan</label>
                         <input type="text" class="form-control" id="nama_kegiatan" name="nama_kegiatan" required>

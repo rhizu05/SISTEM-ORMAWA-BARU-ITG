@@ -30,15 +30,30 @@ class ProfilController extends Controller {
         $targetDir = ROOT_PATH . '/uploads/profil/';
         if (!is_dir($targetDir)) { mkdir($targetDir, 0777, true); }
 
-        $handleUpload = function ($fileKey, $oldFile) use ($userId, $targetDir) {
+$handleUpload = function ($fileKey, $oldFile) use ($userId, $targetDir) {
             if (isset($_FILES[$fileKey]) && $_FILES[$fileKey]['error'] == 0) {
-                $ext = strtolower(pathinfo($_FILES[$fileKey]['name'], PATHINFO_EXTENSION));
-                if (in_array($ext, ['jpg', 'jpeg', 'png'])) {
-                    if (!empty($oldFile) && file_exists($targetDir . $oldFile)) { unlink($targetDir . $oldFile); }
-                    $newName = $fileKey . "_" . $userId . "_" . time() . '.' . $ext;
-                    if (move_uploaded_file($_FILES[$fileKey]['tmp_name'], $targetDir . $newName)) {
-                        return $newName;
-                    }
+                // Gunakan validasi unggapan komprehensif
+                $allowed_image_types = ['image/jpeg', 'image/png', 'image/gif'];
+                $max_image_size_mb = 2;
+                $validation = validate_uploaded_file(
+                    $_FILES[$fileKey],
+                    $allowed_image_types,
+                    $max_image_size_mb,
+                    ''
+                );
+
+                if ($validation === false) {
+                    // Validasi gagal, tetap pakai file lama
+                    return $oldFile;
+                }
+
+                // Ekstrak ekstensi dari safe name
+                $ext = '.' . $validation['extension'];
+
+                // Geser file ke lokasi baru
+                $newName = $fileKey . '_' . $userId . time() . $ext;
+                if (move_uploaded_file($validation['tmp_name'], $targetDir . $newName)) {
+                    return $newName;
                 }
             }
             return $oldFile;

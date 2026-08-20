@@ -101,6 +101,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['simpan_proposal'])) {
     <?php endif; ?>
 
     <form action="" method="POST" id="proposalForm" enctype="multipart/form-data">
+    <?php echo csrf_field(); ?>
         <div class="row">
             <!-- Bagian Kiri: Narasi -->
             <div class="col-lg-7">

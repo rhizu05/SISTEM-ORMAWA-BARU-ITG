@@ -119,6 +119,7 @@ $list_regulasi = $conn->query("SELECT * FROM regulasi ORDER BY tgl_upload DESC")
     <div class="modal-dialog">
         <div class="modal-content border-0 shadow rounded-4">
             <form action="" method="POST" enctype="multipart/form-data">
+    <?php echo csrf_field(); ?>
                 <div class="modal-header border-0 pb-0">
                     <h5 class="modal-title fw-bold">Terbitkan Regulasi/Pengumuman</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>

@@ -121,6 +121,7 @@ $dana_disetujui = $pengajuan['dana_disetujui'] ?? $pengajuan['dana_diajukan'] ??
             <p class="text-danger">Tindakan ini akan mengubah status proposal menjadi "Diajukan ke Bendahara" dan tidak dapat dibatalkan. Pastikan semua data sudah benar.</p>
             
             <form method="POST" action="index.php?page=ajukan_pencairan">
+    <?php echo csrf_field(); ?>
                 <!-- Perbaikan: Tambahkan hidden input untuk mengirim ID melalui POST -->
                 <input type="hidden" name="id" value="<?php echo $id_pengajuan; ?>">
                 <div class="d-flex justify-content-end gap-2">

@@ -123,6 +123,7 @@ $master_barang = $conn->query("SELECT * FROM master_barang WHERE status_aktif = 
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <form action="" method="POST">
+    <?php echo csrf_field(); ?>
                 <div class="modal-header">
                     <h5 class="modal-title">Form Peminjaman Barang</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>

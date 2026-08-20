@@ -78,6 +78,7 @@ $catatan_penolakan = $pengajuan['catatan_revisi'] ?? 'Tidak ada catatan spesifik
             }
             ?>
             <form method="POST" action="index.php?page=edit&id=<?php echo $id_pengajuan; ?>" enctype="multipart/form-data">
+    <?php echo csrf_field(); ?>
                 <div class="mb-3">
                     <label for="nama_kegiatan" class="form-label">Nama Kegiatan</label>
                     <input type="text" class="form-control" id="nama_kegiatan" name="nama_kegiatan" value="<?php echo htmlspecialchars($pengajuan['nama_kegiatan']); ?>" required>

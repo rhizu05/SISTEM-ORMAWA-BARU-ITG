@@ -8,6 +8,14 @@ if (!defined('APP_RUNNING')) {
     require_once dirname(__DIR__, 3) . '/config.php';
 }
 
+// === PENAMBAHAN BARU: Session security check - auto-logout if expired ===
+if (isset($_SESSION['user_id'])) {
+    // Already logged in, redirect to dashboard (handled below)
+} elseif (isset($_GET['expired']) && $_GET['expired'] == 1) {
+    $session_expired = "Akun Anda telah logout karena inaktivitas (30 menit).";
+}
+// === AKHIR PENAMBAHAN ===
+
 // --- BLOK PHP INI TIDAK DIUBAH, HANYA DIBERSIHKAN DARI ERROR ---
 if (isset($_SESSION['user_id'])) {
     redirect('index.php?page=dashboard');
@@ -36,7 +44,21 @@ if ($result_konfig) {
 
 $error = '';
 
+if (isset($session_expired)) {
+    $error = $session_expired;
+}
+
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    // === Rate Limiting Phase 3 ===
+    $client_ip = get_client_ip();
+    // Cek rate limit sebelum proses login (menggunakan database)
+    if (!check_rate_limit($conn, $client_ip)) {
+        $error = "Terlalu banyak percobaan login. Coba lagi dalam beberapa menit.";
+    } else {
+        // Log percobaan login gagal (belum berhasil login)
+        log_login_attempt($conn, $client_ip, $username ?? '', false);
+    }
+    
     $username = sanitize_input($conn, $_POST['username']);
     $password = $_POST['password'];
 
@@ -282,7 +304,33 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 <div class="alert alert-custom text-center"><?php echo $error; ?></div>
             <?php endif; ?>
 
+            <!-- === PENAMBAHAN BARU: Timer sisi klien untuk session timeout === -->
+            <?php if (!isset($_SESSION['user_id'])): ?>
+            <div class="text-center mb-3">
+                <small id="session-timer" class="text-secondary">
+                    Masuk dalam 5 menit untuk memperpanjang session
+                </small>
+            </div>
+            <script>
+                // Countdown untuk session timeout (30 menit = 1800 detik)
+                var sessionRemaining = 1800;
+                var sessionTimer = setInterval(function() {
+                    var minutes = Math.floor(sessionRemaining / 60);
+                    var seconds = sessionRemaining % 60;
+                    document.getElementById("session-timer").innerText = 
+                        "Aktif selama " + minutes + " menit " + seconds + " detik untuk memperpanjang session";
+                    sessionRemaining--;
+                    if (sessionRemaining <= 0) {
+                        clearInterval(sessionTimer);
+                        // Auto-submit form logout atau redirect
+                        window.location.href = "index.php?page=login&expired=1";
+                    }
+                }, 1000);
+            </script>
+            <?php endif; ?>
+
             <form action="index.php?page=login" method="POST">
+    <?php echo csrf_field(); ?>
                 <div class="form-group">
                     <i class="bi bi-person input-icon"></i>
                     <input type="text" class="form-control" id="username" name="username" placeholder="Username" required>

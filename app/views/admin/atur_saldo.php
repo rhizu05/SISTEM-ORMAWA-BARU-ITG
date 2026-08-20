@@ -47,6 +47,7 @@ if (!$pengguna) {
             ?>
             
             <form method="POST" action="index.php?page=atur_saldo&id=<?php echo $id_pengguna; ?>">
+    <?php echo csrf_field(); ?>
                 <div class="mb-3">
                     <label class="form-label">Saldo Saat Ini</label>
                     <input type="text" class="form-control" value="Rp <?php echo number_format($pengguna['saldo'], 0, ',', '.'); ?>" disabled>

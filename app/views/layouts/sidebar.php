@@ -241,6 +241,19 @@ $current_title = $page_title_map[$currentPage] ?? '';
     <input class="d-none" type="checkbox" role="switch" id="theme-toggle">
     <label class="form-check-label" for="theme-toggle" style="cursor: pointer;">
     <i class="bi bi-sun-fill theme-icon-current"></i> </label></div>
+                <!-- Lonceng Notifikasi (realtime via SSE) -->
+                <div class="dropdown me-2">
+                    <button class="btn btn-link position-relative p-0 text-body" type="button" id="notif-bell" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Notifikasi">
+                        <i class="bi bi-bell fs-4"></i>
+                        <span id="notif-badge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-none">0</span>
+                    </button>
+                    <div class="dropdown-menu dropdown-menu-end shadow notif-menu" style="width: 340px;" aria-labelledby="notif-bell">
+                        <div class="dropdown-header bg-primary text-white py-2">
+                            <i class="bi bi-bell-fill me-1"></i> Notifikasi
+                        </div>
+                        <div id="notif-list" class="list-group list-group-flush" style="max-height: 300px; overflow-y: auto;"></div>
+                    </div>
+                </div>
                 <!-- Judul Halaman ditampilkan kembali di tengah -->
                
                 <div class="dropdown ms-auto">
