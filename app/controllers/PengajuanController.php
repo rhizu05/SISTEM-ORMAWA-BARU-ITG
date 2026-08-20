@@ -63,6 +63,13 @@ class PengajuanController extends Controller {
             $stmt->bind_param("isdsss", $userId, $namaKegiatan, $dana, $tanggal, $fileName, $status);
             if ($stmt->execute()) {
                 $this->addHistory($this->conn->insert_id, $userId, $status, 'Proposal awal telah diajukan oleh Ormawa.');
+
+                if ($status === 'Diajukan Ke BEM') {
+                    notify_role($this->conn, 'bem', 'Pengajuan baru: "' . $namaKegiatan . '" menunggu verifikasi Anda.');
+                } else {
+                    notify_role($this->conn, 'bkh', 'Pengajuan baru: "' . $namaKegiatan . '" menunggu verifikasi Anda.');
+                }
+
                 $this->redirect('index.php?page=riwayat&status=tambah_sukses');
             } else {
                 unlink($targetFile);

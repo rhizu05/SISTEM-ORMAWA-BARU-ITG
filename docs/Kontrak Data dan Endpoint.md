@@ -209,3 +209,5 @@ protected function jsonResponse($data, int $status = 200) {
 - [ ] **P3** CSRF diterapkan pada seluruh form POST lain (bertahap); validasi MIME upload lain (profil/TTD/gambar)
 - [x] **Bonus — Alur WR3** `verifikasiProposal()` kini menetapkan `'Disetujui WR3, Siap Diajukan ke Bendahara'` (diteruskan BKKH via `ajukan_pencairan`) — alur konsisten dengan desain & wawancara
 - [x] **Bonus — Notifikasi realtime** Endpoint SSE `notifikasi_stream` + `tandai_notif_baca` + lonceng notifikasi di navbar (`app.js::initNotifications`, fallback polling 30s)
+- [x] **Bonus — Pemicu notifikasi bisnis** `notify_role()` + `add_notifikasi()` pada: pengajuan baru (→ BEM/BKKH), verifikasi setuju (→ verifikator berikutnya), verifikasi/tolak (→ Ormawa), LPJ setuju/tolak (→ Ormawa), ajukan pencairan (→ Bendahara), dana cair & ditolak Bendahara (→ Ormawa)
+- [ ] **Bonus lanjutan** Notifikasi untuk peminjaman fasilitas (setuju/tolak sarpras) & tanggapan aspirasi (→ pengaju) — menunggu modul terkait diuji

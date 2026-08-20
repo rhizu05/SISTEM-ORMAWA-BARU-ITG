@@ -16,7 +16,7 @@ class BendaharaController extends Controller {
 
         if ($id <= 0) { $this->redirect('index.php?page=proses&error=invalid_id'); }
 
-        $stmtCheck = $this->conn->prepare("SELECT status, id_user_ormawa FROM pengajuan WHERE id_pengajuan = ?");
+        $stmtCheck = $this->conn->prepare("SELECT status, id_user_ormawa, nama_kegiatan FROM pengajuan WHERE id_pengajuan = ?");
         if (!$stmtCheck) { $this->redirect('index.php?page=proses&error=db_prepare_gagal'); }
         $stmtCheck->bind_param("i", $id);
         $stmtCheck->execute();
@@ -43,12 +43,14 @@ class BendaharaController extends Controller {
         if ($stmtUpdate->execute()) {
             $this->addHistory($id, $userId, $newStatus, $historyMsg);
 
-            if ($newStatus === 'Dana Cair' && !empty($row['id_user_ormawa'])) {
-                add_notifikasi(
-                    $this->conn,
-                    (int) $row['id_user_ormawa'],
-                    'Dana untuk pengajuan Anda telah dicairkan. Silakan lengkapi LPJ.'
-                );
+            if (!empty($row['id_user_ormawa'])) {
+                $ormawaId    = (int) $row['id_user_ormawa'];
+                $namaKegiatan = ($row['nama_kegiatan'] ?? 'Kegiatan');
+                if ($newStatus === 'Dana Cair') {
+                    add_notifikasi($this->conn, $ormawaId, 'Dana untuk pengajuan "' . $namaKegiatan . '" telah dicairkan. Silakan lengkapi LPJ.');
+                } else {
+                    add_notifikasi($this->conn, $ormawaId, 'Pencairan pengajuan "' . $namaKegiatan . '" ditolak Bendahara. Catatan: ' . $catatan);
+                }
             }
 
             $this->redirect('index.php?page=proses&status=verifikasi_sukses');

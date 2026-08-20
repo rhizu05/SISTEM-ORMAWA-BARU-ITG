@@ -15,7 +15,7 @@ class VerifikasiController extends Controller {
             $this->redirect('index.php?page=dashboard&error=invalid_id');
         }
 
-        $stmt = $this->conn->prepare("SELECT status FROM pengajuan WHERE id_pengajuan = ?");
+        $stmt = $this->conn->prepare("SELECT status, nama_kegiatan FROM pengajuan WHERE id_pengajuan = ?");
         if (!$stmt) { $this->redirect('index.php?page=dashboard&error=db_prepare_gagal'); }
         $stmt->bind_param("i", $id);
         $stmt->execute();
@@ -37,6 +37,7 @@ class VerifikasiController extends Controller {
 
         if ($stmtUpdate->execute()) {
             $this->addHistory($id, $userId, $newStatus, 'Pengajuan pencairan dana telah diajukan ke Bendahara.');
+            notify_role($this->conn, 'bendahara', 'Pengajuan "' . ($pengajuan['nama_kegiatan'] ?? 'Kegiatan') . '" menunggu proses pencairan Anda.');
             $this->redirect('index.php?page=dashboard&success=bendahara_sukses');
         } else {
             $this->redirect('index.php?page=dashboard&error=db_gagal');
@@ -92,7 +93,7 @@ class VerifikasiController extends Controller {
         }
 
         // Ambil status saat ini dan pastikan sesuai tahap role ini
-        $stmt = $this->conn->prepare("SELECT status FROM pengajuan WHERE id_pengajuan = ?");
+        $stmt = $this->conn->prepare("SELECT status, id_user_ormawa, nama_kegiatan FROM pengajuan WHERE id_pengajuan = ?");
         if (!$stmt) { $this->redirect("index.php?page=verifikasi&id=$id&error=db_prepare_gagal"); }
         $stmt->bind_param("i", $id);
         $stmt->execute();
@@ -152,6 +153,30 @@ class VerifikasiController extends Controller {
 
         if ($stmtUpdate->execute()) {
             $this->addHistory($id, $userId, $newStatus, $historyMessage);
+
+            $ormawaPengaju = (int) ($row['id_user_ormawa'] ?? 0);
+            $namaKegiatan  = (string) ($row['nama_kegiatan'] ?? 'Kegiatan');
+
+            if ($aksi === 'setuju') {
+                $nextRoleMap = [
+                    'Diajukan Ke BPM'                   => 'bpm',
+                    'Verifikasi BKKH'                   => 'bkh',
+                    'Verifikasi WR3'                    => 'wr3',
+                    'Disetujui WR3, Siap Diajukan ke Bendahara' => 'bkh',
+                ];
+                $nextRole = $nextRoleMap[$newStatus] ?? '';
+                if ($nextRole) {
+                    notify_role($this->conn, $nextRole, 'Pengajuan "' . $namaKegiatan . '" menunggu verifikasi Anda.');
+                }
+                if ($newStatus === 'Disetujui WR3, Siap Diajukan ke Bendahara' && $ormawaPengaju) {
+                    add_notifikasi($this->conn, $ormawaPengaju, 'Pengajuan "' . $namaKegiatan . '" telah disetujui. Menunggu diteruskan ke Bendahara oleh BKKH.');
+                }
+            } else {
+                if ($ormawaPengaju) {
+                    add_notifikasi($this->conn, $ormawaPengaju, 'Pengajuan "' . $namaKegiatan . '" ditolak oleh ' . strtoupper($userRole) . '. Catatan: ' . $catatan);
+                }
+            }
+
             $this->redirect('index.php?page=dashboard&status=verifikasi_sukses');
         }
 
@@ -192,7 +217,7 @@ class VerifikasiController extends Controller {
         }
 
         // Pastikan status saat ini masih 'LPJ Diajukan' (hindari proses ganda)
-        $stmt = $this->conn->prepare("SELECT status FROM pengajuan WHERE id_pengajuan = ?");
+        $stmt = $this->conn->prepare("SELECT status, id_user_ormawa, nama_kegiatan FROM pengajuan WHERE id_pengajuan = ?");
         if ($stmt) {
             $stmt->bind_param("i", $id);
             $stmt->execute();
@@ -212,6 +237,18 @@ class VerifikasiController extends Controller {
 
         if ($stmtUpdate->execute()) {
             $this->addHistory($id, $userId, $newStatus, $historyMessage);
+
+            $ormawaPengaju = (int) ($row['id_user_ormawa'] ?? 0);
+            $namaKegiatan  = (string) ($row['nama_kegiatan'] ?? 'Kegiatan');
+
+            if ($ormawaPengaju) {
+                if ($newStatus === 'Selesai') {
+                    add_notifikasi($this->conn, $ormawaPengaju, 'LPJ "' . $namaKegiatan . '" disetujui. Proses pengajuan selesai.');
+                } else {
+                    add_notifikasi($this->conn, $ormawaPengaju, 'LPJ "' . $namaKegiatan . '" ditolak BKKH. Catatan: ' . $catatan);
+                }
+            }
+
             $this->redirect('index.php?page=dashboard&status=verifikasi_lpj_sukses');
         }
 

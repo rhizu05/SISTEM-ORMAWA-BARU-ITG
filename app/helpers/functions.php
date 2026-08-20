@@ -87,6 +87,30 @@ function add_notifikasi($conn, $idUser, $pesan) {
     return false;
 }
 
+/**
+ * Membuat notifikasi untuk SEMUA akun aktif dengan role tertentu
+ * (misal: memberitahu semua verifikator BEM bahwa ada pengajuan masuk).
+ * @param mysqli $conn Koneksi database.
+ * @param string $role  Role tujuan ('bem','bpm','bkh','wr3','bendahara').
+ * @param string $pesan Isi pesan.
+ * @return bool
+ */
+function notify_role($conn, $role, $pesan) {
+    $stmt = $conn->prepare("SELECT id_user FROM users WHERE role = ? AND status_akun = 'aktif'");
+    if (!$stmt) { return false; }
+    $stmt->bind_param("s", $role);
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    $ok = true;
+    while ($row = $result->fetch_assoc()) {
+        if (!add_notifikasi($conn, (int) $row['id_user'], $pesan)) {
+            $ok = false;
+        }
+    }
+    return $ok;
+}
+
 /* ==========================================================================
    CSRF Protection
    ========================================================================== */
