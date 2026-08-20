@@ -141,6 +141,14 @@ class Router {
         if ($page_action === 'toggle_status' && isset($_GET['id'], $_GET['new_status'])) {
             (new UserController($this->conn))->toggleStatus();
         }
+
+        if ($page_action === 'api_notifikasi_belum_baca') {
+            (new NotifikasiController($this->conn))->belumBaca();
+        }
+
+        if ($page_action === 'api_kalender_peminjaman') {
+            (new ApiController($this->conn))->kalenderPeminjaman();
+        }
     }
 
     private function handlePostActions($page_action) {
@@ -153,12 +161,15 @@ class Router {
             'tambah'              => [PengajuanController::class,   'tambah'],
             'edit'                => [PengajuanController::class,   'edit'],
             'ajukan_pencairan'    => [VerifikasiController::class,  'ajukanPencairan'],
+            'verifikasi'          => [VerifikasiController::class,  'verifikasiProposal'],
+            'verifikasi_lpj'      => [VerifikasiController::class,  'verifikasiLpj'],
             'verifikasi_bendahara'=> [BendaharaController::class,   'verifikasi'],
             'profil'              => [ProfilController::class,      'update'],
             'pusat_informasi'     => [InformasiController::class,   'handlePengumuman'],
             'jadwal_rapat'        => [InformasiController::class,   'handleJadwalRapat'],
             'aspirasi'            => [AspirasiController::class,    'submit'],
             'manage_aspirasi'     => [AspirasiController::class,    'tanggapi'],
+            'tandai_notif_terlihat' => [NotifikasiController::class, 'tandaiTerlihat'],
         ];
 
         if (isset($controllers[$page_action])) {

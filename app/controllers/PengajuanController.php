@@ -25,7 +25,7 @@ class PengajuanController extends Controller {
 
         $stmtTerpakai = $this->conn->prepare(
             "SELECT SUM(dana_diajukan) AS total FROM pengajuan 
-             WHERE id_user_ormawa = ? AND status NOT IN ('Ditolak BEM', 'Ditolak BKH', 'Ditolak WR3', 'Ditolak Bendahara')"
+             WHERE id_user_ormawa = ? AND status NOT IN ('Ditolak BEM', 'Ditolak BKKH', 'Ditolak WR3', 'Ditolak Bendahara')"
         );
         $stmtTerpakai->bind_param("i", $userId);
         $stmtTerpakai->execute();
@@ -44,6 +44,9 @@ class PengajuanController extends Controller {
 
         $ext = strtolower(pathinfo($_FILES['file_proposal']['name'], PATHINFO_EXTENSION));
         if ($ext !== 'pdf') {
+            $this->redirect('index.php?page=tambah&error=bukan_pdf');
+        }
+        if (!is_valid_pdf($_FILES['file_proposal']['tmp_name'])) {
             $this->redirect('index.php?page=tambah&error=bukan_pdf');
         }
 
@@ -105,7 +108,7 @@ class PengajuanController extends Controller {
         if (isset($_FILES['file_proposal']) && $_FILES['file_proposal']['error'] == 0) {
             $targetDir = ROOT_PATH . '/uploads/proposal/';
             $ext       = strtolower(pathinfo($_FILES['file_proposal']['name'], PATHINFO_EXTENSION));
-            if ($ext !== 'pdf') { $this->redirect('index.php?page=edit&id=' . $id . '&error=bukan_pdf'); }
+            if ($ext !== 'pdf' || !is_valid_pdf($_FILES['file_proposal']['tmp_name'])) { $this->redirect('index.php?page=edit&id=' . $id . '&error=bukan_pdf'); }
 
             $newFileName = "proposal_{$userId}_" . time() . ".{$ext}";
             $targetFile  = $targetDir . $newFileName;

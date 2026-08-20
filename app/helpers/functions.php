@@ -70,4 +70,58 @@ function add_history($conn, $id_pengajuan, $id_user, $status, $catatan) {
     }
     return false;
 }
+
+/**
+ * Menyimpan notifikasi ke tabel `notifikasi` (dikonsumsi endpoint AJAX/SSE).
+ * @param mysqli $conn  Koneksi database.
+ * @param int    $idUser Penerima notifikasi (id_user).
+ * @param string $pesan  Isi pesan notifikasi.
+ * @return bool
+ */
+function add_notifikasi($conn, $idUser, $pesan) {
+    $stmt = $conn->prepare("INSERT INTO notifikasi (id_user, pesan) VALUES (?, ?)");
+    if ($stmt) {
+        $stmt->bind_param("is", $idUser, $pesan);
+        return $stmt->execute();
+    }
+    return false;
+}
+
+/* ==========================================================================
+   CSRF Protection
+   ========================================================================== */
+
+/** Membuat/mengambil token CSRF untuk sesi saat ini. */
+function csrf_token() {
+    if (empty($_SESSION['csrf_token'])) {
+        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+    }
+    return $_SESSION['csrf_token'];
+}
+
+/** Menghasilkan hidden input token CSRF untuk dipasang di form POST. */
+function csrf_field() {
+    return '<input type="hidden" name="csrf_token" value="' . htmlspecialchars(csrf_token()) . '">';
+}
+
+/** Memverifikasi token CSRF dari $_POST; abort (419) bila tidak valid. */
+function csrf_verify() {
+    if (!isset($_POST['csrf_token'])
+        || empty($_SESSION['csrf_token'])
+        || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
+        http_response_code(419);
+        die('CSRF token tidak valid. Silakan muat ulang halaman dan coba lagi.');
+    }
+}
+
+/** Validasi MIME file PDF (selain ekstensi). Return true jika valid/fallback. */
+function is_valid_pdf($tempPath) {
+    if (!function_exists('finfo_open') || !is_uploaded_file($tempPath)) {
+        return true;
+    }
+    $finfo = finfo_open(FILEINFO_MIME_TYPE);
+    $mime  = finfo_file($finfo, $tempPath);
+    finfo_close($finfo);
+    return $mime === 'application/pdf';
+}
 ?>

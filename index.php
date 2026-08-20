@@ -14,6 +14,8 @@ require_once ROOT_PATH . '/app/controllers/BendaharaController.php';
 require_once ROOT_PATH . '/app/controllers/ProfilController.php';
 require_once ROOT_PATH . '/app/controllers/AspirasiController.php';
 require_once ROOT_PATH . '/app/controllers/InformasiController.php';
+require_once ROOT_PATH . '/app/controllers/NotifikasiController.php';
+require_once ROOT_PATH . '/app/controllers/ApiController.php';
 require_once ROOT_PATH . '/app/core/Router.php';
 
 start_output_buffering();

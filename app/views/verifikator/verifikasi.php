@@ -18,92 +18,8 @@ if ($id_pengajuan <= 0) {
 $user_id = $_SESSION['user_id'];
 $user_role = $_SESSION['user_role'];
 
-// 1. Logika untuk memproses form verifikasi (saat tombol Setuju/Tolak diklik)
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['aksi'])) {
-    $aksi = sanitize_input($conn, $_POST['aksi']); // 'setuju' atau 'tolak'
-    $catatan = sanitize_input($conn, $_POST['catatan'] ?? ''); // Catatan dari verifikator
-
-    // Validasi dasar
-    if (empty($aksi) || !in_array($aksi, ['setuju', 'tolak'])) {
-        redirect("index.php?page=verifikasi&id=$id_pengajuan&error=aksi_invalid");
-    }
-    if ($aksi === 'tolak' && empty($catatan)) {
-        redirect("index.php?page=verifikasi&id=$id_pengajuan&error=catatan_kosong");
-    }
-
-    // Tentukan status baru dan pesan histori berdasarkan peran dan aksi
-    $new_status = '';
-    $history_message = '';
-
-    // Logika Alur Persetujuan/Penolakan
-    if ($aksi === 'setuju') {
-        switch ($user_role) {
-            case 'bem':
-                $new_status = 'Diajukan Ke BPM';
-                $history_message = 'Disetujui oleh BEM.' . ($catatan ? ' Catatan: ' . $catatan : ' Catatan: -');
-                break;
-            case 'bpm':
-                $new_status = 'Verifikasi BKKH'; // Status internal database
-                $history_message = 'Disetujui oleh BPM.' . ($catatan ? ' Catatan: ' . $catatan : ' Catatan: -');
-                break;
-            case 'bkh':
-                $new_status = 'Verifikasi WR3'; // Status internal database
-                // --- PERBAIKAN TEKS CATATAN SESUAI PERMINTAAN ---
-                $history_message = 'Disetujui oleh BKKH .' . ($catatan ? ' Catatan: ' . $catatan : ' Catatan: -');
-                // --- AKHIR PERBAIKAN ---
-                break;
-            case 'wr3':
-                $new_status = 'Diajukan ke Bendahara'; // Berubah: Langsung ke Bendahara
-                $history_message = 'Proposal disetujui oleh WR3 & Diteruskan ke Bendahara.' . ($catatan ? ' Catatan: ' . $catatan : ' Catatan: -');
-                break;
-        }
-    } else { // Jika aksi === 'tolak'
-        switch ($user_role) {
-            case 'bem':
-                $new_status = 'Ditolak BEM';
-                $history_message = 'Ditolak oleh BEM. Catatan: ' . $catatan;
-                break;
-            case 'bpm':
-                $new_status = 'Ditolak BPM';
-                $history_message = 'Ditolak oleh BPM. Catatan: ' . $catatan;
-                break;
-            case 'bkh':
-                $new_status = 'Ditolak BKKH';
-                $history_message = 'Ditolak oleh BKKH. Catatan: ' . $catatan;
-                break;
-            case 'wr3':
-                $new_status = 'Ditolak WR3';
-                $history_message = 'Ditolak oleh WR3. Catatan: ' . $catatan;
-                break;
-        }
-    }
-
-    // Pastikan status baru sudah ditentukan
-    if (empty($new_status)) {
-         redirect("index.php?page=verifikasi&id=$id_pengajuan&error=status_error");
-    }
-
-    // Update status pengajuan di database
-    // Kolom 'catatan_revisi' diisi jika ditolak, dikosongkan jika disetujui
-    $catatan_update = ($aksi === 'tolak') ? $catatan : NULL;
-    $stmt_update = $conn->prepare("UPDATE pengajuan SET status = ?, catatan_revisi = ? WHERE id_pengajuan = ?");
-    if ($stmt_update === false) {
-         redirect("index.php?page=verifikasi&id=$id_pengajuan&error=db_prepare_gagal");
-    }
-    $stmt_update->bind_param("ssi", $new_status, $catatan_update, $id_pengajuan);
-
-    // Eksekusi update dan tambahkan histori jika berhasil
-    if ($stmt_update->execute()) {
-        // Panggil fungsi add_history untuk mencatat ke tabel histori_status
-        add_history($conn, $id_pengajuan, $user_id, $new_status, $history_message);
-        redirect("index.php?page=dashboard&status=verifikasi_sukses"); // Redirect ke dashboard setelah berhasil
-    } else {
-        redirect("index.php?page=verifikasi&id=$id_pengajuan&error=update_gagal"); // Redirect jika gagal update
-    }
-    $stmt_update->close();
-    exit(); // Hentikan eksekusi setelah redirect
-}
-
+// Logika POST verifikasi (setujui/tolak) dipindah ke VerifikasiController::verifikasiProposal
+// (route ?page=verifikasi). View ini hanya menampilkan detail + form.
 
 // 2. Mengambil data pengajuan untuk ditampilkan di halaman (GET Request)
 $stmt_detail = $conn->prepare(
@@ -225,6 +141,7 @@ $path_proposal = 'uploads/proposal/' . $nama_file_proposal; // Bentuk path lengk
                 </div>
                 <div class="card-body">
                     <form action="index.php?page=verifikasi&id=<?php echo $id_pengajuan; ?>" method="POST">
+                        <?php echo csrf_field(); ?>
                         <div class="mb-3">
                             <label for="catatan" class="form-label">Catatan (Wajib diisi jika menolak)</label>
                             <textarea class="form-control" id="catatan" name="catatan" rows="5" placeholder="Berikan alasan penolakan atau catatan tambahan jika disetujui..."></textarea>
