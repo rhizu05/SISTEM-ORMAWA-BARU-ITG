@@ -86,6 +86,10 @@ class Router {
     public function dispatch() {
         $page_action = $_GET['page'] ?? '';
 
+        // GLOBAL SECURITY MIDDLEWARE (Berlaku untuk SEMUA tipe request: GET & POST)
+        // Mengeksekusi Security Headers, Validasi Timeout Session, CSRF, dan Rate Limiting
+        $this->applySecurityMiddleware();
+
         $this->handleGetActions($page_action);
         $this->handlePostActions($page_action);
 
@@ -188,7 +192,7 @@ private function validateSessionSecurity() {
             // Session timed out (30 minutes inactivity)
             session_unset();
             session_destroy();
-            header("Location: index.php?page=login?expired=1");
+            header("Location: index.php?page=login&expired=1");
             exit();
         }
         
@@ -207,8 +211,8 @@ private function validateSessionSecurity() {
  * Apply security headers to all responses (Phase 4)
  */
 private function applySecurityHeaders() {
-    // X-Frame-Options: Prevent clickjacking
-    header("X-Frame-Options: DENY");
+    // X-Frame-Options: Prevent clickjacking, but allow SAMEORIGIN for campus portals
+    header("X-Frame-Options: SAMEORIGIN");
     
     // X-Content-Type-Options: Prevent MIME type sniffing
     header("X-Content-Type-Options: nosniff");
@@ -279,9 +283,6 @@ function get_client_ip_from_router(): string
     private function handlePostActions($page_action) {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') return;
         
-        // Apply security middleware before executing controller action
-        $this->applySecurityMiddleware();
-
         $controllers = [
             'tambah_user'         => [UserController::class,        'tambahUser'],
             'edit_user'           => [UserController::class,        'editUser'],

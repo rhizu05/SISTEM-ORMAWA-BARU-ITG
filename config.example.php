@@ -32,7 +32,13 @@ if ($conn->connect_error) {
     die("Koneksi database gagal: " . $conn->connect_error);
 }
 
-require_once ROOT_PATH . '/app/helpers/functions.php';
+// --- Phase 4: Session Security Configuration ---
+define('SESSION_TIMEOUT_MINUTES', 30);
+define('SESSION_COOKIE_LIFETIME', 7200);
 
-initialize_session();
+require_once ROOT_PATH . '/app/helpers/functions.php';
+require_once ROOT_PATH . '/app/helpers/session.php'; // NEW
+
+// Gunakan secure session initialization
+session_start_secure();
 ?>
