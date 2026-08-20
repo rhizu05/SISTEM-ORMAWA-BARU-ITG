@@ -118,7 +118,113 @@
         // Sinkronkan toggle & ikon sesuai tema awal
         if (themeToggle) themeToggle.checked = getPreferredTheme() === 'dark';
         syncThemeIcon(getPreferredTheme());
+
+        initNotifications();
     });
+
+    /* ------------------------------------------------------------------
+       helper escape HTML
+       ------------------------------------------------------------------ */
+    const escHtml = (s) => {
+        const div = document.createElement('div');
+        div.textContent = s == null ? '' : String(s);
+        return div.innerHTML;
+    };
+
+    /* ------------------------------------------------------------------
+       3b. NOTIFIKASI REALTIME (badge + daftar + SSE)
+       - Memuat daftar notifikasi belum dibaca via api_notifikasi_belum_baca
+       - Menandai dibaca saat dropdown dibuka (tandai_notif_baca)
+       - Streaming realtime via SSE endpoint notifikasi_stream
+       - Fallback polling 30 detik bila EventSource tidak tersedia
+       ------------------------------------------------------------------ */
+    function initNotifications() {
+        const bell = document.getElementById('notif-bell');
+        if (!bell) return;
+
+        const badge = document.getElementById('notif-badge');
+        const listEl = document.getElementById('notif-list');
+        let lastItems = [];
+        let unread = 0;
+
+        const setUnread = (n) => {
+            unread = n;
+            if (n > 0) {
+                badge.textContent = n;
+                badge.classList.remove('d-none');
+            } else {
+                badge.classList.add('d-none');
+            }
+        };
+
+        const renderList = (items) => {
+            lastItems = items || [];
+            listEl.innerHTML = '';
+            if (!items.length) {
+                listEl.innerHTML = '<div class="text-muted small p-3">Tidak ada notifikasi.</div>';
+                return;
+            }
+            items.forEach((it) => {
+                const a = document.createElement('a');
+                a.className = 'list-group-item list-group-item-action';
+                a.href = 'index.php?page=dashboard';
+                a.innerHTML =
+                    '<small>' + escHtml(it.pesan) + '</small>' +
+                    '<div class="text-muted" style="font-size:.75rem">' + escHtml(it.waktu) + '</div>';
+                listEl.appendChild(a);
+            });
+        };
+
+        const markRead = (ids) => {
+            if (!ids.length) return;
+            fetch('index.php?page=tandai_notif_baca', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ ids: ids }),
+            });
+        };
+
+        const refresh = () =>
+            fetch('index.php?page=api_notifikasi_belum_baca')
+                .then((r) => r.json())
+                .then((j) => {
+                    if (j.success) {
+                        setUnread(j.total || 0);
+                        renderList(j.data || []);
+                    }
+                })
+                .catch(() => {});
+
+        refresh();
+
+        // Tandai sudah dibaca saat dropdown lonceng dibuka
+        bell.addEventListener('show.bs.dropdown', () => {
+            markRead(lastItems.map((d) => d.id_notif).filter(Boolean));
+        });
+
+        // Streaming realtime
+        if (typeof EventSource !== 'undefined') {
+            const es = new EventSource('index.php?page=notifikasi_stream');
+            es.addEventListener('notif', (ev) => {
+                try {
+                    const d = JSON.parse(ev.data);
+                    if (d.pesan) {
+                        notifyHelper(d.pesan);
+                        setUnread(unread + 1);
+                    }
+                } catch (_) { /* abaikan data tidak valid */ }
+            });
+            es.onerror = () => {}; // EventSource otomatis reconnect
+        } else {
+            window.setInterval(refresh, 30000);
+        }
+    }
+
+    function notifyHelper(pesan) {
+        if (window.SKIN && typeof window.SKIN.notify === 'function') {
+            window.SKIN.notify(pesan, 'info');
+        }
+    }
 
     /* ------------------------------------------------------------------
        4. PONDASI NOTIFIKASI (siap integrasi realtime SSE)

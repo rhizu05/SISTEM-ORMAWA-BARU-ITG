@@ -120,7 +120,7 @@ class VerifikasiController extends Controller {
             'bem' => 'Diajukan Ke BPM',
             'bpm' => 'Verifikasi BKKH',
             'bkh' => 'Verifikasi WR3',
-            'wr3' => 'Diajukan ke Bendahara',
+            'wr3' => 'Disetujui WR3, Siap Diajukan ke Bendahara',
         ];
         $prefixTolak = [
             'bem' => 'Ditolak BEM',
@@ -131,7 +131,11 @@ class VerifikasiController extends Controller {
 
         if ($aksi === 'setuju') {
             $newStatus = $prefixSetuju[$userRole];
-            $historyMessage = 'Disetujui oleh ' . strtoupper($userRole) . '.' . ($catatan ? ' Catatan: ' . $catatan : ' Catatan: -');
+            if ($userRole === 'wr3') {
+                $historyMessage = 'Proposal disetujui oleh WR3. Menunggu diteruskan ke Bendahara oleh BKKH.' . ($catatan ? ' Catatan: ' . $catatan : ' Catatan: -');
+            } else {
+                $historyMessage = 'Disetujui oleh ' . strtoupper($userRole) . '.' . ($catatan ? ' Catatan: ' . $catatan : ' Catatan: -');
+            }
         } else {
             $newStatus = $prefixTolak[$userRole];
             $historyMessage = 'Ditolak oleh ' . strtoupper($userRole) . '. Catatan: ' . $catatan;

@@ -80,6 +80,8 @@ Berdasarkan `$pageMap` di `app/core/Router.php` (roles kosong = publik).
 | `tambah` | `PengajuanController::tambah` | `nama_kegiatan`, `tanggal_pengajuan`, `dana_diajukan` (format rupiah), `file_proposal` (PDF) | `?page=riwayat&status=tambah_sukses` atau `?page=tambah&error=...` |
 | `edit` (+`id` di GET) | `PengajuanController::edit` | `nama_kegiatan`, `tanggal_pengajuan`, `dana_diajukan`, `file_proposal` (opsional) | `?page=riwayat&status=edit_sukses` |
 | `ajukan_pencairan` | `VerifikasiController::ajukanPencairan` | `id` | `?page=dashboard&success=bendahara_sukses` |
+| `verifikasi` (+`id` GET) | `VerifikasiController::verifikasiProposal` | `aksi` (`setuju`/`tolak`), `catatan`, `csrf_token` | `?page=dashboard&status=verifikasi_sukses` |
+| `verifikasi_lpj` (+`id` GET) | `VerifikasiController::verifikasiLpj` | `aksi`, `catatan`, `csrf_token` | `?page=dashboard&status=verifikasi_lpj_sukses` |
 | `input_nomor_surat` | `VerifikasiController::simpanNomorSurat` | `id_pengajuan`, `nomor_surat` | `?page=arsip_surat&status=nomor_sukses` |
 | `verifikasi_bendahara` | `BendaharaController::verifikasi` | `id_pengajuan`, `dana_disetujui`, `status_verifikasi` (`disetujui`/lain), `catatan` | `?page=proses&status=verifikasi_sukses` |
 | `profil` | `ProfilController::update` | `nama_lengkap`, `nama_ketua`, `nama_sekretaris`, `nama_bendahara`, `alamat`, `telepon`; file: `foto_profil`, `logo_ormawa`, `ttd_ketua`, `ttd_sekretaris`, `ttd_bendahara` | `?page=profil&status=update_sukses` |
@@ -168,7 +170,8 @@ Variabel-variabel yang tersedia di view; HTML baru dari MCP harus memetakan toke
 |---|---|---|---|---|
 | `index.php?page=tandai_notif_terlihat` | POST, JSON `{ids: number[]}` | Menandai notifikasi dana cair sebagai terbaca (update `notif_cair_terlihat`) | Dipanggil JS di `dashboard.php` | ✅ **Diimplementasikan** (`NotifikasiController::tandaiTerlihat`) |
 | `index.php?page=api_notifikasi_belum_baca` | GET → JSON | Data notifikasi belum dibaca utk badge/lonceng (tabel `notifikasi`) | Fitur notifikasi realtime | ✅ **Diimplementasikan** (`NotifikasiController::belumBaca`). Tabel `notifikasi` kini terisi: `add_notifikasi()` dipakai saat dana cair |
-| `index.php?page=notifikasi_stream` | GET → `text/event-stream` | Push realtime SSE ke user | Fitur notifikasi realtime | 🔜 Baru (tahap berikutnya) |
+| `index.php?page=notifikasi_stream` | GET → `text/event-stream` | Push realtime SSE ke user (event `notif`, auto-reconnect, fallback polling 30s) | Fitur notifikasi realtime | ✅ **Diimplementasikan** (`NotifikasiController::stream`) |
+| `index.php?page=tandai_notif_baca` | POST, JSON `{ids: number[]}` | Menandai notifikasi tabel `notifikasi` sebagai `sudah` | Dipanggil saat dropdown lonceng dibuka | ✅ **Diimplementasikan** (`NotifikasiController::tandaiBaca`) |
 | `index.php?page=api_kalender_peminjaman` | GET → JSON | Data kalender ketersediaan fasilitas seluruh peminjaman (format FullCalendar events) | UI kalender modern | ✅ **Diimplementasikan** (`ApiController::kalenderPeminjaman`) |
 
 ### Konvensi Respons JSON yang Diusulkan
@@ -178,7 +181,7 @@ Variabel-variabel yang tersedia di view; HTML baru dari MCP harus memetakan toke
 { "success": false, "message": "…" }
 ```
 
-Helper yang akan ditambahkan di `app/core/Controller.php`:
+Helper yang tersedia di `app/core/Controller.php`:
 
 ```php
 protected function jsonResponse($data, int $status = 200) {
@@ -204,3 +207,5 @@ protected function jsonResponse($data, int $status = 200) {
 - [x] **P3** Fondasi CSRF (`csrf_token/csrf_field/csrf_verify`) + diterapkan pada form verifikasi & verifikasi LPJ
 - [x] **P3** Validasi MIME PDF (`is_valid_pdf`) di `PengajuanController` (tambah & edit)
 - [ ] **P3** CSRF diterapkan pada seluruh form POST lain (bertahap); validasi MIME upload lain (profil/TTD/gambar)
+- [x] **Bonus — Alur WR3** `verifikasiProposal()` kini menetapkan `'Disetujui WR3, Siap Diajukan ke Bendahara'` (diteruskan BKKH via `ajukan_pencairan`) — alur konsisten dengan desain & wawancara
+- [x] **Bonus — Notifikasi realtime** Endpoint SSE `notifikasi_stream` + `tandai_notif_baca` + lonceng notifikasi di navbar (`app.js::initNotifications`, fallback polling 30s)

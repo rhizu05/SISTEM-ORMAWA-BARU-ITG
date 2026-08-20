@@ -149,6 +149,10 @@ class Router {
         if ($page_action === 'api_kalender_peminjaman') {
             (new ApiController($this->conn))->kalenderPeminjaman();
         }
+
+        if ($page_action === 'notifikasi_stream') {
+            (new NotifikasiController($this->conn))->stream();
+        }
     }
 
     private function handlePostActions($page_action) {
@@ -170,6 +174,7 @@ class Router {
             'aspirasi'            => [AspirasiController::class,    'submit'],
             'manage_aspirasi'     => [AspirasiController::class,    'tanggapi'],
             'tandai_notif_terlihat' => [NotifikasiController::class, 'tandaiTerlihat'],
+            'tandai_notif_baca'     => [NotifikasiController::class, 'tandaiBaca'],
         ];
 
         if (isset($controllers[$page_action])) {
