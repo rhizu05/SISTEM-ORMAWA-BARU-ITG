@@ -37,6 +37,16 @@ if ($result_konfig) {
 $error = '';
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    // === Rate Limiting Phase 3 ===
+    $client_ip = get_client_ip();
+    // Cek rate limit sebelum proses login (menggunakan database)
+    if (!check_rate_limit($conn, $client_ip)) {
+        $error = "Terlalu banyak percobaan login. Coba lagi dalam beberapa menit.";
+    } else {
+        // Log percobaan login gagal (belum berhasil login)
+        log_login_attempt($conn, $client_ip, $username ?? '', false);
+    }
+    
     $username = sanitize_input($conn, $_POST['username']);
     $password = $_POST['password'];
 

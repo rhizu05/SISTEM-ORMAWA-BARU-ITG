@@ -436,4 +436,20 @@ ALTER TABLE `lpj_lampiran`
 ALTER TABLE `surat_otomatis`
   ADD CONSTRAINT `surat_otomatis_ibfk_1` FOREIGN KEY (`id_user_ormawa`) REFERENCES `users` (`id_user`) ON DELETE CASCADE;
 
+-- ============================================================
+-- TABEL RATE LIMITING (Phase 3 Security)
+-- ============================================================
+
+CREATE TABLE IF NOT EXISTS `login_attempts` (
+  `id`           INT(11)      NOT NULL AUTO_INCREMENT,
+  `ip_address`   VARCHAR(45)  NOT NULL,
+  `username`     VARCHAR(100) DEFAULT NULL,
+  `attempted_at` DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `success`      TINYINT(1)   NOT NULL DEFAULT 0,
+  `user_agent`   TEXT         DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  INDEX `idx_ip_time`   (`ip_address`, `attempted_at`),
+  INDEX `idx_user_time` (`username`, `attempted_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 COMMIT;

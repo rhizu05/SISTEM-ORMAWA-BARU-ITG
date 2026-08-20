@@ -151,36 +151,76 @@ class Router {
         }
     }
 
-    /**
-     * Apply security middleware for all requests.
-     * - CSRF protection for POST requests
-     * - Session validation
-     * - Rate limiting (to be implemented in Phase 3)
-     */
-    private function applySecurityMiddleware() {
-        // CSRF protection for POST requests
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            csrf_verify();
-        }
-        
-        // Session validation (inactivity check)
-        $this->validateSessionActivity();
-        
-        // Rate limiting will be added in Phase 3
-        // $this->checkRateLimit();
+/**
+ * Apply security middleware for all requests.
+ * - CSRF protection for POST requests
+ * - Session validation
+ * - Rate limiting (Phase 3)
+ */
+private function applySecurityMiddleware() {
+    // CSRF protection for POST requests
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        csrf_verify();
     }
     
-    /**
-     * Validate session activity to prevent stale sessions
-     */
-    private function validateSessionActivity() {
-        if (!isset($_SESSION['user_id'])) {
-            return; // No user session, nothing to validate
-        }
-        
-        // Update last activity timestamp
-        $_SESSION['last_activity'] = time();
+    // Session validation (inactivity check)
+    $this->validateSessionActivity();
+    
+    // Rate limiting (Phase 3)
+    $this->checkRateLimit();
+}
+    
+/**
+ * Validate session activity to prevent stale sessions
+ */
+private function validateSessionActivity() {
+    if (!isset($_SESSION['user_id'])) {
+        return; // No user session, nothing to validate
     }
+    
+    // Update last activity timestamp
+    $_SESSION['last_activity'] = time();
+}
+
+/**
+ * Cek rate limit untuk mencegah brute force dan spam
+ */
+private function checkRateLimit() {
+    // Hanya aktif untuk halaman login (ada POST username)
+    if (!isset($_POST['username'])) {
+        return;
+    }
+    
+    $ip = get_client_ip();
+    $username = isset($_POST['username']) ? $_POST['username'] : '';
+    $limit = 5; // 5 percobaan login per 15 menit
+    $window_seconds = 900; // 15 menit
+    
+    if (check_rate_limit($this->conn, $ip, $username, $limit, $window_seconds)) {
+        // Masih dalam batas, lanjutkan
+        return;
+    }
+    
+    // Melebihi limit - hentikan proses
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['username'])) {
+        $_SESSION['rate_limit_exceeded'] = true;
+        http_response_code(429);
+        die('Terlalu banyak percobaan login. Coba lagi dalam 15 menit.');
+    }
+}
+
+function get_client_ip_from_router(): string
+{
+    $ip = '::1';
+    if (!empty($_SERVER['REMOTE_ADDR'])) {
+        $ip = $_SERVER['REMOTE_ADDR'];
+    } elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+        $ip = explode(',', $_SERVER['HTTP_X_FORWARDED_FOR'])[0];
+    } elseif (!empty($_SERVER['HTTP_CLIENT_IP'])) {
+        $ip = $_SERVER['HTTP_CLIENT_IP'];
+    }
+    return $ip;
+}
 
     private function handlePostActions($page_action) {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') return;

@@ -210,4 +210,117 @@ function validate_uploaded_file($file, $allowed_types, $max_size_mb, $prefix = '
         'tmp_name' => $tmp_name
     ];
 }
-?>
+/**
+ * Mendapatkan IP klien yang membuat request
+ * @return string IP address
+ */
+function get_client_ip(): string
+{
+    $ip = '::1'; // Default ke localhost jika tidak bisa deteksi
+    
+    if (!empty($_SERVER['REMOTE_ADDR'])) {
+        $ip = $_SERVER['REMOTE_ADDR'];
+    } elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+        // Ambil IP pertama dari chain proxy
+        $ip = explode(',', $_SERVER['HTTP_X_FORWARDED_FOR'])[0];
+    } elseif (!empty($_SERVER['HTTP_CLIENT_IP'])) {
+        $ip = $_SERVER['HTTP_CLIENT_IP'];
+    }
+    
+    // Validasi apakah IP adalah IPv4 yang valid
+    if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE) === false) {
+        $ip = '::1';
+    }
+    
+    return $ip;
+}
+
+/**
+ * Memeriksa apakah pengguna melebihi batas rate limit
+ * @param mysqli $conn Koneksi database
+ * @param string $ip IP address klien
+ * @param string $username Username pelanggan (opsional)
+ * @param int $limit Batas percobaan (default: 5)
+ * @param int $window_seconds Jendela waktu detik (default: 900 = 15 menit)
+ * @return boolean true = boleh, false = diblokir
+ */
+function check_rate_limit($conn, $ip, $username = '', $limit = 5, $window_seconds = 900): bool
+{
+    $window_start = date('Y-m-d H:i:s', time() - $window_seconds);
+    
+    $stmt = $conn->prepare(
+        "SELECT COUNT(*) AS total FROM login_attempts 
+         WHERE ip_address = ? AND attempted_at >= ? AND success = 0"
+    );
+    if (!$stmt) { return true; }
+    
+    $stmt->bind_param("is", $ip, $window_start);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $row = $result->fetch_assoc();
+    
+    $total_failed = $row['total'] ?? 0;
+    
+    // Jika ada username yang spesifik, tambahkan kondisi
+    if (!empty($username)) {
+        $stmt2 = $conn->prepare(
+            "SELECT COUNT(*) AS total FROM login_attempts 
+             WHERE username = ? AND attempted_at >= ? AND success = 0"
+        );
+        if ($stmt2) {
+            $stmt2->bind_param("ss", $username, $window_start);
+            $stmt2->execute();
+            $result2 = $stmt2->get_result();
+            $row2 = $result2->fetch_assoc();
+            $total_failed += ($row2['total'] ?? 0);
+            $stmt2->close();
+        }
+    }
+    
+    // Cleanup record lama setiap 10 kali cek (probabilistic)
+    static $cleanup_counter = 0;
+    $cleanup_counter++;
+    if ($cleanup_counter >= 50) {
+        cleanup_old_attempts($conn);
+        $cleanup_counter = 0;
+    }
+    
+    return $total_failed < $limit;
+}
+
+/**
+ * Menambahkan catatan percobaan login ke database
+ * @param mysqli $conn Koneksi database
+ * @param string $ip IP address klien
+ * @param string $username Username (opsional)
+ * @param bool $success Status login (true = sukses, false = gagal)
+ */
+function log_login_attempt($conn, $ip, $username = '', $success = false)
+{
+    $stmt = $conn->prepare(
+        "INSERT INTO login_attempts (ip_address, username, attempted_at, success) 
+         VALUES (?, ?, NOW(), ?)"
+    );
+    if ($stmt) {
+        $stmt->bind_param("ssi", $ip, $username ? $username : '', $success ? 1 : 0);
+        $stmt->execute();
+        $stmt->close();
+    }
+}
+
+/**
+ * Membersihkan record login_attempts yang sudah kadaluarsa (> 24 jam)
+ * Dijalankan secara probabilistic setiap beberapa login
+ * @param mysqli $conn Koneksi database
+ */
+function cleanup_old_attempts($conn)
+{
+    $cutoff = date('Y-m-d H:i:s', time() - 86400); // 24 jam yang lalu
+    $stmt = $conn->prepare("DELETE FROM login_attempts WHERE attempted_at < ?");
+    if ($stmt) {
+        $stmt->bind_param("s", $cutoff);
+        $stmt->execute();
+        $stmt->close();
+    }
+}
+?>");
