@@ -6,7 +6,7 @@
  */
 
 // Asumsi fungsi ini ada dan berfungsi
-check_role(['ormawa', 'bem', 'bpm']); 
+check_role(['ormawa', 'bem', 'bpm', 'bkh', 'admin']); 
 $user_id = $_SESSION['user_id'];
 
 // Mengambil data pengajuan milik pengguna yang sedang login

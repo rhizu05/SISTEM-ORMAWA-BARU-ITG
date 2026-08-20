@@ -4,7 +4,7 @@
  * Deskripsi: Halaman cetak laporan pertanggungjawaban (LPJ).
  */
 
-check_role(['ormawa', 'bem', 'bpm', 'bkh', 'wr3', 'bendahara']);
+check_role(['ormawa', 'bem', 'bpm', 'bkh', 'wr3', 'bendahara', 'admin']);
 
 $id_lpj = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 

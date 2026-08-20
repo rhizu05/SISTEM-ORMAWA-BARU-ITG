@@ -66,10 +66,15 @@ Catatan permasalahan yang ditemukan selama pemahaman sistem dan proses restruktu
 
 ### C. Peningkatan Fitur
 
-- [ ] **Dashboard** — tambah grafik pengeluaran per ormawa, trending kegiatan.
-- [ ] **Notifikasi** — email/WhatsApp notification saat status berubah.
-- [ ] **Cetak dokumen** — QR code lokal (library Composer seperti `endroid/qr-code`).
+- [ ] **Monitoring pengajuan** — tambah detail posisi & pihak yang menangani di setiap tahap status.
+- [ ] **Follow-up & komunikasi pengajuan** — mekanisme tindak lanjut dan notifikasi di dalam sistem.
+- [ ] **Notifikasi realtime (SSE)** — push perubahan status ke semua role tanpa ganti stack; fallback short polling; memanfaatkan tabel `notifikasi` yang sudah ada.
 - [ ] **Peminjaman** — kalender ketersediaan ruangan/barang, pencegahan bentrok jadwal.
+- [ ] **Program kerja tahunan** — fitur input dan monitoring proker Ormawa secara berkala.
+- [ ] **Transparansi kegiatan** — halaman publik/internal yang menampilkan kegiatan Ormawa.
+- [ ] **Aspirasi terpusat** — satu jalur resmi di sistem menggantikan berbagai saluran informal.
+- [ ] **Dashboard** — tambah grafik pengeluaran per ormawa, rekapitulasi proker, trending kegiatan.
+- [ ] **Cetak dokumen** — QR code lokal (library Composer seperti `endroid/qr-code`).
 - [ ] **Export/Import** — ekspor data ke Excel/PDF, impor user massal.
 - [ ] **Arsip** — filter, pencarian, dan retensi dokumen.
 - [ ] **Rekening / pencairan** — integrasi data nominal per kegiatan yang lebih detail.
@@ -86,4 +91,52 @@ Catatan permasalahan yang ditemukan selama pemahaman sistem dan proses restruktu
 
 ## 5.5 Kesimpulan
 
-Sistem SI-Keuangan telah berfungsi dan dapat dikembangkan lebih lanjut. Fondasi arsitektur MVC yang baru (hasil restrukturisasi) memberikan titik awal yang baik. Prioritas pengembangan berikutnya disarankan pada **keamanan (CSRF & validasi upload)**, **konsistensi arsitektur (pindahkan logika dari view ke controller)**, dan **manajemen dependensi** agar sistem lebih siap untuk tahap produksi.
+Sistem SKIN telah berfungsi dan dapat dikembangkan lebih lanjut. Fondasi arsitektur MVC yang baru (hasil restrukturisasi) memberikan titik awal yang baik secara teknis. Namun berdasarkan hasil wawancara stakeholder, pengembangan SKIN tidak hanya mencakup perbaikan teknis — sistem perlu diperluas menjadi **pusat layanan kemahasiswaan terpadu** yang mendukung monitoring, komunikasi, transparansi, dan sentralisasi informasi.
+
+Prioritas pengembangan disarankan pada dua jalur paralel:
+
+1. **Perbaikan teknis** — CSRF, validasi upload, konsistensi arsitektur MVC, keamanan session
+2. **Ekspansi fungsional** — monitoring pengajuan, program kerja tahunan, notifikasi, peminjaman fasilitas terpusat, dan aspirasi terpusat
+
+## 5.6 Permasalahan Berdasarkan Hasil Wawancara Stakeholder
+
+Berikut adalah permasalahan yang diidentifikasi dari wawancara (belum tercakup dalam temuan teknis di 5.2/5.3):
+
+| # | Permasalahan | Sumber | Dampak |
+|---|---|---|---|
+| 1 | Tidak ada mekanisme follow-up atau komunikasi saat pengajuan terlambat | BEM (sebagai pengaju & koordinator) | Harus menghubungi pihak terkait secara manual di luar sistem |
+| 2 | Status pengajuan kurang informatif setelah masuk tahap persetujuan | BEM & Mahasiswa *(Pending)* | Tidak tahu posisi pengajuan atau penyebab keterlambatan; keluhan serupa juga diutarakan luas oleh mahasiswa melalui kuesioner |
+| 3 | Tidak ada fitur monitoring program kerja tahunan beserta progres/kendala kegiatan | BPM (sebagai pengawas) | BPM tidak dapat memantau realisasi proker, progres, maupun kendala di lapangan tanpa meminta laporan manual |
+| 4 | Tidak ada akses read-only keuangan & LPJ untuk BPM | BPM (sebagai pengawas) | BPM tidak dapat menjalankan fungsi pengawasan anggaran, status LPJ, dan pertanggungjawaban tanpa data di sistem |
+| 5 | Peminjaman fasilitas berpotensi bentrok jadwal | Ormawa (BEM & BPM), BKKH | Beberapa Ormawa dapat mengajukan ruangan/fasilitas yang sama pada waktu bersamaan |
+| 6 | Aspirasi tersebar di berbagai jalur informal | BKKH | Informasi tidak terpusat, berpotensi tidak tertangani — padahal BPM yang berwenang mengelolanya |
+| 7 | Dokumentasi kegiatan mahasiswa jangka panjang sulit ditelusuri | BKKH | Data yang dibutuhkan kembali beberapa tahun kemudian sulit ditemukan |
+| 8 | Belum ada transparansi kegiatan Ormawa di sistem | BEM (koordinator), BPM (pengawas) | Aktivitas Ormawa tidak dapat diketahui pihak berkepentingan tanpa bertanya langsung |
+| 9 | Pengelolaan dokumen belum sepenuhnya terpusat | BKKH | Dokumen tersebar dan tidak mudah diakses kembali |
+| 10 | Tidak ada notifikasi realtime perubahan status | BEM, BPM, BKKH, Mahasiswa *(Pending)* | Pengguna harus terus membuka sistem untuk mengetahui perkembangan pengajuan; komunikasi tetap manual di luar sistem |
+
+## 5.7 Potensi Pengembangan — Kebutuhan Fungsional Baru dari Wawancara
+
+Berdasarkan konsolidasi hasil wawancara stakeholder (BKKH, BEM, BPM), berikut fitur-fitur yang diidentifikasi sebagai kebutuhan pengembangan, diurutkan berdasarkan prioritas:
+
+### Prioritas Sangat Tinggi (muncul dari semua/hampir semua stakeholder)
+
+- [ ] **Monitoring & tracking status pengajuan yang lebih informatif** — tampilkan posisi pengajuan secara jelas di setiap tahap, lengkap dengan informasi pihak yang sedang menangani *(dibutuhkan: semua Ormawa, BKKH)*
+- [ ] **Peminjaman fasilitas terpusat** — informasi ketersediaan real-time untuk ruangan, barang, lapangan; pencegahan bentrok jadwal otomatis *(dibutuhkan: semua Ormawa, BKKH)*
+
+### Prioritas Tinggi
+
+- [ ] **Notifikasi realtime perubahan status (SSE)** — pengguna mendapat pemberitahuan instan saat ada pengajuan baru atau status berubah, tanpa perlu membuka sistem terus-menerus; dapat diimplementasikan tetap di stack PHP (SSE) atau fallback short polling *(dibutuhkan: semua role — BEM, BPM, BKKH, HIMA/UKM)*
+- [ ] **Mekanisme follow-up dan komunikasi pengajuan** — saluran tindak lanjut di dalam sistem saat pengajuan terlambat atau mengalami kendala *(dibutuhkan: HIMA/UKM, BEM sebagai pengaju)*
+- [ ] **Verifikasi/approval pengajuan HIMA/UKM oleh BEM** — panel khusus di dashboard BEM untuk menyetujui/menolak pengajuan yang masuk *(dibutuhkan: BEM sebagai verifikator)*
+- [ ] **Transparansi kegiatan Ormawa** — tampilkan daftar kegiatan yang telah/sedang dilaksanakan *(dibutuhkan: BEM sebagai koordinator, BPM sebagai pengawas)*
+- [ ] **Perencanaan & monitoring program kerja tahunan** — Ormawa input rencana proker; **BPM** review berkala tiap 3–6 bulan *(dibutuhkan: BPM sebagai pengawas)*
+- [ ] **Aspirasi terpusat** — satu wadah resmi di sistem dikelola oleh **BPM**, menggantikan berbagai jalur informal *(dibutuhkan: BKKH, BPM)*
+
+### Prioritas Menengah
+
+- [ ] **Monitoring keuangan Ormawa untuk BPM (read-only)** — BPM dapat melihat histori keuangan dan penggunaan anggaran tanpa bisa mengubah data *(dibutuhkan: BPM sebagai pengawas)*
+- [ ] **Monitoring LPJ seluruh Ormawa untuk BPM** — keterkaitan pengajuan → pencairan → pelaksanaan → LPJ dapat ditelusuri BPM *(dibutuhkan: BPM sebagai pengawas)*
+- [ ] **Sentralisasi dokumen administrasi** — proposal, surat, daftar hadir, dan dokumentasi kegiatan tersimpan dan mudah dicari kembali *(dibutuhkan: BKKH, semua Ormawa)*
+- [ ] **Pelaporan prestasi dan kompetisi** — Ormawa dapat melaporkan keikutsertaan dan pencapaian di kompetisi *(dibutuhkan: BKKH)*
+- [ ] **Penyesuaian role dan hak akses** — sesuaikan dengan struktur kepengurusan aktual (misal: Seskab untuk administrasi BEM) *(dibutuhkan: BEM)*

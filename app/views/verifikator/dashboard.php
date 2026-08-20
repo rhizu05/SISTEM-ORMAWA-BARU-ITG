@@ -71,7 +71,7 @@ if ($user_role == 'bem') {
 } elseif ($user_role == 'bpm') {
     $status_proposal_to_check = 'Diajukan Ke BPM';
     $page_title = "Dashboard BPM";
-} elseif ($user_role == 'bkh') {
+} elseif (in_array($user_role, ['bkh', 'admin'])) {
     $status_proposal_to_check = 'Verifikasi BKKH';
     $page_title = "Dashboard BKKH";
 } elseif ($user_role == 'wr3') {
@@ -98,7 +98,7 @@ $status_lpj_to_check = '';
 $count_butuh_nomor = 0; 
 
 // 3. MENENTUKAN TUGAS KHUSUS (HANYA UNTUK BKKH SEKARANG)
-if ($user_role == 'bkh') {
+if (in_array($user_role, ['bkh', 'admin'])) {
     $status_lpj_to_check = 'LPJ Diajukan';
     
     $status_siap_bendahara = 'Disetujui WR3, Siap Diajukan ke Bendahara';
@@ -347,7 +347,7 @@ $events_json = json_encode($events_calendar);
     </div>
     
     <!-- Notifikasi untuk BKKH jika ada surat tanpa nomor -->
-<?php if ($user_role == 'bkh' && $count_butuh_nomor > 0): ?>
+<?php if (in_array($user_role, ['bkh', 'admin']) && $count_butuh_nomor > 0): ?>
     <div class="alert alert-danger border-start border-5 border-danger shadow-sm mb-4" role="alert">
         <div class="d-flex align-items-center">
             <div class="flex-shrink-0">
@@ -421,7 +421,7 @@ $events_json = json_encode($events_calendar);
         </div>
         
         <!-- Kartu: Verifikasi LPJ (Hanya untuk BKKH) -->
-        <?php if ($user_role == 'bkh'): ?>
+        <?php if (in_array($user_role, ['bkh', 'admin'])): ?>
         <div class="col-xl-4 col-md-6 mb-4">
             <div class="card border-start border-5 border-warning shadow-sm h-100 card-hover">
                 <div class="card-body p-4 d-flex align-items-center">
@@ -436,7 +436,7 @@ $events_json = json_encode($events_calendar);
         <?php endif; ?>
 
         <!-- Kartu: Siap ke Bendahara (Hanya untuk BKKH) -->
-        <?php if ($user_role == 'bkh'): ?>
+        <?php if (in_array($user_role, ['bkh', 'admin'])): ?>
         <div class="col-xl-4 col-md-6 mb-4">
             <div class="card border-start border-5 border-success shadow-sm h-100 card-hover">
                 <div class="card-body p-4 d-flex align-items-center">
@@ -521,7 +521,7 @@ $events_json = json_encode($events_calendar);
     </div>
 
     <!-- Tabel Khusus BKKH: Siap Diajukan ke Bendahara -->
-    <?php if ($user_role == 'bkh' && $result_siap_diajukan && $result_siap_diajukan->num_rows > 0): ?>
+    <?php if (in_array($user_role, ['bkh', 'admin']) && $result_siap_diajukan && $result_siap_diajukan->num_rows > 0): ?>
         <div class="card mb-4 shadow-sm">
             <div class="card-header bg-white border-0 py-3"><i class="bi bi-send-check me-2"></i>Tabel Proposal Siap Diajukan ke Bendahara</div>
             <div class="card-body">
@@ -559,7 +559,7 @@ $events_json = json_encode($events_calendar);
     <?php endif; ?>
 
     <!-- Tabel Khusus BKKH: Verifikasi LPJ -->
-    <?php if ($user_role == 'bkh' && $result_lpj && $result_lpj->num_rows > 0): ?>
+    <?php if (in_array($user_role, ['bkh', 'admin']) && $result_lpj && $result_lpj->num_rows > 0): ?>
     <div class="card mb-4 shadow-sm">
         <div class="card-header bg-white border-0 py-3"><i class="bi bi-journal-check me-2"></i>Tabel Verifikasi LPJ</div>
         <div class="card-body">
@@ -592,7 +592,7 @@ $events_json = json_encode($events_calendar);
     <?php endif; ?>
 
     <!-- Tabel Khusus BKKH: Verifikasi Peminjaman Tempat -->
-    <?php if ($user_role == 'bkh'): ?>
+    <?php if (in_array($user_role, ['bkh', 'admin'])): ?>
     <?php 
     $sql_t_bkkh = "SELECT p.*, r.nama_ruangan, u.nama_lengkap AS nama_ormawa FROM peminjaman_tempat p JOIN master_ruangan r ON p.id_ruangan = r.id_ruangan JOIN users u ON p.id_user_ormawa = u.id_user WHERE p.status_bkkh = 'Pending' ORDER BY p.tgl_pengajuan DESC";
     $res_t_bkkh = $conn->query($sql_t_bkkh);

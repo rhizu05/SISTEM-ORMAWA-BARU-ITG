@@ -5,7 +5,7 @@
  */
 
 // Memeriksa peran pengguna yang diizinkan mengakses halaman ini
-check_role(['bem', 'bpm', 'bkh', 'wr3']);
+check_role(['bem', 'bpm', 'bkh', 'wr3', 'admin']);
 
 // Mengambil ID pengajuan dari URL dan memastikan valid
 $id_pengajuan = isset($_GET['id']) ? (int)$_GET['id'] : 0;

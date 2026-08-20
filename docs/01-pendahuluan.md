@@ -1,8 +1,27 @@
 # 01 — Pendahuluan
 
+## 1.0 Konteks Pengembangan
+
+SKIN dikembangkan dalam rangka **Kerja Praktik di Institut Teknologi Garut (ITG)**. Sistem ini bukan dibangun dari nol, melainkan merupakan kelanjutan dari sistem yang telah dikembangkan sebelumnya. Tugas tim KP difokuskan pada evaluasi, perbaikan bug, penambahan fitur, dan deployment.
+
+Sebagai dasar pengembangan, telah dilakukan pengumpulan data melalui wawancara dan kuesioner terhadap stakeholder utama:
+
+| Stakeholder | Peran dalam Sistem | Periode |
+|---|---|---|
+| BKKH (Biro Ketenagaan, Kemahasiswaan, dan Humas) | Pengelola & admin sistem | 13 Agustus 2026 |
+| Ormawa — BPM & BEM | Pengguna utama (pengaju, monitoring) | 14–18 Agustus 2026 |
+| Mahasiswa Umum *(Pending)* | Kandidat pengguna masa depan | Agustus 2026 |
+
+> Berdasarkan hasil wawancara, seluruh anggota Ormawa (BEM, BPM, HIMA, UKM) dapat mengajukan proposal kegiatan. Namun ketiganya memiliki **fungsi yang hierarkis** dalam sistem:
+> - **HIMA & UKM** — Pengaju murni: mengajukan proposal, meminjam fasilitas, upload LPJ
+> - **BEM** — Pengaju aktif sekaligus **Verifikator**: menyetujui/menolak pengajuan dari HIMA/UKM sebelum naik ke BPM dan BKKH
+> - **BPM** — Pengaju aktif sekaligus **Pengawas**: memantau seluruh program kerja, keuangan, dan LPJ Ormawa secara read-only; mengelola aspirasi dan regulasi
+
 ## 1.1 Gambaran Umum
 
-SI-Keuangan (Sistem Informasi Keuangan) adalah aplikasi web yang mengelola **seluruh siklus keuangan organisasi kemahasiswaan (Ormawa)** di Institut Teknologi Garut (ITG). Sistem ini mencakup:
+SKIN (Sistem Kemahasiswaan) adalah aplikasi web yang dikembangkan sebagai **pusat layanan kemahasiswaan terpadu** di Institut Teknologi Garut (ITG). Sistem ini tidak hanya mengelola keuangan Ormawa, tetapi diarahkan untuk menjadi satu platform bagi seluruh kebutuhan administrasi dan layanan kemahasiswaan.
+
+Berdasarkan kondisi sistem existing dan hasil wawancara stakeholder, SKIN mencakup:
 
 1. **Pengajuan Dana** — Ormawa mengajukan proposal kegiatan beserta RAB dan dokumen pendukung.
 2. **Verifikasi Berjenjang** — Proposal diverifikasi oleh BEM → BPM → BKKH → WR3 sebelum disetujui.
@@ -10,8 +29,16 @@ SI-Keuangan (Sistem Informasi Keuangan) adalah aplikasi web yang mengelola **sel
 4. **Laporan Pertanggungjawaban (LPJ)** — Ormawa mengunggah LPJ yang kemudian diverifikasi BKKH.
 5. **Peminjaman Sarana & Prasarana** — Peminjaman tempat dan barang dengan verifikasi dua tahap.
 6. **Persuratan Digital** — Pembuatan proposal otomatis, surat resmi, LPJ otomatis, arsip digital, dan QR code verifikasi.
-7. **Komunikasi & Informasi** — Pusat informasi, jadwal rapat, aspirasi publik, regulasi, dan surat peringatan.
+7. **Komunikasi & Informasi** — Pusat informasi, jadwal rapat, aspirasi, regulasi, dan surat peringatan.
 8. **Administrasi** — Manajemen pengguna, saldo, arsip surat, dan pengaturan sistem (kop surat, logo, dll).
+
+**Fitur yang diidentifikasi perlu dikembangkan** berdasarkan hasil wawancara:
+
+- Monitoring & follow-up status pengajuan yang lebih informatif
+- Perencanaan dan monitoring program kerja tahunan Ormawa
+- **Notifikasi realtime (SSE) perubahan status** — dikirim instan ke pengguna tanpa perlu beralih stack; tetap berbasis PHP, memanfaatkan tabel `notifikasi` yang sudah tersedia
+- Transparansi kegiatan Ormawa
+- Sentralisasi peminjaman fasilitas dengan informasi ketersediaan
 
 ## 1.2 Identitas Sistem
 
@@ -119,11 +146,17 @@ php -S localhost:8000
 | `bem` | *(dari SQL dump)* | BEM |
 | `bpm` | *(dari SQL dump)* | BPM |
 | `bkkh` | *(dari SQL dump)* | BKKH |
-| `himatif` | *(dari SQL dump)* | Ormawa |
+| `himatif` | *(dari SQL dump)* | Ormawa — HIMA Teknik Informatika |
+| `hima_si` | *(dari SQL dump)* | Ormawa — HIMA Sistem Informasi |
+| `hima_sipil` | *(dari SQL dump / Manajemen User)* | Ormawa — HIMA Teknik Sipil |
+| `hima_arsi` | *(dari SQL dump / Manajemen User)* | Ormawa — HIMA Arsitektur |
+| `hima_industri` | *(dari SQL dump / Manajemen User)* | Ormawa — HIMA Teknik Industri |
 | `wr3` | *(dari SQL dump)* | Wakil Rektor 3 |
 | `bendahara` | *(dari SQL dump)* | Bendahara |
 | `sarpras_ruangan` | `sarpras123` | Sarpras Ruangan |
 | `sarpras_barang` | `barang123` | Sarpras Barang |
+
+> **Konvensi akun Ormawa:** Seluruh HIMA (5 program studi) dan UKM memakai **role `ormawa` yang sama** — tidak ada role terpisah per organisasi. Pembedaan dilakukan melalui `id_user` (identitas unik) dan nama tampilan `nama_lengkap`. Akun diasumsikan menggunakan password *default* (dari SQL dump atau dibuat BKKH melalui menu **Manajemen User**), lalu pengurus mengubahnya sendiri di menu **Profil**. Rincian lengkap ada di `02-struktur-sistem.md` bagian 2.5.6.
 
 > Password default user lama mengikuti isi SQL dump (`db_pengajuan.sql`). Jika perlu reset, gunakan `scripts/setup_complete.php` atau script reset yang tersedia.
 

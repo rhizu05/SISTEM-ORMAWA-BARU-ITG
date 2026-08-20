@@ -12,7 +12,7 @@
  */
 
 // Hak akses untuk semua peran yang relevan.
-check_role(['ormawa', 'bem', 'bpm', 'bkh', 'wr3', 'bendahara']);
+check_role(['ormawa', 'bem', 'bpm', 'bkh', 'wr3', 'bendahara', 'admin']);
 
 // Mengambil ID pengajuan dari URL
 if (!isset($_GET['id']) || !is_numeric($_GET['id'])) {

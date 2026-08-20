@@ -4,7 +4,7 @@
  * Deskripsi: Halaman untuk melihat hasil proposal dan mencetaknya (Auto-PDF).
  */
 
-check_role(['ormawa', 'bem', 'bpm', 'bkh', 'wr3', 'bendahara']);
+check_role(['ormawa', 'bem', 'bpm', 'bkh', 'wr3', 'bendahara', 'admin']);
 
 $id_proposal = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 

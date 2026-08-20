@@ -6,15 +6,22 @@ Sistem memiliki **8 role aktif** (selain `admin` yang tidak digunakan sebagai ak
 
 | # | Role | Nilai di DB | Deskripsi |
 |---|------|-------------|-----------|
-| 1 | **Ormawa** | `ormawa` | Organisasi kemahasiswaan (HIMA, UKM, dll) — pengaju proposal & LPJ |
-| 2 | **BEM** | `bem` | Badan Eksekutif Mahasiswa — verifikasi tahap 1, publikasi berita |
-| 3 | **BPM** | `bpm` | Badan Permusyawaratan Mahasiswa — verifikasi tahap 2, aspirasi, regulasi |
+| 1 | **HIMA / UKM** | `ormawa` | Organisasi kemahasiswaan tingkat dasar (5 HIMA + UKM) — pengaju proposal, peminjaman fasilitas, upload LPJ. **Satu role dipakai semua HIMA/UKM**, data diisolasi per `id_user` |
+| 2 | **BEM** | `bem` | Badan Eksekutif Mahasiswa — pengaju aktif (kegiatan sendiri) + verifikator pengajuan HIMA/UKM (tahap 1), publikasi berita |
+| 3 | **BPM** | `bpm` | Badan Perwakilan Mahasiswa — pengaju aktif (kegiatan sendiri) + pengawas seluruh Ormawa (monitoring proker, keuangan read-only, LPJ), kelola aspirasi & regulasi |
 | 4 | **BKKH** | `bkh` | Biro Kemahasiswaan & Hubungan Masyarakat — verifikasi tahap 3, admin sistem |
 | 5 | **WR3** | `wr3` | Wakil Rektor 3 — persetujuan akhir proposal |
 | 6 | **Bendahara** | `bendahara` | Pencairan dana |
 | 7 | **Sarpras Ruangan** | `sarpras` | Verifikasi peminjaman tempat/ruangan |
 | 8 | **Sarpras Barang** | `sarpras_barang` | Verifikasi peminjaman barang & manajemen inventaris |
 
+> **Catatan struktur Ormawa (berdasarkan hasil wawancara stakeholder):** BEM, BPM, HIMA, dan UKM semuanya termasuk kelompok **Ormawa**, namun memiliki fungsi yang hierarkis:
+> - **HIMA & UKM** — Pengaju murni; tidak memiliki fungsi verifikasi atau monitoring atas Ormawa lain
+> - **BEM** — Pengaju aktif sekaligus verifikator; pengajuan dari HIMA/UKM harus melewati approval BEM sebelum naik ke BPM dan BKKH
+> - **BPM** — Pengaju aktif sekaligus pengawas; dapat memonitor seluruh program kerja, keuangan, dan LPJ Ormawa secara read-only — BPM tidak berwenang mengubah data keuangan
+>
+> **Akun HIMA/UKM:** Ke-5 HIMA dan UKM memakai role `ormawa` yang sama — **tidak perlu role baru per organisasi**. Pembedaan dilakukan lewat `id_user` + nama tampilan `nama_lengkap`; query backend selalu difilter `id_user_ormawa = ?` (dari `$_SESSION['user_id']`) untuk mencegah *Broken Access Control*. Lihat `02-struktur-sistem.md` bagian 2.5.6.
+>
 > Terdapat juga role `admin` dalam enum DB namun tidak muncul sebagai akun login terpisah; fungsi administratif dipegang oleh BKKH (`bkh`).
 
 ## 3.2 Hak Akses per Halaman
@@ -46,24 +53,55 @@ Berdasarkan `$pageMap` di `app/core/Router.php`:
 
 ## 3.3 Menu Navigasi per Role (Sidebar)
 
-### Ormawa / BEM / BPM (akun aktif)
-- Dashboard
+### HIMA / UKM (`ormawa`)
+
+> Pengaju murni — fokus pada pengajuan dan pelaporan kegiatan sendiri.
+
+- Dashboard (ringkasan saldo & status pengajuan terbaru)
 - Buat Pengajuan
 - Peminjaman Tempat
 - Peminjaman Barang
-- **Persuratan Digital** (dropdown):
-  - Buat Proposal
-  - Buat Surat Lain
-  - Buat LPJ
-  - Arsip Digital
+- **Persuratan Digital** (dropdown): Buat Proposal, Buat Surat Lain, Buat LPJ, Arsip Digital
 - Riwayat
 - Arsip LPJ
 - Pusat Informasi & Berita
 - Jadwal Rapat
-- *(khusus BPM)*: Buat Surat Peringatan, Kelola Aspirasi, Kelola Regulasi
 - Profil
 
 > **Penting:** Menu "Buat Pengajuan", "Peminjaman Tempat", "Peminjaman Barang", dan "Persuratan Digital" hanya muncul jika `status_akun` user = `aktif`.
+
+### BEM (`bem`)
+
+> Pengaju aktif + verifikator pengajuan dari HIMA/UKM. Memiliki semua menu HIMA/UKM, ditambah:
+
+- Dashboard (+ panel tugas verifikasi: pengajuan berstatus "Diajukan Ke BEM")
+- Buat Pengajuan *(kegiatan BEM sendiri)*
+- Peminjaman Tempat & Barang
+- Persuratan Digital
+- Riwayat
+- Arsip LPJ
+- **Verifikasi Pengajuan** — approval/penolakan pengajuan dari HIMA/UKM
+- Pusat Informasi & Berita *(BEM dapat menambah/menghapus pengumuman)*
+- Jadwal Rapat *(BEM dapat menambah/menghapus jadwal)*
+- Profil
+
+### BPM (`bpm`)
+
+> Pengaju aktif + pengawas seluruh Ormawa. Memiliki semua menu HIMA/UKM, ditambah menu pengawasan:
+
+- Dashboard (+ panel tugas verifikasi: pengajuan berstatus "Diajukan Ke BPM")
+- Buat Pengajuan *(kegiatan BPM sendiri)*
+- Peminjaman Tempat & Barang
+- Persuratan Digital
+- Riwayat
+- Arsip LPJ
+- **Verifikasi Pengajuan** — approval/penolakan pengajuan setelah lolos BEM
+- **Kelola Aspirasi** — menerima dan menanggapi aspirasi yang masuk
+- **Kelola Regulasi** — mengelola dokumen regulasi Ormawa
+- **Buat Surat Peringatan** — ke Ormawa yang melanggar
+- Pusat Informasi & Berita
+- Jadwal Rapat *(BPM dapat menambah/menghapus jadwal)*
+- Profil
 
 ### Sarpras Ruangan
 - Dashboard
@@ -102,11 +140,14 @@ Berdasarkan `$pageMap` di `app/core/Router.php`:
 
 | Fitur | Deskripsi | Akses |
 |-------|-----------|-------|
-| Buat Pengajuan | Ormawa mengisi nama kegiatan, dana diajukan, tanggal, upload file proposal PDF. Cek saldo & blocklist status aktif. | Ormawa/BEM/BPM |
-| Riwayat Pengajuan | Daftar seluruh pengajuan user beserta status. | Ormawa/BEM/BPM/BKKH/Bendahara |
+| Buat Pengajuan | Ormawa mengisi nama kegiatan, dana diajukan, tanggal, upload file proposal PDF. Cek saldo & blocklist status aktif. | HIMA/UKM, BEM, BPM |
+| Riwayat Pengajuan | Daftar seluruh pengajuan user beserta status. | HIMA/UKM, BEM, BPM, BKKH, Bendahara |
 | Detail Pengajuan | Lihat detail, file proposal, histori status, tombol aksi. | Semua (role tertentu) |
-| Revisi Pengajuan | Mengedit pengajuan yang berstatus *Ditolak*. Status kembali ke tahap penolak. | Ormawa/BEM/BPM |
-| Verifikasi Proposal | Setiap verifikator (BEM→BPM→BKKH→WR3) setujui/tolak dengan catatan. | BEM/BPM/BKKH/WR3 |
+| Revisi Pengajuan | Mengedit pengajuan yang berstatus *Ditolak*. Status kembali ke tahap penolak. | HIMA/UKM, BEM, BPM |
+| Verifikasi Proposal Tahap 1 | BEM menyetujui/menolak pengajuan dari HIMA/UKM dengan catatan. | BEM |
+| Verifikasi Proposal Tahap 2 | BPM menyetujui/menolak pengajuan yang sudah lolos dari BEM. | BPM |
+| Verifikasi Proposal Tahap 3 | BKKH menyetujui/menolak pengajuan yang sudah lolos dari BPM. | BKKH |
+| Persetujuan Akhir | WR3 memberikan persetujuan final. | WR3 |
 | Histori Status | Audit trail setiap perubahan status (`histori_status`). | Terkait |
 
 ### B. Pencairan Dana
@@ -121,20 +162,21 @@ Berdasarkan `$pageMap` di `app/core/Router.php`:
 
 | Fitur | Deskripsi | Akses |
 |-------|-----------|-------|
-| Upload LPJ | Ormawa mengupload file LPJ PDF setelah dana cair. | Ormawa/BEM/BPM |
-| Revisi LPJ | Upload ulang LPJ yang ditolak. | Ormawa/BEM/BPM |
-| Verifikasi LPJ | BKKH/WR3 setujui atau tolak LPJ. | BKKH/WR3 |
-| LPJ Otomatis | Pembuatan LPJ otomatis dari data proposal (header + anggaran + lampiran). | Ormawa/BEM/BPM |
-| Arsip LPJ | Daftar arsip LPJ. | Ormawa/BEM/BPM |
+| Upload LPJ | Ormawa mengupload file LPJ PDF setelah dana cair. | HIMA/UKM, BEM, BPM |
+| Revisi LPJ | Upload ulang LPJ yang ditolak. | HIMA/UKM, BEM, BPM |
+| Verifikasi LPJ | BKKH/WR3 setujui atau tolak LPJ. | BKKH, WR3 |
+| Monitoring LPJ Seluruh Ormawa | BPM dapat melihat status dan dokumen LPJ seluruh Ormawa (read-only). | BPM |
+| LPJ Otomatis | Pembuatan LPJ otomatis dari data proposal (header + anggaran + lampiran). | HIMA/UKM, BEM, BPM |
+| Arsip LPJ | Daftar arsip LPJ. | HIMA/UKM, BEM, BPM |
 
 ### D. Persuratan Digital
 
 | Fitur | Deskripsi | Akses |
 |-------|-----------|-------|
-| Buat Proposal | Generator proposal otomatis (latar belakang, tujuan, sasaran, RAB dinamis, panitia, organisasi, TTD digital). | Ormawa/BEM/BPM |
-| Buat Surat Lain | Generator surat (surat undangan, permohonan, dll) dengan TTD kustom. | Ormawa/BEM/BPM |
-| Buat LPJ | Generator LPJ otomatis. | Ormawa/BEM/BPM |
-| Arsip Digital | Pusat arsip persuratan digital. | Ormawa/BEM/BPM/BKKH/WR3/Bendahara |
+| Buat Proposal | Generator proposal otomatis (latar belakang, tujuan, sasaran, RAB dinamis, panitia, organisasi, TTD digital). | HIMA/UKM, BEM, BPM |
+| Buat Surat Lain | Generator surat (surat undangan, permohonan, dll) dengan TTD kustom. | HIMA/UKM, BEM, BPM |
+| Buat LPJ | Generator LPJ otomatis. | HIMA/UKM, BEM, BPM |
+| Arsip Digital | Pusat arsip persuratan digital. | HIMA/UKM, BEM, BPM, BKKH, WR3, Bendahara |
 | Cetak Surat Balasan | Surat persetujuan resmi dengan kop dinamis (dari `konfigurasi`), nomor surat, rekam jejak, dan QR code verifikasi. | Terkait |
 | Nomor Surat | BKKH menginput nomor surat resmi (`arsip_surat`, `simpan_nomor_surat`). | BKKH |
 | QR Code Verifikasi | Halaman publik `verify_page` untuk memvalidasi keaslian surat via kode unik. | Publik |
@@ -143,8 +185,8 @@ Berdasarkan `$pageMap` di `app/core/Router.php`:
 
 | Fitur | Deskripsi | Akses |
 |-------|-----------|-------|
-| Peminjaman Tempat | Ormawa memilih ruangan, tanggal, jam, keperluan. | Ormawa/BEM/BPM |
-| Peminjaman Barang | Ormawa memilih barang, jumlah, tanggal, kebutuhan. | Ormawa/BEM/BPM |
+| Peminjaman Tempat | Ormawa memilih ruangan, tanggal, jam, keperluan. | HIMA/UKM, BEM, BPM |
+| Peminjaman Barang | Ormawa memilih barang, jumlah, tanggal, kebutuhan. | HIMA/UKM, BEM, BPM |
 | Verifikasi Tempat (BKKH) | BKKH memverifikasi pengajuan peminjaman tempat. | BKKH |
 | Verifikasi Barang (BKKH) | BKKH memverifikasi pengajuan peminjaman barang. | BKKH |
 | Verifikasi Ruangan (Sarpras) | Sarpras menyetujui/menolak setelah BKKH. | Sarpras |
@@ -157,9 +199,9 @@ Berdasarkan `$pageMap` di `app/core/Router.php`:
 |-------|-----------|-------|
 | Pusat Informasi | Berita/pengumuman BEM (dengan lampiran) & regulasi BPM. | Semua |
 | Jadwal Rapat | Kalender & daftar jadwal rapat (tambah/hapus oleh BEM/BPM). | Semua |
-| Aspirasi Publik | Form publik untuk submit aspirasi; BPM menanggapi. | Publik (submit) / BPM (kelola) |
+| Aspirasi | Form untuk submit aspirasi; dikelola dan ditanggapi oleh BPM. | Publik (submit) / BPM (kelola) |
 | Regulasi | BPM mengelola dokumen regulasi (judul, kategori, file). | BPM |
-| Surat Peringatan | BPM/BKKH membuat surat peringatan ke ormawa. | BPM, BKKH |
+| Surat Peringatan | BPM/BKKH membuat surat peringatan ke Ormawa. | BPM, BKKH |
 
 ### G. Administrasi & Pengaturan
 
@@ -183,11 +225,31 @@ Berdasarkan `$pageMap` di `app/core/Router.php`:
 
 | Role | Isi Dashboard |
 |------|---------------|
-| Ormawa | Ringkasan saldo, pengajuan terbaru, notifikasi dana cair |
-| BEM | Kartu saldo BEM, tugas verifikasi proposal (status "Diajukan Ke BEM") |
-| BPM | Kartu saldo BPM, tugas verifikasi proposal (status "Diajukan Ke BPM"), aspirasi |
+| HIMA / UKM | Ringkasan saldo, pengajuan terbaru milik sendiri, notifikasi dana cair |
+| BEM | Kartu saldo BEM, pengajuan BEM sendiri, **panel tugas verifikasi** (pengajuan HIMA/UKM berstatus "Diajukan Ke BEM") |
+| BPM | Kartu saldo BPM, pengajuan BPM sendiri, **panel tugas verifikasi** (berstatus "Diajukan Ke BPM"), **ringkasan aspirasi** masuk |
 | BKKH | Verifikasi proposal (status "Verifikasi BKKH"), verifikasi LPJ, ajukan pencairan, antrean nomor surat |
 | WR3 | Verifikasi proposal (status "Verifikasi WR3"), rincian saldo |
 | Bendahara | Proses pencairan, verifikasi LPJ |
 | Sarpras | Verifikasi ruangan |
 | Sarpras Barang | Verifikasi barang, master barang |
+
+## 3.7 Mahasiswa Umum *(Pending — Status Aktor Belum Ditetapkan)*
+
+> Berdasarkan hasil kuesioner (11 responden lintas prodi), mahasiswa umum memiliki kebutuhan yang belum terakomodasi oleh sistem saat ini. Namun, **status mahasiswa sebagai aktor aktif dalam sistem masih pending** — belum ditetapkan apakah akan diakomodasi dalam pengembangan saat ini atau diposisikan sebagai opsi pengembangan lanjutan.
+
+Kandidat fitur untuk mahasiswa umum apabila ditetapkan sebagai aktor:
+
+| No. | Kandidat Fitur | Keterangan |
+|---|---|---|
+| 1 | Pusat Informasi Terpadu | Kalender kegiatan, prosedur layanan, ketersediaan fasilitas |
+| 2 | Monitoring Status Pengajuan | Tracking progres pengajuan secara transparan |
+| 3 | Penyampaian Aspirasi | Wadah terpusat untuk kritik, saran, dan keluhan |
+| 4 | Peminjaman Fasilitas | Reservasi ruangan/fasilitas kampus secara online |
+| 5 | Sistem Notifikasi | Pemberitahuan status layanan kemahasiswaan secara berkala |
+
+**Data pendukung dari kuesioner:**
+- ~82% responden belum pernah menggunakan SKIN
+- 73% (8 responden) menyatakan fitur tracking status pengajuan bersifat "Sangat Penting"
+- 73% responden (5 Bersedia + 3 Sangat Bersedia) bersedia menggunakan SKIN aktif jika dikembangkan
+- Responden belum mencakup Teknik Industri (perwakilan Teknik Sipil sudah masuk)

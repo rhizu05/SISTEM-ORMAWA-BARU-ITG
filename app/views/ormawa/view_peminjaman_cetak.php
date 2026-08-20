@@ -4,7 +4,7 @@
  * Deskripsi: Cetak Surat Permohonan Peminjaman Tempat.
  */
 
-check_role(['ormawa', 'bem', 'bpm', 'bkh', 'wr3', 'bendahara']);
+check_role(['ormawa', 'bem', 'bpm', 'bkh', 'wr3', 'bendahara', 'admin']);
 
 $id_peminjaman = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 

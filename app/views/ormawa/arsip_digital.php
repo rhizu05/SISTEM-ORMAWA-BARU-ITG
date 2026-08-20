@@ -4,7 +4,7 @@
  * Deskripsi: Pusat arsip digital ormawa (Proposal, LPJ, dan Surat-surat).
  */
 
-check_role(['ormawa', 'bem', 'bpm']);
+check_role(['ormawa', 'bem', 'bpm', 'bkh', 'admin']);
 $user_id = $_SESSION['user_id'];
 
 // Ambil data Proposal

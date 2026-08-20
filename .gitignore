@@ -3,6 +3,8 @@ scratch/
 uploads/
 _archive/
 .vscode/
+docs/interview
+docs/laporan
 
 # Log & SQL
 *.log

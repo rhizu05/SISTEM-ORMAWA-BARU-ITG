@@ -4,7 +4,7 @@
  * Deskripsi: Halaman cetak untuk berbagai jenis surat organisasi.
  */
 
-check_role(['ormawa', 'bem', 'bpm', 'bkh', 'wr3', 'bendahara']);
+check_role(['ormawa', 'bem', 'bpm', 'bkh', 'wr3', 'bendahara', 'admin']);
 
 $id_surat = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 
