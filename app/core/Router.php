@@ -154,8 +154,9 @@ class Router {
 /**
  * Apply security middleware for all requests.
  * - CSRF protection for POST requests
- * - Session validation
+ * - Session validation & security (Phase 4)
  * - Rate limiting (Phase 3)
+ * - Security headers propagation
  */
 private function applySecurityMiddleware() {
     // CSRF protection for POST requests
@@ -163,11 +164,64 @@ private function applySecurityMiddleware() {
         csrf_verify();
     }
     
-    // Session validation (inactivity check)
-    $this->validateSessionActivity();
+    // Session validation & security (Phase 4)
+    $this->validateSessionSecurity();
     
     // Rate limiting (Phase 3)
     $this->checkRateLimit();
+    
+    // Security headers (always applied)
+    $this->applySecurityHeaders();
+}
+
+/**
+ * Validate session activity and security (Phase 4)
+ * - Inactivity timeout check
+ * - Session ID regeneration
+ * - Last activity timestamp update
+ */
+private function validateSessionSecurity() {
+    // If user is logged in, update activity timestamp
+    if (isset($_SESSION['user_id'])) {
+        // Check for session timeout
+        if (check_session_timeout(1800)) {
+            // Session timed out (30 minutes inactivity)
+            session_unset();
+            session_destroy();
+            header("Location: index.php?page=login?expired=1");
+            exit();
+        }
+        
+        // Update last activity timestamp
+        $_SESSION['last_activity'] = time();
+        
+        // Regenerate session ID periodically (every 2 hours max)
+        if (!isset($_SESSION['id_regenerated'])) {
+            session_regenerate_id(true);
+            $_SESSION['id_regenerated'] = true;
+        }
+    }
+}
+
+/**
+ * Apply security headers to all responses (Phase 4)
+ */
+private function applySecurityHeaders() {
+    // X-Frame-Options: Prevent clickjacking
+    header("X-Frame-Options: DENY");
+    
+    // X-Content-Type-Options: Prevent MIME type sniffing
+    header("X-Content-Type-Options: nosniff");
+    
+    // Referrer-Policy: Control referrer information
+    header("Referrer-Policy: strict-origin-when-cross-origin");
+    
+    // Cache control for security-sensitive pages
+    if (!isset($_SESSION['user_id']) || !$_SESSION['user_id']) {
+        header("Cache-Control: no-cache, no-store, must-revalidate");
+        header("Pragma: no-cache");
+        header("Expires: 0");
+    }
 }
     
 /**
