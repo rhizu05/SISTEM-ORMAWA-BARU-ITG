@@ -132,11 +132,10 @@
     };
 
     /* ------------------------------------------------------------------
-       3b. NOTIFIKASI REALTIME (badge + daftar + SSE)
+       3b. NOTIFIKASI (badge + daftar + AJAX Polling)
        - Memuat daftar notifikasi belum dibaca via api_notifikasi_belum_baca
        - Menandai dibaca saat dropdown dibuka (tandai_notif_baca)
-       - Streaming realtime via SSE endpoint notifikasi_stream
-       - Fallback polling 30 detik bila EventSource tidak tersedia
+       - Polling rutin tiap 30 detik untuk real-time ringan
        ------------------------------------------------------------------ */
     function initNotifications() {
         const bell = document.getElementById('notif-bell');
@@ -146,6 +145,7 @@
         const listEl = document.getElementById('notif-list');
         let lastItems = [];
         let unread = 0;
+        let notifiedIds = []; // Melacak ID yang sudah ditampilkan Toast-nya
 
         const setUnread = (n) => {
             unread = n;
@@ -182,42 +182,44 @@
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ ids: ids }),
             });
+            // Hapus yang sudah dibaca dari memori client juga
+            setUnread(0);
+            renderList([]);
         };
 
-        const refresh = () =>
+        const refresh = (isPolling = false) =>
             fetch('index.php?page=api_notifikasi_belum_baca')
                 .then((r) => r.json())
                 .then((j) => {
                     if (j.success) {
                         setUnread(j.total || 0);
                         renderList(j.data || []);
+
+                        if (isPolling && (j.data || []).length > 0) {
+                            j.data.forEach(notif => {
+                                if (!notifiedIds.includes(notif.id_notif)) {
+                                    notifyHelper(notif.pesan);
+                                    notifiedIds.push(notif.id_notif);
+                                }
+                            });
+                        } else if (!isPolling) {
+                            // Saat load awal, catat semua ID agar tidak ditampikan Toast-nya
+                            notifiedIds = (j.data || []).map(n => n.id_notif);
+                        }
                     }
                 })
                 .catch(() => {});
 
-        refresh();
+        // Fetch pertama kali saat load
+        refresh(false);
 
         // Tandai sudah dibaca saat dropdown lonceng dibuka
         bell.addEventListener('show.bs.dropdown', () => {
             markRead(lastItems.map((d) => d.id_notif).filter(Boolean));
         });
 
-        // Streaming realtime
-        if (typeof EventSource !== 'undefined') {
-            const es = new EventSource('index.php?page=notifikasi_stream');
-            es.addEventListener('notif', (ev) => {
-                try {
-                    const d = JSON.parse(ev.data);
-                    if (d.pesan) {
-                        notifyHelper(d.pesan);
-                        setUnread(unread + 1);
-                    }
-                } catch (_) { /* abaikan data tidak valid */ }
-            });
-            es.onerror = () => {}; // EventSource otomatis reconnect
-        } else {
-            window.setInterval(refresh, 30000);
-        }
+        // Polling setiap 30 detik
+        window.setInterval(() => { refresh(true); }, 30000);
     }
 
     function notifyHelper(pesan) {

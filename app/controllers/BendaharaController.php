@@ -7,6 +7,7 @@ class BendaharaController extends Controller {
 
     public function verifikasi() {
         $this->requireRole(['bendahara']);
+        csrf_verify();
 
         $id               = isset($_POST['id_pengajuan']) ? intval($_POST['id_pengajuan']) : 0;
         $danaDisetujui    = preg_replace('/[^0-9]/', '', $_POST['dana_disetujui']);
@@ -28,13 +29,13 @@ class BendaharaController extends Controller {
 
         if ($statusVerifikasi === 'disetujui') {
             $newStatus      = 'Dana Cair';
-            $stmtUpdate     = $this->conn->prepare("UPDATE pengajuan SET status = ?, dana_disetujui = ?, catatan = ? WHERE id_pengajuan = ?");
+            $stmtUpdate     = $this->conn->prepare("UPDATE pengajuan SET status = ?, nominal_pengajuan = ?, catatan_revisi = ? WHERE id_pengajuan = ?");
             if (!$stmtUpdate) { $this->redirect('index.php?page=proses&error=db_prepare_gagal'); }
             $stmtUpdate->bind_param("sssi", $newStatus, $danaDisetujui, $catatan, $id);
             $historyMsg = 'Pengajuan pencairan telah diverifikasi dan disetujui oleh Bendahara. Dana telah dicairkan. Catatan: ' . $catatan;
         } else {
             $newStatus      = 'Ditolak Bendahara';
-            $stmtUpdate     = $this->conn->prepare("UPDATE pengajuan SET status = ?, catatan = ? WHERE id_pengajuan = ?");
+            $stmtUpdate     = $this->conn->prepare("UPDATE pengajuan SET status = ?, catatan_revisi = ? WHERE id_pengajuan = ?");
             if (!$stmtUpdate) { $this->redirect('index.php?page=proses&error=db_prepare_gagal'); }
             $stmtUpdate->bind_param("ssi", $newStatus, $catatan, $id);
             $historyMsg = 'Pengajuan pencairan telah ditolak oleh Bendahara. Catatan: ' . $catatan;

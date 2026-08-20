@@ -149,10 +149,6 @@ class Router {
         if ($page_action === 'api_kalender_peminjaman') {
             (new ApiController($this->conn))->kalenderPeminjaman();
         }
-
-        if ($page_action === 'notifikasi_stream') {
-            (new NotifikasiController($this->conn))->stream();
-        }
     }
 
     private function handlePostActions($page_action) {
@@ -175,6 +171,7 @@ class Router {
             'manage_aspirasi'     => [AspirasiController::class,    'tanggapi'],
             'tandai_notif_terlihat' => [NotifikasiController::class, 'tandaiTerlihat'],
             'tandai_notif_baca'     => [NotifikasiController::class, 'tandaiBaca'],
+            'followup_pengajuan'    => [PengajuanController::class,  'followup'],
         ];
 
         if (isset($controllers[$page_action])) {
@@ -275,6 +272,7 @@ class Router {
                 'aspirasi_sukses'   => 'Aspirasi berhasil dikirim.',
                 'tanggapan_sukses'  => 'Tanggapan berhasil disimpan.',
                 'nomor_sukses'      => 'Nomor surat berhasil disimpan.',
+                'followup_sukses'   => 'Follow-up berhasil dikirim ke verifikator.',
             ];
             $message = $statusMap[$statusKey] ?? 'Operasi berhasil.';
         }

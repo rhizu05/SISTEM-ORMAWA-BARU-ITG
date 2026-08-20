@@ -38,13 +38,13 @@ CREATE TABLE IF NOT EXISTS `users` (
 -- Password semua user demo: "password123" (bcrypt)
 INSERT INTO `users` (`id_user`, `nama_lengkap`, `username`, `password`, `role`, `status_akun`, `saldo`) VALUES
 (1,  'Administrator',      'admin',           '$2y$10$rXbMTb1JdXsp2QzqBgGnpeDpZOJ0KWBeEgIdZXZESm/QetniQZLQS', 'admin',      'aktif', 0.00),
-(2,  'BEM ITG',            'bem',             '$2y$10$rXbMTb1JdXsp2QzqBgGnpeDpZOJ0KWBeEgIdZXZESm/QetniQZLQS', 'bem',        'aktif', 7000000.00),
-(3,  'BPM ITG',            'bpm',             '$2y$10$rXbMTb1JdXsp2QzqBgGnpeDpZOJ0KWBeEgIdZXZESm/QetniQZLQS', 'bpm',        'aktif', 5000000.00),
+(2,  'BEM ITG',            'bem',             '$2y$10$rXbMTb1JdXsp2QzqBgGnpeDpZOJ0KWBeEgIdZXZESm/QetniQZLQS', 'bem',        'aktif', 0.00),
+(3,  'BPM ITG',            'bpm',             '$2y$10$rXbMTb1JdXsp2QzqBgGnpeDpZOJ0KWBeEgIdZXZESm/QetniQZLQS', 'bpm',        'aktif', 0.00),
 (4,  'BKKH ITG',           'bkkh',            '$2y$10$rXbMTb1JdXsp2QzqBgGnpeDpZOJ0KWBeEgIdZXZESm/QetniQZLQS', 'bkh',        'aktif', 0.00),
 (5,  'Wakil Rektor 3',     'wr3',             '$2y$10$rXbMTb1JdXsp2QzqBgGnpeDpZOJ0KWBeEgIdZXZESm/QetniQZLQS', 'wr3',        'aktif', 0.00),
 (6,  'Bendahara ITG',      'bendahara',       '$2y$10$rXbMTb1JdXsp2QzqBgGnpeDpZOJ0KWBeEgIdZXZESm/QetniQZLQS', 'bendahara',  'aktif', 0.00),
-(7,  'Himatif ITG',        'himatif',         '$2y$10$rXbMTb1JdXsp2QzqBgGnpeDpZOJ0KWBeEgIdZXZESm/QetniQZLQS', 'ormawa',     'aktif', 3000000.00),
-(8,  'Hima Informatika 2', 'hima_si',         '$2y$10$rXbMTb1JdXsp2QzqBgGnpeDpZOJ0KWBeEgIdZXZESm/QetniQZLQS', 'ormawa',     'aktif', 2000000.00),
+(7,  'Himatif ITG',        'himatif',         '$2y$10$rXbMTb1JdXsp2QzqBgGnpeDpZOJ0KWBeEgIdZXZESm/QetniQZLQS', 'ormawa',     'aktif', 0.00),
+(8,  'Hima Informatika 2', 'hima_si',         '$2y$10$rXbMTb1JdXsp2QzqBgGnpeDpZOJ0KWBeEgIdZXZESm/QetniQZLQS', 'ormawa',     'aktif', 0.00),
 (9,  'Sarpras Ruangan',    'sarpras_ruangan', '$2y$10$rXbMTb1JdXsp2QzqBgGnpeDpZOJ0KWBeEgIdZXZESm/QetniQZLQS', 'sarpras',    'aktif', 0.00),
 (10, 'Sarpras Barang',     'sarpras_barang',  '$2y$10$rXbMTb1JdXsp2QzqBgGnpeDpZOJ0KWBeEgIdZXZESm/QetniQZLQS', 'sarpras_barang', 'aktif', 0.00);
 
@@ -74,10 +74,10 @@ CREATE TABLE IF NOT EXISTS `pengajuan` (
   `id_user_ormawa`      INT(11)      NOT NULL,
   `nama_kegiatan`       VARCHAR(255) NOT NULL,
   `dana_diajukan`       DECIMAL(15,2) NOT NULL DEFAULT 0.00,
-  `judul_kegiatan`      VARCHAR(255) NOT NULL DEFAULT '',
-  `deskripsi_kegiatan`  TEXT         NOT NULL,
+  `judul_kegiatan`      VARCHAR(255) DEFAULT NULL,
+  `deskripsi_kegiatan`  TEXT         DEFAULT NULL,
   `tanggal_pengajuan`   DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `nominal_pengajuan`   DECIMAL(15,2) NOT NULL DEFAULT 0.00,
+  `nominal_pengajuan`   DECIMAL(15,2) DEFAULT 0.00,
   `file_proposal`       VARCHAR(255) DEFAULT NULL,
   `file_lpj`            VARCHAR(255) DEFAULT NULL,
   `tanggal_upload_lpj`  DATE         DEFAULT NULL,
@@ -90,11 +90,6 @@ CREATE TABLE IF NOT EXISTS `pengajuan` (
   PRIMARY KEY (`id_pengajuan`),
   KEY `id_user_ormawa` (`id_user_ormawa`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
-INSERT INTO `pengajuan` (`id_user_ormawa`, `nama_kegiatan`, `dana_diajukan`, `deskripsi_kegiatan`, `tanggal_pengajuan`, `status`, `nomor_surat`) VALUES
-(7, 'Seminar Teknologi Informasi', 1500000.00, 'Seminar tahunan bidang teknologi informasi untuk mahasiswa.', '2026-01-10 09:00:00', 'Selesai', '001/SKPP/BKKH/I.2026'),
-(8, 'Pelatihan UI/UX Design',      800000.00,  'Workshop desain antarmuka untuk anggota himpunan.',           '2026-02-05 10:00:00', 'Diajukan ke Bendahara', NULL),
-(7, 'Malam Keakraban Himatif',     2000000.00, 'Kegiatan keakraban anggota himpunan baru.',                   '2026-03-01 08:00:00', 'Verifikasi BKKH', NULL);
 
 -- ============================================================
 
@@ -110,19 +105,6 @@ CREATE TABLE IF NOT EXISTS `histori_status` (
   KEY `id_pengajuan` (`id_pengajuan`),
   KEY `id_user` (`id_user`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
-INSERT INTO `histori_status` (`id_pengajuan`, `status`, `id_user`, `catatan`) VALUES
-(1, 'Verifikasi BKKH',                            7, 'Proposal awal telah diajukan oleh Ormawa.'),
-(1, 'Verifikasi WR3',                             4, 'Proposal telah diverifikasi oleh BKKH.'),
-(1, 'Disetujui WR3, Siap Diajukan ke Bendahara',  5, 'Proposal disetujui oleh WR3.'),
-(1, 'Diajukan ke Bendahara',                      4, 'Pengajuan pencairan dana telah diajukan ke Bendahara.'),
-(1, 'LPJ Diajukan',                               7, 'LPJ telah diunggah dan diajukan ke BKKH.'),
-(1, 'Selesai',                                    4, 'LPJ telah diverifikasi dan disetujui oleh BKKH.'),
-(2, 'Verifikasi BKKH',                            8, 'Proposal awal telah diajukan oleh Ormawa.'),
-(2, 'Verifikasi WR3',                             4, 'Proposal telah diverifikasi oleh BKKH.'),
-(2, 'Disetujui WR3, Siap Diajukan ke Bendahara',  5, 'Proposal disetujui oleh WR3.'),
-(2, 'Diajukan ke Bendahara',                      4, 'Pengajuan pencairan dana telah diajukan ke Bendahara.'),
-(3, 'Verifikasi BKKH',                            7, 'Proposal awal telah diajukan oleh Ormawa.');
 
 -- ============================================================
 

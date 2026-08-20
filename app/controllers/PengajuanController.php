@@ -148,5 +148,48 @@ class PengajuanController extends Controller {
             $this->redirect('index.php?page=edit&id=' . $id . '&error=db_gagal');
         }
     }
+
+    public function followup() {
+        $this->requireRole(['ormawa']);
+
+        $idPengajuan = (int) $this->sanitize($_POST['id_pengajuan']);
+        $pesan       = $this->sanitize($_POST['pesan_followup']);
+
+        if (empty($idPengajuan) || empty($pesan)) {
+            $this->redirect('index.php?page=detail&id=' . $idPengajuan . '&error=form_kosong');
+        }
+
+        $stmtCheck = $this->conn->prepare("SELECT status FROM pengajuan WHERE id_pengajuan = ?");
+        $stmtCheck->bind_param("i", $idPengajuan);
+        $stmtCheck->execute();
+        $status = $stmtCheck->get_result()->fetch_assoc()['status'] ?? null;
+
+        if (!$status) {
+            $this->redirect('index.php?page=detail&id=' . $idPengajuan . '&error=pengajuan_tidak_ditemukan');
+        }
+
+        $statusLower = strtolower(trim($status));
+
+        $statusToRole = [
+            'diajukan ke bem'           => 'bem',
+            'verifikasi bem'            => 'bem',
+            'diajukan ke bpm'           => 'bpm',
+            'verifikasi bpm'            => 'bpm',
+            'verifikasi bkkh'           => 'bkkh',
+            'verifikasi wr3'            => 'wr3',
+            'diajukan ke bendahara'     => 'bendahara',
+            'lpj diajukan'              => 'bkkh',
+        ];
+
+        $targetRole = $statusToRole[$statusLower] ?? null;
+
+        if (!$targetRole) {
+            $this->redirect('index.php?page=detail&id=' . $idPengajuan . '&error=status_tidak_memungkinkan_followup');
+        }
+
+        notify_role($this->conn, $targetRole, "Follow-up: Ormawa menanyakan status pengajuan <strong>" . htmlspecialchars($status) . "</strong>.<br>Pesan: " . htmlspecialchars($pesan));
+
+        $this->redirect('index.php?page=detail&id=' . $idPengajuan . '&status=followup_sukses');
+    }
 }
 ?>
