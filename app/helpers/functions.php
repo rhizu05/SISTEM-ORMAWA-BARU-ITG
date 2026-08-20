@@ -148,4 +148,66 @@ function is_valid_pdf($tempPath) {
     finfo_close($finfo);
     return $mime === 'application/pdf';
 }
+
+/**
+ * Validasi unggapan file unggahan
+ * - Cek error upload
+ * - Cek ukuran file
+ * - Cek MIME type
+ * - Sanitize nama file
+ * @param array $file Data $_FILES['name']
+ * @param array $allowed_types MIME types yang diizinkan
+ * @param int $max_size_mb Maksimal ukuran dalam MB
+ * @param string $prefix Prefix untuk nama file (opsional)
+ * @return array|false ['safe_name' => string, 'extension' => string] atau false jika gagal
+ */
+function validate_uploaded_file($file, $allowed_types, $max_size_mb, $prefix = '') {
+    // 1. Cek upload errors - handle missing key gracefully
+    $upload_error = isset($file['error']) ? $file['error'] : UPLOAD_ERR_OK;
+    if ($upload_error !== UPLOAD_ERR_OK) {
+        return false;
+    }
+
+    // 2. Cek ukuran file - handle missing key
+    $file_size = isset($file['size']) ? $file['size'] : 0;
+    $max_size_bytes = $max_size_mb * 1024 * 1024;
+    if ($file_size > $max_size_bytes) {
+        return false;
+    }
+
+    // 3. Cek apakah file diupload via HTTP POST
+    $tmp_name = isset($file['tmp_name']) ? $file['tmp_name'] : null;
+    if (!is_uploaded_file($tmp_name)) {
+        return false;
+    }
+
+    // 4. Dapatkan ekstensi dan MIME type - handle missing key
+    $file_name = isset($file['name']) ? $file['name'] : '';
+    $ext = strtolower(pathinfo($file_name, PATHINFO_EXTENSION));
+    $finfo = finfo_open(FILEINFO_MIME_TYPE);
+    $mime = $finfo ? ($finfo ? finfo_file($finfo, $tmp_name) : '') : '';
+    finfo_close($finfo);
+
+    // 5. Validasi MIME type
+    $allowed = array_map('strtolower', $allowed_types);
+    $ext_lower = strtolower($ext);
+    $ext_matches = !empty($ext) && in_array($ext_lower, array_map('strtolower', array_keys($allowed_types)));
+    $mime_matches = !empty($mime) && in_array(strtolower($mime), $allowed);
+    if (!($ext_matches || $mime_matches)) {
+        return false;
+    }
+
+    // 6. Sanitize nama file
+    $safe_name = $prefix . time() . '_' . bin2hex(random_bytes(4)) . '.' . $ext;
+    $safe_name = preg_replace('/[^a-zA-Z0-9._-]/', '', $safe_name);
+
+    // 7. Return info sukses
+    return [
+        'safe_name' => $safe_name,
+        'extension' => $ext,
+        'mime' => $mime,
+        'size' => $file_size,
+        'tmp_name' => $tmp_name
+    ];
+}
 ?>
