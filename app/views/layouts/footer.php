@@ -18,6 +18,9 @@ $nama_aplikasi = $nama_aplikasi ?? 'SI-Keuangan';
 <!-- JavaScript Kustom Terpusat (sidebar, tema, notifikasi) -->
 <script src="assets/js/app.js"></script>
 
+<!-- Dashboard Analytics -->
+<script src="assets/js/dashboard.js"></script>
+
 </body>
 </html>
 

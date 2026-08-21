@@ -21,11 +21,19 @@ $base     = rtrim(str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'] ?? '/')
 define('BASE_URL', $protocol . '://' . $host . $base);
 
 // --- Konfigurasi Database ---
-define('DB_HOST', 'localhost');   // Biasanya 'localhost'
-define('DB_USER', 'root');        // Username MySQL kamu
-define('DB_PASS', '');            // Password MySQL kamu (kosong jika pakai Laragon default)
+define('DB_HOST', 'localhost');
+define('DB_USER', 'root');
+define('DB_PASS', '');
 define('DB_NAME', 'db_pengajuan');
-define('DB_PORT', 3306);          // Port MySQL (3306 default, Laragon bisa 3308)
+define('DB_PORT', 3306);
+
+// --- Konfigurasi SMTP Email (Brevo) ---
+define('SMTP_HOST', 'smtp-relay.brevo.com');
+define('SMTP_PORT', 587);
+define('SMTP_USER', 'your_brevo_email@domain.com'); // Ganti dengan Login email Brevo
+define('SMTP_PASS', 'your_brevo_smtp_key');         // Ganti dengan SMTP Master Password Brevo
+define('MAIL_FROM_ADDRESS', 'noreply@itg.ac.id');
+define('MAIL_FROM_NAME', 'Sistem Keuangan ITG');
 
 $conn = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME, DB_PORT);
 if ($conn->connect_error) {
@@ -39,6 +47,7 @@ define('SESSION_COOKIE_LIFETIME', 7200);
 require_once ROOT_PATH . '/app/helpers/functions.php';
 require_once ROOT_PATH . '/app/helpers/session.php'; // NEW
 require_once ROOT_PATH . '/app/helpers/twofa.php'; // NEW 2FA
+require_once ROOT_PATH . '/app/helpers/mailer.php'; // NEW Email
 
 // Gunakan secure session initialization
 session_start_secure();

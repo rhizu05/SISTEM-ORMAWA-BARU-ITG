@@ -16,6 +16,7 @@ SET NAMES utf8mb4;
 CREATE TABLE IF NOT EXISTS `users` (
   `id_user`       INT(11)      NOT NULL AUTO_INCREMENT,
   `nama_lengkap`  VARCHAR(100) NOT NULL,
+  `email`         VARCHAR(100) DEFAULT NULL,
   `username`      VARCHAR(50)  NOT NULL,
   `password`      VARCHAR(255) NOT NULL,
   `role`          ENUM('admin','ormawa','bem','bpm','bkh','wr3','bendahara','sarpras','sarpras_barang') NOT NULL,
@@ -23,6 +24,8 @@ CREATE TABLE IF NOT EXISTS `users` (
   `twofa_enabled` TINYINT(1)   NOT NULL DEFAULT 0,
   `twofa_backup_codes` JSON    DEFAULT NULL,
   `twofa_confirmed_at` DATETIME DEFAULT NULL,
+  `reset_token`   VARCHAR(255) DEFAULT NULL,
+  `reset_expires_at` DATETIME DEFAULT NULL,
   `foto_profil`   VARCHAR(255) DEFAULT NULL,
   `status_akun`   ENUM('aktif','nonaktif') NOT NULL DEFAULT 'aktif',
   `saldo`         DECIMAL(15,2) DEFAULT 0.00,
@@ -36,7 +39,8 @@ CREATE TABLE IF NOT EXISTS `users` (
   `alamat`           TEXT        DEFAULT NULL,
   `telepon`          VARCHAR(20) DEFAULT NULL,
   PRIMARY KEY (`id_user`),
-  UNIQUE KEY `username` (`username`)
+  UNIQUE KEY `username` (`username`),
+  KEY `idx_reset_token` (`reset_token`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- Password semua user demo: "password123" (bcrypt)
@@ -128,9 +132,11 @@ CREATE TABLE IF NOT EXISTS `notifikasi` (
   `id_user`     INT(11)                    NOT NULL,
   `pesan`       TEXT                       NOT NULL,
   `status_baca` ENUM('belum','sudah')      DEFAULT 'belum',
+  `terkirim_sse` TINYINT(1)                NOT NULL DEFAULT 0,
   `waktu`       TIMESTAMP                  NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id_notif`),
-  KEY `id_user` (`id_user`)
+  KEY `id_user` (`id_user`),
+  KEY `idx_terkirim` (`id_user`, `terkirim_sse`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- ============================================================
