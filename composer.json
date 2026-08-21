@@ -1,0 +1,28 @@
+{
+    "name": "itg/sistem-keuangan",
+    "description": "Sistem Informasi Pengajuan Dana Ormawa ITG",
+    "type": "project",
+    "require": {
+        "php": ">=8.1",
+        "spomky-labs/otphp": "^11.3",
+        "endroid/qr-code": "^5.0"
+    },
+    "require-dev": {
+        "pestphp/pest": "^2.34"
+    },
+    "autoload": {
+        "psr-4": {
+            "App\\": "app/"
+        }
+    },
+    "scripts": {
+        "phpstan": "phpstan analyse app/ --level=5",
+        "test": "pest",
+        "cs:fix": "php-cs-fixer fix app/"
+    },
+    "config": {
+        "allow-plugins": {
+            "pestphp/pest-plugin": true
+        }
+    }
+}

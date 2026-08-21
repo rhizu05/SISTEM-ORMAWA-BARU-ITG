@@ -1,0 +1,14 @@
+includes:
+    - vendor/phpstan/phpstan-deprecation-rules/rules.neon
+
+parameters:
+    level: 4
+    paths:
+        - app
+    excludePaths:
+        - app/views
+    bootstrapFiles:
+        - phpstan-bootstrap.php
+    treatPhpDocTypesAsCertain: false
+    ignoreErrors:
+        - '#Variable \$conn might not be defined.#'

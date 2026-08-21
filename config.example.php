@@ -38,6 +38,7 @@ define('SESSION_COOKIE_LIFETIME', 7200);
 
 require_once ROOT_PATH . '/app/helpers/functions.php';
 require_once ROOT_PATH . '/app/helpers/session.php'; // NEW
+require_once ROOT_PATH . '/app/helpers/twofa.php'; // NEW 2FA
 
 // Gunakan secure session initialization
 session_start_secure();

@@ -65,7 +65,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     if (empty($username) || empty($password)) {
         $error = "Username dan password wajib diisi!";
     } else {
-        $stmt = $conn->prepare("SELECT id_user, nama_lengkap, password, role, status_akun, foto_profil FROM users WHERE username = ?");
+        $stmt = $conn->prepare("SELECT id_user, nama_lengkap, password, role, status_akun, foto_profil, twofa_enabled FROM users WHERE username = ?");
         $stmt->bind_param("s", $username);
         $stmt->execute();
         $result = $stmt->get_result();
@@ -74,7 +74,20 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $user = $result->fetch_assoc();
 
             if (password_verify($password, $user['password'])) {
-                session_regenerate_id(true);
+                // === PENAMBAHAN 2FA (Phase 5) ===
+                if ($user['twofa_enabled'] == 1) {
+                    // Set session temporary untuk proses verifikasi
+                    $_SESSION['pending_2fa_user_id'] = $user['id_user'];
+                    $_SESSION['pending_2fa_nama'] = $user['nama_lengkap'];
+                    $_SESSION['pending_2fa_role'] = $user['role'];
+                    $_SESSION['pending_2fa_status'] = $user['status_akun'];
+                    $_SESSION['pending_2fa_foto'] = $user['foto_profil'];
+                    
+                    redirect('index.php?page=login_2fa');
+                }
+                // === AKHIR PENAMBAHAN 2FA ===
+
+                session_regenerate_id_safe();
                 $_SESSION['user_id'] = $user['id_user'];
                 $_SESSION['nama_lengkap'] = $user['nama_lengkap'];
                 $_SESSION['user_role'] = $user['role'];
