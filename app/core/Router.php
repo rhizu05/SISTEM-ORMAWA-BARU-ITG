@@ -7,6 +7,9 @@ class Router {
 
     private $pageMap = [
         'login'                      => ['file' => 'app/views/auth/login.php',                          'roles' => []],
+        'login_2fa'                  => ['file' => 'app/views/auth/2fa_verify.php',                     'roles' => []],
+        'setup_2fa'                  => ['file' => 'app/views/auth/setup_2fa.php',                      'roles' => ['ormawa','bpm','bem','bkh','wr3','bendahara','admin','sarpras','sarpras_barang']],
+        'disable_2fa'                => ['file' => 'app/views/auth/disable_2fa.php',                    'roles' => ['ormawa','bpm','bem','bkh','wr3','bendahara','admin','sarpras','sarpras_barang']],
         'logout'                     => ['file' => 'app/views/auth/logout.php',                         'roles' => []],
         'dashboard'                  => ['file' => 'app/views/ormawa/dashboard.php',                    'roles' => ['ormawa', 'bem', 'bpm', 'bkh', 'wr3', 'bendahara', 'sarpras', 'sarpras_barang', 'admin']],
         'tambah'                     => ['file' => 'app/views/ormawa/tambah_pengajuan.php',              'roles' => ['ormawa', 'bem', 'bpm']],
@@ -74,7 +77,7 @@ class Router {
     ];
 
     private $standalonePages = [
-        'login', 'logout', 'cetak_surat', 'surat_balasan',
+        'login', 'login_2fa', 'logout', 'cetak_surat', 'surat_balasan',
         'verify_page', 'aspirasi', 'view_surat_lain',
         'view_proposal', 'view_peminjaman', 'panduan',
     ];
@@ -203,6 +206,28 @@ private function validateSessionSecurity() {
         if (!isset($_SESSION['id_regenerated'])) {
             session_regenerate_id(true);
             $_SESSION['id_regenerated'] = true;
+        }
+
+        // 2FA Enforcement untuk role sensitif (Phase 5)
+        // Kita hanya meng-enforce 2FA jika 2FA aktif untuk user ini tapi belum verified sessionnya
+        $page = $_GET['page'] ?? 'dashboard';
+        $sensitiveRoles = ['admin', 'bem', 'bpm', 'bkh', 'wr3', 'bendahara'];
+        $exemptPages = ['login', 'login_2fa', 'logout']; // Halaman yang bebas dari enforcement loop
+        
+        if (!in_array($page, $exemptPages) && !isset($_SESSION['twofa_verified'])) {
+            // Check apakah user telah enable 2FA di database
+            $stmt = $this->conn->prepare("SELECT twofa_enabled FROM users WHERE id_user = ?");
+            if ($stmt) {
+                $stmt->bind_param("i", $_SESSION['user_id']);
+                $stmt->execute();
+                $user2fa = $stmt->get_result()->fetch_assoc();
+                
+                if ($user2fa && $user2fa['twofa_enabled'] == 1 && in_array($_SESSION['user_role'] ?? '', $sensitiveRoles)) {
+                    // Paksa redirect ke login 2FA
+                    header("Location: index.php?page=login_2fa");
+                    exit();
+                }
+            }
         }
     }
 }
@@ -377,6 +402,7 @@ function get_client_ip_from_router(): string
                 'db_prepare_gagal'   => 'Terjadi kesalahan pada persiapan query database.',
                 'form_kosong'        => 'Mohon lengkapi semua field pada formulir.',
                 'username_duplikat'  => 'Username sudah digunakan, silakan gunakan username lain.',
+                'password_salah'     => 'Password yang Anda masukkan salah. Aksi dibatalkan.',
             ];
             $message = $errorMap[$_GET['error']] ?? 'Terjadi kesalahan yang tidak diketahui. Silakan coba lagi.';
         } elseif (isset($_GET['status']) || isset($_GET['success'])) {
@@ -402,6 +428,8 @@ function get_client_ip_from_router(): string
                 'tanggapan_sukses'  => 'Tanggapan berhasil disimpan.',
                 'nomor_sukses'      => 'Nomor surat berhasil disimpan.',
                 'followup_sukses'   => 'Follow-up berhasil dikirim ke verifikator.',
+                '2fa_enabled'       => 'Keamanan Dua Faktor (2FA) berhasil diaktifkan.',
+                '2fa_disabled'      => 'Keamanan Dua Faktor (2FA) berhasil dimatikan.',
             ];
             $message = $statusMap[$statusKey] ?? 'Operasi berhasil.';
         }

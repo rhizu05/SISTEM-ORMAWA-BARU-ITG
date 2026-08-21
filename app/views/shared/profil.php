@@ -6,7 +6,7 @@
 
 // Ambil data user yang sedang login dari database
 $id_user = $_SESSION['user_id'];
-$stmt = $conn->prepare("SELECT nama_lengkap, username, foto_profil, logo_ormawa, nama_ketua, nama_sekretaris, nama_bendahara, ttd_ketua, ttd_sekretaris, ttd_bendahara, alamat, telepon FROM users WHERE id_user = ?");
+$stmt = $conn->prepare("SELECT nama_lengkap, username, foto_profil, logo_ormawa, nama_ketua, nama_sekretaris, nama_bendahara, ttd_ketua, ttd_sekretaris, ttd_bendahara, alamat, telepon, twofa_enabled, twofa_secret, twofa_backup_codes FROM users WHERE id_user = ?");
 if ($stmt === false) {
     die("Gagal mempersiapkan statement: " . $conn->error);
 }
@@ -120,6 +120,50 @@ if (!empty($user['foto_profil'])) {
                             <button type="submit" class="btn btn-primary btn-lg">Simpan Perubahan Profil</button>
                         </div>
                     </form>
+                </div>
+            </div>
+            
+            <!-- Keamanan 2FA Card -->
+            <div class="card shadow-sm border-0 mt-4">
+                <div class="card-header bg-dark text-white py-3">
+                    <h5 class="mb-0"><i class="bi bi-shield-lock me-2"></i> Keamanan Dua Faktor (2FA)</h5>
+                </div>
+                <div class="card-body p-4">
+                    <?php if (empty($user['twofa_enabled'])): ?>
+                        <div class="alert alert-warning">
+                            <i class="bi bi-exclamation-triangle-fill me-2"></i> <strong>2FA Belum Aktif.</strong> 
+                            Sangat disarankan mengaktifkan 2FA untuk melindungi akun Anda.
+                        </div>
+                        <a href="index.php?page=setup_2fa" class="btn btn-success"><i class="bi bi-shield-plus"></i> Aktifkan 2FA Sekarang</a>
+                    <?php else: ?>
+                        <div class="alert alert-success">
+                            <i class="bi bi-check-circle-fill me-2"></i> <strong>2FA Sedang Aktif.</strong> 
+                            Akun Anda terlindungi oleh Authenticator App.
+                        </div>
+                        <p class="mb-2">Jika Anda kehilangan akses ke Authenticator, simpan Backup Codes ini dengan aman:</p>
+                        
+                        <div class="bg-light p-3 rounded mb-3" style="font-family: monospace; letter-spacing: 2px;">
+                            <?php 
+                                $bcs = json_decode($user['twofa_backup_codes'], true);
+                                if ($bcs) {
+                                    $chunks = array_chunk($bcs, 4);
+                                    foreach ($chunks as $chunk) {
+                                        echo implode("&nbsp;&nbsp;&nbsp;", $chunk) . "<br>";
+                                    }
+                                } else {
+                                    echo "<em>Tidak ada backup code.</em>";
+                                }
+                            ?>
+                        </div>
+                        
+                        <form action="index.php?page=disable_2fa" method="POST" onsubmit="return confirm('Yakin ingin mematikan 2FA?');">
+                            <?php echo csrf_field(); ?>
+                            <div class="input-group mb-3" style="max-width: 400px;">
+                                <input type="password" class="form-control" name="password_confirm" placeholder="Password Anda" required>
+                                <button type="submit" class="btn btn-danger">Matikan 2FA</button>
+                            </div>
+                        </form>
+                    <?php endif; ?>
                 </div>
             </div>
         </div>
