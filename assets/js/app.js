@@ -328,4 +328,42 @@
 
     // Initialize CSRF protection for AJAX requests
     setupCsrfInterceptor();
+
+    /* ------------------------------------------------------------------
+       7. SERVER-SENT EVENTS (SSE) - NOTIFIKASI REAL-TIME
+       ------------------------------------------------------------------ */
+    function initSSENotifications() {
+        // Cek apakah pengguna sudah login (dengan melihat apakah ada elemen badge notif di header)
+        const notifBadge = document.getElementById('notif-badge');
+        if (!notifBadge) return; // Jika tidak ada, kemungkinan halaman login/publik
+
+        // Pastikan EventSource didukung browser
+        if (typeof(EventSource) !== "undefined") {
+            const eventSource = new EventSource('index.php?page=api_sse_notif');
+            
+            eventSource.addEventListener('new_notif', function(e) {
+                const notifications = JSON.parse(e.data);
+                if (notifications && notifications.length > 0) {
+                    notifications.forEach(notif => {
+                        // Munculkan toast untuk setiap notifikasi baru
+                        window.SKIN.notify(notif.pesan, 'success');
+                    });
+                    
+                    // Update badge notifikasi di navbar
+                    const currentCount = parseInt(notifBadge.innerText) || 0;
+                    notifBadge.innerText = currentCount + notifications.length;
+                    notifBadge.classList.remove('d-none');
+                }
+            });
+            
+            eventSource.onerror = function() {
+                // Connection lost or server timeout, browser will auto-reconnect
+                // Kita tidak log console agar tidak membanjiri konsol
+            };
+        }
+    }
+    
+    // Inisialisasi SSE
+    initSSENotifications();
+
 })();

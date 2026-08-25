@@ -8,6 +8,8 @@ class Router {
     private $pageMap = [
         'login'                      => ['file' => 'app/views/auth/login.php',                          'roles' => []],
         'login_2fa'                  => ['file' => 'app/views/auth/2fa_verify.php',                     'roles' => []],
+        'forgot_password'            => ['file' => 'app/views/auth/forgot_password.php',                'roles' => []],
+        'reset_password'             => ['file' => 'app/views/auth/reset_password.php',                 'roles' => []],
         'setup_2fa'                  => ['file' => 'app/views/auth/setup_2fa.php',                      'roles' => ['ormawa','bpm','bem','bkh','wr3','bendahara','admin','sarpras','sarpras_barang']],
         'disable_2fa'                => ['file' => 'app/views/auth/disable_2fa.php',                    'roles' => ['ormawa','bpm','bem','bkh','wr3','bendahara','admin','sarpras','sarpras_barang']],
         'logout'                     => ['file' => 'app/views/auth/logout.php',                         'roles' => []],
@@ -62,6 +64,9 @@ class Router {
         'manage_aspirasi'            => ['file' => 'app/views/verifikator/manage_aspirasi.php',         'roles' => ['bpm']],
         'buat_surat_peringatan'      => ['file' => 'app/views/verifikator/buat_surat_peringatan.php',   'roles' => ['bpm', 'bkh', 'admin']],
         'panduan'                    => ['file' => 'app/views/shared/panduan.php',                      'roles' => []],
+        'api_sse_notif'              => ['file' => 'app/api/sse_notifikasi.php',                        'roles' => ['ormawa','bpm','bem','bkh','wr3','bendahara','admin','sarpras','sarpras_barang']],
+        'api_dashboard'              => ['file' => 'app/api/api_dashboard.php',                         'roles' => ['ormawa','bpm','bem','bkh','wr3','bendahara','admin','sarpras','sarpras_barang']],
+        'export_report'              => ['file' => 'app/api/export_report.php',                         'roles' => ['bpm','bem','bkh','wr3','bendahara','admin']],
     ];
 
     private $dashboardMap = [
@@ -77,9 +82,9 @@ class Router {
     ];
 
     private $standalonePages = [
-        'login', 'login_2fa', 'logout', 'cetak_surat', 'surat_balasan',
+        'login', 'login_2fa', 'setup_2fa', 'disable_2fa', 'forgot_password', 'reset_password', 'logout', 'cetak_surat', 'surat_balasan',
         'verify_page', 'aspirasi', 'view_surat_lain',
-        'view_proposal', 'view_peminjaman', 'panduan',
+        'view_proposal', 'view_peminjaman', 'panduan', 'api_sse_notif', 'api_dashboard', 'export_report'
     ];
 
     public function __construct($conn) {
@@ -212,7 +217,7 @@ private function validateSessionSecurity() {
         // Kita hanya meng-enforce 2FA jika 2FA aktif untuk user ini tapi belum verified sessionnya
         $page = $_GET['page'] ?? 'dashboard';
         $sensitiveRoles = ['admin', 'bem', 'bpm', 'bkh', 'wr3', 'bendahara'];
-        $exemptPages = ['login', 'login_2fa', 'logout']; // Halaman yang bebas dari enforcement loop
+        $exemptPages = ['login', 'login_2fa', 'logout', 'forgot_password', 'reset_password']; // Halaman yang bebas dari enforcement loop
         
         if (!in_array($page, $exemptPages) && !isset($_SESSION['twofa_verified'])) {
             // Check apakah user telah enable 2FA di database

@@ -356,7 +356,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     </button>
                 </div>
                 <button type="submit" class="btn btn-login mt-3">Masuk</button>
-                <a href="index.php?page=panduan" class="text-left text-secondary small">Panduan Pengajuan </a>
+                <div class="d-flex justify-content-between mt-3">
+                    <a href="index.php?page=panduan" class="text-secondary small text-decoration-none"><i class="bi bi-info-circle me-1"></i>Panduan</a>
+                    <a href="index.php?page=forgot_password" class="text-primary small text-decoration-none">Lupa Password?</a>
+                </div>
             </form>
         </div>
       

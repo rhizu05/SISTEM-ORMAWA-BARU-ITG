@@ -483,6 +483,49 @@ $events_json = json_encode($events_calendar);
         <?php endif; ?>
     </div>
 
+    <!-- === DASHBOARD ANALYTICS (Phase 5) === -->
+    <h2 class="h5 mb-3 text-muted">Analytics & Trend</h2>
+    <div class="row mb-4">
+        <div class="col-lg-8 mb-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-white py-3 border-0">
+                    <h6 class="mb-0 fw-bold"><i class="bi bi-graph-up text-primary me-2"></i>Trend Pengajuan Masuk (12 Bulan)</h6>
+                </div>
+                <div class="card-body">
+                    <div style="height: 300px;">
+                        <canvas id="chartTrendGlobal" class="sk-chart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4 mb-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-white py-3 border-0">
+                    <h6 class="mb-0 fw-bold"><i class="bi bi-pie-chart text-success me-2"></i>Status Pengajuan Keseluruhan</h6>
+                </div>
+                <div class="card-body">
+                    <div style="height: 300px;">
+                        <canvas id="chartStatusGlobal" class="sk-chart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-12 mb-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-white py-3 border-0 d-flex justify-content-between align-items-center">
+                    <h6 class="mb-0 fw-bold"><i class="bi bi-bar-chart-steps text-warning me-2"></i>Top 5 Ormawa (Dana Cair)</h6>
+                    <a href="index.php?page=export_report&type=top_ormawa&format=pdf" class="btn btn-sm btn-outline-danger"><i class="bi bi-file-pdf"></i> PDF</a>
+                </div>
+                <div class="card-body">
+                    <div style="height: 300px;">
+                        <canvas id="chartTopOrmawa" class="sk-chart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- === END DASHBOARD ANALYTICS === -->
+
     <!-- Tabel Verifikasi Proposal -->
     <div class="card mb-4 shadow-sm">
         <div class="card-header bg-white border-0 py-3"><i class="bi bi-table me-2"></i>Tabel Verifikasi Proposal</div>
