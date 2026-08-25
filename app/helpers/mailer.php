@@ -14,6 +14,28 @@ use PHPMailer\PHPMailer\Exception;
  * @return bool True jika berhasil, False jika gagal
  */
 function send_email(string $to_email, string $to_name, string $subject, string $body_html): bool {
+    // === MOCK MODE UNTUK TESTING LOKAL ===
+    $log_dir = dirname(__DIR__, 2) . '/storage/logs';
+    if (!is_dir($log_dir)) {
+        mkdir($log_dir, 0777, true);
+    }
+    
+    // Cari URL Reset Password (jika ada di dalam HTML body)
+    $matches = [];
+    preg_match("/href='([^']+)'/", $body_html, $matches);
+    $url = $matches[1] ?? 'TIDAK_ADA_LINK';
+    
+    $log_message = "[" . date('Y-m-d H:i:s') . "] EMAIL TERKIRIM KE: $to_email\n";
+    $log_message .= "Subject: $subject\n";
+    $log_message .= "Link Reset: $url\n";
+    $log_message .= str_repeat("-", 40) . "\n";
+    
+    file_put_contents($log_dir . '/email_mock.log', $log_message, FILE_APPEND);
+    
+    return true; // Pura-pura sukses
+    // === AKHIR MOCK MODE ===
+
+    /* Kode PHPMailer Asli Dimentahkan Sementara
     $mail = new PHPMailer(true);
     
     try {
@@ -45,6 +67,7 @@ function send_email(string $to_email, string $to_name, string $subject, string $
         error_log("Email error to $to_email: {$mail->ErrorInfo}");
         return false;
     }
+    */
 }
 
 /**
