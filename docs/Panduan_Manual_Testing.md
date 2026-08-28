@@ -1,4 +1,4 @@
-# PANDUAN PENGUJIAN MANUAL SISTEM KEUANGAN (SKIN)
+# PANDUAN PENGUJIAN MANUAL SISTEM KEMAHASISWAAN (SKIN)
 
 Panduan ini berisi langkah-langkah *click-by-click* untuk memverifikasi fitur-fitur baru (Security, 2FA, SSE, Password Reset, Dashboard Analytics). 
 Karena data dummy telah disuntikkan dan mailer telah di-mocking, Anda dapat melakukan semua ini langsung di local browser Anda (http://localhost/sistem_keuangan).

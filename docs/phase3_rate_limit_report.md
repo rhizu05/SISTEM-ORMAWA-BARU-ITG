@@ -1,6 +1,6 @@
 # Phase 3: Rate Limiting - Testing Report
 
-**Project:** Sistem Keuangan (SKIN)  
+**Project:** Sistem Kemahasiswaan (SKIN)  
 **Branch:** feature/security-phase3-rate-limit  
 **Date:** 2026-08-20  
 **Status:** ✅ COMPLETE  

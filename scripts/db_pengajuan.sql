@@ -1,6 +1,6 @@
 -- ============================================================
 -- db_pengajuan.sql
--- Schema lengkap + data demo Sistem Keuangan
+-- Schema lengkap + data demo Sistem Kemahasiswaan
 -- Dijalankan otomatis oleh scripts/setup_complete.php
 -- ============================================================
 
@@ -67,7 +67,7 @@ CREATE TABLE IF NOT EXISTS `konfigurasi` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 INSERT INTO `konfigurasi` (`nama_konfigurasi`, `nilai_konfigurasi`) VALUES
-('nama_aplikasi', 'SI-Keuangan'),
+('nama_aplikasi', 'SKIN'),
 ('logo_sistem',   NULL),
 ('kop_logo',      NULL),
 ('kop_baris1',    'NAMA INSTITUSI'),
@@ -462,4 +462,37 @@ CREATE TABLE IF NOT EXISTS `login_attempts` (
   INDEX `idx_user_time` (`username`, `attempted_at`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+
+-- ============================================================
+-- TABEL AUDIT LOGS & EMAIL QUEUE (Sprint 5-6)
+-- ============================================================
+CREATE TABLE IF NOT EXISTS `audit_logs` (
+        `id` BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+        `user_id` INT(11) NULL,
+        `action` VARCHAR(100) NOT NULL,
+        `entity_type` VARCHAR(100) NULL,
+        `entity_id` VARCHAR(100) NULL,
+        `details` JSON NULL,
+        `ip_address` VARCHAR(45) NULL,
+        `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        PRIMARY KEY (`id`),
+        KEY `idx_user_action` (`user_id`, `action`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS `email_queue` (
+        `id` BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+        `to_email` VARCHAR(255) NOT NULL,
+        `to_name` VARCHAR(255) NULL,
+        `subject` VARCHAR(255) NOT NULL,
+        `body` TEXT NOT NULL,
+        `status` ENUM('pending', 'sending', 'sent', 'failed') DEFAULT 'pending',
+        `attempts` INT(11) DEFAULT 0,
+        `error_log` TEXT NULL,
+        `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        PRIMARY KEY (`id`),
+        KEY `idx_status` (`status`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 COMMIT;
+

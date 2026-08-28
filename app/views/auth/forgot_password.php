@@ -47,12 +47,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 $reset_link = BASE_URL . "/index.php?page=reset_password&token=" . $token;
                 
                 // Siapkan isi email
-                $subject = "Reset Password Anda - Sistem Keuangan ITG";
+                $subject = "Reset Password Anda - Sistem Kemahasiswaan ITG";
                 $body = "
                 <div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;'>
                     <h2 style='color: #2563eb;'>Permintaan Reset Password</h2>
                     <p>Halo <b>{$user['nama_lengkap']}</b>,</p>
-                    <p>Kami menerima permintaan untuk mereset password akun Sistem Keuangan Anda.</p>
+                    <p>Kami menerima permintaan untuk mereset password akun Sistem Kemahasiswaan Anda.</p>
                     <p>Silakan klik tombol di bawah ini untuk membuat password baru. Link ini hanya berlaku selama 30 menit.</p>
                     <div style='text-align: center; margin: 30px 0;'>
                         <a href='{$reset_link}' style='background-color: #2563eb; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold;'>Reset Password Saya</a>
@@ -86,7 +86,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lupa Password - SI Keuangan ITG</title>
+    <title>Lupa Password - SKIN ITG</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <style>

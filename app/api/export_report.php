@@ -17,6 +17,9 @@ if (!in_array($role, ['bem', 'bpm', 'bkh', 'wr3', 'bendahara', 'admin'])) {
 $format = $_GET['format'] ?? 'excel'; // 'excel' or 'pdf'
 $type = $_GET['type'] ?? 'top_ormawa'; 
 
+// Catat aktivitas ekspor
+log_audit($conn, 'EXPORT_REPORT', 'report', $type, ['format' => $format]);
+
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use Dompdf\Dompdf;
@@ -24,7 +27,7 @@ use Dompdf\Options;
 
 // --- AMBIL DATA ---
 $data = [];
-$title = "Laporan Sistem Keuangan";
+$title = "Laporan Sistem Kemahasiswaan";
 
 if ($type == 'top_ormawa') {
     $title = "Laporan Pencairan Dana Top Ormawa";

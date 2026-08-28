@@ -1,7 +1,7 @@
 <?php
 /**
  * File: setup_complete.php
- * Deskripsi: Setup otomatis Sistem Keuangan.
+ * Deskripsi: Setup otomatis Sistem Kemahasiswaan.
  *
  * Cara pakai:
  * 1. Salin config.example.php menjadi config.php dan sesuaikan kredensial DB.
@@ -31,7 +31,7 @@ define('ROOT_PATH', realpath(__DIR__ . '/..'));
 require_once $config_path;
 
 echo "==============================================\n";
-echo "  SETUP LENGKAP SISTEM KEUANGAN\n";
+echo "  SETUP LENGKAP SISTEM KEMAHASISWAAN\n";
 echo "==============================================\n\n";
 
 // --- Step 1: Buat database jika belum ada ---

@@ -113,5 +113,61 @@ class NotifikasiController extends Controller {
         }
         $this->jsonResponse(['success' => false, 'message' => 'Gagal menandai notifikasi.'], 500);
     }
+
+    /**
+     * Endpoint API: Menandai notifikasi umum (dari tabel `notifikasi`) sebagai terbaca
+     */
+    public function tandaiBaca() {
+        $this->requireLogin();
+        
+        $raw = file_get_contents('php://input');
+        $data = json_decode($raw, true);
+        $id_notif = isset($data['id_notif']) ? intval($data['id_notif']) : 0;
+        
+        if ($id_notif > 0) {
+            // Tandai satu saja
+            $stmt = $this->conn->prepare("UPDATE notifikasi SET status_baca = 'sudah' WHERE id_notif = ? AND id_user = ?");
+            $stmt->bind_param("ii", $id_notif, $_SESSION['user_id']);
+        } else {
+            // Tandai semua terbaca
+            $stmt = $this->conn->prepare("UPDATE notifikasi SET status_baca = 'sudah' WHERE id_user = ? AND status_baca = 'belum'");
+            $stmt->bind_param("i", $_SESSION['user_id']);
+        }
+        
+        if ($stmt->execute()) {
+            $this->jsonResponse(['success' => true]);
+        }
+        $this->jsonResponse(['success' => false], 500);
+    }
+
+    /**
+     * Mendapatkan daftar notifikasi terbaru (untuk dipanggil via JS awal muat)
+     */
+    public function belumBaca() {
+        $this->requireLogin();
+        
+        $stmt = $this->conn->prepare("SELECT id_notif, pesan, status_baca, waktu FROM notifikasi WHERE id_user = ? ORDER BY waktu DESC LIMIT 15");
+        $stmt->bind_param("i", $_SESSION['user_id']);
+        $stmt->execute();
+        $res = $stmt->get_result();
+        
+        $notifs = [];
+        $unread = 0;
+        while ($row = $res->fetch_assoc()) {
+            if ($row['status_baca'] == 'belum') $unread++;
+            $notifs[] = [
+                'id' => $row['id_notif'],
+                'pesan' => $row['pesan'],
+                'status' => $row['status_baca'],
+                'waktu' => date('d M H:i', strtotime($row['waktu']))
+            ];
+        }
+        
+        $this->jsonResponse([
+            'success' => true,
+            'count' => $unread,
+            'data' => $notifs
+        ]);
+    }
 }
 ?>

@@ -44,7 +44,7 @@ Berdasarkan kondisi sistem existing dan hasil wawancara stakeholder, SKIN mencak
 
 | Atribut | Nilai |
 |---------|-------|
-| Nama sistem | SI-Keuangan / SKIN / skin-itg |
+| Nama sistem | SKIN / SKIN / skin-itg |
 | Institusi | Institut Teknologi Garut (ITG) |
 | Jenis aplikasi | Web application (PHP custom MVC) |
 | Bahasa pemrograman | PHP 8.0.30 |

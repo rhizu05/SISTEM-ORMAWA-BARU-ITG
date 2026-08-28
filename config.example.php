@@ -33,7 +33,7 @@ define('SMTP_PORT', 587);
 define('SMTP_USER', 'your_brevo_email@domain.com'); // Ganti dengan Login email Brevo
 define('SMTP_PASS', 'your_brevo_smtp_key');         // Ganti dengan SMTP Master Password Brevo
 define('MAIL_FROM_ADDRESS', 'noreply@itg.ac.id');
-define('MAIL_FROM_NAME', 'Sistem Keuangan ITG');
+define('MAIL_FROM_NAME', 'Sistem Kemahasiswaan ITG');
 
 $conn = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME, DB_PORT);
 if ($conn->connect_error) {

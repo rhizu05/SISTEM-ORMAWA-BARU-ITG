@@ -14,60 +14,88 @@ use PHPMailer\PHPMailer\Exception;
  * @return bool True jika berhasil, False jika gagal
  */
 function send_email(string $to_email, string $to_name, string $subject, string $body_html): bool {
-    // === MOCK MODE UNTUK TESTING LOKAL ===
-    $log_dir = dirname(__DIR__, 2) . '/storage/logs';
-    if (!is_dir($log_dir)) {
-        mkdir($log_dir, 0777, true);
+    global $conn; // Menggunakan koneksi DB global
+    
+    // Alih-alih mengirim langsung, masukkan ke antrean (Queue)
+    if (isset($conn) && $conn instanceof mysqli) {
+        $stmt = $conn->prepare("INSERT INTO email_queue (to_email, to_name, subject, body, status) VALUES (?, ?, ?, ?, 'pending')");
+        if ($stmt) {
+            $stmt->bind_param("ssss", $to_email, $to_name, $subject, $body_html);
+            $result = $stmt->execute();
+            $stmt->close();
+            
+            // Log ke audit bahwa email sedang di-queue
+            if (function_exists('log_audit')) {
+                log_audit($conn, 'EMAIL_QUEUED', 'email', $to_email, ['subject' => $subject]);
+            }
+            
+            return $result;
+        }
     }
     
-    // Cari URL Reset Password (jika ada di dalam HTML body)
-    $matches = [];
-    preg_match("/href='([^']+)'/", $body_html, $matches);
-    $url = $matches[1] ?? 'TIDAK_ADA_LINK';
+    // Jika tidak ada koneksi DB, fallback log manual (untuk testing)
+    $log_dir = dirname(__DIR__, 2) . '/storage/logs';
+    if (!is_dir($log_dir)) mkdir($log_dir, 0777, true);
     
-    $log_message = "[" . date('Y-m-d H:i:s') . "] EMAIL TERKIRIM KE: $to_email\n";
+    $log_message = "[" . date('Y-m-d H:i:s') . "] FALLBACK EMAIL KE: $to_email\n";
     $log_message .= "Subject: $subject\n";
-    $log_message .= "Link Reset: $url\n";
-    $log_message .= str_repeat("-", 40) . "\n";
-    
     file_put_contents($log_dir . '/email_mock.log', $log_message, FILE_APPEND);
     
-    return true; // Pura-pura sukses
-    // === AKHIR MOCK MODE ===
+    return true;
+}
 
-    /* Kode PHPMailer Asli Dimentahkan Sementara
-    $mail = new PHPMailer(true);
+/**
+ * Eksekusi antrean email (Dipanggil oleh Cron / CLI Worker)
+ * @param mysqli $conn
+ */
+function process_email_queue(mysqli $conn) {
+    // Ambil maks 10 email pending
+    $res = $conn->query("SELECT * FROM email_queue WHERE status = 'pending' LIMIT 10");
+    if (!$res || $res->num_rows === 0) return;
     
-    try {
-        // Server settings
-        $mail->isSMTP();
-        $mail->Host       = SMTP_HOST;
-        $mail->SMTPAuth   = true;
-        $mail->Username   = SMTP_USER;
-        $mail->Password   = SMTP_PASS;
-        $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-        $mail->Port       = SMTP_PORT;
+    while ($row = $res->fetch_assoc()) {
+        $id = $row['id'];
+        // Update status ke sending
+        $conn->query("UPDATE email_queue SET status = 'sending' WHERE id = $id");
         
-        // Disable debug output in production
-        $mail->SMTPDebug  = 0; 
-        
-        // Recipients
-        $mail->setFrom(MAIL_FROM_ADDRESS, MAIL_FROM_NAME);
-        $mail->addAddress($to_email, $to_name);
-        
-        // Content
-        $mail->isHTML(true);
-        $mail->Subject = $subject;
-        $mail->Body    = $body_html;
-        
-        $mail->send();
-        return true;
-    } catch (Exception $e) {
-        // Silently log error (bisa ditaruh ke file log di phase selanjutnya)
-        error_log("Email error to $to_email: {$mail->ErrorInfo}");
-        return false;
+        $mail = new PHPMailer(true);
+        try {
+            $mail->isSMTP();
+            $mail->Host       = SMTP_HOST;
+            $mail->SMTPAuth   = true;
+            $mail->Username   = SMTP_USER;
+            $mail->Password   = SMTP_PASS;
+            $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+            $mail->Port       = SMTP_PORT;
+            
+            $mail->setFrom(MAIL_FROM_ADDRESS, MAIL_FROM_NAME);
+            $mail->addAddress($row['to_email'], $row['to_name']);
+            
+            $mail->isHTML(true);
+            $mail->Subject = $row['subject'];
+            $mail->Body    = $row['body'];
+            
+            // Dalam mode lokal, kita tulis ke mock jika password SMTP belum di-set
+            if (SMTP_PASS === 'your_smtp_password') {
+                $log_dir = dirname(__DIR__, 2) . '/storage/logs';
+                if (!is_dir($log_dir)) mkdir($log_dir, 0777, true);
+                
+                preg_match("/href='([^']+)'/", $row['body'], $matches);
+                $url = $matches[1] ?? 'TIDAK_ADA_LINK';
+                
+                $log = "[" . date('Y-m-d H:i:s') . "] EMAIL MOCK WORKER KE: {$row['to_email']}\n";
+                $log .= "Subjek: {$row['subject']}\nURL: $url\n------------------\n";
+                file_put_contents($log_dir . '/email_mock.log', $log, FILE_APPEND);
+            } else {
+                $mail->send(); // Kirim beneran jika SMTP siap
+            }
+            
+            $conn->query("UPDATE email_queue SET status = 'sent', attempts = attempts + 1 WHERE id = $id");
+        } catch (Exception $e) {
+            $error = $conn->real_escape_string($mail->ErrorInfo);
+            $conn->query("UPDATE email_queue SET status = 'failed', error_log = '$error', attempts = attempts + 1 WHERE id = $id");
+        }
     }
-    */
 }
 
 /**

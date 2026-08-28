@@ -330,14 +330,40 @@
     setupCsrfInterceptor();
 
     /* ------------------------------------------------------------------
-       7. SERVER-SENT EVENTS (SSE) - NOTIFIKASI REAL-TIME
+       7. SERVER-SENT EVENTS (SSE) - NOTIFIKASI REAL-TIME & IN-APP CENTER
        ------------------------------------------------------------------ */
     function initSSENotifications() {
-        // Cek apakah pengguna sudah login (dengan melihat apakah ada elemen badge notif di header)
         const notifBadge = document.getElementById('notif-badge');
-        if (!notifBadge) return; // Jika tidak ada, kemungkinan halaman login/publik
+        const notifList = document.getElementById('notif-list');
+        if (!notifBadge || !notifList) return;
 
-        // Pastikan EventSource didukung browser
+        // Load awal data notifikasi (histori)
+        fetch('index.php?page=api_notifikasi_belum_baca')
+            .then(res => res.json())
+            .then(res => {
+                if (res.success && res.data) {
+                    renderNotificationList(res.data, notifList);
+                    updateBadgeCount(notifBadge, res.count);
+                }
+            });
+
+        // Event listener saat user membuka dropdown
+        document.getElementById('notif-bell').addEventListener('show.bs.dropdown', function () {
+            // Tandai semua terbaca di server secara asinkron
+            fetch('index.php?page=tandai_notif_baca', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ action: 'read_all' })
+            }).then(() => {
+                updateBadgeCount(notifBadge, 0); // Hilangkan badge merah
+                // Hilangkan background kuning pada list item
+                document.querySelectorAll('#notif-list .list-group-item').forEach(el => {
+                    el.classList.remove('bg-warning', 'bg-opacity-10');
+                });
+            });
+        });
+
+        // SSE Real-time push
         if (typeof(EventSource) !== "undefined") {
             const eventSource = new EventSource('index.php?page=api_sse_notif');
             
@@ -345,22 +371,72 @@
                 const notifications = JSON.parse(e.data);
                 if (notifications && notifications.length > 0) {
                     notifications.forEach(notif => {
-                        // Munculkan toast untuk setiap notifikasi baru
-                        window.SKIN.notify(notif.pesan, 'success');
+                        window.SKIN.notify(notif.pesan, 'success'); // Toast
+                        prependToNotificationList(notif, notifList); // Masuk ke dropdown list
                     });
                     
-                    // Update badge notifikasi di navbar
                     const currentCount = parseInt(notifBadge.innerText) || 0;
-                    notifBadge.innerText = currentCount + notifications.length;
-                    notifBadge.classList.remove('d-none');
+                    updateBadgeCount(notifBadge, currentCount + notifications.length);
                 }
             });
-            
-            eventSource.onerror = function() {
-                // Connection lost or server timeout, browser will auto-reconnect
-                // Kita tidak log console agar tidak membanjiri konsol
-            };
         }
+    }
+
+    function updateBadgeCount(badgeEl, count) {
+        if (count > 0) {
+            badgeEl.innerText = count;
+            badgeEl.classList.remove('d-none');
+        } else {
+            badgeEl.innerText = 0;
+            badgeEl.classList.add('d-none');
+        }
+    }
+
+    function renderNotificationList(dataArray, listEl) {
+        if (dataArray.length === 0) {
+            listEl.innerHTML = '<div class="text-center p-3 text-muted small">Tidak ada notifikasi.</div>';
+            return;
+        }
+        
+        let html = '';
+        dataArray.forEach(notif => {
+            const bgClass = notif.status === 'belum' ? 'bg-warning bg-opacity-10' : '';
+            html += `
+            <div class="list-group-item list-group-item-action ${bgClass}">
+                <div class="d-flex w-100 justify-content-between">
+                    <p class="mb-1 small">${notif.pesan}</p>
+                </div>
+                <small class="text-muted" style="font-size: 0.7rem;">${notif.waktu}</small>
+            </div>`;
+        });
+        
+        // Add footer "Tandai sudah dibaca" if there are items
+        html += `<div class="p-2 text-center border-top">
+                    <span class="text-primary small" style="cursor:pointer;">Tandai semua sudah dibaca</span>
+                 </div>`;
+        
+        listEl.innerHTML = html;
+    }
+
+    function prependToNotificationList(notif, listEl) {
+        // Hilangkan pesan "Tidak ada notifikasi" jika ada
+        if (listEl.querySelector('.text-muted.small')) {
+            listEl.innerHTML = '';
+        }
+        
+        // Format waktu simple (HH:ii)
+        const d = new Date();
+        const timeStr = d.getHours() + ':' + (d.getMinutes()<10?'0':'') + d.getMinutes();
+        
+        const html = `
+        <div class="list-group-item list-group-item-action bg-warning bg-opacity-10">
+            <div class="d-flex w-100 justify-content-between">
+                <p class="mb-1 small">${notif.pesan}</p>
+            </div>
+            <small class="text-muted" style="font-size: 0.7rem;">Hari ini, ${timeStr}</small>
+        </div>`;
+        
+        listEl.insertAdjacentHTML('afterbegin', html);
     }
     
     // Inisialisasi SSE

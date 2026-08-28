@@ -240,7 +240,7 @@ $path_ttd = (file_exists($ttd_path) && !empty($ttd_path)) ? $ttd_path : '';
             <div style="clear: both;"></div>
 
             <div class="e-sig-footer">
-                Dokumen ini ditandatangani secara elektronik menggunakan Sertifikat Elektronik yang diterbitkan oleh Sistem Informasi Keuangan (SI-Keuangan) Institut Teknologi Garut. Keaslian dokumen dapat dicek melalui scan QR Code di atas.
+                Dokumen ini ditandatangani secara elektronik menggunakan Sertifikat Elektronik yang diterbitkan oleh Sistem Informasi Kemahasiswaan (SKIN) Institut Teknologi Garut. Keaslian dokumen dapat dicek melalui scan QR Code di atas.
             </div>
         </div>
     </div>

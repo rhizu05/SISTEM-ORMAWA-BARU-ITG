@@ -302,9 +302,16 @@ function log_login_attempt($conn, $ip, $username = '', $success = false)
          VALUES (?, ?, NOW(), ?)"
     );
     if ($stmt) {
-        $stmt->bind_param("ssi", $ip, $username ? $username : '', $success ? 1 : 0);
+        $final_username = $username ? $username : '';
+        $final_success = $success ? 1 : 0;
+        $stmt->bind_param("ssi", $ip, $final_username, $final_success);
         $stmt->execute();
         $stmt->close();
+    }
+    
+    // Jika sukses, lempar juga ke audit log
+    if ($success && isset($_SESSION['user_id'])) {
+        log_audit($conn, 'LOGIN_SUCCESS');
     }
 }
 
@@ -319,6 +326,29 @@ function cleanup_old_attempts($conn)
     $stmt = $conn->prepare("DELETE FROM login_attempts WHERE attempted_at < ?");
     if ($stmt) {
         $stmt->bind_param("s", $cutoff);
+        $stmt->execute();
+        $stmt->close();
+    }
+}
+
+/**
+ * Log aktivitas kritis ke tabel audit_logs
+ * 
+ * @param mysqli $conn
+ * @param string $action (e.g., 'LOGIN_SUCCESS', 'ENABLE_2FA', 'EXPORT_PDF')
+ * @param string|null $entity_type (e.g., 'pengajuan', 'user')
+ * @param string|null $entity_id ID entitas terkait
+ * @param array|null $details Data tambahan (di-encode jadi JSON)
+ */
+function log_audit($conn, string $action, ?string $entity_type = null, ?string $entity_id = null, ?array $details = null)
+{
+    $user_id = $_SESSION['user_id'] ?? null;
+    $ip = get_client_ip();
+    $details_json = $details ? json_encode($details) : null;
+
+    $stmt = $conn->prepare("INSERT INTO audit_logs (user_id, action, entity_type, entity_id, details, ip_address) VALUES (?, ?, ?, ?, ?, ?)");
+    if ($stmt) {
+        $stmt->bind_param("isssss", $user_id, $action, $entity_type, $entity_id, $details_json, $ip);
         $stmt->execute();
         $stmt->close();
     }

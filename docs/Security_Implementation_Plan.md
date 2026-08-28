@@ -4,7 +4,7 @@
 
 ## **Executive Summary**
 
-This plan outlines a 4-week comprehensive security enhancement initiative for the SKIN (Sistem Keuangan) application. The implementation follows an incremental, risk-based approach starting with the highest priority vulnerabilities. Each phase includes testing, deployment, and monitoring strategies to ensure system stability and security.
+This plan outlines a 4-week comprehensive security enhancement initiative for the SKIN (Sistem Kemahasiswaan) application. The implementation follows an incremental, risk-based approach starting with the highest priority vulnerabilities. Each phase includes testing, deployment, and monitoring strategies to ensure system stability and security.
 
 ## **1. Risk Assessment & Priority Matrix**
 

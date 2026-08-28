@@ -1,6 +1,6 @@
 # Phase 4: Session Security - Testing Report
 
-**Project:** Sistem Keuangan (SKIN)  
+**Project:** Sistem Kemahasiswaan (SKIN)  
 **Branch:** feature/security-phase4-session  
 **Date:** 2026-08-20  
 **Status:** ✅ COMPLETE  

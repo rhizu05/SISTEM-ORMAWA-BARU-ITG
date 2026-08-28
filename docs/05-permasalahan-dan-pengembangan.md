@@ -21,7 +21,7 @@ Catatan permasalahan yang ditemukan selama pemahaman sistem dan proses restruktu
 | 6 | **`logout.php` & `login.php` dipindah tapi tautan lama masih ada** | 404 `Not Found` | Semua tautan/redirect diubah ke router (`index.php?page=logout`, `?page=login`, `?page=panduan`) |
 | 7 | **Pemanggilan fungsi `sanitize()` yang tidak ada** (`bendahara/verifikasi_lpj.php`) | Fatal `Call to undefined function` | Diganti ke `sanitize_input()` |
 | 8 | **Library `phpqrcode` tidak pernah ada di project** | `cetak_surat.php` selalu `die()` "Library tidak ditemukan" | Hapus dependensi phpqrcode; QR code digenerate via API eksternal `qrserver.com` |
-| 9 | **Undefined `$nama_aplikasi` di footer** | Warning saat render | Fallback `$nama_aplikasi = $nama_aplikasi ?? 'SI-Keuangan'` |
+| 9 | **Undefined `$nama_aplikasi` di footer** | Warning saat render | Fallback `$nama_aplikasi = $nama_aplikasi ?? 'SKIN'` |
 | 10 | **`$news_result->num_rows` bisa error jika query gagal** (`pusat_informasi.php`) | Fatal pada objek `false` | Guard `if ($news_result && $news_result->num_rows > 0)` + fallback session |
 | 11 | **`$pengajuan` bisa undefined** (`ajukan_pencairan.php`) | Warning/Trying to access null | Inisialisasi variabel & guard `!empty($pengajuan)` |
 | 12 | **`$nama_aplikasi` / double-close `<div>` pada layout** | Struktur HTML tidak valid | Menyesuaikan penutup div & fallback variabel |

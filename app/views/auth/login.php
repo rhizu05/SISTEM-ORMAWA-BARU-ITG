@@ -22,8 +22,8 @@ if (isset($_SESSION['user_id'])) {
 }
 
 // === PENAMBAHAN BARU: LOGIKA UNTUK MENGAMBIL LOGO & NAMA APLIKASI ===
-$nama_aplikasi = 'SI-Keuangan'; // Fallback nama
-$logo_path = 'https://placehold.co/200x60/FFFFFF/000000?text=SI-Keuangan'; // Fallback logo
+$nama_aplikasi = 'SKIN'; // Fallback nama
+$logo_path = 'https://placehold.co/200x60/FFFFFF/000000?text=SKIN'; // Fallback logo
 
 $result_konfig = $conn->query("SELECT nama_konfigurasi, nilai_konfigurasi FROM konfigurasi WHERE nama_konfigurasi IN ('logo_sistem', 'nama_aplikasi')");
 if ($result_konfig) {

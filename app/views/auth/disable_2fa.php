@@ -33,6 +33,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt_update->bind_param("i", $user_id);
         
         if ($stmt_update->execute()) {
+            // Log audit
+            log_audit($conn, 'DISABLE_2FA');
+            
             // Hapus session penanda 2FA
             if (isset($_SESSION['twofa_verified'])) unset($_SESSION['twofa_verified']);
             redirect('index.php?page=profil&success=2fa_disabled');

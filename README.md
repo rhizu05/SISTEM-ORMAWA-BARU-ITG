@@ -1,6 +1,6 @@
-# SI-Keuangan
+# SKIN
 
-Sistem Informasi Keuangan Organisasi Kemahasiswaan — aplikasi web berbasis PHP untuk mengelola pengajuan dana, persuratan digital, peminjaman sarana prasarana, dan komunikasi antar unit kemahasiswaan.
+Sistem Informasi Kemahasiswaan Organisasi Kemahasiswaan — aplikasi web berbasis PHP untuk mengelola pengajuan dana, persuratan digital, peminjaman sarana prasarana, dan komunikasi antar unit kemahasiswaan.
 
 ## Fitur Utama
 

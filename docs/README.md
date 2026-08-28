@@ -1,6 +1,6 @@
-# Dokumentasi Sistem Informasi Keuangan (SI-Keuangan)
+# Dokumentasi Sistem Informasi Kemahasiswaan (SKIN)
 
-Sistem Informasi Keuangan (SI-Keuangan) — disebut juga **SKIN / skin-itg** — adalah aplikasi web yang dikembangkan untuk **Institut Teknologi Garut (ITG)** dalam mengelola seluruh siklus keuangan organisasi kemahasiswaan (Ormawa), mulai dari pengajuan dana, verifikasi, pencairan, hingga laporan pertanggungjawaban (LPJ).
+Sistem Informasi Kemahasiswaan (SKIN) — disebut juga **SKIN / skin-itg** — adalah aplikasi web yang dikembangkan untuk **Institut Teknologi Garut (ITG)** dalam mengelola seluruh siklus keuangan organisasi kemahasiswaan (Ormawa), mulai dari pengajuan dana, verifikasi, pencairan, hingga laporan pertanggungjawaban (LPJ).
 
 Dokumentasi ini disusun sebagai **dokumentasi kondisi awal sistem** sebelum dilakukan perubahan atau penambahan fitur lebih lanjut.
 
@@ -20,7 +20,7 @@ Dokumentasi ini disusun sebagai **dokumentasi kondisi awal sistem** sebelum dila
 
 ## Ringkasan Cepat
 
-- **Nama sistem:** SI-Keuangan (Sistem Informasi Keuangan) / skin-itg
+- **Nama sistem:** SKIN (Sistem Informasi Kemahasiswaan) / skin-itg
 - **Institusi:** Institut Teknologi Garut (ITG)
 - **Jenis aplikasi:** Aplikasi web PHP (custom MVC, tanpa framework)
 - **Database:** MariaDB 10.4 / MySQL 8 (`db_pengajuan`)

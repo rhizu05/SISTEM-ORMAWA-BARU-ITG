@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 /**
  * File: sidebar.php
  * Deskripsi: Bagian sidebar navigasi dengan fitur tema terang/redup dan logo sistem dinamis.
@@ -6,7 +6,7 @@
 
 // === PERBAIKAN: Mengambil data dari session untuk efisiensi ===
 $konfigurasi = $_SESSION['konfigurasi'] ?? [];
-$nama_aplikasi = htmlspecialchars($konfigurasi['nama_aplikasi'] ?? 'SI-Keuangan');
+$nama_aplikasi = htmlspecialchars($konfigurasi['nama_aplikasi'] ?? 'SKIN');
 $logo_file = $konfigurasi['logo_sistem'] ?? 'default_logo.png';
 
 $logo_path = 'https://placehold.co/200x60/FFFFFF/000000?text=No+Logo';
@@ -104,7 +104,7 @@ $current_title = $page_title_map[$currentPage] ?? '';
                                 </li>
                                 <li class="nav-item border-top mt-2 pt-2">
                                     <a href="index.php?page=arsip_digital" class="nav-link text-white py-1 <?php echo ($currentPage == 'arsip_digital') ? 'active bg-primary rounded' : ''; ?>">
-                                        <i class="bi bi-collection-play me-2"></i> ðŸ“‚ Arsip Digital
+                                        <i class="bi bi-collection-play me-2"></i> 📂 Arsip Digital
                                     </a>
                                 </li>
                             </ul>

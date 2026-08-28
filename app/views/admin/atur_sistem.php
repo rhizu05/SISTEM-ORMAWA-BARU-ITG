@@ -153,7 +153,7 @@ $stmt_konfig->close();
 $konfigurasi = $konfigurasi_db;
 
 // --- Pengaturan Sistem Eksisting ---
-$nama_aplikasi_saat_ini = htmlspecialchars($konfigurasi['nama_aplikasi'] ?? 'SI-Keuangan');
+$nama_aplikasi_saat_ini = htmlspecialchars($konfigurasi['nama_aplikasi'] ?? 'SKIN');
 $logo_saat_ini = $konfigurasi['logo_sistem'] ?? ''; // Ubah default ke string kosong
 $path_logo = 'https://placehold.co/200x60/EFEFEF/AAAAAA?text=No+Logo';
 if (!empty($logo_saat_ini) && file_exists('uploads/sistem/' . $logo_saat_ini)) {

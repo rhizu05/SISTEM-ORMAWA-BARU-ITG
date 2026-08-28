@@ -3,7 +3,7 @@
  * File: footer.php
  * Deskripsi: Bagian bawah template HTML dengan JavaScript untuk sidebar interaktif.
  */
-$nama_aplikasi = $nama_aplikasi ?? 'SI-Keuangan';
+$nama_aplikasi = $nama_aplikasi ?? 'SKIN';
 ?>
  <div class="card-footer text-center text-secondary small">
             &copy; <?php echo date('Y'); ?>  <span ><?php echo $nama_aplikasi; ?></span> Institut Teknologi Garut

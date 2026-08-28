@@ -2,7 +2,7 @@
 
 ## 2.1 Arsitektur Aplikasi
 
-SI-Keuangan menggunakan arsitektur **Custom MVC (Model-View-Controller)** yang diimplementasikan secara manual tanpa framework. Alur eksekusi:
+SKIN menggunakan arsitektur **Custom MVC (Model-View-Controller)** yang diimplementasikan secara manual tanpa framework. Alur eksekusi:
 
 ```
 HTTP Request

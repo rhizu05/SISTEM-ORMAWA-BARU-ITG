@@ -1,6 +1,6 @@
 <?php return array(
     'root' => array(
-        'name' => 'itg/sistem-keuangan',
+        'name' => 'itg/sistem-kemahasiswaan',
         'pretty_version' => 'dev-develop',
         'version' => 'dev-develop',
         'reference' => '6d2c0acfb4e1eff6f3ed701bce07e0e1e571cd09',
@@ -109,7 +109,7 @@
             'aliases' => array(),
             'dev_requirement' => true,
         ),
-        'itg/sistem-keuangan' => array(
+        'itg/sistem-kemahasiswaan' => array(
             'pretty_version' => 'dev-develop',
             'version' => 'dev-develop',
             'reference' => '6d2c0acfb4e1eff6f3ed701bce07e0e1e571cd09',

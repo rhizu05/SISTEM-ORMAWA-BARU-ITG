@@ -32,6 +32,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt->bind_param("ssi", $secret, $backup_codes_json, $user_id);
             
             if ($stmt->execute()) {
+                // Log audit
+                log_audit($conn, 'ENABLE_2FA');
+                
                 // Hapus temporary session
                 unset($_SESSION['setup_2fa_secret']);
                 unset($_SESSION['setup_2fa_backups']);
