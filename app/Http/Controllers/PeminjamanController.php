@@ -48,7 +48,8 @@ class PeminjamanController extends Controller
 
         // Cek konflik jadwal ruangan
         $konflik = PeminjamanTempat::where('ruangan_id', $request->ruangan_id)
-            ->where('status_akhir', '!=', 'ditolak')
+            ->where('status_akhir', '!=', 'Ditolak Sarpras')
+            ->where('status_akhir', '!=', 'Ditolak BKKH')
             ->where(function($query) use ($request) {
                 // Logic cek overlap tanggal & jam sederhana
                 $query->whereBetween('tgl_mulai', [$request->tgl_mulai, $request->tgl_selesai])
@@ -123,7 +124,7 @@ class PeminjamanController extends Controller
         return redirect()->route('peminjaman.index')->with('success', 'Pengajuan peminjaman barang berhasil dikirim.');
     }
 
-    // Verifikasi (digunakan oleh BKKH & Sarpras)
+    // Verifikasi (digunakan oleh BKKH, Sarpras Ruangan, & Sarpras Barang)
     public function antrian()
     {
         $role = Auth::user()->roles->first()->name;
@@ -134,9 +135,13 @@ class PeminjamanController extends Controller
         if ($role === 'bkh') {
             $antrian_tempat = PeminjamanTempat::where('status_bkkh', 'pending')->with(['user', 'ruangan'])->latest()->get();
             $antrian_barang = PeminjamanBarang::where('status_bkkh', 'pending')->with('user')->latest()->get();
-        } elseif ($role === 'sarpras' || $role === 'sarpras_barang') {
-            // Sarpras hanya verifikasi yang sudah disetujui BKKH
+        } 
+        elseif ($role === 'sarpras') {
+            // Sarpras Ruangan HANYA bisa memproses peminjaman ruangan yang sudah ACC BKKH
             $antrian_tempat = PeminjamanTempat::where('status_bkkh', 'disetujui')->where('status_sarpras', 'pending')->with(['user', 'ruangan'])->latest()->get();
+        }
+        elseif ($role === 'sarpras_barang') {
+            // Sarpras Barang HANYA bisa memproses peminjaman barang yang sudah ACC BKKH
             $antrian_barang = PeminjamanBarang::where('status_bkkh', 'disetujui')->where('status_sarpras', 'pending')->with('user')->latest()->get();
         }
 
@@ -151,7 +156,7 @@ class PeminjamanController extends Controller
         if ($role === 'bkh') {
             $peminjaman->status_bkkh = $status;
             $peminjaman->status_akhir = $status === 'ditolak' ? 'Ditolak BKKH' : 'Proses Sarpras';
-        } elseif ($role === 'sarpras' || $role === 'sarpras_barang') {
+        } elseif ($role === 'sarpras') {
             $peminjaman->status_sarpras = $status;
             $peminjaman->status_akhir = $status === 'ditolak' ? 'Ditolak Sarpras' : 'Selesai / Disetujui';
         }
@@ -172,7 +177,7 @@ class PeminjamanController extends Controller
         if ($role === 'bkh') {
             $peminjaman->status_bkkh = $status;
             $peminjaman->status_akhir = $status === 'ditolak' ? 'Ditolak BKKH' : 'Proses Sarpras';
-        } elseif ($role === 'sarpras' || $role === 'sarpras_barang') {
+        } elseif ($role === 'sarpras_barang') {
             $peminjaman->status_sarpras = $status;
             $peminjaman->status_akhir = $status === 'ditolak' ? 'Ditolak Sarpras' : 'Selesai / Disetujui';
             
@@ -195,3 +200,4 @@ class PeminjamanController extends Controller
         return redirect()->back()->with('success', 'Verifikasi peminjaman barang berhasil disimpan.');
     }
 }
+

@@ -16,7 +16,7 @@
                         {{ __('Dashboard') }}
                     </x-nav-link>
                     
-                    @hasrole('ormawa')
+                    @hasanyrole('ormawa|bem|bpm')
                     <x-nav-link :href="route('pengajuan.index')" :active="request()->routeIs('pengajuan.*')">
                         {{ __('Pengajuan') }}
                     </x-nav-link>
@@ -29,7 +29,7 @@
                     <x-nav-link :href="route('peminjaman.index')" :active="request()->routeIs('peminjaman.*')">
                         {{ __('Peminjaman') }}
                     </x-nav-link>
-                    @endhasrole
+                    @endhasanyrole
 
                     @hasanyrole('bem|bpm|bkh|wr3|bendahara')
                     <x-nav-link :href="route('verifikasi.index')" :active="request()->routeIs('verifikasi.*')">
@@ -121,7 +121,7 @@
                 {{ __('Dashboard') }}
             </x-responsive-nav-link>
             
-            @hasrole('ormawa')
+            @hasanyrole('ormawa|bem|bpm')
             <x-responsive-nav-link :href="route('pengajuan.index')" :active="request()->routeIs('pengajuan.*')">
                 {{ __('Pengajuan') }}
             </x-responsive-nav-link>
@@ -134,7 +134,7 @@
             <x-responsive-nav-link :href="route('peminjaman.index')" :active="request()->routeIs('peminjaman.*')">
                 {{ __('Peminjaman') }}
             </x-responsive-nav-link>
-            @endhasrole
+            @endhasanyrole
 
             @hasanyrole('bem|bpm|bkh|wr3|bendahara')
             <x-responsive-nav-link :href="route('verifikasi.index')" :active="request()->routeIs('verifikasi.*')">

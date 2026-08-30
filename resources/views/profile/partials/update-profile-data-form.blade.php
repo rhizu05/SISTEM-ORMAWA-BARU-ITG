@@ -31,7 +31,7 @@
         <div>
             <x-input-label for="logo_ormawa" :value="__('Logo Ormawa (PNG/JPG)')" />
             @if($user->logo_ormawa)
-                <img src="{{ Storage::url($user->logo_ormawa) }}" alt="Logo" class="h-16 mb-2">
+                <img src="{{ asset('storage/' . $user->logo_ormawa) }}" alt="Logo" class="h-16 mb-2">
             @endif
             <input id="logo_ormawa" name="logo_ormawa" type="file" class="mt-1 block w-full border rounded p-1" accept="image/*" />
             <x-input-error class="mt-2" :messages="$errors->get('logo_ormawa')" />
@@ -48,7 +48,7 @@
             <div>
                 <x-input-label for="ttd_ketua" :value="__('TTD Ketua (PNG Transparan)')" />
                 @if($user->ttd_ketua)
-                    <img src="{{ Storage::url($user->ttd_ketua) }}" alt="TTD" class="h-10 mb-1 border bg-gray-50">
+                    <img src="{{ asset('storage/' . $user->ttd_ketua) }}" alt="TTD" class="h-10 mb-1 border bg-gray-50">
                 @endif
                 <input id="ttd_ketua" name="ttd_ketua" type="file" class="mt-1 block w-full border rounded p-1 text-sm" accept=".png" />
             </div>
@@ -63,7 +63,7 @@
             <div>
                 <x-input-label for="ttd_sekretaris" :value="__('TTD Sekretaris (PNG)')" />
                 @if($user->ttd_sekretaris)
-                    <img src="{{ Storage::url($user->ttd_sekretaris) }}" alt="TTD" class="h-10 mb-1 border bg-gray-50">
+                    <img src="{{ asset('storage/' . $user->ttd_sekretaris) }}" alt="TTD" class="h-10 mb-1 border bg-gray-50">
                 @endif
                 <input id="ttd_sekretaris" name="ttd_sekretaris" type="file" class="mt-1 block w-full border rounded p-1 text-sm" accept=".png" />
             </div>
@@ -78,7 +78,7 @@
             <div>
                 <x-input-label for="ttd_bendahara" :value="__('TTD Bendahara (PNG)')" />
                 @if($user->ttd_bendahara)
-                    <img src="{{ Storage::url($user->ttd_bendahara) }}" alt="TTD" class="h-10 mb-1 border bg-gray-50">
+                    <img src="{{ asset('storage/' . $user->ttd_bendahara) }}" alt="TTD" class="h-10 mb-1 border bg-gray-50">
                 @endif
                 <input id="ttd_bendahara" name="ttd_bendahara" type="file" class="mt-1 block w-full border rounded p-1 text-sm" accept=".png" />
             </div>

@@ -93,13 +93,15 @@
                                 <x-text-input id="stok_tersedia" name="stok_tersedia" type="number" class="mt-1 block w-full" value="0" required min="0" />
                             </div>
                             <div class="flex items-center mt-4">
-                                <input id="status_aktif" name="status_aktif" type="checkbox" class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500" checked>
+                                <input id="status_aktif" name="status_aktif" type="checkbox" class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500" checked value="1">
                                 <label for="status_aktif" class="ml-2 text-sm text-gray-600">Aktif (Dapat dipinjam)</label>
                             </div>
                         </div>
                         <div class="mt-6 flex justify-end gap-3">
                             <button type="button" @click="showAddModal = false" class="px-4 py-2 border rounded text-gray-600">Batal</button>
-                            <x-primary-button>Simpan</x-primary-button>
+                            <button type="submit" class="inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 focus:bg-gray-700 active:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150">
+                                Simpan
+                            </button>
                         </div>
                     </form>
                 </div>
@@ -125,13 +127,15 @@
                                 <x-text-input id="edit_stok_tersedia" name="stok_tersedia" type="number" class="mt-1 block w-full" x-model="editBarang.stok_tersedia" required min="0" />
                             </div>
                             <div class="flex items-center mt-4">
-                                <input id="edit_status_aktif" name="status_aktif" type="checkbox" class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500" :checked="editBarang?.status_aktif">
+                                <input id="edit_status_aktif" name="status_aktif" type="checkbox" class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500" :checked="editBarang?.status_aktif" value="1">
                                 <label for="edit_status_aktif" class="ml-2 text-sm text-gray-600">Aktif (Dapat dipinjam)</label>
                             </div>
                         </div>
                         <div class="mt-6 flex justify-end gap-3">
                             <button type="button" @click="showEditModal = false" class="px-4 py-2 border rounded text-gray-600">Batal</button>
-                            <x-primary-button>Update</x-primary-button>
+                            <button type="submit" class="inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 focus:bg-gray-700 active:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150">
+                                Update
+                            </button>
                         </div>
                     </form>
                 </div>

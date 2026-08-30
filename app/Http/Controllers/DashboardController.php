@@ -8,6 +8,7 @@ use App\Models\Pengajuan;
 use App\Models\PeminjamanTempat;
 use App\Models\PeminjamanBarang;
 use App\Models\User;
+use App\Models\WorkflowTransition;
 
 class DashboardController extends Controller
 {
@@ -28,17 +29,24 @@ class DashboardController extends Controller
         } 
         
         elseif (in_array($role, ['bem', 'bpm', 'bkh', 'wr3'])) {
+            $allowedTransitions = WorkflowTransition::where('required_role', $role)->get();
+            $allowedStateIds = $allowedTransitions->pluck('from_state_id')->unique();
+            
             $stats = [
-                'antrian_verifikasi' => 0, // Placeholder, akan diupdate dengan query antrian nyata
-                'total_disetujui' => 0,
+                'antrian_verifikasi' => Pengajuan::whereIn('workflow_state_id', $allowedStateIds)->count(),
+                'total_disetujui' => Pengajuan::whereHas('histori', function($q) use ($user) {
+                    $q->where('user_id', $user->id);
+                })->count(),
             ];
             return view('dashboard.verifikator', compact('stats'));
         }
         
         elseif ($role === 'bendahara') {
             $stats = [
-                'siap_cair' => 0,
-                'total_dicairkan' => 0,
+                'siap_cair' => Pengajuan::whereHas('state', function($q) {
+                    $q->where('name', 'to_treasurer');
+                })->count(),
+                'total_dicairkan' => \App\Models\Dana::sum('nominal_cair'),
             ];
             return view('dashboard.bendahara', compact('stats'));
         }

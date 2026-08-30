@@ -58,8 +58,8 @@ Route::middleware('auth')->group(function () {
         Route::put('/aspirasi/{aspirasi}', [AspirasiController::class, 'update'])->name('aspirasi.update');
     });
 
-    // Ormawa Role: Modul Pengajuan, LPJ, Peminjaman, Generator
-    Route::middleware(['role:ormawa'])->group(function () {
+    // Ormawa, BEM, BPM: Modul Pengajuan, LPJ, Peminjaman, Generator
+    Route::middleware(['role:ormawa|bem|bpm'])->group(function () {
         Route::get('/pengajuan', [PengajuanController::class, 'index'])->name('pengajuan.index');
         Route::get('/pengajuan/create', [PengajuanController::class, 'create'])->name('pengajuan.create');
         Route::post('/pengajuan', [PengajuanController::class, 'store'])->name('pengajuan.store');

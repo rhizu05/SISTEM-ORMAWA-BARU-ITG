@@ -15,6 +15,7 @@
             @endif
 
             <!-- Antrian Verifikasi Ruangan -->
+            @hasanyrole('bkh|sarpras')
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg border-l-4 border-indigo-500">
                 <div class="p-6 text-gray-900">
                     <h3 class="text-lg font-bold mb-4 border-b pb-2">Antrian Peminjaman Ruangan</h3>
@@ -65,8 +66,10 @@
                     </div>
                 </div>
             </div>
+            @endhasanyrole
 
             <!-- Antrian Verifikasi Barang -->
+            @hasanyrole('bkh|sarpras_barang')
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg border-l-4 border-blue-500">
                 <div class="p-6 text-gray-900">
                     <h3 class="text-lg font-bold mb-4 border-b pb-2">Antrian Peminjaman Barang</h3>
@@ -122,6 +125,7 @@
                     </div>
                 </div>
             </div>
+            @endhasanyrole
 
         </div>
     </div>

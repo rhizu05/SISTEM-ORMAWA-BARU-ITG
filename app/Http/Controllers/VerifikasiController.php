@@ -57,6 +57,12 @@ class VerifikasiController extends Controller
             abort(403, 'Aksi tidak diizinkan.');
         }
 
+        // Jika menolak atau revisi (misal labelnya mengandung tolak/revisi), catatan wajib diisi
+        $isRejecting = in_array($transition->toState->name, ['rejected', 'draft']);
+        if ($isRejecting && empty($request->catatan)) {
+            return back()->withInput()->with('error', 'Catatan wajib diisi jika menolak atau merevisi pengajuan.');
+        }
+
         // BKKH specific rule: require nomor_surat when approving to WR3
         if ($userRole === 'bkh' && $transition->toState->name === 'wr3_approved' && !$pengajuan->nomor_surat && !$request->nomor_surat) {
             return back()->with('error', 'Nomor surat wajib diisi sebelum meneruskan ke WR3.');

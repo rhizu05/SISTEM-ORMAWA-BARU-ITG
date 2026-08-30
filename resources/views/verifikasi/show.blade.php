@@ -15,6 +15,15 @@
                         {{ session('error') }}
                     </div>
                 @endif
+                @if ($errors->any())
+                    <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative">
+                        <ul class="list-disc pl-5">
+                            @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
 
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                     <div class="p-6 text-gray-900">
@@ -47,9 +56,9 @@
 
                         <div class="mb-4">
                             <p class="text-sm text-gray-500 mb-2">Dokumen Proposal</p>
-                            <iframe src="{{ Storage::url($pengajuan->file_proposal) }}" class="w-full h-96 border rounded" frameborder="0"></iframe>
+                            <iframe src="{{ asset('storage/' . $pengajuan->file_proposal) }}" class="w-full h-96 border rounded" frameborder="0"></iframe>
                             <div class="mt-2 text-right">
-                                <a href="{{ Storage::url($pengajuan->file_proposal) }}" target="_blank" class="text-sm text-indigo-600 hover:underline">Buka di tab baru &rarr;</a>
+                                <a href="{{ asset('storage/' . $pengajuan->file_proposal) }}" target="_blank" class="text-sm text-indigo-600 hover:underline">Buka di tab baru &rarr;</a>
                             </div>
                         </div>
                     </div>
@@ -99,8 +108,8 @@
                                 @endif
 
                                 <div class="mb-4">
-                                    <x-input-label for="catatan" :value="__('Catatan (Opsional, wajib jika revisi/ditolak)')" />
-                                    <textarea id="catatan" name="catatan" rows="3" class="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm block mt-1 w-full" placeholder="Tuliskan catatan untuk ormawa atau pemeriksa selanjutnya..."></textarea>
+                                    <x-input-label for="catatan" :value="__('Catatan (Wajib diisi jika menolak atau merevisi pengajuan)')" />
+                                    <textarea id="catatan" name="catatan" rows="3" class="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm block mt-1 w-full" placeholder="Tuliskan catatan untuk ormawa atau pemeriksa selanjutnya...">{{ old('catatan') }}</textarea>
                                 </div>
 
                                 <div class="flex gap-4 border-t pt-4">

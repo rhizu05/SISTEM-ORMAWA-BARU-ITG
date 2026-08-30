@@ -166,7 +166,7 @@ class PengajuanController extends Controller
             'pengajuan_id' => $pengajuan->id,
             'user_id' => Auth::id(),
             'workflow_state_id' => $submittedState->id,
-            'catatan' => 'Pengajuan disubmit ke BEM'
+            'catatan' => 'Pengajuan disubmit untuk diverifikasi'
         ]);
 
         return redirect()->route('pengajuan.index')->with('success', 'Pengajuan berhasil dikirim ke BEM.');
