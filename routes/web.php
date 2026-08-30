@@ -11,6 +11,7 @@ use App\Http\Controllers\PeminjamanController;
 use App\Http\Controllers\PengajuanController;
 use App\Http\Controllers\ProposalGeneratorController;
 use App\Http\Controllers\RapatController;
+use App\Http\Controllers\Sarpras\MasterBarangController;
 use App\Http\Controllers\VerifikasiController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProfileDataController;
@@ -101,6 +102,14 @@ Route::middleware('auth')->group(function () {
         Route::get('/verifikasi-peminjaman', [PeminjamanController::class, 'antrian'])->name('peminjaman.verifikasi.index');
         Route::post('/verifikasi-peminjaman/tempat/{peminjaman}', [PeminjamanController::class, 'prosesTempat'])->name('peminjaman.tempat.proses');
         Route::post('/verifikasi-peminjaman/barang/{peminjaman}', [PeminjamanController::class, 'prosesBarang'])->name('peminjaman.barang.proses');
+    });
+
+    // Sarpras Khusus: Manajemen Master Barang Inventaris
+    Route::middleware(['role:sarpras_barang'])->prefix('sarpras')->name('sarpras.')->group(function () {
+        Route::get('/barang', [MasterBarangController::class, 'index'])->name('barang.index');
+        Route::post('/barang', [MasterBarangController::class, 'store'])->name('barang.store');
+        Route::put('/barang/{barang}', [MasterBarangController::class, 'update'])->name('barang.update');
+        Route::delete('/barang/{barang}', [MasterBarangController::class, 'destroy'])->name('barang.destroy');
     });
 
     // Bendahara Khusus: Proses Pencairan

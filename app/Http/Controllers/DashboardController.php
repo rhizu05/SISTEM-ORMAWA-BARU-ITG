@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Pengajuan;
+use App\Models\PeminjamanTempat;
+use App\Models\PeminjamanBarang;
 use App\Models\User;
 
 class DashboardController extends Controller
@@ -43,8 +45,8 @@ class DashboardController extends Controller
         
         elseif (in_array($role, ['sarpras', 'sarpras_barang'])) {
             $stats = [
-                'peminjaman_ruangan' => 0,
-                'peminjaman_barang' => 0,
+                'peminjaman_ruangan' => PeminjamanTempat::whereMonth('created_at', date('m'))->count(),
+                'peminjaman_barang' => PeminjamanBarang::whereMonth('created_at', date('m'))->count(),
             ];
             return view('dashboard.sarpras', compact('stats'));
         }

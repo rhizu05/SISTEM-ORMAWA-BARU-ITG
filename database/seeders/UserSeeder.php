@@ -57,6 +57,20 @@ class UserSeeder extends Seeder
                 'role' => 'bendahara'
             ],
             [
+                'name' => 'Sarpras Ruangan ITG',
+                'username' => 'sarpras',
+                'email' => 'sarpras@test.com',
+                'password' => Hash::make('password'),
+                'role' => 'sarpras'
+            ],
+            [
+                'name' => 'Sarpras Inventaris Barang',
+                'username' => 'sarprasbarang',
+                'email' => 'sarprasbarang@test.com',
+                'password' => Hash::make('password'),
+                'role' => 'sarpras_barang'
+            ],
+            [
                 'name' => 'HIMA Informatika',
                 'username' => 'himaif',
                 'email' => 'himaif@test.com',
@@ -69,8 +83,10 @@ class UserSeeder extends Seeder
             $role = $userData['role'];
             unset($userData['role']);
             
-            $user = User::create($userData);
-            $user->assignRole($role);
+            $user = User::firstOrCreate(['email' => $userData['email']], $userData);
+            if (!$user->hasRole($role)) {
+                $user->assignRole($role);
+            }
         }
     }
 }

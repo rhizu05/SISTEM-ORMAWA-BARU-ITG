@@ -20,7 +20,8 @@ class RolePermissionSeeder extends Seeder
             'bkh',
             'wr3',
             'bendahara',
-            'sarpras' // Optional for MVP, but good to have
+            'sarpras',
+            'sarpras_barang'
         ];
 
         foreach ($roles as $role) {

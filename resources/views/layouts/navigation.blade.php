@@ -137,7 +137,7 @@
             @endhasrole
 
             @hasanyrole('bem|bpm|bkh|wr3|bendahara')
-            <x-responsive-nav-link :href="route('verifikasi.index')" :active="request()->requestIs('verifikasi.*')">
+            <x-responsive-nav-link :href="route('verifikasi.index')" :active="request()->routeIs('verifikasi.*')">
                 {{ __('Verifikasi') }}
             </x-responsive-nav-link>
             @endhasanyrole
