@@ -1,176 +1,58 @@
-# SKIN
+<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
 
-Sistem Informasi Kemahasiswaan Organisasi Kemahasiswaan — aplikasi web berbasis PHP untuk mengelola pengajuan dana, persuratan digital, peminjaman sarana prasarana, dan komunikasi antar unit kemahasiswaan.
+<p align="center">
+<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
+<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
+<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
+<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
+</p>
 
-## Fitur Utama
+## About Laravel
 
-### Keuangan
-- Pengajuan dana dengan alur verifikasi multi-tahap (BEM → BPM → BKKH → WR3 → Bendahara)
-- Upload proposal PDF & LPJ
-- Pencairan dana dengan pencatatan nominal
-- Audit trail histori status setiap pengajuan
-- Manajemen saldo per organisasi
+Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
 
-### Persuratan Digital
-- Generator proposal otomatis (dengan RAB & struktur panitia)
-- Generator LPJ otomatis (dengan realisasi anggaran & lampiran foto)
-- Generator surat lainnya (Undangan, Tugas, Permohonan, Keterangan, Peringatan)
-- TTD digital (ketua, sekretaris, bendahara)
-- Verifikasi keaslian surat via QR code
+- [Simple, fast routing engine](https://laravel.com/docs/routing).
+- [Powerful dependency injection container](https://laravel.com/docs/container).
+- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
+- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
+- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
+- [Robust background job processing](https://laravel.com/docs/queues).
+- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
 
-### Sarana & Prasarana
-- Peminjaman tempat/ruangan (alur 2 tahap: BKKH → Sarpras)
-- Peminjaman barang/inventaris (alur 2 tahap: BKKH → Sarpras Barang)
-- Manajemen master ruangan & inventaris barang
+Laravel is accessible, powerful, and provides tools required for large, robust applications.
 
-### Komunikasi & Informasi
-- Pengumuman oleh BEM (dengan lampiran)
-- Jadwal rapat interaktif (FullCalendar)
-- Aspirasi publik (tanpa login) — dikelola BPM
-- Regulasi & dokumen resmi oleh BPM
-- Notifikasi in-app
+## Learning Laravel
 
-## Tech Stack
+Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
 
-| Komponen | Detail |
-|----------|--------|
-| Backend | PHP 8.0+, arsitektur Custom MVC (tanpa framework) |
-| Database | MySQL 8.0 / MariaDB 10.4 |
-| Driver DB | MySQLi + Prepared Statements |
-| Frontend | Bootstrap 5.3, Bootstrap Icons, Chart.js, FullCalendar, SweetAlert2, DataTables |
-| Auth | PHP Session native, password bcrypt |
-| Server | Apache/Nginx (Laragon / XAMPP) |
+In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
 
-## Prasyarat
+You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
 
-- PHP >= 8.0
-- MySQL >= 8.0 atau MariaDB >= 10.4
-- Web server: Laragon, XAMPP, atau Apache/Nginx
-- Ekstensi PHP: `mysqli`, `gd`, `fileinfo`, `session`
+## Agentic Development
 
-## Instalasi
-
-### 1. Clone Repository
+Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
 
 ```bash
-git clone <url-repo> sistem_keuangan
+composer require laravel/boost --dev
+
+php artisan boost:install
 ```
 
-### 2. Konfigurasi Database
+Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
 
-Salin file konfigurasi contoh dan sesuaikan dengan kredensial lokal kamu:
+## Contributing
 
-```bash
-cp config.example.php config.php
-```
+Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
 
-Edit `config.php`:
+## Code of Conduct
 
-```php
-define('DB_HOST', 'localhost');    // host MySQL
-define('DB_USER', 'root');         // username MySQL
-define('DB_PASS', '');             // password MySQL
-define('DB_NAME', 'db_pengajuan');
-define('DB_PORT', 3306);           // Laragon default: 3306, bisa juga 3308
-```
+In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
 
-### 3. Jalankan Setup Otomatis
+## Security Vulnerabilities
 
-Akses script setup via browser:
+If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
 
-```
-http://sistem_keuangan.test/scripts/setup_complete.php
-```
+## License
 
-atau via CLI:
-
-```bash
-php scripts/setup_complete.php
-```
-
-Script ini akan secara otomatis:
-- Membuat database `db_pengajuan`
-- Mengimpor seluruh schema tabel (21 tabel)
-- Mengisi data demo awal (user, ruangan, inventaris barang)
-- Membuat folder `uploads/` yang diperlukan
-
-### 4. Akses Aplikasi
-
-```
-http://sistem_keuangan.test/index.php?page=login
-```
-
-## User Demo
-
-Semua user demo menggunakan password: **`password123`**
-
-| Username | Role | Deskripsi |
-|----------|------|-----------|
-| `admin` | admin | Administrator |
-| `bem` | bem | Badan Eksekutif Mahasiswa |
-| `bpm` | bpm | Badan Permusyawaratan Mahasiswa |
-| `bkkh` | bkh | BKKH (Super Admin & Verifikator) |
-| `wr3` | wr3 | Wakil Rektor 3 |
-| `bendahara` | bendahara | Bendahara Institusi |
-| `himatif` | ormawa | Contoh Ormawa 1 |
-| `hima_si` | ormawa | Contoh Ormawa 2 |
-| `sarpras_ruangan` | sarpras | Bagian Sarpras Ruangan |
-| `sarpras_barang` | sarpras_barang | Bagian Sarpras Barang |
-
-## Alur Pengajuan Dana
-
-```
-[Ormawa] Buat Pengajuan
-    └─> Diajukan Ke BEM
-            ├─> Ditolak BEM  ──> (Ormawa revisi & ajukan ulang)
-            └─> Diajukan Ke BPM
-                    ├─> Ditolak BPM  ──> (Ormawa revisi & ajukan ulang)
-                    └─> Verifikasi BKKH
-                            ├─> Ditolak BKKH  ──> (Ormawa revisi & ajukan ulang)
-                            └─> Verifikasi WR3
-                                    ├─> Ditolak WR3  ──> (Ormawa revisi & ajukan ulang)
-                                    └─> Disetujui WR3
-                                            └─> Diajukan ke Bendahara
-                                                    ├─> Ditolak Bendahara
-                                                    └─> Dana Cair
-                                                            └─> [Ormawa] Upload LPJ
-                                                                    ├─> LPJ Ditolak BKKH  ──> (revisi)
-                                                                    └─> Selesai
-```
-
-## Role & Akses
-
-| Role | Tanggung Jawab |
-|------|---------------|
-| `ormawa` | Buat & kelola pengajuan dana, upload LPJ, peminjaman, persuratan digital |
-| `bem` | Verifikasi tahap 1, kelola pengumuman & jadwal rapat |
-| `bpm` | Verifikasi tahap 2, kelola aspirasi & regulasi, buat surat peringatan |
-| `bkh` | Verifikasi tahap 3, ajukan pencairan, manajemen user & saldo & sistem |
-| `wr3` | Persetujuan akhir proposal & LPJ |
-| `bendahara` | Proses pencairan dana |
-| `sarpras` | Verifikasi peminjaman tempat/ruangan |
-| `sarpras_barang` | Verifikasi peminjaman barang, kelola inventaris |
-
-## Struktur Direktori
-
-```
-sistem_keuangan/
-├── index.php               # Entry point (front controller)
-├── config.php              # Konfigurasi lokal (tidak di-commit)
-├── config.example.php      # Template konfigurasi
-├── app/
-│   ├── core/
-│   │   ├── Router.php      # Routing & access control
-│   │   └── Controller.php  # Base controller
-│   ├── controllers/        # Logic per fitur
-│   ├── views/              # Template HTML (layout, per-role)
-│   └── helpers/
-│       └── functions.php   # Helper global
-├── assets/                 # Aset statis (gambar)
-├── uploads/                # File runtime (tidak di-commit)
-├── scripts/
-│   ├── db_pengajuan.sql    # Schema & data demo lengkap
-│   ├── setup_complete.php  # Setup otomatis
-│   └── *.php               # Script migrasi individual
-└── docs/                   # Dokumentasi teknis
-```
+The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).

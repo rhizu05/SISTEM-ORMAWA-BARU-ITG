@@ -1,15 +1,27 @@
-# Direktori
-scratch/
-uploads/
-_archive/
-.vscode/
-docs/interview
-docs/laporan
-
-# Log & SQL
 *.log
-*.sql
-!scripts/db_pengajuan.sql
-
-# Konfigurasi lokal (salin dari config.example.php)
-config.php
+.DS_Store
+.env
+.env.backup
+.env.production
+.phpactor.json
+.phpunit.result.cache
+/.codex
+/.cursor/
+/.idea
+/.nova
+/.phpunit.cache
+/.vscode
+/.zed
+/auth.json
+/node_modules
+/public/build
+/public/fonts-manifest.dev.json
+/public/hot
+/public/storage
+/storage/*.key
+/storage/pail
+/vendor
+_ide_helper.php
+Homestead.json
+Homestead.yaml
+Thumbs.db
