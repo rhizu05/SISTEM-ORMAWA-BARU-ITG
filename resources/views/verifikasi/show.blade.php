@@ -8,8 +8,14 @@
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-3 gap-6">
             
-            <!-- Detail Card -->
             <div class="md:col-span-2 space-y-6">
+                
+                @if (session('error'))
+                    <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative">
+                        {{ session('error') }}
+                    </div>
+                @endif
+
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                     <div class="p-6 text-gray-900">
                         <h3 class="text-lg font-bold mb-4 border-b pb-2">Informasi Pengajuan</h3>
@@ -31,6 +37,12 @@
                                 <p class="text-sm text-gray-500">Kode Unik</p>
                                 <p class="font-semibold font-mono">{{ $pengajuan->unique_code }}</p>
                             </div>
+                            @if($pengajuan->nomor_surat)
+                            <div class="col-span-2">
+                                <p class="text-sm text-gray-500">Nomor Surat Resmi</p>
+                                <p class="font-semibold">{{ $pengajuan->nomor_surat }}</p>
+                            </div>
+                            @endif
                         </div>
 
                         <div class="mb-4">
@@ -48,35 +60,73 @@
                     <div class="p-6 text-gray-900">
                         <h3 class="text-lg font-bold mb-4">Aksi Verifikasi</h3>
                         
-                        <form action="{{ route('verifikasi.process', $pengajuan) }}" method="POST">
-                            @csrf
-                            
-                            <div class="mb-4">
-                                <x-input-label for="catatan" :value="__('Catatan (Opsional, wajib jika revisi/ditolak)')" />
-                                <textarea id="catatan" name="catatan" rows="3" class="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm block mt-1 w-full" placeholder="Tuliskan catatan untuk ormawa atau pemeriksa selanjutnya..."></textarea>
-                            </div>
+                        @if(Auth::user()->roles->first()->name === 'bendahara' && $pengajuan->state->name === 'to_treasurer')
+                            <!-- Form Khusus Pencairan Dana -->
+                            <form action="{{ route('bendahara.proses', $pengajuan) }}" method="POST">
+                                @csrf
+                                
+                                <div class="mb-4">
+                                    <x-input-label for="nominal_cair" :value="__('Nominal Dicairkan (Rp)')" />
+                                    <x-text-input id="nominal_cair" name="nominal_cair" type="number" class="mt-1 block w-full" :value="old('nominal_cair', $pengajuan->dana_diajukan)" required min="0" />
+                                </div>
 
-                            <div class="flex gap-4 border-t pt-4">
-                                @foreach($availableTransitions as $transition)
-                                    @php
-                                        $btnClass = 'bg-gray-800 hover:bg-gray-700'; // Default
-                                        $label = strtolower($transition->action_label);
-                                        if (str_contains($label, 'setuju') || str_contains($label, 'cair')) {
-                                            $btnClass = 'bg-green-600 hover:bg-green-700';
-                                        } elseif (str_contains($label, 'tolak')) {
-                                            $btnClass = 'bg-red-600 hover:bg-red-700';
-                                        } elseif (str_contains($label, 'revisi')) {
-                                            $btnClass = 'bg-yellow-500 hover:bg-yellow-600 text-black';
-                                        }
-                                    @endphp
-                                    <button type="submit" name="transition_id" value="{{ $transition->id }}" 
-                                            class="inline-flex items-center px-4 py-2 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest focus:outline-none focus:ring-2 focus:ring-offset-2 transition ease-in-out duration-150 {{ $btnClass }}"
-                                            onclick="return confirm('Anda yakin ingin melakukan aksi: {{ $transition->action_label }}?')">
-                                        {{ $transition->action_label }}
-                                    </button>
-                                @endforeach
-                            </div>
-                        </form>
+                                <div class="mb-4">
+                                    <x-input-label for="tanggal_cair" :value="__('Tanggal Pencairan')" />
+                                    <x-text-input id="tanggal_cair" name="tanggal_cair" type="date" class="mt-1 block w-full" :value="old('tanggal_cair', date('Y-m-d'))" required />
+                                </div>
+
+                                <div class="mb-4">
+                                    <x-input-label for="catatan" :value="__('Catatan Tambahan')" />
+                                    <textarea id="catatan" name="catatan" rows="2" class="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm block mt-1 w-full" placeholder="Cth: Dicairkan melalui transfer bank..."></textarea>
+                                </div>
+
+                                <div class="flex border-t pt-4">
+                                    <x-primary-button class="bg-green-600 hover:bg-green-700" onclick="return confirm('Anda yakin ingin mencairkan dana ini?')">
+                                        Konfirmasi Pencairan Dana
+                                    </x-primary-button>
+                                </div>
+                            </form>
+                        @else
+                            <!-- Form Verifikasi Standar -->
+                            <form action="{{ route('verifikasi.process', $pengajuan) }}" method="POST">
+                                @csrf
+                                
+                                @if(Auth::user()->roles->first()->name === 'bkh' && !$pengajuan->nomor_surat && $pengajuan->state->name === 'bpm_approved')
+                                    <div class="mb-4 p-4 bg-yellow-50 border border-yellow-200 rounded">
+                                        <x-input-label for="nomor_surat" :value="__('Nomor Surat Resmi (Wajib diisi sebelum disetujui BKKH)')" />
+                                        <x-text-input id="nomor_surat" name="nomor_surat" type="text" class="mt-1 block w-full" placeholder="Contoh: 001/BEM/ITG/2026" />
+                                    </div>
+                                @endif
+
+                                <div class="mb-4">
+                                    <x-input-label for="catatan" :value="__('Catatan (Opsional, wajib jika revisi/ditolak)')" />
+                                    <textarea id="catatan" name="catatan" rows="3" class="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm block mt-1 w-full" placeholder="Tuliskan catatan untuk ormawa atau pemeriksa selanjutnya..."></textarea>
+                                </div>
+
+                                <div class="flex gap-4 border-t pt-4">
+                                    @foreach($availableTransitions as $transition)
+                                        @php
+                                            $btnClass = 'bg-gray-800 hover:bg-gray-700'; // Default
+                                            $label = strtolower($transition->action_label);
+                                            if (str_contains($label, 'setuju') || str_contains($label, 'cair') || str_contains($label, 'ajukan')) {
+                                                $btnClass = 'bg-green-600 hover:bg-green-700 text-white';
+                                            } elseif (str_contains($label, 'tolak')) {
+                                                $btnClass = 'bg-red-600 hover:bg-red-700 text-white';
+                                            } elseif (str_contains($label, 'revisi')) {
+                                                $btnClass = 'bg-yellow-500 hover:bg-yellow-600 text-black';
+                                            } else {
+                                                $btnClass = 'bg-indigo-600 hover:bg-indigo-700 text-white';
+                                            }
+                                        @endphp
+                                        <button type="submit" name="transition_id" value="{{ $transition->id }}" 
+                                                class="inline-flex items-center px-4 py-2 border border-transparent rounded-md font-semibold text-xs uppercase tracking-widest focus:outline-none focus:ring-2 focus:ring-offset-2 transition ease-in-out duration-150 {{ $btnClass }}"
+                                                onclick="return confirm('Anda yakin ingin melakukan aksi: {{ $transition->action_label }}?')">
+                                            {{ $transition->action_label }}
+                                        </button>
+                                    @endforeach
+                                </div>
+                            </form>
+                        @endif
                     </div>
                 </div>
                 @endif

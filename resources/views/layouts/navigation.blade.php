@@ -20,17 +20,49 @@
                     <x-nav-link :href="route('pengajuan.index')" :active="request()->routeIs('pengajuan.*')">
                         {{ __('Pengajuan') }}
                     </x-nav-link>
+                    <x-nav-link :href="route('generator.index')" :active="request()->routeIs('generator.*')">
+                        {{ __('Buat Proposal') }}
+                    </x-nav-link>
+                    <x-nav-link :href="route('lpj.index')" :active="request()->routeIs('lpj.*')">
+                        {{ __('LPJ') }}
+                    </x-nav-link>
+                    <x-nav-link :href="route('peminjaman.index')" :active="request()->routeIs('peminjaman.*')">
+                        {{ __('Peminjaman') }}
+                    </x-nav-link>
                     @endhasrole
 
                     @hasanyrole('bem|bpm|bkh|wr3|bendahara')
-                    <x-nav-link :href="route('dashboard')" :active="request()->routeIs('verifikasi.*')">
+                    <x-nav-link :href="route('verifikasi.index')" :active="request()->routeIs('verifikasi.*')">
                         {{ __('Verifikasi') }}
                     </x-nav-link>
                     @endhasanyrole
+
+                    @hasanyrole('bkh|sarpras|sarpras_barang')
+                    <x-nav-link :href="route('peminjaman.verifikasi.index')" :active="request()->routeIs('peminjaman.verifikasi.*')">
+                        {{ __('Verif Peminjaman') }}
+                    </x-nav-link>
+                    @endhasanyrole
+
+                    <x-nav-link :href="route('informasi.index')" :active="request()->routeIs('informasi.*')">
+                        {{ __('Pusat Info') }}
+                    </x-nav-link>
+
+                    <x-nav-link :href="route('rapat.index')" :active="request()->routeIs('rapat.*')">
+                        {{ __('Jadwal Rapat') }}
+                    </x-nav-link>
                     
                     @hasrole('bpm')
                     <x-nav-link :href="route('aspirasi.index')" :active="request()->routeIs('aspirasi.*')">
                         {{ __('Aspirasi') }}
+                    </x-nav-link>
+                    @endhasrole
+
+                    @hasrole('bkh')
+                    <x-nav-link :href="route('admin.users.index')" :active="request()->routeIs('admin.users.*')">
+                        {{ __('Pengguna') }}
+                    </x-nav-link>
+                    <x-nav-link :href="route('admin.konfigurasi.edit')" :active="request()->routeIs('admin.konfigurasi.*')">
+                        {{ __('Pengaturan') }}
                     </x-nav-link>
                     @endhasrole
                 </div>
@@ -93,11 +125,49 @@
             <x-responsive-nav-link :href="route('pengajuan.index')" :active="request()->routeIs('pengajuan.*')">
                 {{ __('Pengajuan') }}
             </x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('generator.index')" :active="request()->routeIs('generator.*')">
+                {{ __('Buat Proposal') }}
+            </x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('lpj.index')" :active="request()->routeIs('lpj.*')">
+                {{ __('LPJ') }}
+            </x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('peminjaman.index')" :active="request()->routeIs('peminjaman.*')">
+                {{ __('Peminjaman') }}
+            </x-responsive-nav-link>
             @endhasrole
+
+            @hasanyrole('bem|bpm|bkh|wr3|bendahara')
+            <x-responsive-nav-link :href="route('verifikasi.index')" :active="request()->requestIs('verifikasi.*')">
+                {{ __('Verifikasi') }}
+            </x-responsive-nav-link>
+            @endhasanyrole
+
+            @hasanyrole('bkh|sarpras|sarpras_barang')
+            <x-responsive-nav-link :href="route('peminjaman.verifikasi.index')" :active="request()->routeIs('peminjaman.verifikasi.*')">
+                {{ __('Verif Peminjaman') }}
+            </x-responsive-nav-link>
+            @endhasanyrole
+
+            <x-responsive-nav-link :href="route('informasi.index')" :active="request()->routeIs('informasi.*')">
+                {{ __('Pusat Info') }}
+            </x-responsive-nav-link>
+
+            <x-responsive-nav-link :href="route('rapat.index')" :active="request()->routeIs('rapat.*')">
+                {{ __('Jadwal Rapat') }}
+            </x-responsive-nav-link>
             
             @hasrole('bpm')
             <x-responsive-nav-link :href="route('aspirasi.index')" :active="request()->routeIs('aspirasi.*')">
                 {{ __('Aspirasi') }}
+            </x-responsive-nav-link>
+            @endhasrole
+
+            @hasrole('bkh')
+            <x-responsive-nav-link :href="route('admin.users.index')" :active="request()->routeIs('admin.users.*')">
+                {{ __('Pengguna') }}
+            </x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('admin.konfigurasi.edit')" :active="request()->routeIs('admin.konfigurasi.*')">
+                {{ __('Pengaturan') }}
             </x-responsive-nav-link>
             @endhasrole
         </div>

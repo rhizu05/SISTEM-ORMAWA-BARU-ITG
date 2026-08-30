@@ -11,7 +11,14 @@
             <!-- Detail Card -->
             <div class="md:col-span-2 bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900">
-                    <h3 class="text-lg font-bold mb-4 border-b pb-2">Informasi Pengajuan</h3>
+                    <div class="flex justify-between items-center mb-4 border-b pb-2">
+                        <h3 class="text-lg font-bold">Informasi Pengajuan</h3>
+                        @if(in_array($pengajuan->state->name, ['draft', 'rejected']))
+                            <a href="{{ route('pengajuan.edit', $pengajuan) }}" class="text-sm bg-yellow-100 text-yellow-800 hover:bg-yellow-200 px-3 py-1 rounded font-semibold border border-yellow-300">
+                                Edit / Revisi
+                            </a>
+                        @endif
+                    </div>
                     
                     <div class="grid grid-cols-2 gap-4 mb-6">
                         <div>
@@ -23,13 +30,19 @@
                             <p class="font-semibold text-indigo-600">{{ $pengajuan->state->label }}</p>
                         </div>
                         <div>
-                            <p class="text-sm text-gray-500">Tanggal Pengajuan</p>
+                            <p class="text-sm text-gray-500">Tanggal Kegiatan</p>
                             <p class="font-semibold">{{ \Carbon\Carbon::parse($pengajuan->tanggal_pengajuan)->format('d F Y') }}</p>
                         </div>
                         <div>
                             <p class="text-sm text-gray-500">Dana Diajukan</p>
                             <p class="font-semibold">Rp {{ number_format($pengajuan->dana_diajukan, 0, ',', '.') }}</p>
                         </div>
+                        @if($pengajuan->nomor_surat)
+                        <div class="col-span-2">
+                            <p class="text-sm text-gray-500">Nomor Surat Resmi</p>
+                            <p class="font-semibold">{{ $pengajuan->nomor_surat }}</p>
+                        </div>
+                        @endif
                     </div>
 
                     <div class="mb-4">

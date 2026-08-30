@@ -45,7 +45,8 @@ class VerifikasiController extends Controller
     {
         $request->validate([
             'transition_id' => 'required|exists:workflow_transitions,id',
-            'catatan' => 'nullable|string'
+            'catatan' => 'nullable|string',
+            'nomor_surat' => 'nullable|string|max:255'
         ]);
 
         $transition = WorkflowTransition::findOrFail($request->transition_id);
@@ -56,10 +57,22 @@ class VerifikasiController extends Controller
             abort(403, 'Aksi tidak diizinkan.');
         }
 
+        // BKKH specific rule: require nomor_surat when approving to WR3
+        if ($userRole === 'bkh' && $transition->toState->name === 'wr3_approved' && !$pengajuan->nomor_surat && !$request->nomor_surat) {
+            return back()->with('error', 'Nomor surat wajib diisi sebelum meneruskan ke WR3.');
+        }
+
         // Apply transition
-        $pengajuan->update([
+        $dataToUpdate = [
             'workflow_state_id' => $transition->to_state_id
-        ]);
+        ];
+
+        // Save nomor_surat if provided (BKKH)
+        if ($request->filled('nomor_surat')) {
+            $dataToUpdate['nomor_surat'] = $request->nomor_surat;
+        }
+
+        $pengajuan->update($dataToUpdate);
 
         HistoriStatus::create([
             'pengajuan_id' => $pengajuan->id,
