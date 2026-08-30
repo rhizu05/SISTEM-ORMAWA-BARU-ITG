@@ -77,12 +77,12 @@ if ($res) {
                             <?php $i = 1; foreach($peminjaman as $row): ?>
                                 <tr>
                                     <td><?php echo $i++; ?></td>
-                                    <td><?php echo htmlspecialchars($row['nama_ormawa'], ENT_QUOTES, 'UTF-8'); ?></td>
+                                    <td><?php echo htmlspecialchars($row['nama_ormawa'] ?? '', ENT_QUOTES, 'UTF-8'); ?></td>
                                     <td>
-                                        <strong><?php echo htmlspecialchars($row['nama_kegiatan'], ENT_QUOTES, 'UTF-8'); ?></strong><br>
-                                        <small class="text-muted"><?php echo htmlspecialchars($row['deskripsi_kegiatan'], ENT_QUOTES, 'UTF-8'); ?></small>
+                                        <strong><?php echo htmlspecialchars($row['nama_kegiatan'] ?? '', ENT_QUOTES, 'UTF-8'); ?></strong><br>
+                                        <small class="text-muted"><?php echo htmlspecialchars($row['deskripsi_kegiatan'] ?? '-', ENT_QUOTES, 'UTF-8'); ?></small>
                                     </td>
-                                    <td><?php echo htmlspecialchars($row['nama_ruangan'], ENT_QUOTES, 'UTF-8'); ?></td>
+                                    <td><?php echo htmlspecialchars($row['nama_ruangan'] ?? '', ENT_QUOTES, 'UTF-8'); ?></td>
                                     <td>
                                         <?php echo date('d M Y', strtotime($row['tgl_mulai'])); ?> s/d <?php echo date('d M Y', strtotime($row['tgl_selesai'])); ?><br>
                                         <small class="text-muted"><i class="bi bi-clock"></i> <?php echo date('H:i', strtotime($row['jam_mulai'])); ?> - <?php echo date('H:i', strtotime($row['jam_selesai'])); ?></small>
@@ -132,8 +132,8 @@ if ($res) {
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
-                    <p>Ormawa: <strong><?php echo htmlspecialchars($row['nama_ormawa']); ?></strong></p>
-                    <p>Kegiatan: <strong><?php echo htmlspecialchars($row['nama_kegiatan']); ?></strong></p>
+                    <p>Ormawa: <strong><?php echo htmlspecialchars($row['nama_ormawa'] ?? ''); ?></strong></p>
+                    <p>Kegiatan: <strong><?php echo htmlspecialchars($row['nama_kegiatan'] ?? ''); ?></strong></p>
                     <input type="hidden" name="id_peminjaman" value="<?php echo $row['id_peminjaman']; ?>">
                     <div class="mb-3">
                         <label class="form-label">Catatan (Wajib jika ditolak)</label>

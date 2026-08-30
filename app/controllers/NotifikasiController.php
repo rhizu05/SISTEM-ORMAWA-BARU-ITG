@@ -9,7 +9,7 @@ class NotifikasiController extends Controller {
      * Endpoint: POST ?page=tandai_notif_terlihat
      * Body JSON: { "ids": [1,2,3] }
      * Menandai notifikasi "Dana Cair" (flag notif_cair_terlihat) sebagai terbaca,
-     * hanya untuk pengajuan milik user yang sedang login (isolasi data).
+     * khusus untuk pengajuan milik user ormawa.
      */
     public function tandaiTerlihat() {
         $this->requireLogin();
@@ -38,80 +38,7 @@ class NotifikasiController extends Controller {
         if ($stmt->execute()) {
             $this->jsonResponse(['success' => true, 'message' => 'Notifikasi telah ditandai terbaca.']);
         }
-
-        $this->jsonResponse(['success' => false, 'message' => 'Gagal menandai notifikasi.'], 500);
-    }
-
-    /**
-     * Endpoint: GET ?page=api_notifikasi_belum_baca
-     * Mengembalikan daftar notifikasi belum dibaca milik user login.
-     */
-    public function belumBaca() {
-        $this->requireLogin();
-
-        $stmt = $this->conn->prepare(
-            "SELECT id_notif, pesan, waktu
-             FROM notifikasi
-             WHERE id_user = ? AND status_baca = 'belum'
-             ORDER BY waktu DESC
-             LIMIT 50"
-        );
-        if (!$stmt) {
-            $this->jsonResponse(['success' => false, 'message' => 'Gagal menyiapkan query.'], 500);
-        }
-        $stmt->bind_param("i", $_SESSION['user_id']);
-        $stmt->execute();
-        $result = $stmt->get_result();
-
-        $items = [];
-        while ($row = $result->fetch_assoc()) {
-            $items[] = [
-                'id_notif' => (int) $row['id_notif'],
-                'pesan'    => $row['pesan'],
-                'waktu'    => $row['waktu'],
-            ];
-        }
-
-        $this->jsonResponse([
-            'success' => true,
-            'data'    => $items,
-            'total'   => count($items),
-        ]);
-    }
-
-    /**
-     * Endpoint: GET ?page=tandai_notif_baca
-     * Body JSON: { "ids": [1,2,3] }  (id_notif dari tabel `notifikasi`)
-     * Menandai notifikasi tabel `notifikasi` sebagai sudah dibaca.
-     */
-    public function tandaiBaca() {
-        $this->requireLogin();
-
-        $raw  = file_get_contents('php://input');
-        $data = json_decode($raw, true);
-        $ids  = isset($data['ids']) && is_array($data['ids']) ? array_map('intval', $data['ids']) : [];
-
-        if (empty($ids)) {
-            $this->jsonResponse(['success' => true, 'message' => 'Tidak ada notifikasi untuk ditandai.']);
-        }
-
-        $placeholders = implode(',', array_fill(0, count($ids), '?'));
-        $sql = "UPDATE notifikasi
-                SET status_baca = 'sudah'
-                WHERE id_notif IN ($placeholders) AND id_user = ?";
-        $stmt = $this->conn->prepare($sql);
-        if (!$stmt) {
-            $this->jsonResponse(['success' => false, 'message' => 'Gagal menyiapkan query.'], 500);
-        }
-
-        $types  = str_repeat('i', count($ids));
-        $params = array_merge($ids, [$_SESSION['user_id']]);
-        $stmt->bind_param($types . 'i', ...$params);
-
-        if ($stmt->execute()) {
-            $this->jsonResponse(['success' => true, 'message' => 'Notifikasi telah ditandai dibaca.']);
-        }
-        $this->jsonResponse(['success' => false, 'message' => 'Gagal menandai notifikasi.'], 500);
+        $this->jsonResponse(['success' => false, 'message' => 'Gagal mengupdate database.'], 500);
     }
 
     /**
@@ -124,12 +51,16 @@ class NotifikasiController extends Controller {
         $data = json_decode($raw, true);
         $id_notif = isset($data['id_notif']) ? intval($data['id_notif']) : 0;
         
-        if ($id_notif > 0) {
+        // Memeriksa jika request memanggil aksi 'read_all' dari app.js
+        if (isset($data['action']) && $data['action'] === 'read_all') {
+            $stmt = $this->conn->prepare("UPDATE notifikasi SET status_baca = 'sudah' WHERE id_user = ? AND status_baca = 'belum'");
+            $stmt->bind_param("i", $_SESSION['user_id']);
+        } elseif ($id_notif > 0) {
             // Tandai satu saja
             $stmt = $this->conn->prepare("UPDATE notifikasi SET status_baca = 'sudah' WHERE id_notif = ? AND id_user = ?");
             $stmt->bind_param("ii", $id_notif, $_SESSION['user_id']);
         } else {
-            // Tandai semua terbaca
+            // Jika kosong, tandai semua terbaca
             $stmt = $this->conn->prepare("UPDATE notifikasi SET status_baca = 'sudah' WHERE id_user = ? AND status_baca = 'belum'");
             $stmt->bind_param("i", $_SESSION['user_id']);
         }
@@ -141,7 +72,8 @@ class NotifikasiController extends Controller {
     }
 
     /**
-     * Mendapatkan daftar notifikasi terbaru (untuk dipanggil via JS awal muat)
+     * Mendapatkan daftar notifikasi terbaru (dari tabel `notifikasi`) 
+     * untuk dirender di dropdown notifikasi Header via AJAX/SSE.
      */
     public function belumBaca() {
         $this->requireLogin();
@@ -154,19 +86,21 @@ class NotifikasiController extends Controller {
         $notifs = [];
         $unread = 0;
         while ($row = $res->fetch_assoc()) {
-            if ($row['status_baca'] == 'belum') $unread++;
+            if ($row['status_baca'] == 'belum') {
+                $unread++;
+            }
             $notifs[] = [
-                'id' => $row['id_notif'],
-                'pesan' => $row['pesan'],
+                'id'     => $row['id_notif'],
+                'pesan'  => $row['pesan'],
                 'status' => $row['status_baca'],
-                'waktu' => date('d M H:i', strtotime($row['waktu']))
+                'waktu'  => date('d M H:i', strtotime($row['waktu']))
             ];
         }
         
         $this->jsonResponse([
             'success' => true,
-            'count' => $unread,
-            'data' => $notifs
+            'count'   => $unread,
+            'data'    => $notifs
         ]);
     }
 }

@@ -274,8 +274,9 @@ private function validateSessionActivity() {
  * Cek rate limit untuk mencegah brute force dan spam
  */
 private function checkRateLimit() {
-    // Hanya aktif untuk halaman login (ada POST username)
-    if (!isset($_POST['username'])) {
+    // Hanya aktif untuk halaman login saja
+    $page = $_GET['page'] ?? '';
+    if ($page !== 'login' || !isset($_POST['username'])) {
         return;
     }
     

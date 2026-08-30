@@ -56,7 +56,7 @@ $result = $stmt->get_result();
                                 </td>
                                 <td>
                                     <?php if (!empty($row['file_lpj'])): ?>
-                                        <a href="uploads/lpj/<?php echo htmlspecialchars($row['file_lpj']); ?>" target="_blank" class="btn btn-success btn-sm" title="Download LPJ">
+                                        <a href="uploads/lpj/<?php echo htmlspecialchars($row['file_lpj'] ?? ''); ?>" target="_blank" class="btn btn-success btn-sm" title="Download LPJ">
                                             <i class="bi bi-download"></i> Download LPJ
                                         </a>
                                     <?php else: ?>

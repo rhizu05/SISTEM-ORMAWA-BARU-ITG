@@ -353,4 +353,3 @@ function log_audit($conn, string $action, ?string $entity_type = null, ?string $
         $stmt->close();
     }
 }
-?>");

@@ -45,16 +45,19 @@ CREATE TABLE IF NOT EXISTS `users` (
 
 -- Password semua user demo: "password123" (bcrypt)
 INSERT INTO `users` (`id_user`, `nama_lengkap`, `username`, `password`, `role`, `status_akun`, `saldo`) VALUES
-(1,  'Administrator',      'admin',           '$2y$10$rXbMTb1JdXsp2QzqBgGnpeDpZOJ0KWBeEgIdZXZESm/QetniQZLQS', 'admin',      'aktif', 0.00),
-(2,  'BEM ITG',            'bem',             '$2y$10$rXbMTb1JdXsp2QzqBgGnpeDpZOJ0KWBeEgIdZXZESm/QetniQZLQS', 'bem',        'aktif', 0.00),
-(3,  'BPM ITG',            'bpm',             '$2y$10$rXbMTb1JdXsp2QzqBgGnpeDpZOJ0KWBeEgIdZXZESm/QetniQZLQS', 'bpm',        'aktif', 0.00),
-(4,  'BKKH ITG',           'bkkh',            '$2y$10$rXbMTb1JdXsp2QzqBgGnpeDpZOJ0KWBeEgIdZXZESm/QetniQZLQS', 'bkh',        'aktif', 0.00),
-(5,  'Wakil Rektor 3',     'wr3',             '$2y$10$rXbMTb1JdXsp2QzqBgGnpeDpZOJ0KWBeEgIdZXZESm/QetniQZLQS', 'wr3',        'aktif', 0.00),
-(6,  'Bendahara ITG',      'bendahara',       '$2y$10$rXbMTb1JdXsp2QzqBgGnpeDpZOJ0KWBeEgIdZXZESm/QetniQZLQS', 'bendahara',  'aktif', 0.00),
-(7,  'Himatif ITG',        'himatif',         '$2y$10$rXbMTb1JdXsp2QzqBgGnpeDpZOJ0KWBeEgIdZXZESm/QetniQZLQS', 'ormawa',     'aktif', 0.00),
-(8,  'Hima Informatika 2', 'hima_si',         '$2y$10$rXbMTb1JdXsp2QzqBgGnpeDpZOJ0KWBeEgIdZXZESm/QetniQZLQS', 'ormawa',     'aktif', 0.00),
-(9,  'Sarpras Ruangan',    'sarpras_ruangan', '$2y$10$rXbMTb1JdXsp2QzqBgGnpeDpZOJ0KWBeEgIdZXZESm/QetniQZLQS', 'sarpras',    'aktif', 0.00),
-(10, 'Sarpras Barang',     'sarpras_barang',  '$2y$10$rXbMTb1JdXsp2QzqBgGnpeDpZOJ0KWBeEgIdZXZESm/QetniQZLQS', 'sarpras_barang', 'aktif', 0.00);
+(1,  'Administrator',                 'admin',                   '$2y$10$rXbMTb1JdXsp2QzqBgGnpeDpZOJ0KWBeEgIdZXZESm/QetniQZLQS', 'admin',      'aktif', 0.00),
+(2,  'BEM ITG',                       'bem',                     '$2y$10$rXbMTb1JdXsp2QzqBgGnpeDpZOJ0KWBeEgIdZXZESm/QetniQZLQS', 'bem',        'aktif', 0.00),
+(3,  'BPM ITG',                       'bpm',                     '$2y$10$rXbMTb1JdXsp2QzqBgGnpeDpZOJ0KWBeEgIdZXZESm/QetniQZLQS', 'bpm',        'aktif', 0.00),
+(4,  'BKKH ITG',                      'bkkh',                    '$2y$10$rXbMTb1JdXsp2QzqBgGnpeDpZOJ0KWBeEgIdZXZESm/QetniQZLQS', 'bkh',        'aktif', 0.00),
+(5,  'Wakil Rektor 3',                'wr3',                     '$2y$10$rXbMTb1JdXsp2QzqBgGnpeDpZOJ0KWBeEgIdZXZESm/QetniQZLQS', 'wr3',        'aktif', 0.00),
+(6,  'Bendahara ITG',                 'bendahara',               '$2y$10$rXbMTb1JdXsp2QzqBgGnpeDpZOJ0KWBeEgIdZXZESm/QetniQZLQS', 'bendahara',  'aktif', 0.00),
+(7,  'Hima Teknik Informatika ITG',   'hima_tif',                '$2y$10$rXbMTb1JdXsp2QzqBgGnpeDpZOJ0KWBeEgIdZXZESm/QetniQZLQS', 'ormawa',     'aktif', 0.00),
+(8,  'Hima Sistem Informasi ITG',     'hima_si',                 '$2y$10$rXbMTb1JdXsp2QzqBgGnpeDpZOJ0KWBeEgIdZXZESm/QetniQZLQS', 'ormawa',     'aktif', 0.00),
+(9,  'Hima Teknik Industri ITG',      'hima_ti',                 '$2y$10$rXbMTb1JdXsp2QzqBgGnpeDpZOJ0KWBeEgIdZXZESm/QetniQZLQS', 'ormawa',     'aktif', 0.00),
+(10, 'Hima Arsitektur ITG',           'hima_arsi',               '$2y$10$rXbMTb1JdXsp2QzqBgGnpeDpZOJ0KWBeEgIdZXZESm/QetniQZLQS', 'ormawa',     'aktif', 0.00),
+(11, 'Hima Teknik Sipil ITG',         'hima_ts',                 '$2y$10$rXbMTb1JdXsp2QzqBgGnpeDpZOJ0KWBeEgIdZXZESm/QetniQZLQS', 'ormawa',     'aktif', 0.00),
+(12, 'Sarpras Ruangan',               'sarpras_ruangan',         '$2y$10$rXbMTb1JdXsp2QzqBgGnpeDpZOJ0KWBeEgIdZXZESm/QetniQZLQS', 'sarpras',    'aktif', 0.00),
+(13, 'Sarpras Barang',                'sarpras_barang',          '$2y$10$rXbMTb1JdXsp2QzqBgGnpeDpZOJ0KWBeEgIdZXZESm/QetniQZLQS', 'sarpras_barang', 'aktif', 0.00);
 
 -- ============================================================
 

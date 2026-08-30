@@ -49,20 +49,13 @@ if (isset($session_expired)) {
 }
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    // === Rate Limiting Phase 3 ===
     $client_ip = get_client_ip();
-    // Cek rate limit sebelum proses login (menggunakan database)
-    if (!check_rate_limit($conn, $client_ip)) {
-        $error = "Terlalu banyak percobaan login. Coba lagi dalam beberapa menit.";
-    } else {
-        // Log percobaan login gagal (belum berhasil login)
-        log_login_attempt($conn, $client_ip, $username ?? '', false);
-    }
-    
     $username = sanitize_input($conn, $_POST['username']);
     $password = $_POST['password'];
 
-    if (empty($username) || empty($password)) {
+    if (!check_rate_limit($conn, $client_ip)) {
+        $error = "Terlalu banyak percobaan login. Coba lagi dalam 15 menit.";
+    } elseif (empty($username) || empty($password)) {
         $error = "Username dan password wajib diisi!";
     } else {
         $stmt = $conn->prepare("SELECT id_user, nama_lengkap, password, role, status_akun, foto_profil, twofa_enabled FROM users WHERE username = ?");
@@ -74,9 +67,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $user = $result->fetch_assoc();
 
             if (password_verify($password, $user['password'])) {
-                // === PENAMBAHAN 2FA (Phase 5) ===
+                log_login_attempt($conn, $client_ip, $username, true);
+
+                // === 2FA (Phase 5) ===
                 if ($user['twofa_enabled'] == 1) {
-                    // Set session temporary untuk proses verifikasi
                     $_SESSION['pending_2fa_user_id'] = $user['id_user'];
                     $_SESSION['pending_2fa_nama'] = $user['nama_lengkap'];
                     $_SESSION['pending_2fa_role'] = $user['role'];
@@ -85,7 +79,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     
                     redirect('index.php?page=login_2fa');
                 }
-                // === AKHIR PENAMBAHAN 2FA ===
 
                 session_regenerate_id_safe();
                 $_SESSION['user_id'] = $user['id_user'];
@@ -94,7 +87,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 $_SESSION['status_akun'] = $user['status_akun'];
                 $_SESSION['foto_profil'] = $user['foto_profil']; 
                 
-                // === PERBAIKAN: Simpan semua konfigurasi ke session untuk efisiensi ===
                 $konfigurasi_ses = [];
                 $result_konfig_ses = $conn->query("SELECT nama_konfigurasi, nilai_konfigurasi FROM konfigurasi");
                 if ($result_konfig_ses) {
@@ -103,13 +95,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     }
                 }
                 $_SESSION['konfigurasi'] = $konfigurasi_ses;
-                // === AKHIR PERBAIKAN ===
                 
                 redirect('index.php?page=dashboard');
             } else {
+                log_login_attempt($conn, $client_ip, $username, false);
                 $error = "Username atau password yang Anda masukkan salah!";
             }
         } else {
+            log_login_attempt($conn, $client_ip, $username, false);
             $error = "Username atau password yang Anda masukkan salah!";
         }
         $stmt->close();

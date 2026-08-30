@@ -236,7 +236,10 @@ $events_json = json_encode($events_calendar);
                 </div>
                 <div class="card-body d-flex align-items-center justify-content-center">
                     <div class="chart-container">
-                        <canvas id="danaChart"></canvas>
+                        <canvas id="danaChart" class="sk-chart" 
+                            data-sisa="<?php echo $sisa_saldo ?? 0; ?>" 
+                            data-digunakan="<?php echo $saldo_digunakan_dan_proses ?? 0; ?>"
+                            data-total="<?php echo $total_saldo ?? 0; ?>"></canvas>
                     </div>
                 </div>
             </div>
@@ -398,6 +401,36 @@ $events_json = json_encode($events_calendar);
         </div>
     </div>
 
+    <!-- === DASHBOARD ANALYTICS (Sprint 4C) === -->
+    <h2 class="h5 mb-3 text-muted mt-4">Grafik Analitik Pengajuan Saya</h2>
+    <div class="row mb-4">
+        <div class="col-lg-8 mb-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-white py-3 border-0">
+                    <h6 class="mb-0 fw-bold"><i class="bi bi-graph-up text-primary me-2"></i>Trend Pencairan Dana (12 Bulan Terakhir)</h6>
+                </div>
+                <div class="card-body">
+                    <div style="height: 300px;">
+                        <canvas id="chartTrendOrmawa" class="sk-chart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4 mb-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-white py-3 border-0">
+                    <h6 class="mb-0 fw-bold"><i class="bi bi-pie-chart text-success me-2"></i>Status Pengajuan Saya</h6>
+                </div>
+                <div class="card-body">
+                    <div style="height: 300px;">
+                        <canvas id="chartStatusOrmawa" class="sk-chart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- === END DASHBOARD ANALYTICS === -->
+
     <!-- Kalender Peminjaman Tempat -->
     <div class="row mt-4">
         <div class="col-12">
@@ -413,76 +446,15 @@ $events_json = json_encode($events_calendar);
     </div>
 </div>
 
-<!-- Library Chart.js -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<!-- Chart.js akan diload oleh dashboard.js secara otomatis -->
 
 <!-- FullCalendar -->
 <link href='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css' rel='stylesheet' />
 <script src='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js'></script>
 
-<!-- Script untuk menginisialisasi Chart -->
+<!-- FullCalendar -->
 <script>
 document.addEventListener("DOMContentLoaded", function() {
-    const ctx = document.getElementById('danaChart').getContext('2d');
-    const sisaSaldo = <?php echo $sisa_saldo; ?>;
-    const danaDigunakan = <?php echo $saldo_digunakan_dan_proses; ?>;
-    const totalSaldo = <?php echo $total_saldo; ?>;
-    
-    if (totalSaldo === 0) {
-        const canvas = document.getElementById('danaChart');
-        const parent = canvas.parentElement;
-        parent.innerHTML = '<div class="text-center text-muted p-5"><i class="bi bi-info-circle fs-2 mb-2"></i><br>Belum ada data dana yang dapat divisualisasikan.</div>';
-    } else {
-        new Chart(ctx, {
-            type: 'doughnut',
-            data: {
-                labels: ['Sisa Saldo Tersedia', 'Dana Terpakai & Diproses'],
-                datasets: [{
-                    label: 'Distribusi Dana',
-                    data: [sisaSaldo, danaDigunakan],
-                    backgroundColor: [
-                        'rgba(25, 135, 84, 0.8)', 
-                        'rgba(255, 193, 7, 0.8)'
-                    ],
-                    borderColor: [
-                        'rgba(25, 135, 84, 1)',
-                        'rgba(255, 193, 7, 1)'
-                    ],
-                    borderWidth: 1,
-                    hoverOffset: 8
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                cutout: '70%',
-                plugins: {
-                    legend: {
-                        position: 'bottom',
-                        labels: {
-                            padding: 20,
-                            font: { size: 14 }
-                        }
-                    },
-                    tooltip: {
-                        callbacks: {
-                            label: function(context) {
-                                let label = context.label || '';
-                                if (label) {
-                                    label += ': ';
-                                }
-                                if (context.parsed !== null) {
-                                    label += new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(context.parsed);
-                                }
-                                return label;
-                            }
-                        }
-                    }
-                }
-            }
-        });
-    }
-
     // Initialize Calendar
     var calendarEl = document.getElementById('calendar');
     if(calendarEl) {

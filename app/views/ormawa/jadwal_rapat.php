@@ -50,7 +50,7 @@ $result = $conn->query($query);
                                     <tr>
                                         <td>
                                             <div class="fw-bold"><?php echo htmlspecialchars($row['judul_rapat']); ?></div>
-                                            <small class="text-muted"><?php echo htmlspecialchars($row['deskripsi']); ?></small>
+                                            <small class="text-muted"><?php echo htmlspecialchars($row['deskripsi'] ?? '-'); ?></small>
                                         </td>
                                         <td>
                                             <div><i class="bi bi-calendar3 me-2"></i><?php echo date('d M Y', strtotime($row['tanggal_rapat'])); ?></div>

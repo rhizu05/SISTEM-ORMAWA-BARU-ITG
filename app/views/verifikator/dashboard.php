@@ -109,7 +109,7 @@ if (in_array($user_role, ['bkh', 'admin'])) {
     $result_siap_diajukan = $stmt_siap_data->get_result();
     $count_siap_diajukan = $result_siap_diajukan->num_rows;
 
-    $sql_lpj_data = "SELECT p.id_pengajuan, p.nama_kegiatan, p.tanggal_upload_lpj, u.nama_lengkap AS nama_ormawa FROM pengajuan p JOIN users u ON p.id_user_ormawa = u.id_user WHERE status = ? ORDER BY p.tanggal_upload_lpj DESC";
+    $sql_lpj_data = "SELECT p.id_pengajuan, p.nama_kegiatan, p.tanggal_upload_lpj, p.tanggal_update, u.nama_lengkap AS nama_ormawa FROM pengajuan p JOIN users u ON p.id_user_ormawa = u.id_user WHERE status = ? ORDER BY p.tanggal_upload_lpj DESC";
 
     $status_arsip = [
         'Disetujui WR3, Siap Diajukan ke Bendahara', 'Diajukan ke Bendahara',
@@ -623,7 +623,10 @@ $events_json = json_encode($events_calendar);
                             <td><?php echo $i++; ?></td>
                             <td><?php echo htmlspecialchars($row['nama_kegiatan']); ?></td>
                             <td><?php echo htmlspecialchars($row['nama_ormawa']); ?></td>
-                            <td><?php echo date('d M Y, H:i', strtotime($row['tanggal_update'])); ?></td>
+                            <td><?php 
+                                $tgl_lpj = $row['tanggal_update'] ?? $row['tanggal_upload_lpj'] ?? null;
+                                echo $tgl_lpj ? date('d M Y, H:i', strtotime($tgl_lpj)) : '-';
+                            ?></td>
                             <td class="text-center"><a href="index.php?page=verifikasi_lpj&id=<?php echo $row['id_pengajuan']; ?>" class="btn btn-warning btn-sm">Periksa LPJ</a></td>
                         </tr>
                         <?php endwhile; ?>

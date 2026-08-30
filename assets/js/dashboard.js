@@ -47,6 +47,54 @@ document.addEventListener('DOMContentLoaded', function() {
         Chart.defaults.color = theme.text;
         Chart.defaults.font.family = "'Poppins', sans-serif";
 
+        // 0. Visualisasi Saldo Donut (Ormawa) - dari data attributes
+        const danaCanvas = document.getElementById('danaChart');
+        if (danaCanvas) {
+            const sisa = parseInt(danaCanvas.dataset.sisa || 0);
+            const digunakan = parseInt(danaCanvas.dataset.digunakan || 0);
+            const total = parseInt(danaCanvas.dataset.total || 0);
+            
+            if (total === 0) {
+                const parent = danaCanvas.parentElement;
+                parent.innerHTML = '<div class="text-center text-muted p-5"><i class="bi bi-info-circle fs-2 mb-2"></i><br>Belum ada data dana yang dapat divisualisasikan.</div>';
+            } else {
+                new Chart(danaCanvas, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Sisa Saldo Tersedia', 'Dana Terpakai & Diproses'],
+                        datasets: [{
+                            label: 'Distribusi Dana',
+                            data: [sisa, digunakan],
+                            backgroundColor: ['rgba(25, 135, 84, 0.8)', 'rgba(255, 193, 7, 0.8)'],
+                            borderColor: ['rgba(25, 135, 84, 1)', 'rgba(255, 193, 7, 1)'],
+                            borderWidth: 1,
+                            hoverOffset: 8
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        cutout: '70%',
+                        plugins: {
+                            legend: { position: 'bottom', labels: { padding: 20, font: { size: 14 } } },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        let label = context.label || '';
+                                        if (label) label += ': ';
+                                        if (context.parsed !== null) {
+                                            label += new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(context.parsed);
+                                        }
+                                        return label;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+        }
+
         // 1. Status Pengajuan (Doughnut) - Ormawa
         if (data.status_pengajuan && document.getElementById('chartStatusOrmawa')) {
             new Chart(document.getElementById('chartStatusOrmawa'), {

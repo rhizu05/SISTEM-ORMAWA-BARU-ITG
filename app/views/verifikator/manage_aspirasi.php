@@ -85,7 +85,7 @@ $result = $conn->query($query);
                                     
                                     <div class="mb-3">
                                         <label class="form-label fw-bold">Tanggapan / Tindakan BPM</label>
-                                        <textarea name="tanggapan" class="form-control" rows="5" required placeholder="Tuliskan tanggapan atau langkah yang diambil oleh BPM..."><?php echo htmlspecialchars($row['tanggapan_bpm']); ?></textarea>
+                                        <textarea name="tanggapan" class="form-control" rows="5" required placeholder="Tuliskan tanggapan atau langkah yang diambil oleh BPM..."><?php echo htmlspecialchars($row['tanggapan_bpm'] ?? ''); ?></textarea>
                                     </div>
                                     
                                     <div class="mb-0">

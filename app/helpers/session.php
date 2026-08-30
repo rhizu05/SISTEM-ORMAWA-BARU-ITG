@@ -51,7 +51,10 @@ function session_regenerate_id_safe(): void
 function check_session_timeout(int $max_inactive = 1800): bool
 {
     if (!isset($_SESSION['last_activity'])) {
-        return true; // No activity recorded, treat as timed out
+        // Jika belum ada last_activity, jangan langsung tendang. 
+        // Beri mereka waktu sekarang (sesi baru dimulai).
+        $_SESSION['last_activity'] = time();
+        return false; 
     }
 
     $elapsed = time() - $_SESSION['last_activity'];

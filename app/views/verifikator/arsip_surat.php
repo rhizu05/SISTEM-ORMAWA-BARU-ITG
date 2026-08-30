@@ -142,7 +142,7 @@ $result = $stmt->get_result();
                                     <!-- === PENAMBAHAN BARU: Menampilkan Nomor Surat === -->
                                     <td>
                                         <?php if (!empty($row['nomor_surat'])): ?>
-                                            <strong><?php echo htmlspecialchars($row['nomor_surat']); ?></strong>
+                                            <strong><?php echo htmlspecialchars($row['nomor_surat'] ?? '-'); ?></strong>
                                         <?php else: ?>
                                             <span class="text-muted fst-italic">Belum diterbitkan</span>
                                         <?php endif; ?>
