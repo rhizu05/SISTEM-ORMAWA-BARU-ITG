@@ -1,120 +1,173 @@
 <x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Buat Proposal Otomatis') }}
+            {{ __('Pembuatan Proposal Otomatis') }}
         </h2>
     </x-slot>
 
-    <div class="py-12" x-data="proposalGenerator()">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <form action="{{ route('generator.store') }}" method="POST">
-                @csrf
+    <div class="py-12">
+        <div class="max-w-5xl mx-auto sm:px-6 lg:px-8">
+            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-8">
                 
-                <!-- BAB I: PENDAHULUAN -->
-                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg mb-6 border-t-4 border-indigo-500">
-                    <div class="p-6">
-                        <h3 class="text-lg font-bold mb-4">Bab I: Pendahuluan & Detail Kegiatan</h3>
-                        
-                        <div class="space-y-4">
-                            <div>
-                                <x-input-label for="nama_kegiatan" value="Nama Kegiatan" />
-                                <x-text-input id="nama_kegiatan" name="nama_kegiatan" type="text" class="mt-1 block w-full" required />
-                            </div>
-                            
-                            <div>
-                                <x-input-label for="latar_belakang" value="Latar Belakang" />
-                                <textarea id="latar_belakang" name="latar_belakang" rows="3" class="border-gray-300 rounded-md shadow-sm block mt-1 w-full" required></textarea>
-                            </div>
-                            
-                            <div>
-                                <x-input-label for="tujuan" value="Tujuan Kegiatan" />
-                                <textarea id="tujuan" name="tujuan" rows="2" class="border-gray-300 rounded-md shadow-sm block mt-1 w-full" required></textarea>
-                            </div>
-                            
-                            <div>
-                                <x-input-label for="sasaran" value="Sasaran Peserta" />
-                                <x-text-input id="sasaran" name="sasaran" type="text" class="mt-1 block w-full" required />
-                            </div>
-                        </div>
-                    </div>
+                <!-- Breadcrumbs -->
+                <div class="flex items-center text-sm text-gray-500 mb-8">
+                    <a href="{{ route('dashboard') }}" class="hover:text-indigo-600">Dashboard</a>
+                    <span class="mx-2">/</span>
+                    <span class="text-gray-800 font-medium">Buat Proposal</span>
                 </div>
 
-                <!-- SUSUNAN PANITIA -->
-                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg mb-6 border-t-4 border-blue-500">
-                    <div class="p-6">
-                        <div class="flex justify-between items-center mb-4">
-                            <h3 class="text-lg font-bold">Susunan Kepanitiaan</h3>
-                            <button type="button" @click="addPanitia()" class="text-sm bg-blue-100 text-blue-700 px-3 py-1 rounded hover:bg-blue-200">+ Tambah Panitia</button>
+                <form action="{{ route('generator.store') }}" method="POST">
+                    @csrf
+
+                    <!-- Section I: Pendahuluan & Narasi -->
+                    <div class="mb-12">
+                        <div class="flex items-center mb-6 pb-2 border-b-2 border-indigo-500">
+                            <span class="bg-indigo-500 text-white w-8 h-8 rounded-full flex items-center justify-center font-bold mr-3">I</span>
+                            <h3 class="text-xl font-bold text-gray-800">Pendahuluan & Narasi</h3>
                         </div>
-                        
-                        <div class="space-y-3">
-                            <template x-for="(pan, index) in panitia" :key="index">
-                                <div class="flex gap-2 items-center">
-                                    <input type="text" :name="'pan_jabatan['+index+']'" placeholder="Jabatan (cth: Ketua Pelaksana)" class="border-gray-300 rounded text-sm w-1/3" required>
-                                    <input type="text" :name="'pan_nama['+index+']'" placeholder="Nama Lengkap" class="border-gray-300 rounded text-sm w-1/3" required>
-                                    <input type="text" :name="'pan_nim['+index+']'" placeholder="NPM / NIM" class="border-gray-300 rounded text-sm w-1/4">
-                                    <button type="button" @click="removePanitia(index)" class="text-red-500 hover:text-red-700 font-bold px-2">&times;</button>
+
+                        <div class="grid grid-cols-1 gap-6">
+                            <div>
+                                <x-input-label for="nama_kegiatan" :value="__('Nama Kegiatan')" />
+                                <x-text-input id="nama_kegiatan" name="nama_kegiatan" type="text" class="mt-1 block w-full" required placeholder="Contoh: Lomba Coding Nasional 2024" />
+                            </div>
+                            <div>
+                                <x-input-label for="latar_belakang" :value="__('Latar Belakang')" />
+                                <textarea id="latar_belakang" name="latar_belakang" rows="4" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required placeholder="Jelaskan alasan kegiatan ini diadakan..."></textarea>
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <x-input-label for="tujuan" :value="__('Tujuan Kegiatan')" />
+                                    <textarea id="tujuan" name="tujuan" rows="3" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required placeholder="Apa yang ingin dicapai?"></textarea>
                                 </div>
-                            </template>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- RAB -->
-                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg mb-6 border-t-4 border-green-500">
-                    <div class="p-6">
-                        <div class="flex justify-between items-center mb-4">
-                            <h3 class="text-lg font-bold">Rencana Anggaran Biaya (RAB)</h3>
-                            <button type="button" @click="addRab()" class="text-sm bg-green-100 text-green-700 px-3 py-1 rounded hover:bg-green-200">+ Tambah Baris RAB</button>
-                        </div>
-                        
-                        <div class="space-y-3">
-                            <div class="flex gap-2 text-xs font-semibold text-gray-500 uppercase px-1">
-                                <div class="w-2/5">Uraian / Rincian</div>
-                                <div class="w-1/6">Vol</div>
-                                <div class="w-1/6">Satuan</div>
-                                <div class="w-1/4">Harga Satuan (Rp)</div>
-                                <div class="w-8"></div>
-                            </div>
-                            <template x-for="(item, index) in rab" :key="index">
-                                <div class="flex gap-2 items-center">
-                                    <input type="text" :name="'rab_rincian['+index+']'" placeholder="Nama barang/kebutuhan" class="border-gray-300 rounded text-sm w-2/5" required>
-                                    <input type="number" :name="'rab_vol['+index+']'" placeholder="Vol" class="border-gray-300 rounded text-sm w-1/6" required min="1">
-                                    <input type="text" :name="'rab_sat['+index+']'" placeholder="Pcs/Lbr/Box" class="border-gray-300 rounded text-sm w-1/6" required>
-                                    <input type="number" :name="'rab_harga['+index+']'" placeholder="Harga satuan" class="border-gray-300 rounded text-sm w-1/4" required min="0">
-                                    <button type="button" @click="removeRab(index)" class="text-red-500 hover:text-red-700 font-bold px-2">&times;</button>
+                                <div>
+                                    <x-input-label for="sasaran" :value="__('Sasaran / Peserta')" />
+                                    <textarea id="sasaran" name="sasaran" rows="3" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required placeholder="Contoh: Mahasiswa Se-Indonesia"></textarea>
                                 </div>
-                            </template>
+                            </div>
+                            <div>
+                                <x-input-label for="penutup" :value="__('Penutup')" />
+                                <textarea id="penutup" name="penutup" rows="2" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required placeholder="Kalimat penutup proposal..."></textarea>
+                            </div>
                         </div>
                     </div>
-                </div>
 
-                <!-- PENUTUP -->
-                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg mb-6">
-                    <div class="p-6">
-                        <h3 class="text-lg font-bold mb-4">Penutup</h3>
-                        <textarea id="penutup" name="penutup" rows="3" class="border-gray-300 rounded-md shadow-sm block w-full" required>Demikian proposal ini kami susun sebagai kerangka acuan kegiatan. Besar harapan kami atas dukungan dan partisipasi dari semua pihak terkait.</textarea>
+                    <!-- Section II: RAB -->
+                    <div class="mb-12">
+                        <div class="flex items-center mb-6 pb-2 border-b-2 border-indigo-500">
+                            <span class="bg-indigo-500 text-white w-8 h-8 rounded-full flex items-center justify-center font-bold mr-3">II</span>
+                            <h3 class="text-xl font-bold text-gray-800">Rencana Anggaran Biaya (RAB)</h3>
+                        </div>
+
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-200 border">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Rincian Kebutuhan</th>
+                                        <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase w-24">Vol</th>
+                                        <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase w-32">Satuan</th>
+                                        <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase w-40">Harga Satuan</th>
+                                        <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase w-16">#</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="rab-body">
+                                    <tr class="border-b">
+                                        <td class="p-2"><input type="text" name="rab_rincian[]" class="w-full border-gray-300 rounded-sm" placeholder="Misal: Konsumsi Peserta"></td>
+                                        <td class="p-2"><input type="number" name="rab_vol[]" class="w-full text-center border-gray-300 rounded-sm"></td>
+                                        <td class="p-2"><input type="text" name="rab_sat[]" class="w-full text-center border-gray-300 rounded-sm" placeholder="Box/Org"></td>
+                                        <td class="p-2"><input type="number" name="rab_harga[]" class="w-full text-right border-gray-300 rounded-sm"></td>
+                                        <td class="p-2 text-center">
+                                            <button type="button" onclick="this.closest('tr').remove()" class="text-red-500 hover:text-red-700">&times;</button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <button type="button" onclick="addRow('rab-body')" class="mt-4 text-sm text-indigo-600 font-semibold hover:text-indigo-800">+ Tambah Baris RAB</button>
+                        </div>
                     </div>
-                </div>
 
-                <div class="flex justify-end gap-4 mb-10">
-                    <a href="{{ route('generator.index') }}" class="py-2 px-4 border rounded text-gray-600">Batal</a>
-                    <x-primary-button>Generate Dokumen Proposal</x-primary-button>
-                </div>
-            </form>
+                    <!-- Section III: Susunan Panitia -->
+                    <div class="mb-12">
+                        <div class="flex items-center mb-6 pb-2 border-indigo-500 border-b-2">
+                            <span class="bg-indigo-500 text-white w-8 h-8 rounded-full flex items-center justify-center font-bold mr-3">III</span>
+                            <h3 class="text-xl font-bold text-gray-800">Susunan Panitia</h3>
+                        </div>
+
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-200 border">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Jabatan</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Nama Mahasiswa</th>
+                                        <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase w-16">#</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="pan-body">
+                                    <tr class="border-b">
+                                        <td class="p-2"><input type="text" name="pan_jabatan[]" class="w-full border-gray-300 rounded-sm" placeholder="Ketua Pelaksana"></td>
+                                        <td class="p-2"><input type="text" name="pan_nama[]" class="w-full border-gray-300 rounded-sm" placeholder="Nama Lengkap"></td>
+                                        <td class="p-2 text-center">
+                                            <button type="button" onclick="this.closest('tr').remove()" class="text-red-500 hover:text-red-700">&times;</button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <button type="button" onclick="addRow('pan-body')" class="mt-4 text-sm text-indigo-600 font-semibold hover:text-indigo-800">+ Tambah Panitia</button>
+                        </div>
+                    </div>
+
+                    <!-- Section IV: Penandatangan -->
+                    <div class="mb-12 p-6 bg-gray-50 rounded-lg border border-dashed border-gray-300">
+                        <div class="flex items-center mb-6">
+                            <svg class="w-6 h-6 text-gray-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.538 3.538M9 11l3 3m-3 3l3-3m-3 3l-3-3m7 8a4 4 0 100-8 4 4 0 018 0z" /></svg>
+                            <h3 class="text-lg font-bold text-gray-800">Penandatangan (Pilih dari Profil)</h3>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div class="p-4 bg-white rounded shadow-sm border">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Tanda Tangan 1 (Ketua Pelaksana)</label>
+                                <select name="ttd_1_role" class="w-full border-gray-300 rounded-sm text-sm">
+                                    <option value="ketua">Ketua</option>
+                                    <option value="sekretaris">Sekretaris</option>
+                                    <option value="bendahara">Bendahara</option>
+                                </select>
+                            </div>
+                            <div class="p-4 bg-white rounded shadow-sm border">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Tanda Tangan 2 (Sekretaris)</label>
+                                <select name="ttd_2_role" class="w-full border-gray-300 rounded-sm text-sm">
+                                    <option value="sekretaris" selected>Sekretaris</option>
+                                    <option value="ketua">Ketua</option>
+                                    <option value="bendahara">Bendahara</option>
+                                </select>
+                            </div>
+                            <div class="p-4 bg-white rounded shadow-sm border">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Tanda Tangan 3 (Mengetahui)</label>
+                                <select name="ttd_3_role" class="w-full border-gray-300 rounded-sm text-sm">
+                                    <option value="ketua">Saran: Ketua</option>
+                                    <option value="sekretaris">Sekretaris</option>
+                                    <option value="bendahara">Bendahara</option>
+                                </select>
+                            </div>
+                        </div>
+                        <p class="mt-4 text-xs text-gray-500 italic">Data TTD diambil dari menu Profil. Pastikan sudah mengunggah TTD transparan di sana.</p>
+                    </div>
+
+                    <div class="flex justify-end items-center gap-3 mt-8">
+                        <a href="{{ route('generator.index') }}" class="inline-flex items-center px-6 py-3 border border-gray-300 rounded-md font-semibold text-sm text-gray-700 bg-white hover:bg-gray-50">Batal</a>
+                        <button type="submit" name="action" value="draft" class="inline-flex items-center px-6 py-3 border border-gray-300 rounded-md font-semibold text-sm text-gray-700 bg-white hover:bg-gray-50">Simpan Draft</button>
+                        <button type="submit" name="action" value="print" class="inline-flex items-center px-8 py-3 bg-indigo-600 border border-transparent rounded-md font-semibold text-sm text-white hover:bg-indigo-700">Simpan & Cetak</button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 
     <script>
-        function proposalGenerator() {
-            return {
-                panitia: [{}],
-                rab: [{}],
-                addPanitia() { this.panitia.push({}); },
-                removePanitia(i) { if(this.panitia.length > 1) this.panitia.splice(i, 1); },
-                addRab() { this.rab.push({}); },
-                removeRab(i) { if(this.rab.length > 1) this.rab.splice(i, 1); }
-            }
+        function addRow(tableId) {
+            const tbody = document.getElementById(tableId);
+            const firstRow = tbody.querySelector('tr');
+            const newRow = firstRow.cloneNode(true);
+            newRow.querySelectorAll('input').forEach(input => input.value = '');
+            tbody.appendChild(newRow);
         }
     </script>
 </x-app-layout>

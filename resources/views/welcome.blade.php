@@ -3,14 +3,14 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{{ config('app.name', 'SI-Keuangan') }}</title>
+    <title>{{ config('app.name', 'Sistem Kemahasiswaan ITG') }}</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="antialiased bg-gray-100 text-gray-900">
     <div class="min-h-screen flex flex-col justify-center items-center">
         <div class="text-center mb-8">
-            <h1 class="text-4xl font-bold text-gray-800 mb-2">SI-Keuangan (v2)</h1>
-            <p class="text-gray-600">Sistem Keuangan Organisasi Mahasiswa Institut Teknologi Garut</p>
+            <h1 class="text-4xl font-bold text-gray-800 mb-2">Sistem Kemahasiswaan ITG</h1>
+            <p class="text-gray-600">Sistem Kemahasiswaan Mahasiswa Institut Teknologi Garut</p>
         </div>
 
         <div class="space-y-4">

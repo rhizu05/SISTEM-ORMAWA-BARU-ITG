@@ -11,7 +11,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Spatie\Permission\Traits\HasRoles;
 
-#[Fillable(['name', 'email', 'password', 'username', 'status_akun', 'saldo', 'foto_profil', 'logo_ormawa', 'nama_ketua', 'nama_sekretaris', 'nama_bendahara', 'ttd_ketua', 'ttd_sekretaris', 'ttd_bendahara', 'alamat', 'telepon'])]
+#[Fillable(['name', 'email', 'password', 'username', 'status_akun', 'saldo', 'saldo_awal', 'foto_profil', 'logo_ormawa', 'nama_ketua', 'nama_sekretaris', 'nama_bendahara', 'ttd_ketua', 'ttd_sekretaris', 'ttd_bendahara', 'alamat', 'telepon'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
@@ -30,4 +30,6 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+    public function pengajuans() { return $this->hasMany(Pengajuan::class, 'user_id'); }
 }

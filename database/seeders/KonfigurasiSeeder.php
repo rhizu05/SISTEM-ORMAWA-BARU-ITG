@@ -13,7 +13,8 @@ class KonfigurasiSeeder extends Seeder
     public function run(): void
     {
         $konfigurasi = [
-            ['nama_konfigurasi' => 'nama_aplikasi', 'nilai_konfigurasi' => 'SI-Keuangan (v2)'],
+            ['nama_konfigurasi' => 'nama_aplikasi', 'nilai_konfigurasi' => 'Sistem Kemahasiswaan ITG'],
+            ['nama_konfigurasi' => 'versi_aplikasi', 'nilai_konfigurasi' => '1.0.0'],
             ['nama_konfigurasi' => 'logo_sistem', 'nilai_konfigurasi' => null],
             ['nama_konfigurasi' => 'kop_logo', 'nilai_konfigurasi' => null],
             ['nama_konfigurasi' => 'kop_baris1', 'nilai_konfigurasi' => 'KEMENTERIAN PENDIDIKAN, KEBUDAYAAN, RISET, DAN TEKNOLOGI'],

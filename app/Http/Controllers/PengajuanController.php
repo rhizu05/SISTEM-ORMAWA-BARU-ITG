@@ -31,7 +31,12 @@ class PengajuanController extends Controller
 
     public function create()
     {
-        return view('pengajuan.create');
+        $blocking = Pengajuan::where('user_id', Auth::id())
+            ->whereHas('state', fn($q)=>$q->whereNotIn('name',['draft','completed']))
+            ->with('state')
+            ->latest()
+            ->first();
+        return view('pengajuan.create', compact('blocking'));
     }
 
     public function store(Request $request)

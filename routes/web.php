@@ -73,16 +73,33 @@ Route::middleware('auth')->group(function () {
         Route::post('/lpj/{pengajuan}', [LpjController::class, 'store'])->name('lpj.store');
 
         Route::get('/peminjaman', [PeminjamanController::class, 'index'])->name('peminjaman.index');
+        // Opsi A: Riwayat terpisah per jenis - hanya milik sendiri
+        Route::get('/peminjaman/tempat', [PeminjamanController::class, 'historyTempat'])->name('peminjaman.tempat.index');
+        Route::get('/peminjaman/barang', [PeminjamanController::class, 'historyBarang'])->name('peminjaman.barang.index');
         Route::get('/peminjaman/tempat/create', [PeminjamanController::class, 'createTempat'])->name('peminjaman.tempat.create');
         Route::post('/peminjaman/tempat', [PeminjamanController::class, 'storeTempat'])->name('peminjaman.tempat.store');
         Route::get('/peminjaman/barang/create', [PeminjamanController::class, 'createBarang'])->name('peminjaman.barang.create');
         Route::post('/peminjaman/barang', [PeminjamanController::class, 'storeBarang'])->name('peminjaman.barang.store');
 
-        // Proposal Generator
+        // Proposal & Document Generator
         Route::get('/generator', [ProposalGeneratorController::class, 'index'])->name('generator.index');
         Route::get('/generator/create', [ProposalGeneratorController::class, 'create'])->name('generator.create');
         Route::post('/generator', [ProposalGeneratorController::class, 'store'])->name('generator.store');
         Route::get('/generator/{proposal}', [ProposalGeneratorController::class, 'show'])->name('generator.show');
+        
+        // New Letter Generator
+        Route::get('/generator/letters/create', [ProposalGeneratorController::class, 'createLetter'])->name('generator.letters.create');
+        Route::post('/generator/letters', [ProposalGeneratorController::class, 'storeLetter'])->name('generator.letters.store');
+        Route::get('/generator/letters/{letter}', [ProposalGeneratorController::class, 'showLetter'])->name('generator.letters.show');
+
+        // LPJ Generator
+        Route::get('/generator/lpj/create/{proposal?}', [ProposalGeneratorController::class, 'createLpj'])->name('generator.lpj.create');
+        Route::post('/generator/lpj', [ProposalGeneratorController::class, 'storeLpj'])->name('generator.lpj.store');
+        Route::get('/generator/lpj/{lpj}', [ProposalGeneratorController::class, 'showLpj'])->name('generator.lpj.show');
+
+        // Digital Archive
+        Route::get('/archive', [ProposalGeneratorController::class, 'archive'])->name('archive.index');
+
     });
 
     // Rute cetak dokumen bisa diakses ormawa & verifikator
@@ -117,7 +134,17 @@ Route::middleware('auth')->group(function () {
         Route::post('/bendahara/proses/{pengajuan}', [BendaharaController::class, 'proses'])->name('bendahara.proses');
     });
 
-    // Admin/BKKH Role: Admin Panel
+    // BKKH Khusus: 8 menu sesuai spec
+    Route::middleware(['role:bkh'])->prefix('bkkh')->name('bkkh.')->group(function () {
+        Route::get('/saldo', [\App\Http\Controllers\Bkkh\BkkhController::class, 'saldo'])->name('saldo.index');
+        Route::get('/arsip-surat', [\App\Http\Controllers\Bkkh\BkkhController::class, 'arsipSurat'])->name('arsip.index');
+        Route::get('/surat-peringatan/create', [\App\Http\Controllers\Bkkh\BkkhController::class, 'spCreate'])->name('sp.create');
+        Route::post('/surat-peringatan', [\App\Http\Controllers\Bkkh\BkkhController::class, 'spStore'])->name('sp.store');
+        Route::get('/surat-peringatan/{sp}', [\App\Http\Controllers\Bkkh\BkkhController::class, 'spShow'])->name('sp.show');
+        Route::get('/verifikasi-tempat', [\App\Http\Controllers\Bkkh\BkkhController::class, 'verifikasiTempat'])->name('verifikasi-tempat.index');
+    });
+
+    // Admin/BKKH Role: Admin Panel (legacy)
     Route::middleware(['role:bkh|admin'])->prefix('admin')->name('admin.')->group(function () {
         Route::get('/users', [UserController::class, 'index'])->name('users.index');
         Route::post('/users', [UserController::class, 'store'])->name('users.store');

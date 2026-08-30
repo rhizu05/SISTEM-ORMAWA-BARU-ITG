@@ -11,7 +11,26 @@ use Illuminate\Support\Facades\Auth;
 
 class PeminjamanController extends Controller
 {
-    // Menampilkan daftar peminjaman untuk Ormawa
+    // Opsi A: Riwayat terpisah - Tempat (hanya milik sendiri)
+    public function historyTempat()
+    {
+        $peminjaman_tempat = PeminjamanTempat::where('user_id', Auth::id())
+            ->with('ruangan')
+            ->latest()
+            ->get();
+        return view('peminjaman.tempat_history', compact('peminjaman_tempat'));
+    }
+
+    // Opsi A: Riwayat terpisah - Barang (hanya milik sendiri)
+    public function historyBarang()
+    {
+        $peminjaman_barang = PeminjamanBarang::where('user_id', Auth::id())
+            ->latest()
+            ->get();
+        return view('peminjaman.barang_history', compact('peminjaman_barang'));
+    }
+
+    // Menampilkan daftar peminjaman untuk Ormawa (gabungan - legacy, redirect ke tempat)
     public function index()
     {
         $peminjaman_tempat = PeminjamanTempat::where('user_id', Auth::id())
@@ -72,7 +91,7 @@ class PeminjamanController extends Controller
             'deskripsi_kegiatan' => $request->deskripsi_kegiatan,
         ]);
 
-        return redirect()->route('peminjaman.index')->with('success', 'Pengajuan peminjaman ruangan berhasil dikirim.');
+        return redirect()->route('peminjaman.tempat.index')->with('success', 'Pengajuan peminjaman ruangan berhasil dikirim.');
     }
 
     // Form pinjam barang
@@ -121,7 +140,7 @@ class PeminjamanController extends Controller
             'kebutuhan_barang' => $kebutuhan,
         ]);
 
-        return redirect()->route('peminjaman.index')->with('success', 'Pengajuan peminjaman barang berhasil dikirim.');
+        return redirect()->route('peminjaman.barang.index')->with('success', 'Pengajuan peminjaman barang berhasil dikirim.');
     }
 
     // Verifikasi (digunakan oleh BKKH, Sarpras Ruangan, & Sarpras Barang)

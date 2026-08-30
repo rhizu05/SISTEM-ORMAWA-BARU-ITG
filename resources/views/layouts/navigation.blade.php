@@ -20,14 +20,14 @@
                     <x-nav-link :href="route('pengajuan.index')" :active="request()->routeIs('pengajuan.*')">
                         {{ __('Pengajuan') }}
                     </x-nav-link>
-                    <x-nav-link :href="route('generator.index')" :active="request()->routeIs('generator.*')">
-                        {{ __('Buat Proposal') }}
-                    </x-nav-link>
-                    <x-nav-link :href="route('lpj.index')" :active="request()->routeIs('lpj.*')">
-                        {{ __('LPJ') }}
-                    </x-nav-link>
                     <x-nav-link :href="route('peminjaman.index')" :active="request()->routeIs('peminjaman.*')">
                         {{ __('Peminjaman') }}
+                    </x-nav-link>
+                    <x-nav-link :href="route('archive.index')" :active="request()->routeIs('archive.*')">
+                        {{ __('Persuratan Digital') }}
+                    </x-nav-link>
+                    <x-nav-link :href="route('lpj.index')" :active="request()->routeIs('lpj.*')">
+                        {{ __('Arsip LPJ') }}
                     </x-nav-link>
                     @endhasanyrole
 
