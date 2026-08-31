@@ -49,7 +49,7 @@
                         <h3 class="font-bold text-indigo-600 border-b-2 border-indigo-500 pb-2 mb-4">Detail Surat Tugas</h3>
                         <div class="grid grid-cols-1 gap-4">
                             <div><x-input-label for="nama_petugas" :value="__('Nama Petugas')" /><x-text-input id="nama_petugas" name="nama_petugas" type="text" class="mt-1 block w-full" :value="old('nama_petugas')" /></div>
-                            <div><x-input-label for="nim_tugas" :value="__('NIM')" /><x-text-input id="nim_tugas" name="nim" type="text" class="mt-1 block w-full" :value="old('nim')" /></div>
+                            <div><x-input-label for="nim_tugas" :value="__('NIM')" /><x-text-input id="nim_tugas" name="nim" type="text" class="mt-1 block w-full" x-bind:disabled="type !== 'tugas'" :value="old('nim')" /></div>
                             <div><x-input-label for="uraian_tugas" :value="__('Uraian Tugas')" /><textarea id="uraian_tugas" name="uraian_tugas" rows="3" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" placeholder="Contoh: Menjadi delegasi dalam kegiatan Musyawarah Nasional...">{{ old('uraian_tugas') }}</textarea></div>
                             <div><x-input-label for="tanggal_pelaksanaan" :value="__('Tanggal Pelaksanaan')" /><x-text-input id="tanggal_pelaksanaan" name="tanggal_pelaksanaan" type="text" class="mt-1 block w-full" placeholder="20 - 25 Mei 2024" :value="old('tanggal_pelaksanaan')" /></div>
                         </div>
@@ -70,7 +70,7 @@
                         <h3 class="font-bold text-indigo-600 border-b-2 border-indigo-500 pb-2 mb-4">Detail Surat Keterangan</h3>
                         <div class="grid grid-cols-1 gap-4">
                             <div><x-input-label for="nama_mahasiswa" :value="__('Nama Mahasiswa')" /><x-text-input id="nama_mahasiswa" name="nama_mahasiswa" type="text" class="mt-1 block w-full" :value="old('nama_mahasiswa')" /></div>
-                            <div><x-input-label for="nim_ket" :value="__('NIM')" /><x-text-input id="nim_ket" name="nim" type="text" class="mt-1 block w-full" :value="old('nim')" /></div>
+                            <div><x-input-label for="nim_ket" :value="__('NIM')" /><x-text-input id="nim_ket" name="nim" type="text" class="mt-1 block w-full" x-bind:disabled="type !== 'keterangan_aktif'" :value="old('nim')" /></div>
                             <div><x-input-label for="jabatan" :value="__('Jabatan di Organisasi')" /><x-text-input id="jabatan" name="jabatan" type="text" class="mt-1 block w-full" placeholder="Anggota Bidang Minat Bakat" :value="old('jabatan')" /></div>
                             <div><x-input-label for="keperluan" :value="__('Tujuan / Keperluan Surat')" /><textarea id="keperluan" name="keperluan" rows="2" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" placeholder="Contoh: Persyaratan Beasiswa Unggulan">{{ old('keperluan') }}</textarea></div>
                         </div>

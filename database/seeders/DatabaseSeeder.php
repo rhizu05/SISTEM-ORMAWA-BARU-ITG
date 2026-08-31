@@ -20,6 +20,7 @@ class DatabaseSeeder extends Seeder
             UserSeeder::class,
             WorkflowSeeder::class,
             KonfigurasiSeeder::class,
+            MasterDataSeeder::class,
         ]);
     }
 }

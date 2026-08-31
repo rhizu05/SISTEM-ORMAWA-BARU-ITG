@@ -3,6 +3,9 @@
     <div class="py-12">
         <div class="max-w-3xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
+                @if(session('success'))
+                    <div class="mb-4 p-3 bg-green-50 border border-green-200 text-green-700 rounded text-sm">{{ session('success') }}</div>
+                @endif
                 <div class="mb-6 text-center">
                     <h3 class="text-lg font-bold">Sampaikan Suaramu</h3>
                     <p class="text-sm text-gray-500">Aspirasi Anda akan dikelola oleh BPM untuk kemajuan organisasi mahasiswa.</p>

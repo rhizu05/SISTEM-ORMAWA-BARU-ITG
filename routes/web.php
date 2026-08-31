@@ -66,12 +66,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/sp/{sp}', [\App\Http\Controllers\Bpm\SpController::class, 'show'])->name('sp.show');
     });
 
-    // BPM Role: Kelola Aspirasi (legacy/shared)
-    Route::middleware(['role:bpm'])->group(function () {
-        Route::get('/aspirasi', [AspirasiController::class, 'index'])->name('aspirasi.index');
-        Route::get('/aspirasi/{aspirasi}', [AspirasiController::class, 'show'])->name('aspirasi.show');
-        Route::put('/aspirasi/{aspirasi}', [AspirasiController::class, 'update'])->name('aspirasi.update');
-    });
+    // BPM legacy aspirasi: removed duplicate global /aspirasi (kept only bpm/aspirasi.* to avoid shadow)
 
 
     // Ormawa, BEM, BPM: Modul Pengajuan, LPJ, Peminjaman, Generator

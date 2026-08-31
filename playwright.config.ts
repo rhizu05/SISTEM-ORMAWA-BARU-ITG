@@ -2,21 +2,25 @@ import { defineConfig, devices } from '@playwright/test';
 
 export default defineConfig({
   testDir: './e2e',
-  fullyParallel: false, // Set false untuk meminimalisir isu session database antar role
+  fullyParallel: false,
   forbidOnly: !!process.env.CI,
-  retries: process.env.CI ? 2 : 0,
-  workers: 1, // Pastikan dijalankan secara seri (serial)
+  retries: 2,
+  workers: 1,
   reporter: 'html',
+  timeout: 60000,
+  expect: { timeout: 10000 },
   use: {
-    baseURL: 'http://127.0.0.1:8000', // Gunakan localhost Artisan Serve
+    baseURL: 'http://127.0.0.1:8000',
     trace: 'on-first-retry',
+    actionTimeout: 10000,
+    navigationTimeout: 30000,
   },
 
-  // Jalankan artisan serve secara otomatis sebelum test
   webServer: {
-    command: 'php artisan serve',
+    command: 'php -S 127.0.0.1:8000 -t public',
     url: 'http://127.0.0.1:8000',
-    reuseExistingServer: !process.env.CI,
+    reuseExistingServer: false,
+    timeout: 30000,
   },
 
   projects: [
