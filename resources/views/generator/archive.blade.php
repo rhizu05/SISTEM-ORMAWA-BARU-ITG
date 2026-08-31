@@ -20,7 +20,7 @@
                 <div class="grid grid-cols-1 gap-8">
                     <!-- Proposal Section -->
                     <div>
-                        <h4 class="font-bold text-gray-700 mb-3 border-b pb-2">📁 Proposal & RAB</h4>
+                        <h4 class="font-bold text-gray-700 mb-3 border-b pb-2">Proposal & RAB</h4>
                         <div class="overflow-x-auto">
                             <table class="min-w-full divide-y divide-gray-200">
                                 <thead>
@@ -52,7 +52,7 @@
 
                     <!-- Letters Section -->
                     <div>
-                        <h4 class="font-bold text-gray-700 mb-3 border-b pb-2">📩 Surat-Surat Digital</h4>
+                        <h4 class="font-bold text-gray-700 mb-3 border-b pb-2">Surat-Surat Digital</h4>
                         <div class="overflow-x-auto">
                             <table class="min-w-full divide-y divide-gray-200">
                                 <thead>

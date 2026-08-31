@@ -13,6 +13,41 @@
             </a>
         </div>
 
+        <!-- BPM Special Group -->
+        @hasrole('bpm')
+        <div class="space-y-1 pb-4">
+            <div x-data="{ open: false }" class="group">
+                <button @click="open = !open" class="w-full flex items-center p-2 rounded-lg hover:bg-indigo-800 transition-colors {{ request()->routeIs('bpm.*') ? 'bg-indigo-800' : '' }}">
+                    <svg class="w-6 h-6 min-w-[24px]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m0 11a2 2 0 002-2V5a2 2 0 00-2-2h-2" /></svg>
+                    <span x-show="sidebarOpen" class="ml-3 text-sm font-medium truncate">Kelola BPM</span>
+                    <svg x-show="sidebarOpen" :class="open ? 'rotate-180' : ''" class="ml-auto w-4 h-4 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
+                </button>
+                <div x-show="open && sidebarOpen" class="pl-10 space-y-1 mt-1">
+                    <a href="{{ route('bpm.dashboard') }}" class="block p-2 text-xs rounded hover:bg-indigo-700 transition-colors {{ request()->routeIs('bpm.dashboard') ? 'bg-indigo-700' : '' }}">Dashboard BPM</a>
+                    <a href="{{ route('bpm.sp.create') }}" class="block p-2 text-xs rounded hover:bg-indigo-700 transition-colors">Buat Surat Peringatan</a>
+                    <a href="{{ route('bpm.aspirasi.index') }}" class="block p-2 text-xs rounded hover:bg-indigo-700 transition-colors">Kelola Aspirasi</a>
+                    <a href="{{ route('bpm.regulasi.index') }}" class="block p-2 text-xs rounded hover:bg-indigo-700 transition-colors">Kelola Regulasi</a>
+                </div>
+            </div>
+        </div>
+        @endhasrole
+
+        <!-- WR3 Special Group -->
+        @hasrole('wr3')
+        <div class="space-y-1 pb-4">
+            <div x-data="{ open: false }" class="group">
+                <button @click="open = !open" class="w-full flex items-center p-2 rounded-lg hover:bg-indigo-800 transition-colors {{ request()->routeIs('dashboard','wr3.*') ? 'bg-indigo-800' : '' }}">
+                    <svg class="w-6 h-6 min-w-[24px]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m0 11a2 2 0 002-2V5a2 2 0 00-2-2h-2" /></svg>
+                    <span x-show="sidebarOpen" class="ml-3 text-sm font-medium truncate">Kelola WR3</span>
+                    <svg x-show="sidebarOpen" :class="open ? 'rotate-180' : ''" class="ml-auto w-4 h-4 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
+                </button>
+                <div x-show="open && sidebarOpen" class="pl-10 space-y-1 mt-1">
+                    <a href="{{ route('dashboard') }}" class="block p-2 text-xs rounded hover:bg-indigo-700 transition-colors {{ request()->routeIs('dashboard') ? 'bg-indigo-700' : '' }}">Dashboard WR3</a>
+                </div>
+            </div>
+        </div>
+        @endhasrole
+
         <!-- Pengajuan Group -->
         @hasanyrole('ormawa|bem|bpm')
         <div class="space-y-1 pb-4">

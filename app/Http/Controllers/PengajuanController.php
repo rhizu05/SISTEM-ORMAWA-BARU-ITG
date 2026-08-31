@@ -41,6 +41,13 @@ class PengajuanController extends Controller
 
     public function store(Request $request)
     {
+        $blocking = Pengajuan::where('user_id', Auth::id())
+            ->whereHas('state', fn($q)=>$q->whereNotIn('name',['draft','completed']))
+            ->with('state')->latest()->first();
+        if ($blocking) {
+            return redirect()->route('pengajuan.index')->with('error', 'Pengajuan ditangguhkan: masih ada '.$blocking->nama_kegiatan.' ('.$blocking->state->label.') yang belum selesai.');
+        }
+
         $validated = $request->validate([
             'nama_kegiatan' => 'required|string|max:255',
             'dana_diajukan' => 'required|numeric|min:0',
@@ -154,6 +161,12 @@ class PengajuanController extends Controller
     {
         if ($pengajuan->user_id !== Auth::id()) {
             abort(403);
+        }
+
+        $otherBlocking = Pengajuan::where('user_id', Auth::id())->where('id','!=',$pengajuan->id)
+            ->whereHas('state', fn($q)=>$q->whereNotIn('name',['draft','completed']))->with('state')->latest()->first();
+        if ($otherBlocking) {
+            return back()->with('error', 'Pengajuan ditangguhkan: masih ada '.$otherBlocking->nama_kegiatan.' ('.$otherBlocking->state->label.') yang belum selesai.');
         }
 
         $draftState = WorkflowState::where('name', 'draft')->first();

@@ -115,16 +115,60 @@ class ProposalGeneratorController extends Controller
     {
         $request->validate([
             'type' => 'required|in:undangan,tugas,permohonan,keterangan_aktif',
+            'nomor_surat' => 'nullable|string|max:255',
             'perihal' => 'required|string|max:255',
-            'content' => 'required|string',
+            'tujuan' => 'required|string|max:255',
+            'penandatangan' => 'nullable|in:ketua,sekretaris,bendahara',
         ]);
+
+        $meta = ['tujuan'=>$request->tujuan, 'penandatangan'=>$request->penandatangan ?? 'ketua'];
+        $content = '';
+
+        if ($request->type === 'undangan') {
+            $request->validate([
+                'kalimat_pembuka'=>'required|string',
+                'nama_acara'=>'required|string|max:255',
+                'hari_tanggal'=>'required|string|max:255',
+                'waktu'=>'required|string|max:255',
+                'tempat'=>'required|string|max:255',
+            ]);
+            $meta = array_merge($meta, $request->only(['kalimat_pembuka','nama_acara','hari_tanggal','waktu','tempat']));
+            $content = trim($request->kalimat_pembuka."\n\nNama Acara: ".$request->nama_acara."\nHari/Tanggal: ".$request->hari_tanggal."\nWaktu: ".$request->waktu."\nTempat: ".$request->tempat);
+        } elseif ($request->type === 'tugas') {
+            $request->validate([
+                'nama_petugas'=>'required|string|max:255',
+                'nim'=>'required|string|max:100',
+                'uraian_tugas'=>'required|string',
+                'tanggal_pelaksanaan'=>'required|string|max:255',
+            ]);
+            $meta = array_merge($meta, $request->only(['nama_petugas','nim','uraian_tugas','tanggal_pelaksanaan']));
+            $content = "Menugaskan: ".$request->nama_petugas." (NIM ".$request->nim.")\nUraian: ".$request->uraian_tugas."\nTanggal: ".$request->tanggal_pelaksanaan;
+        } elseif ($request->type === 'permohonan') {
+            $request->validate([
+                'nama_alat_tempat'=>'required|string|max:255',
+                'waktu_penggunaan'=>'required|string|max:255',
+                'alasan_tujuan'=>'required|string',
+            ]);
+            $meta = array_merge($meta, $request->only(['nama_alat_tempat','waktu_penggunaan','alasan_tujuan']));
+            $content = "Memohon peminjaman ".$request->nama_alat_tempat." pada ".$request->waktu_penggunaan."\nAlasan: ".$request->alasan_tujuan;
+        } elseif ($request->type === 'keterangan_aktif') {
+            $request->validate([
+                'nama_mahasiswa'=>'required|string|max:255',
+                'nim'=>'required|string|max:100',
+                'jabatan'=>'required|string|max:255',
+                'keperluan'=>'required|string',
+            ]);
+            $meta = array_merge($meta, $request->only(['nama_mahasiswa','nim','jabatan','keperluan']));
+            $content = "Menerangkan bahwa ".$request->nama_mahasiswa." (NIM ".$request->nim.") jabatan ".$request->jabatan." keperluan: ".$request->keperluan;
+        }
 
         $letter = \App\Models\Letter::create([
             'user_id' => Auth::id(),
             'type' => $request->type,
+            'nomor_surat' => $request->nomor_surat,
             'perihal' => $request->perihal,
-            'content' => $request->content,
-            'metadata' => $request->only(['tujuan', 'tanggal_acara', 'masa_berlaku', 'nama_penerima']),
+            'content' => $content ?: ($request->content ?? '-'),
+            'metadata' => $meta,
         ]);
 
         return redirect()->route('generator.letters.show', $letter)->with('success', 'Surat berhasil dibuat.');

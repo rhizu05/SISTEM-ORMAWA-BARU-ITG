@@ -15,6 +15,7 @@ use App\Http\Controllers\Sarpras\MasterBarangController;
 use App\Http\Controllers\VerifikasiController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProfileDataController;
+use App\Http\Controllers\RegulasiController;
 use Illuminate\Support\Facades\Route;
 
 // Public Route
@@ -51,12 +52,27 @@ Route::middleware('auth')->group(function () {
     Route::post('/rapat', [RapatController::class, 'store'])->name('rapat.store');
     Route::delete('/rapat/{rapat}', [RapatController::class, 'destroy'])->name('rapat.destroy');
     
-    // BPM Role: Kelola Aspirasi
+    // BPM Role: Dashboard & Management
+    Route::middleware(['role:bpm'])->prefix('bpm')->name('bpm.')->group(function () {
+        Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard'); // This will actually use the index method, but we can handle it in Controller
+        Route::get('/aspirasi', [AspirasiController::class, 'index'])->name('aspirasi.index');
+        Route::put('/aspirasi/update/{aspirasi}', [AspirasiController::class, 'update'])->name('aspirasi.update');
+        Route::get('/regulasi', [RegulasiController::class, 'index'])->name('regulasi.index');
+        Route::get('/regulasi/create', [RegulasiController::class, 'create'])->name('regulasi.create');
+        Route::post('/regulasi', [RegulasiController::class, 'store'])->name('regulasi.store');
+        Route::delete('/regulasi/{regulasi}', [RegulasiController::class, 'destroy'])->name('regulasi.destroy');
+        Route::get('/sp/create', [\App\Http\Controllers\Bpm\SpController::class, 'create'])->name('sp.create');
+        Route::post('/sp', [\App\Http\Controllers\Bpm\SpController::class, 'store'])->name('sp.store');
+        Route::get('/sp/{sp}', [\App\Http\Controllers\Bpm\SpController::class, 'show'])->name('sp.show');
+    });
+
+    // BPM Role: Kelola Aspirasi (legacy/shared)
     Route::middleware(['role:bpm'])->group(function () {
         Route::get('/aspirasi', [AspirasiController::class, 'index'])->name('aspirasi.index');
         Route::get('/aspirasi/{aspirasi}', [AspirasiController::class, 'show'])->name('aspirasi.show');
         Route::put('/aspirasi/{aspirasi}', [AspirasiController::class, 'update'])->name('aspirasi.update');
     });
+
 
     // Ormawa, BEM, BPM: Modul Pengajuan, LPJ, Peminjaman, Generator
     Route::middleware(['role:ormawa|bem|bpm'])->group(function () {

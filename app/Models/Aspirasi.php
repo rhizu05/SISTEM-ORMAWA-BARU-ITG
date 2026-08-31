@@ -4,18 +4,25 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Aspirasi extends Model
 {
     use HasFactory;
-    
-    protected $table = 'aspirasi';
+
+    protected $table = 'aspirasis';
 
     protected $fillable = [
-        'nama_pengirim',
-        'email_pengirim',
-        'isi_aspirasi',
+        'user_id',
+        'judul',
+        'isi',
+        'kategori',
         'status',
-        'tanggapan'
+        'catatan_bpm'
     ];
+
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
 }

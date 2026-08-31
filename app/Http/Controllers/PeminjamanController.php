@@ -155,7 +155,7 @@ class PeminjamanController extends Controller
             $antrian_tempat = PeminjamanTempat::where('status_bkkh', 'pending')->with(['user', 'ruangan'])->latest()->get();
             $antrian_barang = PeminjamanBarang::where('status_bkkh', 'pending')->with('user')->latest()->get();
         } 
-        elseif ($role === 'sarpras') {
+        elseif ($role === 'sarpras_ruangan') {
             // Sarpras Ruangan HANYA bisa memproses peminjaman ruangan yang sudah ACC BKKH
             $antrian_tempat = PeminjamanTempat::where('status_bkkh', 'disetujui')->where('status_sarpras', 'pending')->with(['user', 'ruangan'])->latest()->get();
         }
@@ -175,7 +175,7 @@ class PeminjamanController extends Controller
         if ($role === 'bkh') {
             $peminjaman->status_bkkh = $status;
             $peminjaman->status_akhir = $status === 'ditolak' ? 'Ditolak BKKH' : 'Proses Sarpras';
-        } elseif ($role === 'sarpras') {
+        } elseif ($role === 'sarpras_ruangan') {
             $peminjaman->status_sarpras = $status;
             $peminjaman->status_akhir = $status === 'ditolak' ? 'Ditolak Sarpras' : 'Selesai / Disetujui';
         }

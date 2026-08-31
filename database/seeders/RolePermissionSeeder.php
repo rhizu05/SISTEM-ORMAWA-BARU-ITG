@@ -20,7 +20,7 @@ class RolePermissionSeeder extends Seeder
             'bkh',
             'wr3',
             'bendahara',
-            'sarpras',
+            'sarpras_ruangan',
             'sarpras_barang'
         ];
 

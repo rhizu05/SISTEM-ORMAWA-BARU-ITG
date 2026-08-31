@@ -157,6 +157,7 @@
             // FullCalendar Integration
             const calendarEl = document.getElementById('calendar');
             const calendar = new FullCalendar.Calendar(calendarEl, {
+                locale: 'id',
                 initialView: 'dayGridMonth',
                 headerToolbar: {
                     left: 'prev,next today',

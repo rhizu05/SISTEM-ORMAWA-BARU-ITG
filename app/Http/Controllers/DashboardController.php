@@ -84,30 +84,64 @@ class DashboardController extends Controller
             $calendarBarang = PeminjamanBarang::whereIn('status_akhir',['Selesai / Disetujui','Proses Sarpras'])->get();
             return view('dashboard.bem', compact('saldoAwal','terpakai','rapats','counts','proposalQueue','calendarTempat','calendarBarang'));
         }
-        elseif (in_array($role, ['bpm', 'wr3'])) {
-            $allowedTransitions = WorkflowTransition::where('required_role', $role)->get();
-            $allowedStateIds = $allowedTransitions->pluck('from_state_id')->unique();
-            
-            $stats = [
-                'antrian_verifikasi' => Pengajuan::whereIn('workflow_state_id', $allowedStateIds)->count(),
-                'total_disetujui' => Pengajuan::whereHas('histori', function($q) use ($user) {
-                    $q->where('user_id', $user->id);
-                })->count(),
+        elseif ($role === 'bpm') {
+            $saldoAwal = $user->saldo_awal ?? $user->saldo;
+            $terpakai = max(0, $saldoAwal - $user->saldo);
+            $counts = [
+                'verifikasi_proposal' => Pengajuan::whereHas('state', fn($q)=>$q->where('name','bpm_review'))->count(),
             ];
-            return view('dashboard.verifikator', compact('stats'));
+            $rapats = \App\Models\JadwalRapat::with('penyelenggara')->latest()->take(10)->get();
+            $proposalQueue = Pengajuan::with(['user','state'])->whereHas('state', fn($q)=>$q->where('name','bpm_review'))->latest()->take(10)->get();
+            $calendarTempat = PeminjamanTempat::with('ruangan')->whereIn('status_akhir',['Selesai / Disetujui','Proses Sarpras'])->get();
+            $calendarBarang = PeminjamanBarang::whereIn('status_akhir',['Selesai / Disetujui','Proses Sarpras'])->get();
+            return view('dashboard.bpm', compact('saldoAwal','terpakai','rapats','counts','proposalQueue','calendarTempat','calendarBarang'));
+        }
+        elseif ($role === 'wr3') {
+            $usersWithSaldo = User::whereNotNull('saldo_awal')
+                ->get()
+                ->map(function($u) {
+                    $terpakai = max(0, $u->saldo_awal - $u->saldo);
+                    return [
+                        'name' => $u->name,
+                        'role' => $u->roles->first()?->name ?? 'none',
+                        'saldo_awal' => $u->saldo_awal,
+                        'saldo' => $u->saldo,
+                        'terpakai' => $terpakai,
+                    ];
+                });
+            
+            // Group by role
+            $saldoByRole = [];
+            foreach ($usersWithSaldo as $u) {
+                $role = $u['role'];
+                if (!isset($saldoByRole[$role])) {
+                    $saldoByRole[$role] = [];
+                }
+                $saldoByRole[$role][] = $u;
+            }
+            
+            $rapats = \App\Models\JadwalRapat::latest()->take(10)->get();
+            $proposalQueue = Pengajuan::with(['user','state'])->whereHas('state', fn($q)=>$q->where('name','bem_review'))->latest()->take(10)->get();
+            $calendarTempat = PeminjamanTempat::with('ruangan')->whereIn('status_akhir',['Selesai / Disetujui','Proses Sarpras'])->get();
+            $calendarBarang = PeminjamanBarang::whereIn('status_akhir',['Selesai / Disetujui','Proses Sarpras'])->get();
+            
+            return view('dashboard.wr3', compact('usersWithSaldo', 'saldoByRole', 'rapats', 'proposalQueue', 'calendarTempat', 'calendarBarang'));
         }
         
         elseif ($role === 'bendahara') {
+            $siapCairQueue = Pengajuan::with('user')
+                ->whereHas('state', fn($q) => $q->where('name', 'to_treasurer'))
+                ->latest()
+                ->get();
+
             $stats = [
-                'siap_cair' => Pengajuan::whereHas('state', function($q) {
-                    $q->where('name', 'to_treasurer');
-                })->count(),
+                'siap_cair' => $siapCairQueue->count(),
                 'total_dicairkan' => \App\Models\Dana::sum('nominal_cair'),
             ];
-            return view('dashboard.bendahara', compact('stats'));
+            return view('dashboard.bendahara', compact('stats', 'siapCairQueue'));
         }
         
-        elseif (in_array($role, ['sarpras', 'sarpras_barang'])) {
+        elseif (in_array($role, ['sarpras_ruangan', 'sarpras_barang'])) {
             $stats = [
                 'peminjaman_ruangan' => PeminjamanTempat::whereMonth('created_at', date('m'))->count(),
                 'peminjaman_barang' => PeminjamanBarang::whereMonth('created_at', date('m'))->count(),
