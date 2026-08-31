@@ -1,58 +1,118 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Sistem Keuangan Ormawa — ITG
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Aplikasi manajemen keuangan, pengajuan dana, peminjaman sarpras, dan persuratan untuk Organisasi Mahasiswa (Ormawa) berbasis **Laravel 13 + Breeze + Spatie Permission + DomPDF**.
 
-## About Laravel
+Verifikasi E2E terakhir: **90 passed / 0 failed / 11 skipped** (`npx playwright test`, `php -S 127.0.0.1:8000`, `retries:2`).
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## Prasyarat
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+| Kebutuhan | Versi |
+|-----------|-------|
+| PHP | ^8.3 (teruji 8.4.14) |
+| Composer | ^2.x |
+| Node.js | ^18 / ^22 (teruji 22.22.3) |
+| DB | SQLite (default) atau MySQL 8 |
+| OS | Windows (Laragon) / Linux / macOS |
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
-
-## Learning Laravel
-
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
-
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
-
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
-
-## Agentic Development
-
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+## Setup Lokal (Tim)
 
 ```bash
-composer require laravel/boost --dev
+# 1. Clone
+git clone <repo-url> sistem_keuangan
+cd sistem_keuangan
+git checkout develop   # atau main sesuai kesepakatan
 
-php artisan boost:install
+# 2. Install dependencies
+composer install
+npm install
+
+# 3. Environment
+copy .env.example .env          # Windows
+# cp .env.example .env          # Linux/macOS
+php artisan key:generate
+
+# SQLite (default .env.example: DB_CONNECTION=sqlite)
+# buat file jika belum ada
+if not exist database\database.sqlite type nul > database\database.sqlite
+# Linux/macOS: touch database/database.sqlite
+
+# MySQL (opsional) — edit .env:
+# DB_CONNECTION=mysql
+# DB_HOST=127.0.0.1
+# DB_PORT=3306
+# DB_DATABASE=sistem_keuangan
+# DB_USERNAME=root
+# DB_PASSWORD=
+
+# 4. Migrasi & seed (wajib: roles, users, workflow, konfigurasi, master sarpras)
+php artisan migrate:fresh --seed
+
+# 5. Build frontend
+npm run build        # produksi
+# npm run dev        # dev (vite HMR)
+
+# 6. Storage link (untuk upload TTD & lampiran)
+php artisan storage:link
+
+# 7. Jalankan
+php artisan serve --host=127.0.0.1 --port=8000
+# atau via composer:
+composer run dev     # serve + queue + vite concurrent (butuh @laravel/multiplex)
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+Buka `http://127.0.0.1:8000`.
 
-## Contributing
+## Akun Default (password semua: `password`)
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+| Role | Email | Username |
+|------|-------|----------|
+| Admin | admin@test.com | admin |
+| BEM | bem@test.com | bem |
+| BPM | bpm@test.com | bpm |
+| BKKH | bkh@test.com | bkh |
+| WR3 | wr3@test.com | wr3 |
+| Bendahara | bendahara@test.com | bendahara |
+| Sarpras Ruangan | sarprasruangan@test.com | sarpras_ruangan |
+| Sarpras Barang | sarprasbarang@test.com | sarprasbarang |
+| Ormawa (HIMA IF) | himaif@test.com | himaif |
 
-## Code of Conduct
+Seed tambahan: `WorkflowSeeder`, `KonfigurasiSeeder`, `MasterDataSeeder` (4 ruangan + 6 barang).
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+## Testing
 
-## Security Vulnerabilities
+```bash
+# Unit / Feature
+php artisan test
+# atau
+composer run test
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+# E2E Playwright (90/90 passed, 11 skipped = cascade proposal-workflow blocking)
+npx playwright install --with-deps   # sekali
+npx playwright test --reporter=list
+npx playwright show-report           # html report
 
-## License
+# Satu file
+npx playwright test e2e/04-peminjaman-sarpras.spec.ts --reporter=list
+```
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+Konfigurasi E2E: `playwright.config.ts` — `baseURL http://127.0.0.1:8000`, `webServer: php -S 127.0.0.1:8000 -t public`, `workers:1`, `retries:2`, `timeout:60s`.
+
+## Git & Kebersihan Repo
+
+`.gitignore` sudah mengabaikan:
+```
+.env, /vendor, /node_modules, /storage/*.key, /public/build,
+/test-results, /playwright-report, /playwright/.cache, CLAUDE.md, AGENTS.md
+```
+`CLAUDE.md` & `AGENTS.md` sengaja tidak di-track (instruksi internal agent). `docs/` & `e2e/` tetap ter-track agar dokumentasi progres dan test suite ikut terdistribusi — jangan di-ignore bila butuh audit E2E.
+
+## Troubleshooting
+
+- `vite manifest not found` → `npm run build` atau `npm run dev`.
+- `SQLSTATE[HY000] database.sqlite not found` → `touch database/database.sqlite` lalu `php artisan migrate:fresh --seed`.
+- `419 Page Expired` saat E2E → clear cookies/session: `php artisan optimize:clear`.
+- `net::ERR_ABORTED` di `php -S` → sudah ditangani via `gotoStable` (`waitUntil: domcontentloaded`) dan `retries:2`; cukup rerun `npx playwright test`.
+
+## Lisensi
+
+MIT — lihat `LICENSE`.
