@@ -14,7 +14,7 @@ class PeminjamanController extends Controller
     // Opsi A: Riwayat terpisah - Tempat (hanya milik sendiri)
     public function historyTempat()
     {
-        $peminjaman_tempat = PeminjamanTempat::where('user_id', Auth::id())
+        $peminjaman_tempat = (Auth::user()->hasRole('admin') ? PeminjamanTempat::query() : PeminjamanTempat::where('user_id', Auth::id()))
             ->with('ruangan')
             ->latest()
             ->get();
@@ -24,7 +24,7 @@ class PeminjamanController extends Controller
     // Opsi A: Riwayat terpisah - Barang (hanya milik sendiri)
     public function historyBarang()
     {
-        $peminjaman_barang = PeminjamanBarang::where('user_id', Auth::id())
+        $peminjaman_barang = (Auth::user()->hasRole('admin') ? PeminjamanBarang::query() : PeminjamanBarang::where('user_id', Auth::id()))
             ->latest()
             ->get();
         return view('peminjaman.barang_history', compact('peminjaman_barang'));
@@ -33,12 +33,12 @@ class PeminjamanController extends Controller
     // Menampilkan daftar peminjaman untuk Ormawa (gabungan - legacy, redirect ke tempat)
     public function index()
     {
-        $peminjaman_tempat = PeminjamanTempat::where('user_id', Auth::id())
+        $peminjaman_tempat = (Auth::user()->hasRole('admin') ? PeminjamanTempat::query() : PeminjamanTempat::where('user_id', Auth::id()))
             ->with('ruangan')
             ->latest()
             ->get();
             
-        $peminjaman_barang = PeminjamanBarang::where('user_id', Auth::id())
+        $peminjaman_barang = (Auth::user()->hasRole('admin') ? PeminjamanBarang::query() : PeminjamanBarang::where('user_id', Auth::id()))
             ->latest()
             ->get();
             
@@ -151,7 +151,10 @@ class PeminjamanController extends Controller
         $antrian_tempat = collect();
         $antrian_barang = collect();
 
-        if ($role === 'bkh') {
+        if ($role === 'admin') {
+            $antrian_tempat = PeminjamanTempat::with(['user', 'ruangan'])->latest()->get();
+            $antrian_barang = PeminjamanBarang::with('user')->latest()->get();
+        } elseif ($role === 'bkh') {
             $antrian_tempat = PeminjamanTempat::where('status_bkkh', 'pending')->with(['user', 'ruangan'])->latest()->get();
             $antrian_barang = PeminjamanBarang::where('status_bkkh', 'pending')->with('user')->latest()->get();
         } 

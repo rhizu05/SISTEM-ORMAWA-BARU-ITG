@@ -21,7 +21,8 @@ class RolePermissionSeeder extends Seeder
             'wr3',
             'bendahara',
             'sarpras_ruangan',
-            'sarpras_barang'
+            'sarpras_barang',
+            'mahasiswa'
         ];
 
         foreach ($roles as $role) {

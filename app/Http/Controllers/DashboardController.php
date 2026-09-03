@@ -8,7 +8,9 @@ use App\Models\Pengajuan;
 use App\Models\PeminjamanTempat;
 use App\Models\PeminjamanBarang;
 use App\Models\User;
+use App\Models\SaldoHistori;
 use App\Models\WorkflowTransition;
+use App\Models\Aspirasi;
 
 class DashboardController extends Controller
 {
@@ -70,7 +72,8 @@ class DashboardController extends Controller
             // kalender terpadu
             $calendarTempat = PeminjamanTempat::with('ruangan')->whereIn('status_akhir',['Selesai / Disetujui','Proses Sarpras'])->get();
             $calendarBarang = PeminjamanBarang::whereIn('status_akhir',['Selesai / Disetujui','Proses Sarpras'])->get();
-            return view('dashboard.bkkh', compact('counts','rapats','proposalQueue','tempatQueue','barangQueue','calendarTempat','calendarBarang'));
+            $saldoHistori = SaldoHistori::with(['user', 'actor'])->latest()->take(20)->get();
+            return view('dashboard.bkkh', compact('counts','rapats','proposalQueue','tempatQueue','barangQueue','calendarTempat','calendarBarang','saldoHistori'));
         }
         elseif ($role === 'bem') {
             $saldoAwal = $user->saldo_awal ?? $user->saldo;
@@ -125,7 +128,9 @@ class DashboardController extends Controller
             $calendarTempat = PeminjamanTempat::with('ruangan')->whereIn('status_akhir',['Selesai / Disetujui','Proses Sarpras'])->get();
             $calendarBarang = PeminjamanBarang::whereIn('status_akhir',['Selesai / Disetujui','Proses Sarpras'])->get();
             
-            return view('dashboard.wr3', compact('usersWithSaldo', 'saldoByRole', 'rapats', 'proposalQueue', 'calendarTempat', 'calendarBarang'));
+            $saldoHistori = SaldoHistori::with(['user', 'actor'])->latest()->take(20)->get();
+
+            return view('dashboard.wr3', compact('usersWithSaldo', 'saldoByRole', 'rapats', 'proposalQueue', 'calendarTempat', 'calendarBarang', 'saldoHistori'));
         }
         
         elseif ($role === 'bendahara') {
@@ -154,6 +159,20 @@ class DashboardController extends Controller
                 'total_users' => User::count(),
             ];
             return view('dashboard.admin', compact('stats'));
+        }
+
+        elseif ($role === 'mahasiswa') {
+            $stats = [
+                'total_aspirasi' => Aspirasi::where('user_id', $user->id)->count(),
+            ];
+            $meetings = \App\Models\JadwalRapat::where('tanggal_rapat', '>=', now()->toDateString())
+                ->orderBy('tanggal_rapat', 'asc')
+                ->take(5)
+                ->get();
+            $announcements = \App\Models\Pengumuman::latest()->take(5)->get();
+            $facilities = PeminjamanTempat::with('ruangan')->whereIn('status_akhir', ['Selesai / Disetujui', 'Proses Sarpras'])->get();
+            
+            return view('dashboard.mahasiswa', compact('stats', 'meetings', 'announcements', 'facilities'));
         }
 
         // Fallback default

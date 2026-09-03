@@ -68,17 +68,31 @@
             <!-- History Timeline -->
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg h-fit">
                 <div class="p-6 text-gray-900">
-                    <h3 class="text-lg font-bold mb-4 border-b pb-2">Riwayat Status</h3>
+                    <h3 class="text-lg font-bold mb-4 border-b pb-2">Riwayat & Status PIC</h3>
                     
+                    @if($pengajuan->state && $pengajuan->state->pic_role)
+                    <div class="mb-4 p-3 bg-indigo-50 border border-indigo-200 rounded-lg text-xs">
+                        <span class="font-bold text-indigo-800 uppercase block mb-1">Status PIC Saat Ini:</span>
+                        <p class="text-indigo-900 font-semibold">{{ $pengajuan->state->pic_role }}</p>
+                        <p class="text-indigo-700 mt-0.5">Kontak / Pihak terkait: <span class="font-medium">{{ $pengajuan->state->pic_contact }}</span></p>
+                    </div>
+                    @endif
+
                     <div class="relative border-l border-gray-200 ml-3 space-y-4">
                         @foreach($pengajuan->histori as $history)
                         <div class="mb-4 ml-4">
                             <div class="absolute w-3 h-3 bg-indigo-500 rounded-full -left-1.5 border border-white mt-1.5"></div>
                             <time class="mb-1 text-xs font-normal text-gray-400">{{ $history->created_at->format('d/m/Y H:i') }}</time>
-                            <h4 class="text-sm font-semibold text-gray-900">{{ $history->state->label }}</h4>
-                            <p class="text-xs text-gray-500 mb-1">Oleh: {{ $history->user->name }}</p>
+                            <h4 class="text-sm font-semibold text-gray-900">{{ $history->state->label ?? 'Status' }}</h4>
+                            @if($history->state && $history->state->pic_role)
+                            <p class="text-[11px] text-indigo-600 font-medium">PIC: {{ $history->state->pic_role }} ({{ $history->state->pic_contact }})</p>
+                            @endif
+                            <p class="text-xs text-gray-500 mb-1">Oleh: {{ $history->user->name ?? 'Sistem' }}</p>
                             @if($history->catatan)
                             <p class="text-sm text-gray-700 bg-gray-50 p-2 rounded border mt-1">{{ $history->catatan }}</p>
+                            @endif
+                            @if($history->catatan_kendala)
+                            <p class="text-sm text-red-700 bg-red-50 p-2 rounded border border-red-200 mt-1"><strong>Kendala / Catatan Revisi:</strong> {{ $history->catatan_kendala }}</p>
                             @endif
                         </div>
                         @endforeach

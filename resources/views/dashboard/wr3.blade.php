@@ -51,6 +51,11 @@
             </div>
 
             <div class="bg-white p-4 rounded shadow">
+                <h3 class="font-bold mb-3">Riwayat Perubahan Saldo</h3>
+                <div class="overflow-x-auto"><table class="min-w-full text-sm border"><thead class="bg-gray-50"><tr><th class="p-2 border text-left">Waktu</th><th class="p-2 border text-left">Pengguna</th><th class="p-2 border text-left">Aktor</th><th class="p-2 border text-left">Saldo</th><th class="p-2 border text-left">Alasan</th></tr></thead><tbody>@forelse($saldoHistori as $history)<tr><td class="p-2 border">{{ $history->created_at->format('d/m/Y H:i') }}</td><td class="p-2 border">{{ $history->user->name }}</td><td class="p-2 border">{{ $history->actor->name }}</td><td class="p-2 border">Rp {{ number_format($history->nominal_sebelum, 0, ',', '.') }} → Rp {{ number_format($history->nominal_sesudah, 0, ',', '.') }}</td><td class="p-2 border">{{ $history->catatan }}</td></tr>@empty<tr><td colspan="5" class="p-4 border text-center text-gray-500">Belum ada riwayat perubahan saldo.</td></tr>@endforelse</tbody></table></div>
+            </div>
+
+            <div class="bg-white p-4 rounded shadow">
                 <h3 class="font-bold mb-3">Jadwal Terpadu Fasilitas & Barang</h3>
                 <p class="text-xs text-gray-500 mb-2">Klik pada agenda untuk melihat detail kegiatan</p>
                 <div id="calendar" class="border p-2 rounded"></div>

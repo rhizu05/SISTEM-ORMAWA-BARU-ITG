@@ -38,3 +38,6 @@ node_modules/
 /playwright/.cache/
 /playwright/.auth/
 e2e
+.playwright-mcp
+opencode.json
+LAPORAN-PENGUJIAN-PLAYWRIGHT.md

@@ -215,6 +215,10 @@
                                 <x-text-input id="saldo" name="saldo" type="number" class="mt-1 block w-full" x-model="saldoUser.saldo" required min="0" />
                                 <p class="text-xs text-gray-500 mt-1">Saldo ini akan menjadi batas maksimal pengajuan dana.</p>
                             </div>
+                            <div>
+                                <x-input-label for="catatan_saldo" value="Alasan Perubahan" />
+                                <textarea id="catatan_saldo" name="catatan" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required></textarea>
+                            </div>
                         </div>
                         <div class="mt-6 flex justify-end gap-3">
                             <button type="button" @click="showSaldoModal = false" class="px-4 py-2 border rounded text-gray-600">Batal</button>
@@ -225,5 +229,22 @@
             </div>
         </div>
 
+        <div class="mt-6 bg-white overflow-hidden shadow-sm sm:rounded-lg">
+            <div class="p-6 text-gray-900">
+                <h3 class="text-lg font-bold mb-4">Riwayat Perubahan Saldo</h3>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full text-sm border">
+                        <thead class="bg-gray-50"><tr><th class="p-2 border text-left">Waktu</th><th class="p-2 border text-left">Pengguna</th><th class="p-2 border text-left">Aktor</th><th class="p-2 border text-left">Perubahan</th><th class="p-2 border text-left">Alasan</th></tr></thead>
+                        <tbody>
+                            @forelse($saldoHistori as $history)
+                                <tr><td class="p-2 border">{{ $history->created_at->format('d/m/Y H:i') }}</td><td class="p-2 border">{{ $history->user->name }}</td><td class="p-2 border">{{ $history->actor->name }}</td><td class="p-2 border">Rp {{ number_format($history->nominal_sebelum, 0, ',', '.') }} → Rp {{ number_format($history->nominal_sesudah, 0, ',', '.') }}</td><td class="p-2 border">{{ $history->catatan }}</td></tr>
+                            @empty
+                                <tr><td colspan="5" class="p-4 border text-center text-gray-500">Belum ada riwayat perubahan saldo.</td></tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
     </div>
 </x-app-layout>

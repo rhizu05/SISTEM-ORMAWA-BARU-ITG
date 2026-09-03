@@ -14,6 +14,7 @@ class HistoriStatus extends Model
         'user_id',
         'workflow_state_id',
         'catatan',
+        'catatan_kendala',
         'unique_code'
     ];
 

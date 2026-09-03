@@ -12,7 +12,9 @@ class ProposalGeneratorController extends Controller
 {
     public function index()
     {
-        $proposals = ProposalOtomatis::where('user_id', Auth::id())->latest()->get();
+        $proposals = Auth::user()->hasRole('admin')
+            ? ProposalOtomatis::with('user')->latest()->get()
+            : ProposalOtomatis::where('user_id', Auth::id())->latest()->get();
         return view('generator.index', compact('proposals'));
     }
 
@@ -176,14 +178,18 @@ class ProposalGeneratorController extends Controller
 
     public function showLetter(\App\Models\Letter $letter)
     {
-        if ($letter->user_id !== Auth::id()) abort(403);
+        if ($letter->user_id !== Auth::id() && ! Auth::user()->hasRole('admin')) abort(403);
         return view('generator.letters.show', compact('letter'));
     }
 
     public function archive()
     {
-        $proposals = ProposalOtomatis::where('user_id', Auth::id())->latest()->get();
-        $letters = \App\Models\Letter::where('user_id', Auth::id())->latest()->get();
+        $proposals = Auth::user()->hasRole('admin')
+            ? ProposalOtomatis::with('user')->latest()->get()
+            : ProposalOtomatis::where('user_id', Auth::id())->latest()->get();
+        $letters = Auth::user()->hasRole('admin')
+            ? \App\Models\Letter::with('user')->latest()->get()
+            : \App\Models\Letter::where('user_id', Auth::id())->latest()->get();
         
         // LPJ usually linked to Proposal, for now we show proposals that have LPJ
         return view('generator.archive', compact('proposals', 'letters'));
@@ -256,7 +262,7 @@ class ProposalGeneratorController extends Controller
 
     public function print(ProposalOtomatis $proposal)
     {
-        if ($proposal->user_id !== Auth::id() && !Auth::user()->hasAnyRole(['bem', 'bpm', 'bkh', 'wr3', 'bendahara'])) {
+        if ($proposal->user_id !== Auth::id() && !Auth::user()->hasAnyRole(['bem', 'bpm', 'bkh', 'wr3', 'bendahara', 'admin'])) {
             abort(403);
         }
         

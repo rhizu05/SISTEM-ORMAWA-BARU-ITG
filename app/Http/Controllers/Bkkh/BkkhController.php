@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Bkkh;
 use App\Http\Controllers\Controller;
 use App\Models\Pengajuan;
 use App\Models\PeminjamanTempat;
+use App\Models\SaldoHistori;
 use App\Models\SuratPeringatan;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -22,7 +23,9 @@ class BkkhController extends Controller
             $u->rincian = $u->pengajuans()->latest()->take(3)->pluck('nama_kegiatan')->implode(', ');
             return $u;
         });
-        return view('bkkh.saldo', compact('users'));
+        $saldoHistori = SaldoHistori::with(['user', 'actor'])->latest()->take(20)->get();
+
+        return view('bkkh.saldo', compact('users', 'saldoHistori'));
     }
 
     public function arsipSurat(Request $request)

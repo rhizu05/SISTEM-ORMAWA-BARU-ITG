@@ -32,4 +32,14 @@ class User extends Authenticatable
     }
 
     public function pengajuans() { return $this->hasMany(Pengajuan::class, 'user_id'); }
+
+    public function saldoHistori()
+    {
+        return $this->hasMany(SaldoHistori::class);
+    }
+
+    public function perubahanSaldo()
+    {
+        return $this->hasMany(SaldoHistori::class, 'actor_id');
+    }
 }

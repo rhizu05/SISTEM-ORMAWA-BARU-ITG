@@ -4,7 +4,53 @@
         <span x-show="sidebarOpen" class="ml-3 font-bold text-lg whitespace-nowrap">Sistem Keuangan</span>
     </div>
 
-    <nav class="flex-1 px-2 py-4 space-y-2">
+        @hasrole('mahasiswa')
+        <div class="pb-4">
+            <a href="{{ route('dashboard') }}" class="flex items-center p-2 rounded-lg hover:bg-indigo-800 transition-colors {{ request()->routeIs('dashboard') ? 'bg-indigo-800' : '' }}">
+                <svg class="w-6 h-6 min-w-[24px]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0h6" /></svg>
+                <span x-show="sidebarOpen" class="ml-3 text-sm font-medium truncate">Dashboard</span>
+            </a>
+        </div>
+        <div class="space-y-1 pb-4">
+            <div class="px-2 text-[10px] font-bold text-indigo-300 uppercase tracking-widest">Layanan Mahasiswa</div>
+            <a href="{{ route('aspirasi.create') }}" class="block p-2 rounded hover:bg-indigo-700 text-sm {{ request()->routeIs('aspirasi.create') ? 'bg-indigo-700' : '' }}">Kirim Aspirasi</a>
+            <a href="{{ route('informasi.index') }}" class="block p-2 rounded hover:bg-indigo-700 text-sm {{ request()->routeIs('informasi.index') ? 'bg-indigo-700' : '' }}">Informasi Kampus</a>
+            <a href="{{ route('rapat.index') }}" class="block p-2 rounded hover:bg-indigo-700 text-sm {{ request()->routeIs('rapat.index') ? 'bg-indigo-700' : '' }}">Agenda Rapat</a>
+        </div>
+        @endhasrole
+
+        @hasrole('admin')
+        <div class="pb-4">
+            <a href="{{ route('dashboard') }}" class="flex items-center p-2 rounded-lg hover:bg-indigo-800 transition-colors {{ request()->routeIs('dashboard') ? 'bg-indigo-800' : '' }}">
+                <svg class="w-6 h-6 min-w-[24px]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0h6" /></svg>
+                <span x-show="sidebarOpen" class="ml-3 text-sm font-medium truncate">Dashboard</span>
+            </a>
+        </div>
+
+        <div class="space-y-1 pb-4">
+            <div class="px-2 text-[10px] font-bold text-indigo-300 uppercase tracking-widest">Administrasi</div>
+            <a href="{{ route('admin.users.index') }}" class="block p-2 rounded hover:bg-indigo-700 text-sm {{ request()->routeIs('admin.users.*') ? 'bg-indigo-700' : '' }}">Manajemen User</a>
+            <a href="{{ route('admin.konfigurasi.edit') }}" class="block p-2 rounded hover:bg-indigo-700 text-sm {{ request()->routeIs('admin.konfigurasi.*') ? 'bg-indigo-700' : '' }}">Konfigurasi Sistem</a>
+        </div>
+
+        <div class="space-y-1 pb-4">
+            <div class="px-2 text-[10px] font-bold text-indigo-300 uppercase tracking-widest">Monitoring Read-only</div>
+            <a href="{{ route('pengajuan.index') }}" class="block p-2 rounded hover:bg-indigo-700 text-sm {{ request()->routeIs('pengajuan.*') ? 'bg-indigo-700' : '' }}">Pengajuan</a>
+            <a href="{{ route('lpj.index') }}" class="block p-2 rounded hover:bg-indigo-700 text-sm {{ request()->routeIs('lpj.*') ? 'bg-indigo-700' : '' }}">LPJ</a>
+            <a href="{{ route('peminjaman.tempat.index') }}" class="block p-2 rounded hover:bg-indigo-700 text-sm {{ request()->routeIs('peminjaman.tempat.*') ? 'bg-indigo-700' : '' }}">Peminjaman Ruangan</a>
+            <a href="{{ route('peminjaman.barang.index') }}" class="block p-2 rounded hover:bg-indigo-700 text-sm {{ request()->routeIs('peminjaman.barang.*') ? 'bg-indigo-700' : '' }}">Peminjaman Barang</a>
+            <a href="{{ route('generator.index') }}" class="block p-2 rounded hover:bg-indigo-700 text-sm {{ request()->routeIs('generator.*') ? 'bg-indigo-700' : '' }}">Proposal & Surat</a>
+            <a href="{{ route('archive.index') }}" class="block p-2 rounded hover:bg-indigo-700 text-sm {{ request()->routeIs('archive.*') ? 'bg-indigo-700' : '' }}">Arsip Digital</a>
+            <a href="{{ route('verifikasi.index') }}" class="block p-2 rounded hover:bg-indigo-700 text-sm {{ request()->routeIs('verifikasi.*') ? 'bg-indigo-700' : '' }}">Verifikasi Proposal</a>
+            <a href="{{ route('peminjaman.verifikasi.index') }}" class="block p-2 rounded hover:bg-indigo-700 text-sm {{ request()->routeIs('peminjaman.verifikasi.*') ? 'bg-indigo-700' : '' }}">Verifikasi Peminjaman</a>
+            <a href="{{ route('sarpras.barang.index') }}" class="block p-2 rounded hover:bg-indigo-700 text-sm {{ request()->routeIs('sarpras.*') ? 'bg-indigo-700' : '' }}">Master Barang</a>
+            <a href="{{ route('bpm.aspirasi.index') }}" class="block p-2 rounded hover:bg-indigo-700 text-sm {{ request()->routeIs('bpm.aspirasi.*') ? 'bg-indigo-700' : '' }}">Aspirasi BPM</a>
+            <a href="{{ route('bpm.regulasi.index') }}" class="block p-2 rounded hover:bg-indigo-700 text-sm {{ request()->routeIs('bpm.regulasi.*') ? 'bg-indigo-700' : '' }}">Regulasi BPM</a>
+            <a href="{{ route('bkkh.saldo.index') }}" class="block p-2 rounded hover:bg-indigo-700 text-sm {{ request()->routeIs('bkkh.saldo.*') ? 'bg-indigo-700' : '' }}">Saldo</a>
+            <a href="{{ route('bkkh.arsip.index') }}" class="block p-2 rounded hover:bg-indigo-700 text-sm {{ request()->routeIs('bkkh.arsip.*') ? 'bg-indigo-700' : '' }}">Arsip Surat BKKH</a>
+            <a href="{{ route('bkkh.verifikasi-tempat.index') }}" class="block p-2 rounded hover:bg-indigo-700 text-sm {{ request()->routeIs('bkkh.verifikasi-tempat.*') ? 'bg-indigo-700' : '' }}">Verifikasi Tempat</a>
+        </div>
+        @else
         <!-- Main Section -->
         <div class="pb-4">
             <a href="{{ route('dashboard') }}" class="flex items-center p-2 rounded-lg hover:bg-indigo-800 transition-colors {{ request()->routeIs('dashboard') ? 'bg-indigo-800' : '' }}">
@@ -14,7 +60,7 @@
         </div>
 
         <!-- BPM Special Group -->
-        @hasrole('bpm')
+        @hasanyrole('bpm|admin')
         <div class="space-y-1 pb-4">
             <div x-data="{ open: false }" class="group">
                 <button @click="open = !open" class="w-full flex items-center p-2 rounded-lg hover:bg-indigo-800 transition-colors {{ request()->routeIs('bpm.*') ? 'bg-indigo-800' : '' }}">
@@ -27,12 +73,13 @@
                     <a href="{{ route('bpm.sp.create') }}" class="block p-2 text-xs rounded hover:bg-indigo-700 transition-colors">Buat Surat Peringatan</a>
                     <a href="{{ route('bpm.aspirasi.index') }}" class="block p-2 text-xs rounded hover:bg-indigo-700 transition-colors">Kelola Aspirasi</a>
                     <a href="{{ route('bpm.regulasi.index') }}" class="block p-2 text-xs rounded hover:bg-indigo-700 transition-colors">Kelola Regulasi</a>
-                </div>
-            </div>
-        </div>
-        @endhasrole
+                    <a href="{{ route('proker.index') }}" class="block p-2 text-xs rounded hover:bg-indigo-700 transition-colors {{ request()->routeIs('proker.*') ? 'bg-indigo-700' : '' }}">Monitoring Proker Ormawa</a>
+                 </div>
+             </div>
+         </div>
+         @endhasanyrole
 
-        <!-- WR3 Special Group -->
+         <!-- WR3 Special Group
         @hasrole('wr3')
         <div class="space-y-1 pb-4">
             <div x-data="{ open: false }" class="group">
@@ -49,7 +96,7 @@
         @endhasrole
 
         <!-- Pengajuan Group -->
-        @hasanyrole('ormawa|bem|bpm')
+        @hasanyrole('ormawa|bem|bpm|admin')
         <div class="space-y-1 pb-4">
             <div x-data="{ open: false }" class="group">
                 <button @click="open = !open" class="w-full flex items-center p-2 rounded-lg hover:bg-indigo-800 transition-colors {{ request()->routeIs('pengajuan.*') ? 'bg-indigo-800' : '' }}">
@@ -60,13 +107,14 @@
                 <div x-show="open && sidebarOpen" class="pl-10 space-y-1 mt-1">
                     <a href="{{ route('pengajuan.create') }}" class="block p-2 text-xs rounded hover:bg-indigo-700 transition-colors">Buat Pengajuan</a>
                     <a href="{{ route('pengajuan.index') }}" class="block p-2 text-xs rounded hover:bg-indigo-700 transition-colors">Riwayat Pengajuan</a>
+                    <a href="{{ route('proker.index') }}" class="block p-2 text-xs rounded hover:bg-indigo-700 transition-colors {{ request()->routeIs('proker.*') ? 'bg-indigo-700' : '' }}">Program Kerja</a>
                 </div>
             </div>
         </div>
         @endhasanyrole
 
         <!-- Sarpras Opsi A: Riwayat terpisah per jenis - milik sendiri -->
-        @hasanyrole('ormawa|bem|bpm')
+        @hasanyrole('ormawa|bem|bpm|admin')
         <div class="space-y-1 pb-4">
             <div x-data="{ open: true }" class="group">
                 <button @click="open = !open" class="w-full flex items-center p-2 rounded-lg hover:bg-indigo-800 transition-colors {{ request()->routeIs('peminjaman.*') ? 'bg-indigo-800' : '' }}">
@@ -90,7 +138,7 @@
         </div>
         @endhasanyrole
 
-        @hasrole('bkh')
+        @hasanyrole('bkh|admin')
         <div class="space-y-1 pb-4">
             <div x-data="{ open: true }" class="group">
                 <button @click="open = !open" class="w-full flex items-center p-2 rounded-lg hover:bg-indigo-800 transition-colors {{ request()->routeIs('bkkh.*','admin.*') ? 'bg-indigo-800' : '' }}">
@@ -101,16 +149,18 @@
                 <div x-show="open && sidebarOpen" class="pl-4 space-y-1 mt-2">
                     <a href="{{ route('bkkh.saldo.index') }}" class="block ml-2 p-2 text-xs rounded hover:bg-indigo-700 {{ request()->routeIs('bkkh.saldo.*') ? 'bg-indigo-700' : '' }}">Manajemen Saldo</a>
                     <a href="{{ route('admin.users.index') }}" class="block ml-2 p-2 text-xs rounded hover:bg-indigo-700 {{ request()->routeIs('admin.users.*') ? 'bg-indigo-700' : '' }}">Manajemen User</a>
+                    @hasrole('admin')
                     <a href="{{ route('admin.konfigurasi.edit') }}" class="block ml-2 p-2 text-xs rounded hover:bg-indigo-700 {{ request()->routeIs('admin.konfigurasi.*') ? 'bg-indigo-700' : '' }}">Manajemen Sistem</a>
+                    @endhasrole
                     <a href="{{ route('bkkh.arsip.index') }}" class="block ml-2 p-2 text-xs rounded hover:bg-indigo-700 {{ request()->routeIs('bkkh.arsip.*') ? 'bg-indigo-700' : '' }}">Arsip Surat</a>
                     <a href="{{ route('bkkh.sp.create') }}" class="block ml-2 p-2 text-xs rounded hover:bg-indigo-700 {{ request()->routeIs('bkkh.sp.*') ? 'bg-indigo-700' : '' }}">Buat Surat Peringatan</a>
                     <a href="{{ route('bkkh.verifikasi-tempat.index') }}" class="block ml-2 p-2 text-xs rounded hover:bg-indigo-700 {{ request()->routeIs('bkkh.verifikasi-tempat.*') ? 'bg-indigo-700' : '' }}">Verifikasi Tempat</a>
                 </div>
             </div>
         </div>
-        @endhasrole
+         @endhasanyrole
 
-        @hasanyrole('ormawa|bem|bpm')
+         @hasanyrole('ormawa|bem|bpm|admin')
         <!-- Persuratan Digital Group - hidden for bkh -->
         <div class="space-y-1 pb-4">
             <div x-data="{ open: false }" class="group">
@@ -157,6 +207,7 @@
             </div>
         </div>
         @endhasanyrole
+        @endhasrole
     </nav>
 
     <div class="mt-auto p-4 border-t border-indigo-800">

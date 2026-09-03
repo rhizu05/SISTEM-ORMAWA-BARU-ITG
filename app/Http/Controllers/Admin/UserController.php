@@ -3,10 +3,12 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\SaldoHistori;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
+use Illuminate\Support\Facades\DB;
 use Spatie\Permission\Models\Role;
 
 class UserController extends Controller
@@ -15,8 +17,9 @@ class UserController extends Controller
     {
         $users = User::with('roles')->where('id', '!=', auth()->id())->latest()->paginate(10);
         $roles = Role::all();
-        
-        return view('admin.users.index', compact('users', 'roles'));
+        $saldoHistori = SaldoHistori::with(['user', 'actor'])->latest()->take(20)->get();
+
+        return view('admin.users.index', compact('users', 'roles', 'saldoHistori'));
     }
 
     public function store(Request $request)
@@ -73,13 +76,27 @@ class UserController extends Controller
     {
         $request->validate([
             'saldo' => ['required', 'numeric', 'min:0'],
+            'catatan' => ['required', 'string', 'max:1000'],
         ]);
 
-        $user->update([
-            'saldo' => $request->saldo
-        ]);
+        DB::transaction(function () use ($request, $user) {
+            $before = (float) $user->saldo;
+            $after = (float) $request->saldo;
 
-        return redirect()->route('admin.users.index')->with('success', 'Saldo berhasil diperbarui.');
+            $user->update(['saldo' => $after]);
+
+            SaldoHistori::create([
+                'user_id' => $user->id,
+                'actor_id' => auth()->id(),
+                'tipe' => 'koreksi',
+                'nominal_sebelum' => $before,
+                'nominal_sesudah' => $after,
+                'selisih' => $after - $before,
+                'catatan' => $request->catatan,
+            ]);
+        });
+
+        return redirect()->route('admin.users.index')->with('success', 'Saldo berhasil diperbarui dan dicatat.');
     }
 
     public function destroy(User $user)

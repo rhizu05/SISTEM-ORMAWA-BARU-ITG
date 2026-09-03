@@ -13,7 +13,12 @@ class VerifikasiController extends Controller
     public function index()
     {
         $userRole = Auth::user()->roles->first()->name;
-        
+
+        if ($userRole === 'admin') {
+            $pengajuans = Pengajuan::with(['user', 'state'])->latest()->paginate(10);
+            return view('verifikasi.index', compact('pengajuans'));
+        }
+
         // Find all transitions allowed for this user's role
         $allowedTransitions = WorkflowTransition::where('required_role', $userRole)->get();
         $allowedStateIds = $allowedTransitions->pluck('from_state_id')->unique();
@@ -32,6 +37,11 @@ class VerifikasiController extends Controller
         $userRole = Auth::user()->roles->first()->name;
         
         $pengajuan->load(['user', 'state', 'histori.user', 'histori.state']);
+
+        if ($userRole === 'admin') {
+            $availableTransitions = collect();
+            return view('verifikasi.show', compact('pengajuan', 'availableTransitions'));
+        }
         
         // Get transitions available for this specific state AND this user's role
         $availableTransitions = WorkflowTransition::where('from_state_id', $pengajuan->workflow_state_id)
@@ -84,7 +94,8 @@ class VerifikasiController extends Controller
             'pengajuan_id' => $pengajuan->id,
             'user_id' => Auth::id(),
             'workflow_state_id' => $transition->to_state_id,
-            'catatan' => $request->catatan ?? 'Status diubah: ' . $transition->action_label
+            'catatan' => $request->catatan ?? 'Status diubah: ' . $transition->action_label,
+            'catatan_kendala' => $isRejecting ? ($request->catatan ?? 'Pengajuan dikembalikan/ditolak pada tahap ' . $transition->toState->label) : null
         ]);
 
         return redirect()->route('verifikasi.index')->with('success', 'Pengajuan berhasil diproses.');

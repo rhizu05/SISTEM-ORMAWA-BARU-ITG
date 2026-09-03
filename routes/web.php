@@ -15,6 +15,7 @@ use App\Http\Controllers\Sarpras\MasterBarangController;
 use App\Http\Controllers\VerifikasiController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProfileDataController;
+use App\Http\Controllers\ProgramKerjaController;
 use App\Http\Controllers\RegulasiController;
 use Illuminate\Support\Facades\Route;
 
@@ -53,7 +54,7 @@ Route::middleware('auth')->group(function () {
     Route::delete('/rapat/{rapat}', [RapatController::class, 'destroy'])->name('rapat.destroy');
     
     // BPM Role: Dashboard & Management
-    Route::middleware(['role:bpm'])->prefix('bpm')->name('bpm.')->group(function () {
+    Route::middleware(['role:bpm|admin', 'admin.readonly'])->prefix('bpm')->name('bpm.')->group(function () {
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard'); // This will actually use the index method, but we can handle it in Controller
         Route::get('/aspirasi', [AspirasiController::class, 'index'])->name('aspirasi.index');
         Route::put('/aspirasi/update/{aspirasi}', [AspirasiController::class, 'update'])->name('aspirasi.update');
@@ -70,7 +71,7 @@ Route::middleware('auth')->group(function () {
 
 
     // Ormawa, BEM, BPM: Modul Pengajuan, LPJ, Peminjaman, Generator
-    Route::middleware(['role:ormawa|bem|bpm'])->group(function () {
+    Route::middleware(['role:ormawa|bem|bpm|admin', 'admin.readonly'])->group(function () {
         Route::get('/pengajuan', [PengajuanController::class, 'index'])->name('pengajuan.index');
         Route::get('/pengajuan/create', [PengajuanController::class, 'create'])->name('pengajuan.create');
         Route::post('/pengajuan', [PengajuanController::class, 'store'])->name('pengajuan.store');
@@ -115,25 +116,26 @@ Route::middleware('auth')->group(function () {
 
     // Rute cetak dokumen bisa diakses ormawa & verifikator
     Route::get('/generator/{proposal}/print', [ProposalGeneratorController::class, 'print'])
-        ->middleware(['auth'])
+        ->middleware(['auth', 'admin.readonly'])
         ->name('generator.print');
 
     // Verifikator Roles: Modul Verifikasi (BEM, BPM, BKH, WR3, Bendahara)
-    Route::middleware(['role:bem|bpm|bkh|wr3|bendahara'])->group(function () {
+    Route::middleware(['role:bem|bpm|bkh|wr3|bendahara|admin', 'admin.readonly'])->group(function () {
         Route::get('/verifikasi', [VerifikasiController::class, 'index'])->name('verifikasi.index');
         Route::get('/verifikasi/{pengajuan}', [VerifikasiController::class, 'show'])->name('verifikasi.show');
         Route::post('/verifikasi/{pengajuan}/process', [VerifikasiController::class, 'process'])->name('verifikasi.process');
     });
 
+
     // Peminjaman Verifikasi (BKKH & Sarpras)
-    Route::middleware(['role:bkh|sarpras|sarpras_barang'])->group(function () {
+    Route::middleware(['role:bkh|sarpras|sarpras_ruangan|sarpras_barang|admin', 'admin.readonly'])->group(function () {
         Route::get('/verifikasi-peminjaman', [PeminjamanController::class, 'antrian'])->name('peminjaman.verifikasi.index');
         Route::post('/verifikasi-peminjaman/tempat/{peminjaman}', [PeminjamanController::class, 'prosesTempat'])->name('peminjaman.tempat.proses');
         Route::post('/verifikasi-peminjaman/barang/{peminjaman}', [PeminjamanController::class, 'prosesBarang'])->name('peminjaman.barang.proses');
     });
 
     // Sarpras Khusus: Manajemen Master Barang Inventaris
-    Route::middleware(['role:sarpras_barang'])->prefix('sarpras')->name('sarpras.')->group(function () {
+    Route::middleware(['role:sarpras_barang|admin', 'admin.readonly'])->prefix('sarpras')->name('sarpras.')->group(function () {
         Route::get('/barang', [MasterBarangController::class, 'index'])->name('barang.index');
         Route::post('/barang', [MasterBarangController::class, 'store'])->name('barang.store');
         Route::put('/barang/{barang}', [MasterBarangController::class, 'update'])->name('barang.update');
@@ -146,7 +148,7 @@ Route::middleware('auth')->group(function () {
     });
 
     // BKKH Khusus: 8 menu sesuai spec
-    Route::middleware(['role:bkh'])->prefix('bkkh')->name('bkkh.')->group(function () {
+    Route::middleware(['role:bkh|admin', 'admin.readonly'])->prefix('bkkh')->name('bkkh.')->group(function () {
         Route::get('/saldo', [\App\Http\Controllers\Bkkh\BkkhController::class, 'saldo'])->name('saldo.index');
         Route::get('/arsip-surat', [\App\Http\Controllers\Bkkh\BkkhController::class, 'arsipSurat'])->name('arsip.index');
         Route::get('/surat-peringatan/create', [\App\Http\Controllers\Bkkh\BkkhController::class, 'spCreate'])->name('sp.create');
@@ -155,16 +157,28 @@ Route::middleware('auth')->group(function () {
         Route::get('/verifikasi-tempat', [\App\Http\Controllers\Bkkh\BkkhController::class, 'verifikasiTempat'])->name('verifikasi-tempat.index');
     });
 
-    // Admin/BKKH Role: Admin Panel (legacy)
+    // Admin/BKKH Role: User management remains available to both roles.
     Route::middleware(['role:bkh|admin'])->prefix('admin')->name('admin.')->group(function () {
         Route::get('/users', [UserController::class, 'index'])->name('users.index');
         Route::post('/users', [UserController::class, 'store'])->name('users.store');
         Route::put('/users/{user}', [UserController::class, 'update'])->name('users.update');
         Route::patch('/users/{user}/saldo', [UserController::class, 'updateSaldo'])->name('users.saldo');
         Route::delete('/users/{user}', [UserController::class, 'destroy'])->name('users.destroy');
-        
+    });
+
+    Route::middleware(['role:admin'])->prefix('admin')->name('admin.')->group(function () {
         Route::get('/konfigurasi', [KonfigurasiController::class, 'edit'])->name('konfigurasi.edit');
         Route::put('/konfigurasi', [KonfigurasiController::class, 'update'])->name('konfigurasi.update');
+    });
+
+    // Program Kerja Routes
+    Route::get('/proker', [ProgramKerjaController::class, 'index'])->name('proker.index');
+    Route::middleware(['role:ormawa|bem'])->group(function () {
+        Route::get('/proker/tambah', [ProgramKerjaController::class, 'create'])->name('proker.create');
+        Route::post('/proker', [ProgramKerjaController::class, 'store'])->name('proker.store');
+    });
+    Route::middleware(['role:bpm|admin'])->group(function () {
+        Route::put('/proker/{proker}', [ProgramKerjaController::class, 'update'])->name('proker.update');
     });
 });
 

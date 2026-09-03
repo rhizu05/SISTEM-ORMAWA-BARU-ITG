@@ -14,7 +14,9 @@ class PengajuanController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Pengajuan::where('user_id', Auth::id())->with('state');
+        $query = Auth::user()->hasRole('admin')
+            ? Pengajuan::with('state')
+            : Pengajuan::where('user_id', Auth::id())->with('state');
 
         // Filter status
         if ($request->has('status') && $request->status !== '') {
@@ -83,7 +85,7 @@ class PengajuanController extends Controller
 
     public function show(Pengajuan $pengajuan)
     {
-        if ($pengajuan->user_id !== Auth::id()) {
+        if ($pengajuan->user_id !== Auth::id() && ! Auth::user()->hasRole('admin')) {
             abort(403);
         }
 

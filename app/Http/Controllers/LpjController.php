@@ -14,12 +14,13 @@ class LpjController extends Controller
     public function index()
     {
         // Menampilkan daftar pengajuan yang sudah cair dan siap upload LPJ, atau sedang proses LPJ
-        $pengajuans = Pengajuan::where('user_id', Auth::id())
-            ->whereHas('state', function ($q) {
-                $q->whereIn('name', ['funds_disbursed', 'lpj_submitted', 'completed']);
-            })
-            ->latest()
-            ->paginate(10);
+        $query = Pengajuan::whereHas('state', function ($q) {
+            $q->whereIn('name', ['funds_disbursed', 'lpj_submitted', 'completed']);
+        });
+        if (! Auth::user()->hasRole('admin')) {
+            $query->where('user_id', Auth::id());
+        }
+        $pengajuans = $query->latest()->paginate(10);
             
         return view('lpj.index', compact('pengajuans'));
     }

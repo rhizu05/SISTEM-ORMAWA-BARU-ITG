@@ -14,17 +14,17 @@ class WorkflowSeeder extends Seeder
     public function run(): void
     {
         $states = [
-            ['name' => 'draft', 'label' => 'Draft', 'order_num' => 1],
-            ['name' => 'submitted', 'label' => 'Diajukan ke BEM', 'order_num' => 2],
-            ['name' => 'bem_approved', 'label' => 'Verifikasi BPM', 'order_num' => 3],
-            ['name' => 'bpm_approved', 'label' => 'Verifikasi BKKH', 'order_num' => 4],
-            ['name' => 'bkh_approved', 'label' => 'Verifikasi WR3', 'order_num' => 5],
-            ['name' => 'wr3_approved', 'label' => 'Disetujui WR3', 'order_num' => 6],
-            ['name' => 'to_treasurer', 'label' => 'Diajukan ke Bendahara', 'order_num' => 7],
-            ['name' => 'funds_disbursed', 'label' => 'Dana Cair', 'order_num' => 8],
-            ['name' => 'lpj_submitted', 'label' => 'LPJ Diajukan', 'order_num' => 9],
-            ['name' => 'completed', 'label' => 'Selesai', 'order_num' => 10],
-            ['name' => 'rejected', 'label' => 'Ditolak', 'order_num' => 99],
+            ['name' => 'draft', 'label' => 'Draft', 'order_num' => 1, 'pic_role' => 'Ormawa Pengaju', 'pic_contact' => 'Ketua Ormawa / Seskab'],
+            ['name' => 'submitted', 'label' => 'Diajukan ke BEM', 'order_num' => 2, 'pic_role' => 'Pengurus BEM', 'pic_contact' => 'Divisi Administrasi BEM'],
+            ['name' => 'bem_approved', 'label' => 'Verifikasi BPM', 'order_num' => 3, 'pic_role' => 'Pengurus BPM', 'pic_contact' => 'Komisi Pengawasan BPM'],
+            ['name' => 'bpm_approved', 'label' => 'Verifikasi BKKH', 'order_num' => 4, 'pic_role' => 'BKKH', 'pic_contact' => 'Bapak Encep (BKKH)'],
+            ['name' => 'bkh_approved', 'label' => 'Verifikasi WR3', 'order_num' => 5, 'pic_role' => 'Wakil Rektor III', 'pic_contact' => 'Kantor WR III'],
+            ['name' => 'wr3_approved', 'label' => 'Disetujui WR3', 'order_num' => 6, 'pic_role' => 'BKKH / Bendahara', 'pic_contact' => 'Bagian Keuangan'],
+            ['name' => 'to_treasurer', 'label' => 'Diajukan ke Bendahara', 'order_num' => 7, 'pic_role' => 'Bendahara Kampus', 'pic_contact' => 'Bagian Keuangan/Bendahara'],
+            ['name' => 'funds_disbursed', 'label' => 'Dana Cair', 'order_num' => 8, 'pic_role' => 'Ormawa Pengaju', 'pic_contact' => 'Pelaksana Kegiatan'],
+            ['name' => 'lpj_submitted', 'label' => 'LPJ Diajukan', 'order_num' => 9, 'pic_role' => 'BKKH', 'pic_contact' => 'Bapak Encep (BKKH)'],
+            ['name' => 'completed', 'label' => 'Selesai', 'order_num' => 10, 'pic_role' => 'Sistem / Arsip', 'pic_contact' => 'Arsip Digital SKIN'],
+            ['name' => 'rejected', 'label' => 'Ditolak', 'order_num' => 99, 'pic_role' => 'Ormawa Pengaju', 'pic_contact' => 'Lihat Catatan Kendala'],
         ];
 
         foreach ($states as $state) {
