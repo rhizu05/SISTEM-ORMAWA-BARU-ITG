@@ -55,15 +55,26 @@ class PeminjamanController extends Controller
     // Store pinjam ruangan
     public function storeTempat(Request $request)
     {
-        $request->validate([
+        $isHima = Auth::user()->isHima();
+
+        $rules = [
             'ruangan_id' => 'required|exists:master_ruangan,id',
             'nama_kegiatan' => 'required|string|max:255',
             'tgl_mulai' => 'required|date|after_or_equal:today',
             'tgl_selesai' => 'required|date|after_or_equal:tgl_mulai',
             'jam_mulai' => 'required',
             'jam_selesai' => 'required|after:jam_mulai',
-            'deskripsi_kegiatan' => 'nullable|string'
-        ]);
+            'deskripsi_kegiatan' => 'nullable|string',
+        ];
+
+        // Q-SAR-04: HIMA wajib melampirkan dokumen persetujuan Prodi.
+        if ($isHima) {
+            $rules['file_persetujuan_prodi'] = 'required|file|mimes:pdf|mimetypes:application/pdf|max:5120';
+        } else {
+            $rules['file_persetujuan_prodi'] = 'nullable|file|mimes:pdf|mimetypes:application/pdf|max:5120';
+        }
+
+        $request->validate($rules);
 
         // Cek konflik jadwal ruangan (overlap tanggal + jam secara presisi)
         $newStart = \Carbon\Carbon::parse($request->tgl_mulai.' '.$request->jam_mulai);
@@ -87,6 +98,23 @@ class PeminjamanController extends Controller
             return back()->withInput()->with('error', 'Ruangan sudah dibooking pada tanggal/waktu tersebut.');
         }
 
+        // Q-SAR-02: cek bentrok dengan jadwal perkuliahan (pola mingguan).
+        if (\App\Models\JadwalKuliah::bentrok(
+            (int) $request->ruangan_id,
+            $request->tgl_mulai,
+            $request->tgl_selesai,
+            $request->jam_mulai,
+            $request->jam_selesai,
+        )) {
+            return back()->withInput()->with('error', 'Waktu yang dipilih bentrok dengan jadwal perkuliahan di ruangan tersebut.');
+        }
+
+        $dokumenProdi = null;
+        if ($request->hasFile('file_persetujuan_prodi')) {
+            $dokumenProdi = $request->file('file_persetujuan_prodi')
+                ->storeAs('persetujuan-prodi', time() . '_prodi.pdf', 'local');
+        }
+
         PeminjamanTempat::create([
             'user_id' => Auth::id(),
             'ruangan_id' => $request->ruangan_id,
@@ -96,6 +124,7 @@ class PeminjamanController extends Controller
             'jam_mulai' => $request->jam_mulai,
             'jam_selesai' => $request->jam_selesai,
             'deskripsi_kegiatan' => $request->deskripsi_kegiatan,
+            'file_persetujuan_prodi' => $dokumenProdi,
         ]);
 
         return redirect()->route('peminjaman.tempat.index')->with('success', 'Pengajuan peminjaman ruangan berhasil dikirim.');
@@ -111,13 +140,21 @@ class PeminjamanController extends Controller
     // Store pinjam barang
     public function storeBarang(Request $request)
     {
-        $request->validate([
+        $isHima = Auth::user()->isHima();
+
+        $rules = [
             'nama_kegiatan' => 'required|string|max:255',
             'tgl_mulai' => 'required|date|after_or_equal:today',
             'tgl_selesai' => 'required|date|after_or_equal:tgl_mulai',
             'barang_id' => 'required|array|min:1',
             'qty' => 'required|array|min:1',
-        ]);
+        ];
+
+        // Q-SAR-04: HIMA wajib melampirkan dokumen persetujuan Prodi.
+        $rules['file_persetujuan_prodi'] = ($isHima ? 'required' : 'nullable')
+            . '|file|mimes:pdf|mimetypes:application/pdf|max:5120';
+
+        $request->validate($rules);
 
         $kebutuhan = [];
         foreach ($request->barang_id as $key => $id_barang) {
@@ -139,12 +176,19 @@ class PeminjamanController extends Controller
             return back()->withInput()->with('error', 'Harap pilih minimal 1 barang dengan quantity > 0.');
         }
 
+        $dokumenProdi = null;
+        if ($request->hasFile('file_persetujuan_prodi')) {
+            $dokumenProdi = $request->file('file_persetujuan_prodi')
+                ->storeAs('persetujuan-prodi', time() . '_prodi.pdf', 'local');
+        }
+
         PeminjamanBarang::create([
             'user_id' => Auth::id(),
             'nama_kegiatan' => $request->nama_kegiatan,
             'tgl_mulai' => $request->tgl_mulai,
             'tgl_selesai' => $request->tgl_selesai,
             'kebutuhan_barang' => $kebutuhan,
+            'file_persetujuan_prodi' => $dokumenProdi,
         ]);
 
         return redirect()->route('peminjaman.barang.index')->with('success', 'Pengajuan peminjaman barang berhasil dikirim.');
@@ -166,13 +210,11 @@ class PeminjamanController extends Controller
         } elseif ($role === 'bkhm') {
             $antrian_tempat = PeminjamanTempat::where('status_bkhm', 'pending')->with(['user', 'ruangan'])->latest()->get();
             $antrian_barang = PeminjamanBarang::where('status_bkhm', 'pending')->with('user')->latest()->get();
-        } 
-        elseif ($role === 'sarpras_ruangan') {
-            // Sarpras Ruangan HANYA bisa memproses peminjaman ruangan yang sudah ACC BKHM
-            $antrian_tempat = PeminjamanTempat::where('status_bkhm', 'disetujui')->where('status_sarpras', 'pending')->with(['user', 'ruangan'])->latest()->get();
         }
-        elseif ($role === 'sarpras_barang') {
-            // Sarpras Barang HANYA bisa memproses peminjaman barang yang sudah ACC BKHM
+        elseif ($role === 'sarpras') {
+            // Q-SAR-01: role Sarpras disatukan (ruangan + barang).
+            // Hanya memproses peminjaman yang sudah ACC BKHM.
+            $antrian_tempat = PeminjamanTempat::where('status_bkhm', 'disetujui')->where('status_sarpras', 'pending')->with(['user', 'ruangan'])->latest()->get();
             $antrian_barang = PeminjamanBarang::where('status_bkhm', 'disetujui')->where('status_sarpras', 'pending')->with('user')->latest()->get();
             // BASE-06: barang yang sedang dipinjam & perlu validasi kembali
             $barangDipinjam = PeminjamanBarang::with('user')->where('status_akhir', 'Sedang Digunakan')->latest()->get();
@@ -189,7 +231,7 @@ class PeminjamanController extends Controller
         if ($role === 'bkhm') {
             $peminjaman->status_bkhm = $status;
             $peminjaman->status_akhir = $status === 'ditolak' ? 'Ditolak BKHM' : 'Proses Sarpras';
-        } elseif ($role === 'sarpras_ruangan') {
+        } elseif ($role === 'sarpras') {
             $peminjaman->status_sarpras = $status;
             $peminjaman->status_akhir = $status === 'ditolak' ? 'Ditolak Sarpras' : 'Selesai / Disetujui';
         }
@@ -210,7 +252,7 @@ class PeminjamanController extends Controller
         if ($role === 'bkhm') {
             $peminjaman->status_bkhm = $status;
             $peminjaman->status_akhir = $status === 'ditolak' ? 'Ditolak BKHM' : 'Proses Sarpras';
-        } elseif ($role === 'sarpras_barang') {
+        } elseif ($role === 'sarpras') {
             $peminjaman->status_sarpras = $status;
             $peminjaman->status_akhir = $status === 'ditolak' ? 'Ditolak Sarpras' : 'Sedang Digunakan';
 
@@ -238,7 +280,7 @@ class PeminjamanController extends Controller
     {
         $role = Auth::user()->roles->first()->name;
 
-        if (! in_array($role, ['sarpras_barang', 'sarpras', 'admin'])) {
+        if (! in_array($role, ['sarpras', 'admin'])) {
             abort(403, 'Aksi tidak diizinkan.');
         }
 

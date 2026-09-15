@@ -42,4 +42,13 @@ class User extends Authenticatable
     {
         return $this->hasMany(SaldoHistori::class, 'actor_id');
     }
+
+    /**
+     * Q-SAR-04: apakah organisasi ini HIMA (di bawah program studi) sehingga
+     * peminjaman fasilitasnya memerlukan persetujuan Prodi (di luar sistem).
+     */
+    public function isHima(): bool
+    {
+        return $this->hasRole('ormawa') && str_contains(strtoupper($this->name ?? ''), 'HIMA');
+    }
 }

@@ -37,7 +37,7 @@
                     </x-nav-link>
                     @endhasanyrole
 
-                    @hasanyrole('bkhm|sarpras|sarpras_barang')
+                    @hasanyrole('bkhm|sarpras')
                     <x-nav-link :href="route('peminjaman.verifikasi.index')" :active="request()->routeIs('peminjaman.verifikasi.*')">
                         {{ __('Verif Peminjaman') }}
                     </x-nav-link>
@@ -142,7 +142,7 @@
             </x-responsive-nav-link>
             @endhasanyrole
 
-            @hasanyrole('bkhm|sarpras|sarpras_barang')
+            @hasanyrole('bkhm|sarpras')
             <x-responsive-nav-link :href="route('peminjaman.verifikasi.index')" :active="request()->routeIs('peminjaman.verifikasi.*')">
                 {{ __('Verif Peminjaman') }}
             </x-responsive-nav-link>

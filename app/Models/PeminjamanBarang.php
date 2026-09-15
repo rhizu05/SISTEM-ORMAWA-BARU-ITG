@@ -18,6 +18,7 @@ class PeminjamanBarang extends Model
         'tgl_mulai',
         'tgl_selesai',
         'kebutuhan_barang',
+        'file_persetujuan_prodi',
         'status_bkhm',
         'status_sarpras',
         'status_akhir',

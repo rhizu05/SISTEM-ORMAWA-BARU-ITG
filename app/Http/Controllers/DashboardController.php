@@ -147,7 +147,7 @@ class DashboardController extends Controller
             return view('dashboard.bendahara', compact('stats', 'siapCairQueue'));
         }
         
-        elseif (in_array($role, ['sarpras_ruangan', 'sarpras_barang'])) {
+        elseif ($role === 'sarpras') {
             $stats = [
                 'peminjaman_ruangan' => PeminjamanTempat::whereMonth('created_at', date('m'))->count(),
                 'peminjaman_barang' => PeminjamanBarang::whereMonth('created_at', date('m'))->count(),

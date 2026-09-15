@@ -69,7 +69,7 @@
             @endhasanyrole
 
             <!-- Antrian Verifikasi Barang -->
-            @hasanyrole('bkhm|sarpras_barang')
+            @hasanyrole('bkhm|sarpras')
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg border-l-4 border-blue-500">
                 <div class="p-6 text-gray-900">
                     <h3 class="text-lg font-bold mb-4 border-b pb-2">Antrian Peminjaman Barang</h3>
@@ -128,7 +128,7 @@
             @endhasanyrole
 
             <!-- BASE-06: Barang Sedang Dipinjam - Validasi Pengembalian -->
-            @hasanyrole('bkhm|sarpras_barang|admin')
+            @hasanyrole('bkhm|sarpras|admin')
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg border-l-4 border-amber-500">
                 <div class="p-6 text-gray-900">
                     <h3 class="text-lg font-bold mb-4 border-b pb-2">Barang Sedang Dipinjam (Validasi Pengembalian)</h3>

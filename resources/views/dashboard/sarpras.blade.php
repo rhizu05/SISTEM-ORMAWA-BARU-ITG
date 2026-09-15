@@ -24,7 +24,7 @@
                 </div>
             </div>
 
-            @hasrole('sarpras_barang')
+            @hasrole('sarpras')
             <div class="md:col-span-2 bg-white overflow-hidden shadow-sm sm:rounded-lg mt-4">
                 <div class="p-6 text-gray-900 flex justify-between items-center">
                     <div>
@@ -32,6 +32,16 @@
                         <p class="text-sm text-gray-600 mt-1">Kelola stok dan daftar barang yang dapat dipinjam oleh Ormawa.</p>
                     </div>
                     <a href="{{ route('sarpras.barang.index') }}" class="bg-gray-800 hover:bg-gray-700 text-white px-4 py-2 rounded font-semibold">Kelola Inventaris</a>
+                </div>
+            </div>
+
+            <div class="md:col-span-2 bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                <div class="p-6 text-gray-900 flex justify-between items-center">
+                    <div>
+                        <h3 class="text-lg font-bold">Jadwal Perkuliahan (Pola Mingguan)</h3>
+                        <p class="text-sm text-gray-600 mt-1">Input jadwal kuliah untuk proteksi bentrok peminjaman ruangan.</p>
+                    </div>
+                    <a href="{{ route('sarpras.jadwal.index') }}" class="bg-gray-800 hover:bg-gray-700 text-white px-4 py-2 rounded font-semibold">Kelola Jadwal</a>
                 </div>
             </div>
             @endhasrole

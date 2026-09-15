@@ -57,18 +57,11 @@ class UserSeeder extends Seeder
                 'role' => 'bendahara'
             ],
             [
-                'name' => 'Sarpras Ruangan ITG',
-                'username' => 'sarpras_ruangan',
-                'email' => 'sarprasruangan@test.com',
+                'name' => 'Sarpras ITG',
+                'username' => 'sarpras',
+                'email' => 'sarpras@test.com',
                 'password' => Hash::make('password'),
-                'role' => 'sarpras_ruangan'
-            ],
-            [
-                'name' => 'Sarpras Inventaris Barang',
-                'username' => 'sarprasbarang',
-                'email' => 'sarprasbarang@test.com',
-                'password' => Hash::make('password'),
-                'role' => 'sarpras_barang'
+                'role' => 'sarpras'
             ],
             [
                 'name' => 'HIMA Informatika',

@@ -16,7 +16,7 @@
                         </div>
                     @endif
 
-                    <form method="POST" action="{{ route('peminjaman.tempat.store') }}">
+                    <form method="POST" action="{{ route('peminjaman.tempat.store') }}" enctype="multipart/form-data">
                         @csrf
 
                         <!-- Ruangan -->
@@ -75,6 +75,14 @@
                             <x-input-label for="deskripsi_kegiatan" :value="__('Deskripsi Kegiatan Singkat')" />
                             <textarea id="deskripsi_kegiatan" name="deskripsi_kegiatan" rows="3" class="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm block mt-1 w-full">{{ old('deskripsi_kegiatan') }}</textarea>
                             <x-input-error :messages="$errors->get('deskripsi_kegiatan')" class="mt-2" />
+                        </div>
+
+                        <!-- Q-SAR-04: Dokumen Persetujuan Prodi (wajib untuk HIMA) -->
+                        <div class="mb-6">
+                            <x-input-label for="file_persetujuan_prodi" :value="Auth::user()->isHima() ? __('Dokumen Persetujuan Prodi (PDF, wajib untuk HIMA)') : __('Dokumen Persetujuan Prodi (PDF, opsional)')" />
+                            <input id="file_persetujuan_prodi" type="file" name="file_persetujuan_prodi" accept=".pdf" class="block mt-1 w-full border border-gray-300 rounded p-2" @if(Auth::user()->isHima()) required @endif />
+                            <p class="text-xs text-gray-500 mt-1">Persetujuan Prodi dilakukan di luar sistem; unggah dokumen buktinya di sini.</p>
+                            <x-input-error :messages="$errors->get('file_persetujuan_prodi')" class="mt-2" />
                         </div>
 
                         <div class="flex items-center justify-end mt-4">

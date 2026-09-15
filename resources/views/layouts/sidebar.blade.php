@@ -79,6 +79,24 @@
          </div>
          @endhasanyrole
 
+         <!-- Sarpras Group (role disatukan) -->
+         @hasrole('sarpras')
+         <div class="space-y-1 pb-4">
+             <div x-data="{ open: false }" class="group">
+                 <button @click="open = !open" class="w-full flex items-center p-2 rounded-lg hover:bg-indigo-800 transition-colors {{ request()->routeIs('sarpras.*','peminjaman.verifikasi.*') ? 'bg-indigo-800' : '' }}">
+                     <svg class="w-6 h-6 min-w-[24px]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" /></svg>
+                     <span x-show="sidebarOpen" class="ml-3 text-sm font-medium truncate">Kelola Sarpras</span>
+                     <svg x-show="sidebarOpen" :class="open ? 'rotate-180' : ''" class="ml-auto w-4 h-4 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
+                 </button>
+                 <div x-show="open && sidebarOpen" class="pl-10 space-y-1 mt-1">
+                     <a href="{{ route('peminjaman.verifikasi.index') }}" class="block p-2 text-xs rounded hover:bg-indigo-700 transition-colors {{ request()->routeIs('peminjaman.verifikasi.*') ? 'bg-indigo-700' : '' }}">Verifikasi Peminjaman</a>
+                     <a href="{{ route('sarpras.barang.index') }}" class="block p-2 text-xs rounded hover:bg-indigo-700 transition-colors {{ request()->routeIs('sarpras.barang.*') ? 'bg-indigo-700' : '' }}">Master Barang</a>
+                     <a href="{{ route('sarpras.jadwal.index') }}" class="block p-2 text-xs rounded hover:bg-indigo-700 transition-colors {{ request()->routeIs('sarpras.jadwal.*') ? 'bg-indigo-700' : '' }}">Jadwal Perkuliahan</a>
+                 </div>
+             </div>
+         </div>
+         @endhasrole
+
          <!-- WR3 Special Group
         @hasrole('wr3')
         <div class="space-y-1 pb-4">

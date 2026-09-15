@@ -133,7 +133,7 @@ Route::middleware('auth')->group(function () {
 
 
     // Peminjaman Verifikasi (BKHM & Sarpras)
-    Route::middleware(['role:bkhm|sarpras|sarpras_ruangan|sarpras_barang|admin', 'admin.readonly'])->group(function () {
+    Route::middleware(['role:bkhm|sarpras|admin', 'admin.readonly'])->group(function () {
         Route::get('/verifikasi-peminjaman', [PeminjamanController::class, 'antrian'])->name('peminjaman.verifikasi.index');
         Route::post('/verifikasi-peminjaman/tempat/{peminjaman}', [PeminjamanController::class, 'prosesTempat'])->name('peminjaman.tempat.proses');
         Route::post('/verifikasi-peminjaman/barang/{peminjaman}', [PeminjamanController::class, 'prosesBarang'])->name('peminjaman.barang.proses');
@@ -141,11 +141,16 @@ Route::middleware('auth')->group(function () {
     });
 
     // Sarpras Khusus: Manajemen Master Barang Inventaris
-    Route::middleware(['role:sarpras_barang|admin', 'admin.readonly'])->prefix('sarpras')->name('sarpras.')->group(function () {
+    Route::middleware(['role:sarpras|admin', 'admin.readonly'])->prefix('sarpras')->name('sarpras.')->group(function () {
         Route::get('/barang', [MasterBarangController::class, 'index'])->name('barang.index');
         Route::post('/barang', [MasterBarangController::class, 'store'])->name('barang.store');
         Route::put('/barang/{barang}', [MasterBarangController::class, 'update'])->name('barang.update');
         Route::delete('/barang/{barang}', [MasterBarangController::class, 'destroy'])->name('barang.destroy');
+
+        // Q-SAR-02: jadwal perkuliahan pola mingguan
+        Route::get('/jadwal', [\App\Http\Controllers\Sarpras\JadwalKuliahController::class, 'index'])->name('jadwal.index');
+        Route::post('/jadwal', [\App\Http\Controllers\Sarpras\JadwalKuliahController::class, 'store'])->name('jadwal.store');
+        Route::delete('/jadwal/{jadwal}', [\App\Http\Controllers\Sarpras\JadwalKuliahController::class, 'destroy'])->name('jadwal.destroy');
     });
 
     // Bendahara Khusus: Proses Pencairan

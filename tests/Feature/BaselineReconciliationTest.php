@@ -74,7 +74,7 @@ class BaselineReconciliationTest extends TestCase
     public function test_returning_borrowed_item_restores_stock(): void
     {
         $sarpras = User::factory()->create();
-        $sarpras->assignRole('sarpras_barang');
+        $sarpras->assignRole('sarpras');
 
         $ormawa = User::factory()->create();
         $ormawa->assignRole('ormawa');

@@ -21,6 +21,7 @@ class PeminjamanTempat extends Model
         'jam_mulai',
         'jam_selesai',
         'deskripsi_kegiatan',
+        'file_persetujuan_prodi',
         'status_bkhm',
         'status_sarpras',
         'status_akhir',
