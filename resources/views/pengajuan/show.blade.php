@@ -53,11 +53,14 @@
                     </div>
 
                     @if($pengajuan->state->name === 'draft')
+                    @php
+                        $submitTarget = auth()->user()->hasRole('bpm') ? 'BKHM' : (auth()->user()->hasRole('bem') ? 'BPM' : 'BEM');
+                    @endphp
                     <div class="mt-8 pt-4 border-t flex justify-end">
                         <form action="{{ route('pengajuan.ajukan', $pengajuan) }}" method="POST">
                             @csrf
-                            <x-primary-button onclick="return confirm('Kirim pengajuan ke BEM sekarang? Pastikan data sudah benar.')">
-                                Ajukan ke BEM
+                            <x-primary-button onclick="return confirm('Kirim pengajuan ke {{ $submitTarget }} sekarang? Pastikan data sudah benar.')">
+                                Ajukan ke {{ $submitTarget }}
                             </x-primary-button>
                         </form>
                     </div>

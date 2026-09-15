@@ -35,6 +35,12 @@ class WorkflowSeeder extends Seeder
         $transitions = [
             ['from' => 'draft', 'to' => 'submitted', 'label' => 'Ajukan', 'role' => 'ormawa'],
 
+            // Pengaju BEM: mulai dari BPM (lewati verifikasi BEM sendiri)
+            ['from' => 'draft', 'to' => 'bem_approved', 'label' => 'Ajukan ke BPM', 'role' => 'bem'],
+
+            // Pengaju BPM: langsung ke BKHM (lewati verifikasi BEM & BPM)
+            ['from' => 'draft', 'to' => 'bpm_approved', 'label' => 'Ajukan ke BKHM', 'role' => 'bpm'],
+
             // BEM
             ['from' => 'submitted', 'to' => 'bem_approved', 'label' => 'Setujui', 'role' => 'bem'],
             ['from' => 'submitted', 'to' => 'rejected', 'label' => 'Tolak', 'role' => 'bem'],

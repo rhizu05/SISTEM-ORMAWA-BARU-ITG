@@ -77,9 +77,12 @@
                                         @endif
 
                                         @if($pengajuan->state->name === 'draft')
+                                            @php
+                                                $submitTarget = auth()->user()->hasRole('bpm') ? 'BKHM' : (auth()->user()->hasRole('bem') ? 'BPM' : 'BEM');
+                                            @endphp
                                             <form action="{{ route('pengajuan.ajukan', $pengajuan) }}" method="POST" class="inline">
                                                 @csrf
-                                                <button type="submit" class="text-green-600 hover:text-green-900 text-sm font-semibold ml-1" onclick="return confirm('Yakin ingin mengajukan ke BEM?')">Ajukan</button>
+                                                <button type="submit" class="text-green-600 hover:text-green-900 text-sm font-semibold ml-1" onclick="return confirm('Yakin ingin mengajukan ke {{ $submitTarget }}?')">Ajukan</button>
                                             </form>
                                         @endif
                                     </td>

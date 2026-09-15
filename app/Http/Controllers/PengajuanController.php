@@ -176,19 +176,30 @@ class PengajuanController extends Controller
             return back()->with('error', 'Hanya pengajuan berstatus draft yang bisa diajukan.');
         }
 
-        $submittedState = WorkflowState::where('name', 'submitted')->first();
-        
+        // Routing tujuan submit berdasarkan role pengaju:
+        // - Ormawa/HIMA/UKM -> BEM (submitted)
+        // - BEM             -> BPM (bem_approved)
+        // - BPM             -> BKHM (bpm_approved)
+        $role = Auth::user()->roles->first()->name;
+        [$targetStateName, $flashMessage] = match ($role) {
+            'bem' => ['bem_approved', 'Pengajuan berhasil dikirim ke BPM.'],
+            'bpm' => ['bpm_approved', 'Pengajuan berhasil dikirim ke BKHM.'],
+            default => ['submitted', 'Pengajuan berhasil dikirim ke BEM.'],
+        };
+
+        $targetState = WorkflowState::where('name', $targetStateName)->first();
+
         $pengajuan->update([
-            'workflow_state_id' => $submittedState->id
+            'workflow_state_id' => $targetState->id
         ]);
 
         HistoriStatus::create([
             'pengajuan_id' => $pengajuan->id,
             'user_id' => Auth::id(),
-            'workflow_state_id' => $submittedState->id,
+            'workflow_state_id' => $targetState->id,
             'catatan' => 'Pengajuan disubmit untuk diverifikasi'
         ]);
 
-        return redirect()->route('pengajuan.index')->with('success', 'Pengajuan berhasil dikirim ke BEM.');
+        return redirect()->route('pengajuan.index')->with('success', $flashMessage);
     }
 }
