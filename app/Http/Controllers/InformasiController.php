@@ -27,7 +27,7 @@ class InformasiController extends Controller
         $request->validate([
             'judul' => 'required|string|max:255',
             'isi' => 'required|string',
-            'file_lampiran' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
+            'file_lampiran' => 'nullable|file|mimes:pdf,jpg,jpeg,png|mimetypes:application/pdf,image/jpeg,image/png|max:5120',
         ]);
 
         $data = [
@@ -69,7 +69,7 @@ class InformasiController extends Controller
             'judul' => 'required|string|max:255',
             'kategori' => 'required|string|max:100',
             'deskripsi' => 'nullable|string',
-            'file_path' => 'required|file|mimes:pdf|max:10240',
+            'file_path' => 'required|file|mimes:pdf|mimetypes:application/pdf|max:10240',
         ]);
 
         $data = [

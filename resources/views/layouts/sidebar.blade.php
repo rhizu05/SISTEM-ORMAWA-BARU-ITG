@@ -100,7 +100,7 @@
          </div>
          @endhasrole
 
-         <!-- WR3 Special Group
+         <!-- WR3 Special Group -->
         @hasrole('wr3')
         <div class="space-y-1 pb-4">
             <div x-data="{ open: false }" class="group">

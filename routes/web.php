@@ -192,7 +192,7 @@ Route::middleware('auth')->group(function () {
         Route::delete('/users/{user}', [UserController::class, 'destroy'])->name('users.destroy');
     });
 
-    Route::middleware(['role:admin'])->prefix('admin')->name('admin.')->group(function () {
+    Route::middleware(['role:bkhm|admin'])->prefix('admin')->name('admin.')->group(function () {
         Route::get('/konfigurasi', [KonfigurasiController::class, 'edit'])->name('konfigurasi.edit');
         Route::put('/konfigurasi', [KonfigurasiController::class, 'update'])->name('konfigurasi.update');
     });

@@ -32,7 +32,12 @@
                     <tbody>
                         @forelse($aspirasis as $a)
                         <tr class="border-b">
-                            <td class="p-3 border">{{ $a->user->name ?? 'Anonim' }}</td>
+                            <td class="p-3 border">
+                                {{ $a->user->name ?? 'Anonim' }}
+                                @if($a->anonim)
+                                    <span class="ml-1 text-[10px] px-1.5 py-0.5 rounded bg-gray-200 text-gray-600">anonim ke publik</span>
+                                @endif
+                            </td>
                             <td class="p-3 border">{{ $a->kategori }}</td>
                             <td class="p-3 border">
                                 <div class="font-bold">{{ $a->judul }}</div>

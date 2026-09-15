@@ -26,7 +26,7 @@ class RegulasiController extends Controller
             'judul' => 'required|string|max:255',
             'kategori' => 'required|in:Undang-Undang,Pengumuman,Pedoman',
             'deskripsi' => 'required|string',
-            'file' => 'required|file|mimes:pdf,jpg,jpeg,png|max:10240',
+            'file' => 'required|file|mimes:pdf,jpg,jpeg,png|mimetypes:application/pdf,image/jpeg,image/png|max:10240',
             'tanggal_terbit' => 'required|date',
         ]);
 
