@@ -15,7 +15,7 @@ class LpjController extends Controller
     {
         // Menampilkan daftar pengajuan yang sudah cair dan siap upload LPJ, atau sedang proses LPJ
         $query = Pengajuan::whereHas('state', function ($q) {
-            $q->whereIn('name', ['funds_disbursed', 'lpj_submitted', 'completed']);
+            $q->whereIn('name', ['funds_disbursed', 'lpj_submitted', 'lpj_wr3_review', 'completed']);
         });
         if (! Auth::user()->hasRole('admin')) {
             $query->where('user_id', Auth::id());
@@ -45,18 +45,19 @@ class LpjController extends Controller
         }
 
         $request->validate([
-            'file_lpj' => 'required|file|mimes:pdf|max:10240', // Max 10MB
+            'file_lpj' => 'required|file|mimes:pdf|mimetypes:application/pdf|max:10240', // SEC-02: ekstensi + MIME
         ]);
 
         if ($request->hasFile('file_lpj')) {
             // Hapus file lama jika ada
-            if ($pengajuan->file_lpj && Storage::disk('public')->exists($pengajuan->file_lpj)) {
-                Storage::disk('public')->delete($pengajuan->file_lpj);
+            if ($pengajuan->file_lpj && Storage::disk('local')->exists($pengajuan->file_lpj)) {
+                Storage::disk('local')->delete($pengajuan->file_lpj);
             }
-            
+
+            // SEC-01: simpan di disk privat
             $fileLpj = $request->file('file_lpj');
-            $filename = time() . '_LPJ_' . $fileLpj->getClientOriginalName();
-            $path = $fileLpj->storeAs('lpj', $filename, 'public');
+            $filename = time() . '_LPJ_' . \Illuminate\Support\Str::slug(pathinfo($fileLpj->getClientOriginalName(), PATHINFO_FILENAME)) . '.pdf';
+            $path = $fileLpj->storeAs('lpj', $filename, 'local');
 
             $stateLpjSubmitted = WorkflowState::where('name', 'lpj_submitted')->first();
 

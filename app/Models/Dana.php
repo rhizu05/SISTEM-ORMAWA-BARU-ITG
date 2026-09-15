@@ -11,8 +11,16 @@ class Dana extends Model
 
     protected $fillable = [
         'pengajuan_id',
+        'termin_ke',
         'nominal_cair',
-        'tanggal_cair'
+        'tanggal_cair',
+        'catatan',
+    ];
+
+    protected $casts = [
+        'termin_ke' => 'integer',
+        'nominal_cair' => 'decimal:2',
+        'tanggal_cair' => 'date',
     ];
 
     public function pengajuan(): BelongsTo

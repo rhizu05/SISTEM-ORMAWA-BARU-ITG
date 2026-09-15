@@ -57,7 +57,7 @@
                             <x-input-error :messages="$errors->get('file_proposal')" class="mt-2" />
                             
                             <div class="mt-2 text-sm">
-                                File saat ini: <a href="{{ Storage::url($pengajuan->file_proposal) }}" target="_blank" class="text-indigo-600 hover:underline">Lihat PDF</a>
+                                File saat ini: <a href="{{ route('dokumen.proposal', $pengajuan) }}" target="_blank" class="text-indigo-600 hover:underline">Lihat PDF</a>
                             </div>
                         </div>
 

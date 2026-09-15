@@ -83,6 +83,14 @@ class VerifikasiController extends Controller
             'workflow_state_id' => $transition->to_state_id
         ];
 
+        // FR-009: revisi/tolak dikembalikan ke pengusul; simpan titik penolakan
+        // agar pengajuan ulang kembali ke tahap yang menolak.
+        if ($isRejecting) {
+            $dataToUpdate['rejected_from_state_id'] = $pengajuan->workflow_state_id;
+        } else {
+            $dataToUpdate['rejected_from_state_id'] = null;
+        }
+
         // Save nomor_surat if provided (BKHM)
         if ($request->filled('nomor_surat')) {
             $dataToUpdate['nomor_surat'] = $request->nomor_surat;

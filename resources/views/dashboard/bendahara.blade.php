@@ -16,7 +16,12 @@
             </div>
 
             <div class="bg-white p-4 rounded shadow">
-                <h3 class="font-bold mb-2">Daftar Proposal Siap Dicairkan</h3>
+                <div class="flex justify-between items-center mb-2">
+                    <h3 class="font-bold">Daftar Proposal Siap Dicairkan</h3>
+                    <a href="{{ route('bendahara.export') }}" class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold px-3 py-2 rounded">
+                        Ekspor Rekap Pencairan (CSV)
+                    </a>
+                </div>
                 <p class="text-sm text-gray-500 mb-4">Berikut adalah daftar proposal final yang telah diajukan oleh BKHM dan siap untuk proses transfer dana.</p>
                 <div class="overflow-x-auto">
                     <table class="min-w-full text-sm border">
@@ -27,6 +32,7 @@
                                 <th class="p-2 border">Ormawa</th>
                                 <th class="p-2 border">Tanggal Diajukan</th>
                                 <th class="p-2 border">Dana Disetujui</th>
+                                <th class="p-2 border">Termin</th>
                                 <th class="p-2 border">Aksi</th>
                             </tr>
                         </thead>
@@ -38,17 +44,14 @@
                                 <td class="p-2 border">{{ $p->user->name }}</td>
                                 <td class="p-2 border">{{ $p->tanggal_pengajuan ?? $p->created_at->format('d M Y') }}</td>
                                 <td class="p-2 border">Rp {{ number_format($p->dana_diajukan, 0, ',', '.') }}</td>
+                                <td class="p-2 border text-center">Termin ke-{{ $p->terminBerikutnya() }}</td>
                                 <td class="p-2 border text-center">
-                                    <form action="{{ route('bendahara.proses') }}" method="POST">
-                                        @csrf
-                                        <input type="hidden" name="pengajuan_id" value="{{ $p->id }}">
-                                        <button type="submit" class="bg-green-600 text-white px-3 py-1 rounded text-xs hover:bg-green-700">Proses Cair</button>
-                                    </form>
+                                    <a href="{{ route('verifikasi.show', $p) }}" class="bg-green-600 text-white px-3 py-1 rounded text-xs hover:bg-green-700 inline-block">Proses Cair</a>
                                 </td>
                             </tr>
                             @empty
                             <tr>
-                                <td colspan="6" class="p-4 text-center text-gray-500 italic">Tidak ada proposal yang siap dicairkan saat ini.</td>
+                                <td colspan="7" class="p-4 text-center text-gray-500 italic">Tidak ada proposal yang siap dicairkan saat ini.</td>
                             </tr>
                             @endforelse
                         </tbody>

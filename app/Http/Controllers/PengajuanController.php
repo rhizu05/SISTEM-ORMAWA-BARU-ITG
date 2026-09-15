@@ -54,12 +54,13 @@ class PengajuanController extends Controller
             'nama_kegiatan' => 'required|string|max:255',
             'dana_diajukan' => 'required|numeric|min:0',
             'tanggal_pengajuan' => 'required|date',
-            'file_proposal' => 'required|file|mimes:pdf|max:5120', // Max 5MB
+            'file_proposal' => 'required|file|mimes:pdf|mimetypes:application/pdf|max:5120', // SEC-02: validasi ekstensi + MIME
         ]);
 
+        // SEC-01: simpan di disk privat (bukan public)
         $fileProposal = $request->file('file_proposal');
-        $filename = time() . '_' . $fileProposal->getClientOriginalName();
-        $fileProposal->storeAs('proposals', $filename, 'public');
+        $filename = time() . '_' . Str::slug(pathinfo($fileProposal->getClientOriginalName(), PATHINFO_FILENAME)) . '.pdf';
+        $path = $fileProposal->storeAs('proposals', $filename, 'local');
 
         $draftState = WorkflowState::where('name', 'draft')->first();
 
@@ -68,7 +69,7 @@ class PengajuanController extends Controller
             'nama_kegiatan' => $validated['nama_kegiatan'],
             'dana_diajukan' => $validated['dana_diajukan'],
             'tanggal_pengajuan' => $validated['tanggal_pengajuan'],
-            'file_proposal' => 'proposals/' . $filename,
+            'file_proposal' => $path,
             'workflow_state_id' => $draftState->id,
             'unique_code' => strtoupper(Str::random(10)),
         ]);
@@ -121,7 +122,7 @@ class PengajuanController extends Controller
             'nama_kegiatan' => 'required|string|max:255',
             'dana_diajukan' => 'required|numeric|min:0',
             'tanggal_pengajuan' => 'required|date',
-            'file_proposal' => 'nullable|file|mimes:pdf|max:5120',
+            'file_proposal' => 'nullable|file|mimes:pdf|mimetypes:application/pdf|max:5120', // SEC-02
         ]);
 
         $dataToUpdate = [
@@ -132,13 +133,14 @@ class PengajuanController extends Controller
 
         if ($request->hasFile('file_proposal')) {
             // Hapus file lama
-            if ($pengajuan->file_proposal && Storage::disk('public')->exists($pengajuan->file_proposal)) {
-                Storage::disk('public')->delete($pengajuan->file_proposal);
+            if ($pengajuan->file_proposal && Storage::disk('local')->exists($pengajuan->file_proposal)) {
+                Storage::disk('local')->delete($pengajuan->file_proposal);
             }
-            
+
+            // SEC-01: simpan di disk privat
             $fileProposal = $request->file('file_proposal');
-            $filename = time() . '_' . $fileProposal->getClientOriginalName();
-            $dataToUpdate['file_proposal'] = $fileProposal->storeAs('proposals', $filename, 'public');
+            $filename = time() . '_' . Str::slug(pathinfo($fileProposal->getClientOriginalName(), PATHINFO_FILENAME)) . '.pdf';
+            $dataToUpdate['file_proposal'] = $fileProposal->storeAs('proposals', $filename, 'local');
         }
 
         // Jika statusnya 'rejected', kembalikan ke 'draft'
@@ -176,6 +178,29 @@ class PengajuanController extends Controller
             return back()->with('error', 'Hanya pengajuan berstatus draft yang bisa diajukan.');
         }
 
+        // FR-009: jika ini hasil revisi (ditolak/dikembalikan), ajukan ulang
+        // kembali ke tahap yang menolak, bukan mengulang dari awal.
+        if ($pengajuan->rejected_from_state_id) {
+            $returnState = WorkflowState::find($pengajuan->rejected_from_state_id);
+
+            if ($returnState) {
+                $pengajuan->update([
+                    'workflow_state_id' => $returnState->id,
+                    'rejected_from_state_id' => null,
+                ]);
+
+                HistoriStatus::create([
+                    'pengajuan_id' => $pengajuan->id,
+                    'user_id' => Auth::id(),
+                    'workflow_state_id' => $returnState->id,
+                    'catatan' => 'Revisi diajukan ulang ke tahap: ' . $returnState->label,
+                ]);
+
+                return redirect()->route('pengajuan.index')
+                    ->with('success', 'Revisi berhasil diajukan ulang ke tahap ' . $returnState->label . '.');
+            }
+        }
+
         // Routing tujuan submit berdasarkan role pengaju:
         // - Ormawa/HIMA/UKM -> BEM (submitted)
         // - BEM             -> BPM (bem_approved)
@@ -190,7 +215,8 @@ class PengajuanController extends Controller
         $targetState = WorkflowState::where('name', $targetStateName)->first();
 
         $pengajuan->update([
-            'workflow_state_id' => $targetState->id
+            'workflow_state_id' => $targetState->id,
+            'rejected_from_state_id' => null,
         ]);
 
         HistoriStatus::create([

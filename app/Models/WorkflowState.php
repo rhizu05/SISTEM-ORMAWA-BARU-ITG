@@ -15,6 +15,7 @@ class WorkflowState extends Model
     public const TO_TREASURER = 'to_treasurer';
     public const FUNDS_DISBURSED = 'funds_disbursed';
     public const LPJ_SUBMITTED = 'lpj_submitted';
+    public const LPJ_WR3_REVIEW = 'lpj_wr3_review';
     public const COMPLETED = 'completed';
     public const REJECTED = 'rejected';
 

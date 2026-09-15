@@ -5,6 +5,7 @@ use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\AspirasiController;
 use App\Http\Controllers\BendaharaController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\DocumentController;
 use App\Http\Controllers\InformasiController;
 use App\Http\Controllers\LpjController;
 use App\Http\Controllers\PeminjamanController;
@@ -119,6 +120,10 @@ Route::middleware('auth')->group(function () {
         ->middleware(['auth', 'admin.readonly'])
         ->name('generator.print');
 
+    // Dokumen privat (SEC-01): proposal & LPJ diakses via controller ber-RBAC
+    Route::get('/dokumen/pengajuan/{pengajuan}/proposal', [DocumentController::class, 'proposal'])->name('dokumen.proposal');
+    Route::get('/dokumen/pengajuan/{pengajuan}/lpj', [DocumentController::class, 'lpj'])->name('dokumen.lpj');
+
     // Verifikator Roles: Modul Verifikasi (BEM, BPM, BKHM, WR3, Bendahara)
     Route::middleware(['role:bem|bpm|bkhm|wr3|bendahara|admin', 'admin.readonly'])->group(function () {
         Route::get('/verifikasi', [VerifikasiController::class, 'index'])->name('verifikasi.index');
@@ -146,6 +151,7 @@ Route::middleware('auth')->group(function () {
     // Bendahara Khusus: Proses Pencairan
     Route::middleware(['role:bendahara'])->group(function () {
         Route::post('/bendahara/proses/{pengajuan}', [BendaharaController::class, 'proses'])->name('bendahara.proses');
+        Route::get('/bendahara/export-pencairan', [BendaharaController::class, 'export'])->name('bendahara.export');
     });
 
     // BKHM Khusus: 8 menu sesuai spec

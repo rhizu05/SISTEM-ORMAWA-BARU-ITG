@@ -56,9 +56,9 @@
 
                         <div class="mb-4">
                             <p class="text-sm text-gray-500 mb-2">Dokumen Proposal</p>
-                            <iframe src="{{ asset('storage/' . $pengajuan->file_proposal) }}" class="w-full h-96 border rounded" frameborder="0"></iframe>
+                            <iframe src="{{ route('dokumen.proposal', $pengajuan) }}" class="w-full h-96 border rounded" frameborder="0"></iframe>
                             <div class="mt-2 text-right">
-                                <a href="{{ asset('storage/' . $pengajuan->file_proposal) }}" target="_blank" class="text-sm text-indigo-600 hover:underline">Buka di tab baru &rarr;</a>
+                                <a href="{{ route('dokumen.proposal', $pengajuan) }}" target="_blank" class="text-sm text-indigo-600 hover:underline">Buka di tab baru &rarr;</a>
                             </div>
                         </div>
                     </div>

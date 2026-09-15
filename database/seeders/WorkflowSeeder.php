@@ -23,7 +23,8 @@ class WorkflowSeeder extends Seeder
             ['name' => 'to_treasurer', 'label' => 'Diajukan ke Bendahara', 'order_num' => 7, 'pic_role' => 'Bendahara Kampus', 'pic_contact' => 'Bagian Keuangan/Bendahara'],
             ['name' => 'funds_disbursed', 'label' => 'Dana Cair', 'order_num' => 8, 'pic_role' => 'Ormawa Pengaju', 'pic_contact' => 'Pelaksana Kegiatan'],
             ['name' => 'lpj_submitted', 'label' => 'LPJ Diajukan', 'order_num' => 9, 'pic_role' => 'BKHM', 'pic_contact' => 'Bapak Encep (BKHM)'],
-            ['name' => 'completed', 'label' => 'Selesai', 'order_num' => 10, 'pic_role' => 'Sistem / Arsip', 'pic_contact' => 'Arsip Digital SKIN'],
+            ['name' => 'lpj_wr3_review', 'label' => 'Verifikasi LPJ WR3', 'order_num' => 10, 'pic_role' => 'Wakil Rektor III', 'pic_contact' => 'Kantor WR III'],
+            ['name' => 'completed', 'label' => 'Selesai', 'order_num' => 11, 'pic_role' => 'Sistem / Arsip', 'pic_contact' => 'Arsip Digital SKIN'],
             ['name' => 'rejected', 'label' => 'Ditolak', 'order_num' => 99, 'pic_role' => 'Ormawa Pengaju', 'pic_contact' => 'Lihat Catatan Kendala'],
         ];
 
@@ -70,9 +71,13 @@ class WorkflowSeeder extends Seeder
             // Ormawa
             ['from' => 'funds_disbursed', 'to' => 'lpj_submitted', 'label' => 'Kirim LPJ', 'role' => 'ormawa'],
             
-            // BKHM (LPJ)
-            ['from' => 'lpj_submitted', 'to' => 'completed', 'label' => 'Setujui LPJ', 'role' => 'bkhm'],
+            // BKHM verifikasi LPJ -> diteruskan ke WR3
+            ['from' => 'lpj_submitted', 'to' => 'lpj_wr3_review', 'label' => 'Setujui LPJ', 'role' => 'bkhm'],
             ['from' => 'lpj_submitted', 'to' => 'funds_disbursed', 'label' => 'Revisi LPJ', 'role' => 'bkhm'],
+
+            // WR3 verifikasi LPJ -> selesai
+            ['from' => 'lpj_wr3_review', 'to' => 'completed', 'label' => 'Verifikasi LPJ', 'role' => 'wr3'],
+            ['from' => 'lpj_wr3_review', 'to' => 'funds_disbursed', 'label' => 'Revisi LPJ', 'role' => 'wr3'],
         ];
 
         foreach ($transitions as $transition) {
