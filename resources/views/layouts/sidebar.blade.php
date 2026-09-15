@@ -14,6 +14,9 @@
         <div class="space-y-1 pb-4">
             <div class="px-2 text-[10px] font-bold text-indigo-300 uppercase tracking-widest">Layanan Mahasiswa</div>
             <a href="{{ route('aspirasi.create') }}" class="block p-2 rounded hover:bg-indigo-700 text-sm {{ request()->routeIs('aspirasi.create') ? 'bg-indigo-700' : '' }}">Kirim Aspirasi</a>
+            <a href="{{ route('aspirasi.mine') }}" class="block p-2 rounded hover:bg-indigo-700 text-sm {{ request()->routeIs('aspirasi.mine') ? 'bg-indigo-700' : '' }}">Aspirasi Saya</a>
+            <a href="{{ route('prestasi.index') }}" class="block p-2 rounded hover:bg-indigo-700 text-sm {{ request()->routeIs('prestasi.*') ? 'bg-indigo-700' : '' }}">Prestasi & Kompetisi</a>
+            <a href="{{ route('notifikasi.index') }}" class="block p-2 rounded hover:bg-indigo-700 text-sm {{ request()->routeIs('notifikasi.*') ? 'bg-indigo-700' : '' }}">Notifikasi</a>
             <a href="{{ route('informasi.index') }}" class="block p-2 rounded hover:bg-indigo-700 text-sm {{ request()->routeIs('informasi.index') ? 'bg-indigo-700' : '' }}">Informasi Kampus</a>
             <a href="{{ route('rapat.index') }}" class="block p-2 rounded hover:bg-indigo-700 text-sm {{ request()->routeIs('rapat.index') ? 'bg-indigo-700' : '' }}">Agenda Rapat</a>
         </div>

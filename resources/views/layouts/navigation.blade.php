@@ -52,10 +52,26 @@
                     </x-nav-link>
                     
                     @hasrole('bpm')
-                    <x-nav-link :href="route('aspirasi.index')" :active="request()->routeIs('aspirasi.*')">
+                    <x-nav-link :href="route('bpm.aspirasi.index')" :active="request()->routeIs('bpm.aspirasi.*')">
                         {{ __('Aspirasi') }}
                     </x-nav-link>
                     @endhasrole
+
+                    @hasanyrole('mahasiswa|ormawa|bem|bpm|bkhm|wr3|admin')
+                    <x-nav-link :href="route('prestasi.index')" :active="request()->routeIs('prestasi.*')">
+                        {{ __('Prestasi') }}
+                    </x-nav-link>
+                    @endhasanyrole
+
+                    @hasanyrole('mahasiswa|ormawa')
+                    <x-nav-link :href="route('aspirasi.mine')" :active="request()->routeIs('aspirasi.mine')">
+                        {{ __('Aspirasi Saya') }}
+                    </x-nav-link>
+                    @endhasanyrole
+
+                    <x-nav-link :href="route('notifikasi.index')" :active="request()->routeIs('notifikasi.*')">
+                        {{ __('Notifikasi') }}
+                    </x-nav-link>
 
                     @hasrole('bkhm')
                     <x-nav-link :href="route('admin.users.index')" :active="request()->routeIs('admin.users.*')">
@@ -157,10 +173,26 @@
             </x-responsive-nav-link>
             
             @hasrole('bpm')
-            <x-responsive-nav-link :href="route('aspirasi.index')" :active="request()->routeIs('aspirasi.*')">
+            <x-responsive-nav-link :href="route('bpm.aspirasi.index')" :active="request()->routeIs('bpm.aspirasi.*')">
                 {{ __('Aspirasi') }}
             </x-responsive-nav-link>
             @endhasrole
+
+            @hasanyrole('mahasiswa|ormawa|bem|bpm|bkhm|wr3|admin')
+            <x-responsive-nav-link :href="route('prestasi.index')" :active="request()->routeIs('prestasi.*')">
+                {{ __('Prestasi') }}
+            </x-responsive-nav-link>
+            @endhasanyrole
+
+            @hasanyrole('mahasiswa|ormawa')
+            <x-responsive-nav-link :href="route('aspirasi.mine')" :active="request()->routeIs('aspirasi.mine')">
+                {{ __('Aspirasi Saya') }}
+            </x-responsive-nav-link>
+            @endhasanyrole
+
+            <x-responsive-nav-link :href="route('notifikasi.index')" :active="request()->routeIs('notifikasi.*')">
+                {{ __('Notifikasi') }}
+            </x-responsive-nav-link>
 
             @hasrole('bkhm')
             <x-responsive-nav-link :href="route('admin.users.index')" :active="request()->routeIs('admin.users.*')">

@@ -42,6 +42,14 @@ class Pengajuan extends Model
         return $this->hasMany(HistoriStatus::class);
     }
 
+    /**
+     * FR-011: pesan komunikasi/follow-up pengajuan.
+     */
+    public function komunikasi(): HasMany
+    {
+        return $this->hasMany(KomunikasiPengajuan::class)->orderBy('created_at');
+    }
+
     public function dana(): HasOne
     {
         return $this->hasOne(Dana::class)->latestOfMany();

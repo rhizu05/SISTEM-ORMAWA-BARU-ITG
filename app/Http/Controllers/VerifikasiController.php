@@ -106,6 +106,12 @@ class VerifikasiController extends Controller
             'catatan_kendala' => $isRejecting ? ($request->catatan ?? 'Pengajuan dikembalikan/ditolak pada tahap ' . $transition->toState->label) : null
         ]);
 
+        // FR-025: notifikasi ke pengaju atas perubahan status.
+        \App\Services\NotifikasiService::kirim(
+            $pengajuan->user_id,
+            'Pengajuan "' . $pengajuan->nama_kegiatan . '" kini berstatus: ' . $transition->toState->label . '.'
+        );
+
         return redirect()->route('verifikasi.index')->with('success', 'Pengajuan berhasil diproses.');
     }
 }

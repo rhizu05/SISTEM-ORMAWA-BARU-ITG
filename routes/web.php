@@ -7,9 +7,12 @@ use App\Http\Controllers\BendaharaController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DocumentController;
 use App\Http\Controllers\InformasiController;
+use App\Http\Controllers\KomunikasiController;
 use App\Http\Controllers\LpjController;
+use App\Http\Controllers\NotifikasiController;
 use App\Http\Controllers\PeminjamanController;
 use App\Http\Controllers\PengajuanController;
+use App\Http\Controllers\PrestasiController;
 use App\Http\Controllers\ProposalGeneratorController;
 use App\Http\Controllers\RapatController;
 use App\Http\Controllers\Sarpras\MasterBarangController;
@@ -48,6 +51,17 @@ Route::middleware('auth')->group(function () {
     Route::delete('/informasi/pengumuman/{pengumuman}', [InformasiController::class, 'destroyPengumuman'])->name('informasi.pengumuman.destroy');
     Route::post('/informasi/regulasi', [InformasiController::class, 'storeRegulasi'])->name('informasi.regulasi.store');
     Route::delete('/informasi/regulasi/{regulasi}', [InformasiController::class, 'destroyRegulasi'])->name('informasi.regulasi.destroy');
+
+    // FR-016: tracking aspirasi milik pengirim
+    Route::get('/aspirasi/saya', [AspirasiController::class, 'mine'])->name('aspirasi.mine');
+
+    // FR-025: pusat notifikasi
+    Route::get('/notifikasi', [NotifikasiController::class, 'index'])->name('notifikasi.index');
+    Route::post('/notifikasi/{notifikasi}/read', [NotifikasiController::class, 'markRead'])->name('notifikasi.read');
+    Route::post('/notifikasi/read-all', [NotifikasiController::class, 'markAllRead'])->name('notifikasi.readAll');
+
+    // FR-011: follow-up/komunikasi pengajuan
+    Route::post('/pengajuan/{pengajuan}/komunikasi', [KomunikasiController::class, 'store'])->name('pengajuan.komunikasi.store');
 
     // Jadwal Rapat
     Route::get('/rapat', [RapatController::class, 'index'])->name('rapat.index');
@@ -191,6 +205,17 @@ Route::middleware('auth')->group(function () {
     });
     Route::middleware(['role:bpm|admin'])->group(function () {
         Route::put('/proker/{proker}', [ProgramKerjaController::class, 'update'])->name('proker.update');
+    });
+
+    // FR-020: Pelaporan Prestasi / Kompetisi (mahasiswa, ormawa, verifikator)
+    Route::middleware(['role:mahasiswa|ormawa|bem|bpm|bkhm|wr3|admin'])->group(function () {
+        Route::get('/prestasi', [PrestasiController::class, 'index'])->name('prestasi.index');
+        Route::get('/prestasi/create', [PrestasiController::class, 'create'])->name('prestasi.create');
+        Route::post('/prestasi', [PrestasiController::class, 'store'])->name('prestasi.store');
+        Route::get('/prestasi/{prestasi}/bukti', [PrestasiController::class, 'bukti'])->name('prestasi.bukti');
+    });
+    Route::middleware(['role:bkhm|wr3|admin'])->group(function () {
+        Route::patch('/prestasi/{prestasi}/verify', [PrestasiController::class, 'verify'])->name('prestasi.verify');
     });
 });
 

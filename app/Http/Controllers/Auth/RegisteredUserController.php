@@ -42,6 +42,10 @@ class RegisteredUserController extends Controller
             'password' => Hash::make($request->password),
         ]);
 
+        // Q-BKHM-03/Q-MHS-02: pendaftaran mandiri hanya untuk mahasiswa (pelapor prestasi).
+        \Spatie\Permission\Models\Role::findOrCreate('mahasiswa', 'web');
+        $user->assignRole('mahasiswa');
+
         event(new Registered($user));
 
         Auth::login($user);

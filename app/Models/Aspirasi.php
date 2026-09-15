@@ -17,8 +17,13 @@ class Aspirasi extends Model
         'judul',
         'isi',
         'kategori',
+        'anonim',
         'status',
         'catatan_bpm'
+    ];
+
+    protected $casts = [
+        'anonim' => 'boolean',
     ];
 
     public function user(): BelongsTo

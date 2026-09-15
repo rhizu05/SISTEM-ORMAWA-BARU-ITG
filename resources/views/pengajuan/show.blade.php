@@ -103,6 +103,39 @@
                 </div>
             </div>
 
+            <!-- FR-011: Follow-up / Komunikasi Pengajuan -->
+            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg h-fit">
+                <div class="p-6 text-gray-900">
+                    <h3 class="text-lg font-bold mb-4 border-b pb-2">Diskusi & Follow-up</h3>
+
+                    @if (session('success'))
+                        <div class="mb-3 bg-green-100 border border-green-400 text-green-700 px-3 py-2 rounded text-sm">{{ session('success') }}</div>
+                    @endif
+
+                    <div class="space-y-3 mb-4 max-h-72 overflow-y-auto">
+                        @forelse($pengajuan->komunikasi as $k)
+                            <div class="p-3 rounded-lg {{ $k->user_id === Auth::id() ? 'bg-indigo-50 ml-6' : 'bg-gray-50 mr-6' }}">
+                                <div class="flex justify-between items-center">
+                                    <span class="text-xs font-bold text-gray-700">{{ $k->user->name ?? 'Pengguna' }}</span>
+                                    <span class="text-[10px] text-gray-400">{{ $k->created_at->diffForHumans() }}</span>
+                                </div>
+                                <p class="text-sm text-gray-800 mt-1">{{ $k->pesan }}</p>
+                            </div>
+                        @empty
+                            <p class="text-sm text-gray-500 italic">Belum ada diskusi. Mulai follow-up di sini.</p>
+                        @endforelse
+                    </div>
+
+                    <form action="{{ route('pengajuan.komunikasi.store', $pengajuan) }}" method="POST">
+                        @csrf
+                        <textarea name="pesan" rows="2" class="w-full border-gray-300 rounded-md shadow-sm text-sm" placeholder="Tulis pesan follow-up..." required></textarea>
+                        <div class="flex justify-end mt-2">
+                            <x-primary-button class="text-xs">Kirim</x-primary-button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
         </div>
     </div>
 </x-app-layout>
