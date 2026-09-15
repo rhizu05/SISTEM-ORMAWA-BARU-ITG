@@ -31,13 +31,13 @@
                     </x-nav-link>
                     @endhasanyrole
 
-                    @hasanyrole('bem|bpm|bkh|wr3|bendahara')
+                    @hasanyrole('bem|bpm|bkhm|wr3|bendahara')
                     <x-nav-link :href="route('verifikasi.index')" :active="request()->routeIs('verifikasi.*')">
                         {{ __('Verifikasi') }}
                     </x-nav-link>
                     @endhasanyrole
 
-                    @hasanyrole('bkh|sarpras|sarpras_barang')
+                    @hasanyrole('bkhm|sarpras|sarpras_barang')
                     <x-nav-link :href="route('peminjaman.verifikasi.index')" :active="request()->routeIs('peminjaman.verifikasi.*')">
                         {{ __('Verif Peminjaman') }}
                     </x-nav-link>
@@ -57,7 +57,7 @@
                     </x-nav-link>
                     @endhasrole
 
-                    @hasrole('bkh')
+                    @hasrole('bkhm')
                     <x-nav-link :href="route('admin.users.index')" :active="request()->routeIs('admin.users.*')">
                         {{ __('Pengguna') }}
                     </x-nav-link>
@@ -136,13 +136,13 @@
             </x-responsive-nav-link>
             @endhasanyrole
 
-            @hasanyrole('bem|bpm|bkh|wr3|bendahara')
+            @hasanyrole('bem|bpm|bkhm|wr3|bendahara')
             <x-responsive-nav-link :href="route('verifikasi.index')" :active="request()->routeIs('verifikasi.*')">
                 {{ __('Verifikasi') }}
             </x-responsive-nav-link>
             @endhasanyrole
 
-            @hasanyrole('bkh|sarpras|sarpras_barang')
+            @hasanyrole('bkhm|sarpras|sarpras_barang')
             <x-responsive-nav-link :href="route('peminjaman.verifikasi.index')" :active="request()->routeIs('peminjaman.verifikasi.*')">
                 {{ __('Verif Peminjaman') }}
             </x-responsive-nav-link>
@@ -162,7 +162,7 @@
             </x-responsive-nav-link>
             @endhasrole
 
-            @hasrole('bkh')
+            @hasrole('bkhm')
             <x-responsive-nav-link :href="route('admin.users.index')" :active="request()->routeIs('admin.users.*')">
                 {{ __('Pengguna') }}
             </x-responsive-nav-link>

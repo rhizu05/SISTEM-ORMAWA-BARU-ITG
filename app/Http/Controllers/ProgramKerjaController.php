@@ -11,7 +11,7 @@ class ProgramKerjaController extends Controller
     public function index()
     {
         $user = Auth::user();
-        if ($user->hasRole('bpm') || $user->hasRole('admin') || $user->hasRole('bkh')) {
+        if ($user->hasRole('bpm') || $user->hasRole('admin') || $user->hasRole('bkhm')) {
             $prokers = ProgramKerja::with('user')->latest()->paginate(10);
         } else {
             $prokers = ProgramKerja::where('user_id', $user->id)->latest()->paginate(10);

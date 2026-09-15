@@ -15,7 +15,7 @@
             @endif
 
             <!-- Antrian Verifikasi Ruangan -->
-            @hasanyrole('bkh|sarpras')
+            @hasanyrole('bkhm|sarpras')
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg border-l-4 border-indigo-500">
                 <div class="p-6 text-gray-900">
                     <h3 class="text-lg font-bold mb-4 border-b pb-2">Antrian Peminjaman Ruangan</h3>
@@ -69,7 +69,7 @@
             @endhasanyrole
 
             <!-- Antrian Verifikasi Barang -->
-            @hasanyrole('bkh|sarpras_barang')
+            @hasanyrole('bkhm|sarpras_barang')
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg border-l-4 border-blue-500">
                 <div class="p-6 text-gray-900">
                     <h3 class="text-lg font-bold mb-4 border-b pb-2">Antrian Peminjaman Barang</h3>
@@ -119,6 +119,55 @@
                                 </tr>
                                 @empty
                                 <tr><td colspan="5" class="py-4 text-center text-gray-500">Tidak ada antrian peminjaman barang.</td></tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            @endhasanyrole
+
+            <!-- BASE-06: Barang Sedang Dipinjam - Validasi Pengembalian -->
+            @hasanyrole('bkhm|sarpras_barang|admin')
+            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg border-l-4 border-amber-500">
+                <div class="p-6 text-gray-900">
+                    <h3 class="text-lg font-bold mb-4 border-b pb-2">Barang Sedang Dipinjam (Validasi Pengembalian)</h3>
+
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full bg-white border border-gray-200">
+                            <thead>
+                                <tr class="bg-gray-50">
+                                    <th class="py-2 px-4 border-b text-left text-xs font-semibold text-gray-600 uppercase">Ormawa</th>
+                                    <th class="py-2 px-4 border-b text-left text-xs font-semibold text-gray-600 uppercase">Kegiatan</th>
+                                    <th class="py-2 px-4 border-b text-left text-xs font-semibold text-gray-600 uppercase">Daftar Barang</th>
+                                    <th class="py-2 px-4 border-b text-left text-xs font-semibold text-gray-600 uppercase">Tanggal</th>
+                                    <th class="py-2 px-4 border-b text-center text-xs font-semibold text-gray-600 uppercase">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-200">
+                                @forelse ($barangDipinjam as $p)
+                                <tr>
+                                    <td class="py-3 px-4 font-semibold">{{ $p->user->name }}</td>
+                                    <td class="py-3 px-4">{{ $p->nama_kegiatan }}</td>
+                                    <td class="py-3 px-4 text-sm">
+                                        <ul class="list-disc pl-4">
+                                            @foreach($p->kebutuhan_barang as $brg)
+                                                <li>{{ $brg['nama_barang'] }} ({{ $brg['qty'] }})</li>
+                                            @endforeach
+                                        </ul>
+                                    </td>
+                                    <td class="py-3 px-4 text-sm">
+                                        {{ \Carbon\Carbon::parse($p->tgl_mulai)->format('d/m/Y') }} s/d {{ \Carbon\Carbon::parse($p->tgl_selesai)->format('d/m/Y') }}
+                                    </td>
+                                    <td class="py-3 px-4 text-center">
+                                        <form action="{{ route('peminjaman.barang.kembali', $p) }}" method="POST" onsubmit="return confirm('Validasi barang sudah dikembalikan? Stok akan dikembalikan.')">
+                                            @csrf
+                                            <button type="submit" class="text-xs bg-amber-600 hover:bg-amber-700 text-white py-1 px-3 rounded">Validasi Kembali</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                                @empty
+                                <tr><td colspan="5" class="py-4 text-center text-gray-500">Tidak ada barang yang sedang dipinjam.</td></tr>
                                 @endforelse
                             </tbody>
                         </table>

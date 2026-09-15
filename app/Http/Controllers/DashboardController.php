@@ -9,6 +9,7 @@ use App\Models\PeminjamanTempat;
 use App\Models\PeminjamanBarang;
 use App\Models\User;
 use App\Models\SaldoHistori;
+use App\Models\WorkflowState;
 use App\Models\WorkflowTransition;
 use App\Models\Aspirasi;
 
@@ -28,7 +29,7 @@ class DashboardController extends Controller
             // Calculate Dana Diproses (Sum of approved funding not yet fully disbursed or in process)
             $danaDiproses = Pengajuan::where('user_id', $user->id)
                 ->whereHas('state', function($q) {
-                    $q->where('name', 'approved'); // Assuming 'approved' is the state before disbursement
+                    $q->where('name', WorkflowState::TO_TREASURER); // disetujui WR3, menunggu pencairan
                 })->sum('dana_diajukan');
 
             $stats = [
@@ -37,7 +38,7 @@ class DashboardController extends Controller
                 'total_dana' => $totalDanaDiberikan,
                 'dana_diproses' => $danaDiproses,
                 'sedang_proses' => Pengajuan::where('user_id', $user->id)->whereHas('state', function($q) {
-                    $q->whereNotIn('name', ['draft', 'completed', 'rejected']);
+                    $q->whereNotIn('name', [WorkflowState::DRAFT, WorkflowState::COMPLETED, WorkflowState::REJECTED]);
                 })->count(),
             ];
 
@@ -56,47 +57,47 @@ class DashboardController extends Controller
             return view('dashboard.ormawa', compact('stats', 'meetings', 'facilities'));
         }
         
-        elseif ($role === 'bkh') {
-            // BKKH Dashboard khusus
+        elseif ($role === 'bkhm') {
+            // BKHM Dashboard khusus
             $counts = [
-                'verifikasi_proposal' => Pengajuan::whereHas('state', fn($q)=>$q->where('name','bkh_review'))->count(),
+                'verifikasi_proposal' => Pengajuan::whereHas('state', fn($q)=>$q->where('name',WorkflowState::BPM_APPROVED))->count(),
                 'verifikasi_lpj' => \App\Models\Letter::where('type','lpj')->where('created_at','>=', now()->subMonths(3))->count(),
-                'siap_bendahara' => Pengajuan::whereHas('state', fn($q)=>$q->where('name','to_treasurer'))->count(),
-                'verifikasi_tempat' => PeminjamanTempat::where('status_bkkh','pending')->count(),
-                'verifikasi_barang' => PeminjamanBarang::where('status_bkkh','pending')->count(),
+                'siap_bendahara' => Pengajuan::whereHas('state', fn($q)=>$q->where('name',WorkflowState::WR3_APPROVED))->count(),
+                'verifikasi_tempat' => PeminjamanTempat::where('status_bkhm','pending')->count(),
+                'verifikasi_barang' => PeminjamanBarang::where('status_bkhm','pending')->count(),
             ];
             $rapats = \App\Models\JadwalRapat::with('penyelenggara')->latest()->take(10)->get();
-            $proposalQueue = Pengajuan::with(['user','state'])->whereHas('state', fn($q)=>$q->where('name','bkh_review'))->latest()->take(10)->get();
-            $tempatQueue = PeminjamanTempat::with(['user','ruangan'])->where('status_bkkh','pending')->latest()->take(10)->get();
-            $barangQueue = PeminjamanBarang::with('user')->where('status_bkkh','pending')->latest()->take(10)->get();
+            $proposalQueue = Pengajuan::with(['user','state'])->whereHas('state', fn($q)=>$q->where('name',WorkflowState::BPM_APPROVED))->latest()->take(10)->get();
+            $tempatQueue = PeminjamanTempat::with(['user','ruangan'])->where('status_bkhm','pending')->latest()->take(10)->get();
+            $barangQueue = PeminjamanBarang::with('user')->where('status_bkhm','pending')->latest()->take(10)->get();
             // kalender terpadu
             $calendarTempat = PeminjamanTempat::with('ruangan')->whereIn('status_akhir',['Selesai / Disetujui','Proses Sarpras'])->get();
-            $calendarBarang = PeminjamanBarang::whereIn('status_akhir',['Selesai / Disetujui','Proses Sarpras'])->get();
+            $calendarBarang = PeminjamanBarang::whereIn('status_akhir',['Sedang Digunakan','Proses Sarpras'])->get();
             $saldoHistori = SaldoHistori::with(['user', 'actor'])->latest()->take(20)->get();
-            return view('dashboard.bkkh', compact('counts','rapats','proposalQueue','tempatQueue','barangQueue','calendarTempat','calendarBarang','saldoHistori'));
+            return view('dashboard.bkhm', compact('counts','rapats','proposalQueue','tempatQueue','barangQueue','calendarTempat','calendarBarang','saldoHistori'));
         }
         elseif ($role === 'bem') {
             $saldoAwal = $user->saldo_awal ?? $user->saldo;
             $terpakai = max(0, $saldoAwal - $user->saldo);
             $counts = [
-                'verifikasi_proposal' => Pengajuan::whereHas('state', fn($q)=>$q->where('name','bem_review'))->count(),
+                'verifikasi_proposal' => Pengajuan::whereHas('state', fn($q)=>$q->where('name',WorkflowState::SUBMITTED))->count(),
             ];
             $rapats = \App\Models\JadwalRapat::with('penyelenggara')->latest()->take(10)->get();
-            $proposalQueue = Pengajuan::with(['user','state'])->whereHas('state', fn($q)=>$q->where('name','bem_review'))->latest()->take(10)->get();
+            $proposalQueue = Pengajuan::with(['user','state'])->whereHas('state', fn($q)=>$q->where('name',WorkflowState::SUBMITTED))->latest()->take(10)->get();
             $calendarTempat = PeminjamanTempat::with('ruangan')->whereIn('status_akhir',['Selesai / Disetujui','Proses Sarpras'])->get();
-            $calendarBarang = PeminjamanBarang::whereIn('status_akhir',['Selesai / Disetujui','Proses Sarpras'])->get();
+            $calendarBarang = PeminjamanBarang::whereIn('status_akhir',['Sedang Digunakan','Proses Sarpras'])->get();
             return view('dashboard.bem', compact('saldoAwal','terpakai','rapats','counts','proposalQueue','calendarTempat','calendarBarang'));
         }
         elseif ($role === 'bpm') {
             $saldoAwal = $user->saldo_awal ?? $user->saldo;
             $terpakai = max(0, $saldoAwal - $user->saldo);
             $counts = [
-                'verifikasi_proposal' => Pengajuan::whereHas('state', fn($q)=>$q->where('name','bpm_review'))->count(),
+                'verifikasi_proposal' => Pengajuan::whereHas('state', fn($q)=>$q->where('name',WorkflowState::BEM_APPROVED))->count(),
             ];
             $rapats = \App\Models\JadwalRapat::with('penyelenggara')->latest()->take(10)->get();
-            $proposalQueue = Pengajuan::with(['user','state'])->whereHas('state', fn($q)=>$q->where('name','bpm_review'))->latest()->take(10)->get();
+            $proposalQueue = Pengajuan::with(['user','state'])->whereHas('state', fn($q)=>$q->where('name',WorkflowState::BEM_APPROVED))->latest()->take(10)->get();
             $calendarTempat = PeminjamanTempat::with('ruangan')->whereIn('status_akhir',['Selesai / Disetujui','Proses Sarpras'])->get();
-            $calendarBarang = PeminjamanBarang::whereIn('status_akhir',['Selesai / Disetujui','Proses Sarpras'])->get();
+            $calendarBarang = PeminjamanBarang::whereIn('status_akhir',['Sedang Digunakan','Proses Sarpras'])->get();
             return view('dashboard.bpm', compact('saldoAwal','terpakai','rapats','counts','proposalQueue','calendarTempat','calendarBarang'));
         }
         elseif ($role === 'wr3') {
@@ -124,9 +125,9 @@ class DashboardController extends Controller
             }
             
             $rapats = \App\Models\JadwalRapat::latest()->take(10)->get();
-            $proposalQueue = Pengajuan::with(['user','state'])->whereHas('state', fn($q)=>$q->where('name','bem_review'))->latest()->take(10)->get();
+            $proposalQueue = Pengajuan::with(['user','state'])->whereHas('state', fn($q)=>$q->where('name',WorkflowState::BKHM_APPROVED))->latest()->take(10)->get();
             $calendarTempat = PeminjamanTempat::with('ruangan')->whereIn('status_akhir',['Selesai / Disetujui','Proses Sarpras'])->get();
-            $calendarBarang = PeminjamanBarang::whereIn('status_akhir',['Selesai / Disetujui','Proses Sarpras'])->get();
+            $calendarBarang = PeminjamanBarang::whereIn('status_akhir',['Sedang Digunakan','Proses Sarpras'])->get();
             
             $saldoHistori = SaldoHistori::with(['user', 'actor'])->latest()->take(20)->get();
 
@@ -135,7 +136,7 @@ class DashboardController extends Controller
         
         elseif ($role === 'bendahara') {
             $siapCairQueue = Pengajuan::with('user')
-                ->whereHas('state', fn($q) => $q->where('name', 'to_treasurer'))
+                ->whereHas('state', fn($q) => $q->where('name', WorkflowState::TO_TREASURER))
                 ->latest()
                 ->get();
 

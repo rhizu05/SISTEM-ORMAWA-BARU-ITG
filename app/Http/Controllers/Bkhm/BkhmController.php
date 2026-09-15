@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Bkkh;
+namespace App\Http\Controllers\Bkhm;
 
 use App\Http\Controllers\Controller;
 use App\Models\Pengajuan;
@@ -12,7 +12,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 
-class BkkhController extends Controller
+class BkhmController extends Controller
 {
     public function saldo()
     {
@@ -25,7 +25,7 @@ class BkkhController extends Controller
         });
         $saldoHistori = SaldoHistori::with(['user', 'actor'])->latest()->take(20)->get();
 
-        return view('bkkh.saldo', compact('users', 'saldoHistori'));
+        return view('bkhm.saldo', compact('users', 'saldoHistori'));
     }
 
     public function arsipSurat(Request $request)
@@ -38,13 +38,13 @@ class BkkhController extends Controller
             });
         }
         $arsip = $query->latest()->paginate(10)->withQueryString();
-        return view('bkkh.arsip', compact('arsip'));
+        return view('bkhm.arsip', compact('arsip'));
     }
 
     public function spCreate()
     {
         $ormawas = User::role('ormawa')->get();
-        return view('bkkh.sp_create', compact('ormawas'));
+        return view('bkhm.sp_create', compact('ormawas'));
     }
 
     public function spStore(Request $request)
@@ -73,18 +73,18 @@ class BkkhController extends Controller
             'created_by'=>Auth::id(),
         ]);
         // generate simple PDF placeholder (html printable) - actual pdf via dompdf if needed
-        return redirect()->route('bkkh.arsip.index')->with('success','Surat Peringatan berhasil diterbitkan: '.$sp->nomor_surat);
+        return redirect()->route('bkhm.arsip.index')->with('success','Surat Peringatan berhasil diterbitkan: '.$sp->nomor_surat);
     }
 
     public function spShow(SuratPeringatan $sp)
     {
         $sp->load(['target','creator']);
-        return view('bkkh.sp_show', compact('sp'));
+        return view('bkhm.sp_show', compact('sp'));
     }
 
     public function verifikasiTempat()
     {
-        $antrian = PeminjamanTempat::with(['user','ruangan'])->where('status_bkkh','pending')->latest()->get();
-        return view('bkkh.verifikasi_tempat', compact('antrian'));
+        $antrian = PeminjamanTempat::with(['user','ruangan'])->where('status_bkhm','pending')->latest()->get();
+        return view('bkhm.verifikasi_tempat', compact('antrian'));
     }
 }

@@ -46,9 +46,9 @@
             <a href="{{ route('sarpras.barang.index') }}" class="block p-2 rounded hover:bg-indigo-700 text-sm {{ request()->routeIs('sarpras.*') ? 'bg-indigo-700' : '' }}">Master Barang</a>
             <a href="{{ route('bpm.aspirasi.index') }}" class="block p-2 rounded hover:bg-indigo-700 text-sm {{ request()->routeIs('bpm.aspirasi.*') ? 'bg-indigo-700' : '' }}">Aspirasi BPM</a>
             <a href="{{ route('bpm.regulasi.index') }}" class="block p-2 rounded hover:bg-indigo-700 text-sm {{ request()->routeIs('bpm.regulasi.*') ? 'bg-indigo-700' : '' }}">Regulasi BPM</a>
-            <a href="{{ route('bkkh.saldo.index') }}" class="block p-2 rounded hover:bg-indigo-700 text-sm {{ request()->routeIs('bkkh.saldo.*') ? 'bg-indigo-700' : '' }}">Saldo</a>
-            <a href="{{ route('bkkh.arsip.index') }}" class="block p-2 rounded hover:bg-indigo-700 text-sm {{ request()->routeIs('bkkh.arsip.*') ? 'bg-indigo-700' : '' }}">Arsip Surat BKKH</a>
-            <a href="{{ route('bkkh.verifikasi-tempat.index') }}" class="block p-2 rounded hover:bg-indigo-700 text-sm {{ request()->routeIs('bkkh.verifikasi-tempat.*') ? 'bg-indigo-700' : '' }}">Verifikasi Tempat</a>
+            <a href="{{ route('bkhm.saldo.index') }}" class="block p-2 rounded hover:bg-indigo-700 text-sm {{ request()->routeIs('bkhm.saldo.*') ? 'bg-indigo-700' : '' }}">Saldo</a>
+            <a href="{{ route('bkhm.arsip.index') }}" class="block p-2 rounded hover:bg-indigo-700 text-sm {{ request()->routeIs('bkhm.arsip.*') ? 'bg-indigo-700' : '' }}">Arsip Surat BKHM</a>
+            <a href="{{ route('bkhm.verifikasi-tempat.index') }}" class="block p-2 rounded hover:bg-indigo-700 text-sm {{ request()->routeIs('bkhm.verifikasi-tempat.*') ? 'bg-indigo-700' : '' }}">Verifikasi Tempat</a>
         </div>
         @else
         <!-- Main Section -->
@@ -138,30 +138,30 @@
         </div>
         @endhasanyrole
 
-        @hasanyrole('bkh|admin')
+        @hasanyrole('bkhm|admin')
         <div class="space-y-1 pb-4">
             <div x-data="{ open: true }" class="group">
-                <button @click="open = !open" class="w-full flex items-center p-2 rounded-lg hover:bg-indigo-800 transition-colors {{ request()->routeIs('bkkh.*','admin.*') ? 'bg-indigo-800' : '' }}">
+                <button @click="open = !open" class="w-full flex items-center p-2 rounded-lg hover:bg-indigo-800 transition-colors {{ request()->routeIs('bkhm.*','admin.*') ? 'bg-indigo-800' : '' }}">
                     <svg class="w-6 h-6 min-w-[24px]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-                    <span x-show="sidebarOpen" class="ml-3 text-sm font-medium truncate">Kelola BKKH</span>
+                    <span x-show="sidebarOpen" class="ml-3 text-sm font-medium truncate">Kelola BKHM</span>
                     <svg x-show="sidebarOpen" :class="open ? 'rotate-180' : ''" class="ml-auto w-4 h-4 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
                 </button>
                 <div x-show="open && sidebarOpen" class="pl-4 space-y-1 mt-2">
-                    <a href="{{ route('bkkh.saldo.index') }}" class="block ml-2 p-2 text-xs rounded hover:bg-indigo-700 {{ request()->routeIs('bkkh.saldo.*') ? 'bg-indigo-700' : '' }}">Manajemen Saldo</a>
+                    <a href="{{ route('bkhm.saldo.index') }}" class="block ml-2 p-2 text-xs rounded hover:bg-indigo-700 {{ request()->routeIs('bkhm.saldo.*') ? 'bg-indigo-700' : '' }}">Manajemen Saldo</a>
                     <a href="{{ route('admin.users.index') }}" class="block ml-2 p-2 text-xs rounded hover:bg-indigo-700 {{ request()->routeIs('admin.users.*') ? 'bg-indigo-700' : '' }}">Manajemen User</a>
                     @hasrole('admin')
                     <a href="{{ route('admin.konfigurasi.edit') }}" class="block ml-2 p-2 text-xs rounded hover:bg-indigo-700 {{ request()->routeIs('admin.konfigurasi.*') ? 'bg-indigo-700' : '' }}">Manajemen Sistem</a>
                     @endhasrole
-                    <a href="{{ route('bkkh.arsip.index') }}" class="block ml-2 p-2 text-xs rounded hover:bg-indigo-700 {{ request()->routeIs('bkkh.arsip.*') ? 'bg-indigo-700' : '' }}">Arsip Surat</a>
-                    <a href="{{ route('bkkh.sp.create') }}" class="block ml-2 p-2 text-xs rounded hover:bg-indigo-700 {{ request()->routeIs('bkkh.sp.*') ? 'bg-indigo-700' : '' }}">Buat Surat Peringatan</a>
-                    <a href="{{ route('bkkh.verifikasi-tempat.index') }}" class="block ml-2 p-2 text-xs rounded hover:bg-indigo-700 {{ request()->routeIs('bkkh.verifikasi-tempat.*') ? 'bg-indigo-700' : '' }}">Verifikasi Tempat</a>
+                    <a href="{{ route('bkhm.arsip.index') }}" class="block ml-2 p-2 text-xs rounded hover:bg-indigo-700 {{ request()->routeIs('bkhm.arsip.*') ? 'bg-indigo-700' : '' }}">Arsip Surat</a>
+                    <a href="{{ route('bkhm.sp.create') }}" class="block ml-2 p-2 text-xs rounded hover:bg-indigo-700 {{ request()->routeIs('bkhm.sp.*') ? 'bg-indigo-700' : '' }}">Buat Surat Peringatan</a>
+                    <a href="{{ route('bkhm.verifikasi-tempat.index') }}" class="block ml-2 p-2 text-xs rounded hover:bg-indigo-700 {{ request()->routeIs('bkhm.verifikasi-tempat.*') ? 'bg-indigo-700' : '' }}">Verifikasi Tempat</a>
                 </div>
             </div>
         </div>
          @endhasanyrole
 
          @hasanyrole('ormawa|bem|bpm|admin')
-        <!-- Persuratan Digital Group - hidden for bkh -->
+        <!-- Persuratan Digital Group - hidden for bkhm -->
         <div class="space-y-1 pb-4">
             <div x-data="{ open: false }" class="group">
                 <button @click="open = !open" class="w-full flex items-center p-2 rounded-lg hover:bg-indigo-800 transition-colors {{ request()->routeIs('generator.*', 'archive.*') ? 'bg-indigo-800' : '' }}">
@@ -178,7 +178,7 @@
             </div>
         </div>
 
-        <!-- Laporan Group - hidden for bkh -->
+        <!-- Laporan Group - hidden for bkhm -->
         <div class="space-y-1 pb-4">
             <div x-data="{ open: false }" class="group">
                 <button @click="open = !open" class="w-full flex items-center p-2 rounded-lg hover:bg-indigo-800 transition-colors {{ request()->routeIs('lpj.*') ? 'bg-indigo-800' : '' }}">
@@ -192,7 +192,7 @@
             </div>
         </div>
 
-        <!-- Info Group - hidden for bkh -->
+        <!-- Info Group - hidden for bkhm -->
         <div class="space-y-1 pb-4">
             <div x-data="{ open: false }" class="group">
                 <button @click="open = !open" class="w-full flex items-center p-2 rounded-lg hover:bg-indigo-800 transition-colors {{ request()->routeIs('informasi.*', 'rapat.*') ? 'bg-indigo-800' : '' }}">

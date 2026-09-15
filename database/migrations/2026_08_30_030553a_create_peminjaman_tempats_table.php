@@ -19,10 +19,10 @@ return new class extends Migration
             $table->time('jam_selesai');
             $table->text('deskripsi_kegiatan')->nullable();
             
-            // Workflow: pending -> disetujui_bkkh -> disetujui_sarpras -> selesai ATAU ditolak
-            $table->enum('status_bkkh', ['pending', 'disetujui', 'ditolak'])->default('pending');
+            // Workflow: pending -> disetujui_bkhm -> disetujui_sarpras -> selesai ATAU ditolak
+            $table->enum('status_bkhm', ['pending', 'disetujui', 'ditolak'])->default('pending');
             $table->enum('status_sarpras', ['pending', 'disetujui', 'ditolak'])->default('pending');
-            $table->string('status_akhir')->default('Proses BKKH');
+            $table->string('status_akhir')->default('Proses BKHM');
             
             $table->text('catatan_penolakan')->nullable();
             $table->timestamps();

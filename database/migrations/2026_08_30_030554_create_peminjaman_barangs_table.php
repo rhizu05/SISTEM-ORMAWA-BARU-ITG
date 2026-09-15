@@ -18,9 +18,9 @@ return new class extends Migration
             // JSON column untuk menyimpan array kebutuhan barang [{"id_barang": 1, "qty": 5}, ...]
             $table->json('kebutuhan_barang');
             
-            $table->enum('status_bkkh', ['pending', 'disetujui', 'ditolak'])->default('pending');
+            $table->enum('status_bkhm', ['pending', 'disetujui', 'ditolak'])->default('pending');
             $table->enum('status_sarpras', ['pending', 'disetujui', 'ditolak'])->default('pending');
-            $table->string('status_akhir')->default('Proses BKKH');
+            $table->string('status_akhir')->default('Proses BKHM');
             
             $table->text('catatan_penolakan')->nullable();
             $table->timestamps();

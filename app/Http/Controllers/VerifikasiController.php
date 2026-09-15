@@ -73,8 +73,8 @@ class VerifikasiController extends Controller
             return back()->withInput()->with('error', 'Catatan wajib diisi jika menolak atau merevisi pengajuan.');
         }
 
-        // BKKH specific rule: require nomor_surat when approving to WR3
-        if ($userRole === 'bkh' && $transition->toState->name === 'wr3_approved' && !$pengajuan->nomor_surat && !$request->nomor_surat) {
+        // BKHM specific rule: require nomor_surat when approving to WR3
+        if ($userRole === 'bkhm' && $transition->toState->name === 'wr3_approved' && !$pengajuan->nomor_surat && !$request->nomor_surat) {
             return back()->with('error', 'Nomor surat wajib diisi sebelum meneruskan ke WR3.');
         }
 
@@ -83,7 +83,7 @@ class VerifikasiController extends Controller
             'workflow_state_id' => $transition->to_state_id
         ];
 
-        // Save nomor_surat if provided (BKKH)
+        // Save nomor_surat if provided (BKHM)
         if ($request->filled('nomor_surat')) {
             $dataToUpdate['nomor_surat'] = $request->nomor_surat;
         }

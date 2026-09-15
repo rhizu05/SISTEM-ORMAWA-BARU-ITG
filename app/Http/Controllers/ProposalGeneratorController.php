@@ -100,7 +100,7 @@ class ProposalGeneratorController extends Controller
 
     public function show(ProposalOtomatis $proposal)
     {
-        if ($proposal->user_id !== Auth::id() && !Auth::user()->hasAnyRole(['bem', 'bpm', 'bkh', 'wr3', 'bendahara', 'admin'])) {
+        if ($proposal->user_id !== Auth::id() && !Auth::user()->hasAnyRole(['bem', 'bpm', 'bkhm', 'wr3', 'bendahara', 'admin'])) {
             abort(403);
         }
         
@@ -200,7 +200,7 @@ class ProposalGeneratorController extends Controller
         $proposal = null;
         if ($proposalId) {
             $proposal = ProposalOtomatis::find($proposalId);
-            if ($proposal && $proposal->user_id !== Auth::id() && !Auth::user()->hasAnyRole(['bem', 'bpm', 'bkh', 'wr3', 'bendahara', 'admin'])) {
+            if ($proposal && $proposal->user_id !== Auth::id() && !Auth::user()->hasAnyRole(['bem', 'bpm', 'bkhm', 'wr3', 'bendahara', 'admin'])) {
                 abort(403);
             }
         }
@@ -222,6 +222,7 @@ class ProposalGeneratorController extends Controller
 
         $lpj = \App\Models\Letter::create([
             'user_id' => Auth::id(),
+            'proposal_otomatis_id' => $request->proposal_id,
             'type' => 'lpj',
             'perihal' => 'Laporan Pertanggungjawaban (LPJ) - ' . $request->nama_kegiatan,
             'content' => json_encode([
@@ -252,7 +253,7 @@ class ProposalGeneratorController extends Controller
 
     public function showLpj(\App\Models\Letter $lpj)
     {
-        if ($lpj->user_id !== Auth::id() && !Auth::user()->hasAnyRole(['bem', 'bpm', 'bkh', 'wr3', 'bendahara', 'admin'])) {
+        if ($lpj->user_id !== Auth::id() && !Auth::user()->hasAnyRole(['bem', 'bpm', 'bkhm', 'wr3', 'bendahara', 'admin'])) {
             abort(403);
         }
         
@@ -262,7 +263,7 @@ class ProposalGeneratorController extends Controller
 
     public function print(ProposalOtomatis $proposal)
     {
-        if ($proposal->user_id !== Auth::id() && !Auth::user()->hasAnyRole(['bem', 'bpm', 'bkh', 'wr3', 'bendahara', 'admin'])) {
+        if ($proposal->user_id !== Auth::id() && !Auth::user()->hasAnyRole(['bem', 'bpm', 'bkhm', 'wr3', 'bendahara', 'admin'])) {
             abort(403);
         }
         

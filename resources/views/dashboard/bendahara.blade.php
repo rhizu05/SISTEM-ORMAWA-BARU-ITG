@@ -17,7 +17,7 @@
 
             <div class="bg-white p-4 rounded shadow">
                 <h3 class="font-bold mb-2">Daftar Proposal Siap Dicairkan</h3>
-                <p class="text-sm text-gray-500 mb-4">Berikut adalah daftar proposal final yang telah diajukan oleh BKKH dan siap untuk proses transfer dana.</p>
+                <p class="text-sm text-gray-500 mb-4">Berikut adalah daftar proposal final yang telah diajukan oleh BKHM dan siap untuk proses transfer dana.</p>
                 <div class="overflow-x-auto">
                     <table class="min-w-full text-sm border">
                         <thead class="bg-gray-50">

@@ -56,7 +56,7 @@
                         <div>
                             <x-input-label for="penandatangan" :value="__('Nama Penandatangan')" />
                             <p class="text-xs text-gray-500 mb-1">Nama Lengkap & Jabatan</p>
-                            <x-text-input id="penandatangan" name="penandatangan" type="text" class="mt-1 block w-full" placeholder="Contoh: Ketua BPM ITG / Kepala BKKH ITG" required />
+                            <x-text-input id="penandatangan" name="penandatangan" type="text" class="mt-1 block w-full" placeholder="Contoh: Ketua BPM ITG / Kepala BKHM ITG" required />
                         </div>
                         </div>
                     </div>

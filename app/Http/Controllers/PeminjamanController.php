@@ -65,16 +65,23 @@ class PeminjamanController extends Controller
             'deskripsi_kegiatan' => 'nullable|string'
         ]);
 
-        // Cek konflik jadwal ruangan
+        // Cek konflik jadwal ruangan (overlap tanggal + jam secara presisi)
+        $newStart = \Carbon\Carbon::parse($request->tgl_mulai.' '.$request->jam_mulai);
+        $newEnd = \Carbon\Carbon::parse($request->tgl_selesai.' '.$request->jam_selesai);
+
         $konflik = PeminjamanTempat::where('ruangan_id', $request->ruangan_id)
-            ->where('status_akhir', '!=', 'Ditolak Sarpras')
-            ->where('status_akhir', '!=', 'Ditolak BKKH')
-            ->where(function($query) use ($request) {
-                // Logic cek overlap tanggal & jam sederhana
-                $query->whereBetween('tgl_mulai', [$request->tgl_mulai, $request->tgl_selesai])
-                      ->orWhereBetween('tgl_selesai', [$request->tgl_mulai, $request->tgl_selesai]);
-            })
-            ->exists();
+            ->whereNotIn('status_akhir', ['Ditolak Sarpras', 'Ditolak BKHM'])
+            // Kandidat: rentang tanggal beririsan (filter kasar di DB)
+            ->where('tgl_mulai', '<=', $request->tgl_selesai)
+            ->where('tgl_selesai', '>=', $request->tgl_mulai)
+            ->get()
+            // Presisi: existing.start < new.end AND existing.end > new.start
+            ->contains(function ($existing) use ($newStart, $newEnd) {
+                $existingStart = \Carbon\Carbon::parse($existing->tgl_mulai.' '.$existing->jam_mulai);
+                $existingEnd = \Carbon\Carbon::parse($existing->tgl_selesai.' '.$existing->jam_selesai);
+
+                return $existingStart->lt($newEnd) && $existingEnd->gt($newStart);
+            });
 
         if ($konflik) {
             return back()->withInput()->with('error', 'Ruangan sudah dibooking pada tanggal/waktu tersebut.');
@@ -143,31 +150,35 @@ class PeminjamanController extends Controller
         return redirect()->route('peminjaman.barang.index')->with('success', 'Pengajuan peminjaman barang berhasil dikirim.');
     }
 
-    // Verifikasi (digunakan oleh BKKH, Sarpras Ruangan, & Sarpras Barang)
+    // Verifikasi (digunakan oleh BKHM, Sarpras Ruangan, & Sarpras Barang)
     public function antrian()
     {
         $role = Auth::user()->roles->first()->name;
         
         $antrian_tempat = collect();
         $antrian_barang = collect();
+        $barangDipinjam = collect();
 
         if ($role === 'admin') {
             $antrian_tempat = PeminjamanTempat::with(['user', 'ruangan'])->latest()->get();
             $antrian_barang = PeminjamanBarang::with('user')->latest()->get();
-        } elseif ($role === 'bkh') {
-            $antrian_tempat = PeminjamanTempat::where('status_bkkh', 'pending')->with(['user', 'ruangan'])->latest()->get();
-            $antrian_barang = PeminjamanBarang::where('status_bkkh', 'pending')->with('user')->latest()->get();
+            $barangDipinjam = PeminjamanBarang::with('user')->where('status_akhir', 'Sedang Digunakan')->latest()->get();
+        } elseif ($role === 'bkhm') {
+            $antrian_tempat = PeminjamanTempat::where('status_bkhm', 'pending')->with(['user', 'ruangan'])->latest()->get();
+            $antrian_barang = PeminjamanBarang::where('status_bkhm', 'pending')->with('user')->latest()->get();
         } 
         elseif ($role === 'sarpras_ruangan') {
-            // Sarpras Ruangan HANYA bisa memproses peminjaman ruangan yang sudah ACC BKKH
-            $antrian_tempat = PeminjamanTempat::where('status_bkkh', 'disetujui')->where('status_sarpras', 'pending')->with(['user', 'ruangan'])->latest()->get();
+            // Sarpras Ruangan HANYA bisa memproses peminjaman ruangan yang sudah ACC BKHM
+            $antrian_tempat = PeminjamanTempat::where('status_bkhm', 'disetujui')->where('status_sarpras', 'pending')->with(['user', 'ruangan'])->latest()->get();
         }
         elseif ($role === 'sarpras_barang') {
-            // Sarpras Barang HANYA bisa memproses peminjaman barang yang sudah ACC BKKH
-            $antrian_barang = PeminjamanBarang::where('status_bkkh', 'disetujui')->where('status_sarpras', 'pending')->with('user')->latest()->get();
+            // Sarpras Barang HANYA bisa memproses peminjaman barang yang sudah ACC BKHM
+            $antrian_barang = PeminjamanBarang::where('status_bkhm', 'disetujui')->where('status_sarpras', 'pending')->with('user')->latest()->get();
+            // BASE-06: barang yang sedang dipinjam & perlu validasi kembali
+            $barangDipinjam = PeminjamanBarang::with('user')->where('status_akhir', 'Sedang Digunakan')->latest()->get();
         }
 
-        return view('peminjaman.verifikasi.index', compact('antrian_tempat', 'antrian_barang'));
+        return view('peminjaman.verifikasi.index', compact('antrian_tempat', 'antrian_barang', 'barangDipinjam'));
     }
 
     public function prosesTempat(Request $request, PeminjamanTempat $peminjaman)
@@ -175,9 +186,9 @@ class PeminjamanController extends Controller
         $role = Auth::user()->roles->first()->name;
         $status = $request->aksi === 'setuju' ? 'disetujui' : 'ditolak';
         
-        if ($role === 'bkh') {
-            $peminjaman->status_bkkh = $status;
-            $peminjaman->status_akhir = $status === 'ditolak' ? 'Ditolak BKKH' : 'Proses Sarpras';
+        if ($role === 'bkhm') {
+            $peminjaman->status_bkhm = $status;
+            $peminjaman->status_akhir = $status === 'ditolak' ? 'Ditolak BKHM' : 'Proses Sarpras';
         } elseif ($role === 'sarpras_ruangan') {
             $peminjaman->status_sarpras = $status;
             $peminjaman->status_akhir = $status === 'ditolak' ? 'Ditolak Sarpras' : 'Selesai / Disetujui';
@@ -196,14 +207,14 @@ class PeminjamanController extends Controller
         $role = Auth::user()->roles->first()->name;
         $status = $request->aksi === 'setuju' ? 'disetujui' : 'ditolak';
         
-        if ($role === 'bkh') {
-            $peminjaman->status_bkkh = $status;
-            $peminjaman->status_akhir = $status === 'ditolak' ? 'Ditolak BKKH' : 'Proses Sarpras';
+        if ($role === 'bkhm') {
+            $peminjaman->status_bkhm = $status;
+            $peminjaman->status_akhir = $status === 'ditolak' ? 'Ditolak BKHM' : 'Proses Sarpras';
         } elseif ($role === 'sarpras_barang') {
             $peminjaman->status_sarpras = $status;
-            $peminjaman->status_akhir = $status === 'ditolak' ? 'Ditolak Sarpras' : 'Selesai / Disetujui';
-            
-            // Jika disetujui final, kurangi stok master barang
+            $peminjaman->status_akhir = $status === 'ditolak' ? 'Ditolak Sarpras' : 'Sedang Digunakan';
+
+            // BASE-06: stok berkurang saat barang divalidasi keluar.
             if ($status === 'disetujui') {
                 foreach ($peminjaman->kebutuhan_barang as $item) {
                     $barang = MasterBarang::find($item['id_barang']);
@@ -220,6 +231,32 @@ class PeminjamanController extends Controller
 
         $peminjaman->save();
         return redirect()->back()->with('success', 'Verifikasi peminjaman barang berhasil disimpan.');
+    }
+
+    // BASE-06: validasi barang kembali & pemulihan stok
+    public function kembalikanBarang(PeminjamanBarang $peminjaman)
+    {
+        $role = Auth::user()->roles->first()->name;
+
+        if (! in_array($role, ['sarpras_barang', 'sarpras', 'admin'])) {
+            abort(403, 'Aksi tidak diizinkan.');
+        }
+
+        if ($peminjaman->status_akhir !== 'Sedang Digunakan') {
+            return redirect()->back()->with('error', 'Barang belum dalam status dipinjam atau sudah dikembalikan.');
+        }
+
+        foreach ($peminjaman->kebutuhan_barang as $item) {
+            $barang = MasterBarang::find($item['id_barang']);
+            if ($barang) {
+                $barang->increment('stok_tersedia', $item['qty']);
+            }
+        }
+
+        $peminjaman->status_akhir = 'Dikembalikan';
+        $peminjaman->save();
+
+        return redirect()->back()->with('success', 'Barang berhasil divalidasi kembali dan stok diperbarui.');
     }
 }
 

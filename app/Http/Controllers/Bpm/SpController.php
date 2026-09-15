@@ -49,6 +49,6 @@ class SpController extends Controller
     public function show(SuratPeringatan $sp)
     {
         $sp->load(['target','creator']);
-        return view('bkkh.sp_show', compact('sp'));
+        return view('bkhm.sp_show', compact('sp'));
     }
 }

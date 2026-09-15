@@ -119,19 +119,20 @@ Route::middleware('auth')->group(function () {
         ->middleware(['auth', 'admin.readonly'])
         ->name('generator.print');
 
-    // Verifikator Roles: Modul Verifikasi (BEM, BPM, BKH, WR3, Bendahara)
-    Route::middleware(['role:bem|bpm|bkh|wr3|bendahara|admin', 'admin.readonly'])->group(function () {
+    // Verifikator Roles: Modul Verifikasi (BEM, BPM, BKHM, WR3, Bendahara)
+    Route::middleware(['role:bem|bpm|bkhm|wr3|bendahara|admin', 'admin.readonly'])->group(function () {
         Route::get('/verifikasi', [VerifikasiController::class, 'index'])->name('verifikasi.index');
         Route::get('/verifikasi/{pengajuan}', [VerifikasiController::class, 'show'])->name('verifikasi.show');
         Route::post('/verifikasi/{pengajuan}/process', [VerifikasiController::class, 'process'])->name('verifikasi.process');
     });
 
 
-    // Peminjaman Verifikasi (BKKH & Sarpras)
-    Route::middleware(['role:bkh|sarpras|sarpras_ruangan|sarpras_barang|admin', 'admin.readonly'])->group(function () {
+    // Peminjaman Verifikasi (BKHM & Sarpras)
+    Route::middleware(['role:bkhm|sarpras|sarpras_ruangan|sarpras_barang|admin', 'admin.readonly'])->group(function () {
         Route::get('/verifikasi-peminjaman', [PeminjamanController::class, 'antrian'])->name('peminjaman.verifikasi.index');
         Route::post('/verifikasi-peminjaman/tempat/{peminjaman}', [PeminjamanController::class, 'prosesTempat'])->name('peminjaman.tempat.proses');
         Route::post('/verifikasi-peminjaman/barang/{peminjaman}', [PeminjamanController::class, 'prosesBarang'])->name('peminjaman.barang.proses');
+        Route::post('/verifikasi-peminjaman/barang/{peminjaman}/kembali', [PeminjamanController::class, 'kembalikanBarang'])->name('peminjaman.barang.kembali');
     });
 
     // Sarpras Khusus: Manajemen Master Barang Inventaris
@@ -147,18 +148,18 @@ Route::middleware('auth')->group(function () {
         Route::post('/bendahara/proses/{pengajuan}', [BendaharaController::class, 'proses'])->name('bendahara.proses');
     });
 
-    // BKKH Khusus: 8 menu sesuai spec
-    Route::middleware(['role:bkh|admin', 'admin.readonly'])->prefix('bkkh')->name('bkkh.')->group(function () {
-        Route::get('/saldo', [\App\Http\Controllers\Bkkh\BkkhController::class, 'saldo'])->name('saldo.index');
-        Route::get('/arsip-surat', [\App\Http\Controllers\Bkkh\BkkhController::class, 'arsipSurat'])->name('arsip.index');
-        Route::get('/surat-peringatan/create', [\App\Http\Controllers\Bkkh\BkkhController::class, 'spCreate'])->name('sp.create');
-        Route::post('/surat-peringatan', [\App\Http\Controllers\Bkkh\BkkhController::class, 'spStore'])->name('sp.store');
-        Route::get('/surat-peringatan/{sp}', [\App\Http\Controllers\Bkkh\BkkhController::class, 'spShow'])->name('sp.show');
-        Route::get('/verifikasi-tempat', [\App\Http\Controllers\Bkkh\BkkhController::class, 'verifikasiTempat'])->name('verifikasi-tempat.index');
+    // BKHM Khusus: 8 menu sesuai spec
+    Route::middleware(['role:bkhm|admin', 'admin.readonly'])->prefix('bkhm')->name('bkhm.')->group(function () {
+        Route::get('/saldo', [\App\Http\Controllers\Bkhm\BkhmController::class, 'saldo'])->name('saldo.index');
+        Route::get('/arsip-surat', [\App\Http\Controllers\Bkhm\BkhmController::class, 'arsipSurat'])->name('arsip.index');
+        Route::get('/surat-peringatan/create', [\App\Http\Controllers\Bkhm\BkhmController::class, 'spCreate'])->name('sp.create');
+        Route::post('/surat-peringatan', [\App\Http\Controllers\Bkhm\BkhmController::class, 'spStore'])->name('sp.store');
+        Route::get('/surat-peringatan/{sp}', [\App\Http\Controllers\Bkhm\BkhmController::class, 'spShow'])->name('sp.show');
+        Route::get('/verifikasi-tempat', [\App\Http\Controllers\Bkhm\BkhmController::class, 'verifikasiTempat'])->name('verifikasi-tempat.index');
     });
 
-    // Admin/BKKH Role: User management remains available to both roles.
-    Route::middleware(['role:bkh|admin'])->prefix('admin')->name('admin.')->group(function () {
+    // Admin/BKHM Role: User management remains available to both roles.
+    Route::middleware(['role:bkhm|admin'])->prefix('admin')->name('admin.')->group(function () {
         Route::get('/users', [UserController::class, 'index'])->name('users.index');
         Route::post('/users', [UserController::class, 'store'])->name('users.store');
         Route::put('/users/{user}', [UserController::class, 'update'])->name('users.update');

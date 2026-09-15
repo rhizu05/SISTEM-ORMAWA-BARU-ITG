@@ -100,9 +100,9 @@
                             <form action="{{ route('verifikasi.process', $pengajuan) }}" method="POST">
                                 @csrf
                                 
-                                @if(Auth::user()->roles->first()->name === 'bkh' && !$pengajuan->nomor_surat && $pengajuan->state->name === 'bpm_approved')
+                                @if(Auth::user()->roles->first()->name === 'bkhm' && !$pengajuan->nomor_surat && $pengajuan->state->name === 'bpm_approved')
                                     <div class="mb-4 p-4 bg-yellow-50 border border-yellow-200 rounded">
-                                        <x-input-label for="nomor_surat" :value="__('Nomor Surat Resmi (Wajib diisi sebelum disetujui BKKH)')" />
+                                        <x-input-label for="nomor_surat" :value="__('Nomor Surat Resmi (Wajib diisi sebelum disetujui BKHM)')" />
                                         <x-text-input id="nomor_surat" name="nomor_surat" type="text" class="mt-1 block w-full" placeholder="Contoh: 001/BEM/ITG/2026" />
                                     </div>
                                 @endif

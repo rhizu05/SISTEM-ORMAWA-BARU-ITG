@@ -34,7 +34,7 @@
                                     <th class="py-3 px-4 border-b text-left text-xs font-semibold text-gray-600 uppercase">Kegiatan</th>
                                     <th class="py-3 px-4 border-b text-left text-xs font-semibold text-gray-600 uppercase">Ruangan</th>
                                     <th class="py-3 px-4 border-b text-left text-xs font-semibold text-gray-600 uppercase">Waktu</th>
-                                    <th class="py-3 px-4 border-b text-center text-xs font-semibold text-gray-600 uppercase">Status BKKH</th>
+                                    <th class="py-3 px-4 border-b text-center text-xs font-semibold text-gray-600 uppercase">Status BKHM</th>
                                     <th class="py-3 px-4 border-b text-center text-xs font-semibold text-gray-600 uppercase">Status Sarpras</th>
                                     <th class="py-3 px-4 border-b text-center text-xs font-semibold text-gray-600 uppercase">Status Akhir</th>
                                 </tr>
@@ -52,8 +52,8 @@
                                         <span class="text-gray-500">{{ \Carbon\Carbon::parse($p->jam_mulai)->format('H:i') }} - {{ \Carbon\Carbon::parse($p->jam_selesai)->format('H:i') }}</span>
                                     </td>
                                     <td class="py-3 px-4 text-center">
-                                        <span class="px-2 py-1 rounded-full text-xs font-semibold {{ $p->status_bkkh==='disetujui' ? 'bg-green-100 text-green-800' : ($p->status_bkkh==='ditolak' ? 'bg-red-100 text-red-800' : 'bg-yellow-100 text-yellow-800') }}">
-                                            {{ ucfirst($p->status_bkkh) }}
+                                        <span class="px-2 py-1 rounded-full text-xs font-semibold {{ $p->status_bkhm==='disetujui' ? 'bg-green-100 text-green-800' : ($p->status_bkhm==='ditolak' ? 'bg-red-100 text-red-800' : 'bg-yellow-100 text-yellow-800') }}">
+                                            {{ ucfirst($p->status_bkhm) }}
                                         </span>
                                     </td>
                                     <td class="py-3 px-4 text-center">

@@ -36,11 +36,11 @@ class UserSeeder extends Seeder
                 'role' => 'bpm'
             ],
             [
-                'name' => 'BKKH',
-                'username' => 'bkh',
-                'email' => 'bkh@test.com',
+                'name' => 'BKHM',
+                'username' => 'bkhm',
+                'email' => 'bkhm@test.com',
                 'password' => Hash::make('password'),
-                'role' => 'bkh'
+                'role' => 'bkhm'
             ],
             [
                 'name' => 'Wakil Rektor 3',

@@ -196,10 +196,10 @@ body.dark-mode .theme-icon-current {
                     </li>
                 <?php endif; ?>
                 
-                <?php if (in_array($user_role, ['bem', 'bpm', 'bkh', 'wr3'])): ?>
+                <?php if (in_array($user_role, ['bem', 'bpm', 'bkhm', 'wr3'])): ?>
                 <?php endif; ?>
 
-                <?php if (in_array($user_role, ['bkh', 'wr3'])): ?>
+                <?php if (in_array($user_role, ['bkhm', 'wr3'])): ?>
                     <li>
         <a href="index.php?page=manage_saldo" class="nav-link text-white <?php echo ($currentPage == 'manage_saldo' || $currentPage == 'atur_saldo') ? 'active' : ''; ?>">
             <i class="bi bi-cash-coin me-2"></i> 
@@ -211,7 +211,7 @@ body.dark-mode .theme-icon-current {
     </li>
                 <?php endif; ?>
 
-                <?php if ($user_role == 'bkh'): 
+                <?php if ($user_role == 'bkhm'): 
                     $isManageUserPage = in_array($currentPage, ['manage_users', 'tambah_user', 'edit_user']);
                 ?>
                     <li>

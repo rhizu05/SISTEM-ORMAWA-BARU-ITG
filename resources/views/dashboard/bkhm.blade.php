@@ -1,5 +1,5 @@
 <x-app-layout>
-    <x-slot name="header"><h2 class="font-semibold text-xl text-gray-800">Dashboard BKKH</h2></x-slot>
+    <x-slot name="header"><h2 class="font-semibold text-xl text-gray-800">Dashboard BKHM</h2></x-slot>
     <div class="py-6">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
             <div class="bg-white p-4 rounded shadow">Selamat Datang kembali, {{ Auth::user()->name }}!</div>
@@ -22,7 +22,7 @@
                 <div class="bg-white p-4 rounded shadow text-center"><div class="text-2xl font-bold">{{ $counts['verifikasi_proposal'] }}</div><div class="text-xs">Verifikasi Proposal</div></div>
                 <div class="bg-white p-4 rounded shadow text-center"><div class="text-2xl font-bold">{{ $counts['verifikasi_lpj'] }}</div><div class="text-xs">Verifikasi LPJ</div></div>
                 <div class="bg-white p-4 rounded shadow text-center"><div class="text-2xl font-bold">{{ $counts['siap_bendahara'] }}</div><div class="text-xs">Siap ke Bendahara</div></div>
-                <div class="bg-white p-4 rounded shadow text-center"><div class="text-2xl font-bold">{{ $counts['verifikasi_tempat'] }}</div><div class="text-xs">Verifikasi Tempat</div><a href="{{ route('bkkh.verifikasi-tempat.index') }}" class="text-xs text-indigo-600">Kelola</a></div>
+                <div class="bg-white p-4 rounded shadow text-center"><div class="text-2xl font-bold">{{ $counts['verifikasi_tempat'] }}</div><div class="text-xs">Verifikasi Tempat</div><a href="{{ route('bkhm.verifikasi-tempat.index') }}" class="text-xs text-indigo-600">Kelola</a></div>
                 <div class="bg-white p-4 rounded shadow text-center"><div class="text-2xl font-bold">{{ $counts['verifikasi_barang'] }}</div><div class="text-xs">Verifikasi Barang</div><a href="{{ route('peminjaman.verifikasi.index') }}" class="text-xs text-indigo-600">Kelola</a></div>
             </div>
 
@@ -40,7 +40,7 @@
             </div>
 
             <div class="bg-white p-4 rounded shadow">
-                <h3 class="font-bold mb-2">Antrean Verifikasi Tempat (BKKH)</h3>
+                <h3 class="font-bold mb-2">Antrean Verifikasi Tempat (BKHM)</h3>
                 <div class="overflow-x-auto">
                 <table class="min-w-full text-sm border">
                     <thead class="bg-gray-50"><tr><th class="p-2 border">Ormawa</th><th class="p-2 border">Kegiatan</th><th class="p-2 border">Ruangan</th><th class="p-2 border">Waktu</th><th class="p-2 border">Aksi</th></tr></thead>
@@ -50,7 +50,7 @@
             </div>
 
             <div class="bg-white p-4 rounded shadow">
-                <h3 class="font-bold mb-2">Antrean Verifikasi Barang (BKKH)</h3>
+                <h3 class="font-bold mb-2">Antrean Verifikasi Barang (BKHM)</h3>
                 <div class="overflow-x-auto">
                 <table class="min-w-full text-sm border">
                     <thead class="bg-gray-50"><tr><th class="p-2 border">Ormawa</th><th class="p-2 border">Kegiatan</th><th class="p-2 border">Barang</th><th class="p-2 border">Waktu</th><th class="p-2 border">Aksi</th></tr></thead>

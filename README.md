@@ -69,7 +69,7 @@ Buka `http://127.0.0.1:8000`.
 | Admin | admin@test.com | admin |
 | BEM | bem@test.com | bem |
 | BPM | bpm@test.com | bpm |
-| BKKH | bkh@test.com | bkh |
+| BKHM | bkhm@test.com | bkhm |
 | WR3 | wr3@test.com | wr3 |
 | Bendahara | bendahara@test.com | bendahara |
 | Sarpras Ruangan | sarprasruangan@test.com | sarpras_ruangan |

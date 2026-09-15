@@ -17,7 +17,7 @@ class RolePermissionSeeder extends Seeder
             'ormawa',
             'bem',
             'bpm',
-            'bkh',
+            'bkhm',
             'wr3',
             'bendahara',
             'sarpras_ruangan',
