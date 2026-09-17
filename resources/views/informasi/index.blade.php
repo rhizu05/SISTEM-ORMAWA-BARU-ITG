@@ -1,16 +1,23 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Pusat Informasi & Regulasi') }}
-        </h2>
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+            <h2 class="font-bold text-2xl text-slate-800 leading-tight">
+                {{ __('Pusat Informasi & Regulasi') }}
+            </h2>
+            <p class="text-xs text-slate-500">Pusat dokumentasi berita ormawa dan regulasi resmi kemahasiswaan ITG</p>
+        </div>
     </x-slot>
 
-    <div class="py-12" x-data="{ activeTab: 'pengumuman', showPengumumanModal: false, showRegulasiModal: false }">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+    <div class="py-6" x-data="{ activeTab: 'pengumuman', showPengumumanModal: false, showRegulasiModal: false, searchDoc: '' }">
+        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
             
             @if ($errors->any())
-                <div class="mb-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative">
-                    <ul class="list-disc pl-5">
+                <div class="bg-red-50 border-l-4 border-red-500 text-red-700 p-4 rounded-r-lg shadow-sm">
+                    <div class="flex items-center gap-2 font-bold mb-1">
+                        <svg class="w-5 h-5 text-red-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
+                        <span>Terjadi kesalahan pada input:</span>
+                    </div>
+                    <ul class="list-disc pl-5 text-sm space-y-0.5">
                         @foreach ($errors->all() as $error)
                             <li>{{ $error }}</li>
                         @endforeach
@@ -18,55 +25,82 @@
                 </div>
             @endif
 
-            <!-- Tabs Navigation -->
-            <div class="border-b border-gray-200 mb-6 flex">
-                <button @click="activeTab = 'pengumuman'" :class="{ 'border-indigo-500 text-indigo-600': activeTab === 'pengumuman', 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300': activeTab !== 'pengumuman' }" class="py-4 px-6 border-b-2 font-medium text-sm">
-                    Berita & Pengumuman
-                </button>
-                <button @click="activeTab = 'regulasi'" :class="{ 'border-indigo-500 text-indigo-600': activeTab === 'regulasi', 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300': activeTab !== 'regulasi' }" class="py-4 px-6 border-b-2 font-medium text-sm">
-                    Regulasi & Pedoman
-                </button>
+            <!-- Tabs Navigation Bar -->
+            <div class="bg-white rounded-xl p-2 shadow-sm border border-slate-200/80 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div class="flex items-center gap-2">
+                    <button @click="activeTab = 'pengumuman'" 
+                            :class="activeTab === 'pengumuman' ? 'bg-indigo-600 text-white shadow-sm font-semibold' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100 font-medium'" 
+                            class="py-2.5 px-5 rounded-lg text-sm transition-all flex items-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"/></svg>
+                        <span>Berita & Pengumuman</span>
+                    </button>
+                    <button @click="activeTab = 'regulasi'" 
+                            :class="activeTab === 'regulasi' ? 'bg-indigo-600 text-white shadow-sm font-semibold' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100 font-medium'" 
+                            class="py-2.5 px-5 rounded-lg text-sm transition-all flex items-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+                        <span>Regulasi & Pedoman</span>
+                    </button>
+                </div>
+
+                <div class="flex items-center gap-3">
+                    @hasrole('bem')
+                    <button x-show="activeTab === 'pengumuman'" @click="showPengumumanModal = true" class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-4 rounded-lg text-sm shadow-sm transition-all">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                        <span>+ Tambah Pengumuman</span>
+                    </button>
+                    @endhasrole
+
+                    @hasrole('bpm')
+                    <button x-show="activeTab === 'regulasi'" @click="showRegulasiModal = true" class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-4 rounded-lg text-sm shadow-sm transition-all">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                        <span>+ Tambah Regulasi / UU</span>
+                    </button>
+                    @endhasrole
+                </div>
             </div>
 
             <!-- Tab Content: Pengumuman -->
             <div x-show="activeTab === 'pengumuman'" class="space-y-6">
-                @hasrole('bem')
-                <div class="flex justify-end">
-                    <button @click="showPengumumanModal = true" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded">
-                        + Tambah Pengumuman
-                    </button>
-                </div>
-                @endhasrole
-
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     @forelse($pengumuman as $p)
-                    <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg border-l-4 border-indigo-500 relative">
-                        @hasrole('bem')
-                        @if($p->user_id === Auth::id())
-                        <div class="absolute top-4 right-4">
-                            <form action="{{ route('informasi.pengumuman.destroy', $p) }}" method="POST" onsubmit="return confirm('Hapus pengumuman ini?')">
-                                @csrf @method('DELETE')
-                                <button type="submit" class="text-red-500 hover:text-red-700 text-sm">Hapus</button>
-                            </form>
-                        </div>
-                        @endif
-                        @endhasrole
-
+                    <div class="bg-white rounded-xl shadow-sm border border-slate-200/80 hover:shadow-md transition-all overflow-hidden flex flex-col justify-between">
                         <div class="p-6">
-                            <div class="text-xs text-gray-500 mb-1">{{ \Carbon\Carbon::parse($p->created_at)->format('d M Y') }} • {{ $p->user->name }}</div>
-                            <h3 class="text-lg font-bold text-gray-900 mb-2">{{ $p->judul }}</h3>
-                            <p class="text-gray-700 text-sm whitespace-pre-wrap mb-4">{{ $p->isi }}</p>
+                            <div class="flex items-center justify-between gap-2 mb-3">
+                                <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-50 text-indigo-700 border border-indigo-200/60">
+                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                                    {{ \Carbon\Carbon::parse($p->created_at)->format('d M Y') }}
+                                </span>
+                                
+                                @hasrole('bem')
+                                @if($p->user_id === Auth::id())
+                                <form action="{{ route('informasi.pengumuman.destroy', $p) }}" method="POST" onsubmit="return confirm('Hapus pengumuman ini?')">
+                                    @csrf @method('DELETE')
+                                    <button type="submit" class="text-rose-500 hover:text-rose-700 text-xs font-semibold hover:underline">Hapus</button>
+                                </form>
+                                @endif
+                                @endhasrole
+                            </div>
+
+                            <h3 class="text-lg font-bold text-slate-900 mb-2 leading-snug">{{ $p->judul }}</h3>
+                            <p class="text-slate-600 text-sm whitespace-pre-wrap leading-relaxed line-clamp-4">{{ $p->isi }}</p>
+                        </div>
+
+                        <div class="px-6 py-3.5 bg-slate-50 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+                            <span>Diterbitkan oleh: <strong class="text-slate-700 font-medium">{{ $p->user->name }}</strong></span>
                             
                             @if($p->file_lampiran)
-                            <a href="{{ route('informasi.pengumuman.lampiran', $p) }}" target="_blank" class="inline-flex items-center px-3 py-1 bg-gray-200 hover:bg-gray-300 text-gray-800 text-xs font-semibold rounded">
-                                📎 Lihat Lampiran
+                            <a href="{{ route('informasi.pengumuman.lampiran', $p) }}" target="_blank" class="inline-flex items-center gap-1 px-3 py-1 bg-white border border-slate-300 hover:bg-slate-100 text-slate-700 font-medium rounded shadow-2xs transition-colors">
+                                <svg class="w-3.5 h-3.5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"/></svg>
+                                <span>Lihat Lampiran</span>
                             </a>
                             @endif
                         </div>
                     </div>
                     @empty
-                    <div class="col-span-2 text-center py-8 text-gray-500 bg-white shadow-sm sm:rounded-lg">
-                        Belum ada pengumuman terbaru.
+                    <div class="col-span-2 text-center py-12 bg-white rounded-xl border border-slate-200/80 shadow-sm text-slate-500">
+                        <svg class="w-12 h-12 mx-auto text-slate-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"/></svg>
+                        <p class="font-semibold text-slate-700">Belum ada pengumuman terbaru</p>
+                        <p class="text-xs text-slate-400 mt-1">Pengumuman resmi kemahasiswaan akan ditampilkan di sini.</p>
                     </div>
                     @endforelse
                 </div>
@@ -74,52 +108,70 @@
 
             <!-- Tab Content: Regulasi -->
             <div x-show="activeTab === 'regulasi'" style="display: none;" class="space-y-6">
-                @hasrole('bpm')
-                <div class="flex justify-end">
-                    <button @click="showRegulasiModal = true" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded">
-                        + Tambah Regulasi / UU
-                    </button>
-                </div>
-                @endhasrole
-
-                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                <div class="bg-white rounded-xl shadow-sm border border-slate-200/80 overflow-hidden">
                     <div class="p-6">
-                        <table class="min-w-full">
-                            <thead>
-                                <tr class="border-b">
-                                    <th class="py-3 px-4 text-left">Judul Dokumen</th>
-                                    <th class="py-3 px-4 text-left">Kategori</th>
-                                    <th class="py-3 px-4 text-left">Diterbitkan Oleh</th>
-                                    <th class="py-3 px-4 text-center">Aksi</th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-gray-100">
-                                @forelse($regulasi as $r)
-                                <tr>
-                                    <td class="py-3 px-4">
-                                        <p class="font-semibold">{{ $r->judul }}</p>
-                                        <p class="text-xs text-gray-500">{{ $r->deskripsi }}</p>
-                                    </td>
-                                    <td class="py-3 px-4"><span class="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">{{ $r->kategori }}</span></td>
-                                    <td class="py-3 px-4 text-sm">{{ $r->user->name }}<br><span class="text-xs text-gray-500">{{ \Carbon\Carbon::parse($r->created_at)->format('d M Y') }}</span></td>
-                                    <td class="py-3 px-4 text-center">
-                                        <a href="{{ route('informasi.regulasi.unduh', $r) }}" target="_blank" class="text-indigo-600 hover:underline text-sm mr-2">Unduh PDF</a>
-                                        
-                                        @hasrole('bpm')
-                                        @if($r->user_id === Auth::id())
-                                        <form action="{{ route('informasi.regulasi.destroy', $r) }}" method="POST" class="inline" onsubmit="return confirm('Hapus regulasi ini?')">
-                                            @csrf @method('DELETE')
-                                            <button type="submit" class="text-red-500 hover:text-red-700 text-sm">Hapus</button>
-                                        </form>
-                                        @endif
-                                        @endhasrole
-                                    </td>
-                                </tr>
-                                @empty
-                                <tr><td colspan="4" class="py-6 text-center text-gray-500">Belum ada dokumen regulasi yang diunggah.</td></tr>
-                                @endforelse
-                            </tbody>
-                        </table>
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-slate-200">
+                                <thead>
+                                    <tr class="bg-slate-50 text-slate-600 text-xs font-bold uppercase tracking-wider">
+                                        <th class="py-3.5 px-4 text-left">Judul Dokumen</th>
+                                        <th class="py-3.5 px-4 text-left">Kategori</th>
+                                        <th class="py-3.5 px-4 text-left">Diterbitkan Oleh</th>
+                                        <th class="py-3.5 px-4 text-center">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-slate-100 text-sm">
+                                    @forelse($regulasi as $r)
+                                    <tr class="hover:bg-slate-50/80 transition-colors">
+                                        <td class="py-4 px-4">
+                                            <p class="font-bold text-slate-900 leading-tight">{{ $r->judul }}</p>
+                                            @if($r->deskripsi)
+                                                <p class="text-xs text-slate-500 mt-1 line-clamp-1">{{ $r->deskripsi }}</p>
+                                            @endif
+                                        </td>
+                                        <td class="py-4 px-4">
+                                            @php
+                                                $badgeColor = match($r->kategori) {
+                                                    'Undang-Undang' => 'bg-purple-100 text-purple-800 border-purple-200',
+                                                    'Pedoman' => 'bg-blue-100 text-blue-800 border-blue-200',
+                                                    'Pengumuman' => 'bg-amber-100 text-amber-800 border-amber-200',
+                                                    default => 'bg-slate-100 text-slate-800 border-slate-200',
+                                                };
+                                            @endphp
+                                            <span class="inline-block px-2.5 py-1 text-xs font-semibold rounded-full border {{ $badgeColor }}">
+                                                {{ $r->kategori }}
+                                            </span>
+                                        </td>
+                                        <td class="py-4 px-4 text-slate-600">
+                                            <span class="font-medium text-slate-800">{{ $r->user->name }}</span>
+                                            <span class="block text-xs text-slate-400 mt-0.5">{{ \Carbon\Carbon::parse($r->created_at)->format('d M Y') }}</span>
+                                        </td>
+                                        <td class="py-4 px-4 text-center whitespace-nowrap">
+                                            <a href="{{ route('informasi.regulasi.unduh', $r) }}" target="_blank" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-semibold text-xs rounded-lg transition-colors mr-2">
+                                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                                                <span>Unduh PDF</span>
+                                            </a>
+                                            
+                                            @hasrole('bpm')
+                                            @if($r->user_id === Auth::id())
+                                            <form action="{{ route('informasi.regulasi.destroy', $r) }}" method="POST" class="inline" onsubmit="return confirm('Hapus regulasi ini?')">
+                                                @csrf @method('DELETE')
+                                                <button type="submit" class="text-rose-600 hover:text-rose-800 text-xs font-semibold hover:underline">Hapus</button>
+                                            </form>
+                                            @endif
+                                            @endhasrole
+                                        </td>
+                                    </tr>
+                                    @empty
+                                    <tr>
+                                        <td colspan="4" class="py-10 text-center text-slate-500">
+                                            <p class="font-medium">Belum ada dokumen regulasi yang diunggah.</p>
+                                        </td>
+                                    </tr>
+                                    @endforelse
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -130,27 +182,30 @@
         @hasrole('bem')
         <div x-show="showPengumumanModal" class="fixed inset-0 z-50 overflow-y-auto" style="display: none;">
             <div class="flex items-center justify-center min-h-screen px-4">
-                <div class="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75" @click="showPengumumanModal = false"></div>
-                <div class="relative bg-white w-full max-w-lg p-6 rounded-lg shadow-xl">
-                    <h3 class="text-lg font-bold mb-4">Buat Pengumuman Baru</h3>
+                <div class="fixed inset-0 transition-opacity bg-slate-900/60 backdrop-blur-xs" @click="showPengumumanModal = false"></div>
+                <div class="relative bg-white w-full max-w-lg p-6 rounded-2xl shadow-2xl border border-slate-200">
+                    <div class="flex items-center justify-between pb-3 mb-4 border-b border-slate-200">
+                        <h3 class="text-lg font-bold text-slate-900">Buat Pengumuman Baru</h3>
+                        <button @click="showPengumumanModal = false" class="text-slate-400 hover:text-slate-600">&times;</button>
+                    </div>
                     <form action="{{ route('informasi.pengumuman.store') }}" method="POST" enctype="multipart/form-data">
                         @csrf
                         <div class="space-y-4">
                             <div>
                                 <x-input-label for="judul" value="Judul Pengumuman" />
-                                <x-text-input id="judul" name="judul" type="text" class="mt-1 block w-full" required />
+                                <x-text-input id="judul" name="judul" type="text" class="mt-1 block w-full" placeholder="Contoh: Rilis Timeline Kegiatan Ormawa 2026" required />
                             </div>
                             <div>
                                 <x-input-label for="isi" value="Isi / Deskripsi" />
-                                <textarea id="isi" name="isi" rows="4" class="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm block mt-1 w-full" required></textarea>
+                                <textarea id="isi" name="isi" rows="4" class="border-slate-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-lg shadow-2xs block mt-1 w-full text-sm" placeholder="Rincian isi pengumuman..." required></textarea>
                             </div>
                             <div>
                                 <x-input-label for="file_lampiran" value="File Lampiran (Opsional, PDF/JPG/PNG)" />
-                                <input id="file_lampiran" name="file_lampiran" type="file" class="mt-1 block w-full border rounded p-1" />
+                                <input id="file_lampiran" name="file_lampiran" type="file" class="mt-1 block w-full border border-slate-300 rounded-lg p-2 text-sm text-slate-600 bg-slate-50" />
                             </div>
                         </div>
-                        <div class="mt-6 flex justify-end gap-3">
-                            <button type="button" @click="showPengumumanModal = false" class="px-4 py-2 border rounded text-gray-600">Batal</button>
+                        <div class="mt-6 flex justify-end gap-3 pt-3 border-t border-slate-200">
+                            <button type="button" @click="showPengumumanModal = false" class="px-4 py-2 border border-slate-300 rounded-lg text-slate-600 hover:bg-slate-50 font-medium text-sm">Batal</button>
                             <x-primary-button>Terbitkan</x-primary-button>
                         </div>
                     </form>
@@ -163,43 +218,44 @@
         @hasrole('bpm')
         <div x-show="showRegulasiModal" class="fixed inset-0 z-50 overflow-y-auto" style="display: none;">
             <div class="flex items-center justify-center min-h-screen px-4">
-                <div class="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75" @click="showRegulasiModal = false"></div>
-                <div class="relative bg-white w-full max-w-lg p-6 rounded-lg shadow-xl">
-                    <h3 class="text-lg font-bold mb-4">Upload Regulasi / UU</h3>
+                <div class="fixed inset-0 transition-opacity bg-slate-900/60 backdrop-blur-xs" @click="showRegulasiModal = false"></div>
+                <div class="relative bg-white w-full max-w-lg p-6 rounded-2xl shadow-2xl border border-slate-200">
+                    <div class="flex items-center justify-between pb-3 mb-4 border-b border-slate-200">
+                        <h3 class="text-lg font-bold text-slate-900">Tambah Regulasi / Pedoman Baru</h3>
+                        <button @click="showRegulasiModal = false" class="text-slate-400 hover:text-slate-600">&times;</button>
+                    </div>
                     <form action="{{ route('informasi.regulasi.store') }}" method="POST" enctype="multipart/form-data">
                         @csrf
                         <div class="space-y-4">
                             <div>
                                 <x-input-label for="judul_reg" value="Judul Dokumen" />
-                                <x-text-input id="judul_reg" name="judul" type="text" class="mt-1 block w-full" required />
+                                <x-text-input id="judul_reg" name="judul" type="text" class="mt-1 block w-full" placeholder="Contoh: UU DEMA No. 2 Tahun 2026" required />
                             </div>
                             <div>
-                                <x-input-label for="kategori" value="Kategori" />
-                                <select id="kategori" name="kategori" class="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm block mt-1 w-full" required>
-                                    <option value="Undang-Undang">Undang-Undang Dasar KM</option>
-                                    <option value="Pedoman">Buku Pedoman Ormawa</option>
-                                    <option value="Ketetapan BPM">Ketetapan BPM</option>
-                                    <option value="Lainnya">Lainnya</option>
+                                <x-input-label for="kategori_reg" value="Kategori Regulasi" />
+                                <select name="kategori" id="kategori_reg" class="border-slate-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-lg shadow-2xs block mt-1 w-full text-sm" required>
+                                    <option value="Undang-Undang">Undang-Undang</option>
+                                    <option value="Pedoman">Pedoman</option>
+                                    <option value="Pengumuman">Pengumuman</option>
                                 </select>
                             </div>
                             <div>
-                                <x-input-label for="deskripsi_reg" value="Deskripsi Singkat (Opsional)" />
-                                <textarea id="deskripsi_reg" name="deskripsi" rows="2" class="border-gray-300 rounded-md shadow-sm block mt-1 w-full"></textarea>
+                                <x-input-label for="deskripsi_reg" value="Deskripsi Singkat" />
+                                <textarea id="deskripsi_reg" name="deskripsi" rows="3" class="border-slate-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-lg shadow-2xs block mt-1 w-full text-sm" placeholder="Penjelasan singkat isi regulasi..."></textarea>
                             </div>
                             <div>
-                                <x-input-label for="file_path" value="File Dokumen (Wajib, PDF max 10MB)" />
-                                <input id="file_path" name="file_path" type="file" accept=".pdf" class="mt-1 block w-full border rounded p-1" required />
+                                <x-input-label for="file_dokumen" value="Dokumen PDF (Maks. 10MB)" />
+                                <input id="file_dokumen" name="file" type="file" accept=".pdf" class="mt-1 block w-full border border-slate-300 rounded-lg p-2 text-sm text-slate-600 bg-slate-50" required />
                             </div>
                         </div>
-                        <div class="mt-6 flex justify-end gap-3">
-                            <button type="button" @click="showRegulasiModal = false" class="px-4 py-2 border rounded text-gray-600">Batal</button>
-                            <x-primary-button>Upload</x-primary-button>
+                        <div class="mt-6 flex justify-end gap-3 pt-3 border-t border-slate-200">
+                            <button type="button" @click="showRegulasiModal = false" class="px-4 py-2 border border-slate-300 rounded-lg text-slate-600 hover:bg-slate-50 font-medium text-sm">Batal</button>
+                            <x-primary-button>Unggah Dokumen</x-primary-button>
                         </div>
                     </form>
                 </div>
             </div>
         </div>
         @endhasrole
-
     </div>
 </x-app-layout>
