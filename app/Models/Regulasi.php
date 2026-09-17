@@ -17,7 +17,8 @@ class Regulasi extends Model
         'judul',
         'kategori',
         'deskripsi',
-        'file_path'
+        'file_path',
+        'tanggal_terbit',
     ];
 
     public function user(): BelongsTo

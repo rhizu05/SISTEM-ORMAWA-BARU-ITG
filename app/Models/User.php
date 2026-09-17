@@ -38,6 +38,14 @@ class User extends Authenticatable
         return $this->hasMany(SaldoHistori::class);
     }
 
+    /**
+     * UI-011: notifikasi in-app milik pengguna.
+     */
+    public function notifikasi()
+    {
+        return $this->hasMany(Notifikasi::class);
+    }
+
     public function perubahanSaldo()
     {
         return $this->hasMany(SaldoHistori::class, 'actor_id');

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\ProposalOtomatis;
 use App\Models\ProposalPanitia;
 use App\Models\ProposalRab;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -30,6 +31,9 @@ class ProposalGeneratorController extends Controller
             'latar_belakang' => 'required|string',
             'tujuan' => 'required|string',
             'sasaran' => 'required|string',
+            'indikator' => 'nullable|string',
+            'luaran' => 'nullable|string',
+            'dampak' => 'nullable|string',
             'penutup' => 'required|string',
         ]);
 
@@ -41,6 +45,9 @@ class ProposalGeneratorController extends Controller
             'latar_belakang' => $request->latar_belakang,
             'tujuan' => $request->tujuan,
             'sasaran' => $request->sasaran,
+            'indikator' => $request->indikator,
+            'luaran' => $request->luaran,
+            'dampak' => $request->dampak,
             'penutup' => $request->penutup,
             'status' => $isDraft ? 'draft' : 'siap_cetak',
             
@@ -179,7 +186,8 @@ class ProposalGeneratorController extends Controller
     public function showLetter(\App\Models\Letter $letter)
     {
         if ($letter->user_id !== Auth::id() && ! Auth::user()->hasRole('admin')) abort(403);
-        return view('generator.letters.show', compact('letter'));
+        $konfig = \App\Models\Konfigurasi::pluck('nilai_konfigurasi', 'nama_konfigurasi');
+        return view('generator.letters.show', compact('letter', 'konfig'));
     }
 
     public function archive()
@@ -258,7 +266,8 @@ class ProposalGeneratorController extends Controller
         }
         
         $proposal = \App\Models\ProposalOtomatis::find($lpj->metadata['proposal_id'] ?? null);
-        return view('generator.lpj.show', compact('lpj', 'proposal'));
+        $konfig = \App\Models\Konfigurasi::pluck('nilai_konfigurasi', 'nama_konfigurasi');
+        return view('generator.lpj.show', compact('lpj', 'proposal', 'konfig'));
     }
 
     public function print(ProposalOtomatis $proposal)
@@ -271,5 +280,68 @@ class ProposalGeneratorController extends Controller
         $konfig = \App\Models\Konfigurasi::pluck('nilai_konfigurasi', 'nama_konfigurasi');
         
         return view('generator.print', compact('proposal', 'konfig'));
+    }
+
+    /**
+     * FR-008: unduh proposal sebagai PDF (DomPDF).
+     */
+    public function pdf(ProposalOtomatis $proposal)
+    {
+        if ($proposal->user_id !== Auth::id() && !Auth::user()->hasAnyRole(['bem', 'bpm', 'bkhm', 'wr3', 'bendahara', 'admin'])) {
+            abort(403);
+        }
+
+        $proposal->load(['rab', 'panitia', 'user']);
+        $konfig = \App\Models\Konfigurasi::pluck('nilai_konfigurasi', 'nama_konfigurasi');
+
+        $pdf = Pdf::loadView('generator.print', [
+            'proposal' => $proposal,
+            'konfig' => $konfig,
+            'pdf' => true,
+        ])->setPaper('a4');
+
+        return $pdf->download('proposal-' . \Illuminate\Support\Str::slug($proposal->nama_kegiatan) . '.pdf');
+    }
+
+    /**
+     * FR-008: unduh surat administrasi sebagai PDF (DomPDF).
+     */
+    public function pdfLetter(\App\Models\Letter $letter)
+    {
+        if ($letter->user_id !== Auth::id() && !Auth::user()->hasRole('admin')) {
+            abort(403);
+        }
+
+        $konfig = \App\Models\Konfigurasi::pluck('nilai_konfigurasi', 'nama_konfigurasi');
+
+        $pdf = Pdf::loadView('generator.letters.pdf', [
+            'letter' => $letter,
+            'konfig' => $konfig,
+        ])->setPaper('a4');
+
+        $nama = $letter->nomor_surat ? \Illuminate\Support\Str::slug($letter->nomor_surat) : $letter->id;
+
+        return $pdf->download('surat-' . $nama . '.pdf');
+    }
+
+    /**
+     * FR-008 / FR-012: unduh LPJ sebagai PDF (DomPDF).
+     */
+    public function pdfLpj(\App\Models\Letter $lpj)
+    {
+        if ($lpj->user_id !== Auth::id() && !Auth::user()->hasAnyRole(['bem', 'bpm', 'bkhm', 'wr3', 'bendahara', 'admin'])) {
+            abort(403);
+        }
+
+        $proposal = \App\Models\ProposalOtomatis::find($lpj->metadata['proposal_id'] ?? null);
+        $konfig = \App\Models\Konfigurasi::pluck('nilai_konfigurasi', 'nama_konfigurasi');
+
+        $pdf = Pdf::loadView('generator.lpj.pdf', [
+            'lpj' => $lpj,
+            'proposal' => $proposal,
+            'konfig' => $konfig,
+        ])->setPaper('a4');
+
+        return $pdf->download('lpj-' . $lpj->id . '.pdf');
     }
 }

@@ -10,25 +10,16 @@
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900">
                     
-                    @if (session('success'))
-                        <div class="mb-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative">
-                            {{ session('success') }}
-                        </div>
-                    @endif
-                    @if (session('error'))
-                        <div class="mb-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative">
-                            {{ session('error') }}
-                        </div>
-                    @endif
 
                     <div class="flex justify-between items-center mb-6">
                         <a href="{{ route('pengajuan.create') }}" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded">
                             + Buat Pengajuan Baru
                         </a>
 
-                        <!-- Filter Status -->
+                        <!-- Filter & Pencarian -->
                         <form method="GET" action="{{ route('pengajuan.index') }}" class="flex items-center gap-2">
-                            <label for="status" class="text-sm text-gray-600">Filter Status:</label>
+                            <input type="text" name="q" value="{{ request('q') }}" placeholder="Cari kegiatan..." class="border-gray-300 rounded text-sm py-1 px-2 focus:ring-indigo-500 focus:border-indigo-500" />
+                            <label for="status" class="text-sm text-gray-600">Status:</label>
                             <select name="status" id="status" class="border-gray-300 rounded text-sm py-1" onchange="this.form.submit()">
                                 <option value="">Semua Status</option>
                                 @foreach($states as $state)
@@ -37,6 +28,12 @@
                                     </option>
                                 @endforeach
                             </select>
+                            <button type="submit" class="bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm px-3 py-1 rounded border border-gray-300">
+                                Cari
+                            </button>
+                            @if(request('q') || request('status'))
+                                <a href="{{ route('pengajuan.index') }}" class="text-xs text-red-600 hover:underline">Reset</a>
+                            @endif
                         </form>
                     </div>
 
@@ -44,11 +41,11 @@
                         <table class="min-w-full bg-white border border-gray-200">
                             <thead>
                                 <tr class="bg-gray-50">
-                                    <th class="py-2 px-4 border-b text-left text-xs font-semibold text-gray-600 uppercase">Nama Kegiatan</th>
-                                    <th class="py-2 px-4 border-b text-left text-xs font-semibold text-gray-600 uppercase">Tanggal</th>
-                                    <th class="py-2 px-4 border-b text-left text-xs font-semibold text-gray-600 uppercase">Dana Diajukan</th>
-                                    <th class="py-2 px-4 border-b text-center text-xs font-semibold text-gray-600 uppercase">Status</th>
-                                    <th class="py-2 px-4 border-b text-center text-xs font-semibold text-gray-600 uppercase">Aksi</th>
+                                    <th scope="col" class="py-2 px-4 border-b text-left text-xs font-semibold text-gray-600 uppercase">Nama Kegiatan</th>
+                                    <th scope="col" class="py-2 px-4 border-b text-left text-xs font-semibold text-gray-600 uppercase">Tanggal</th>
+                                    <th scope="col" class="py-2 px-4 border-b text-left text-xs font-semibold text-gray-600 uppercase">Dana Diajukan</th>
+                                    <th scope="col" class="py-2 px-4 border-b text-center text-xs font-semibold text-gray-600 uppercase">Status</th>
+                                    <th scope="col" class="py-2 px-4 border-b text-center text-xs font-semibold text-gray-600 uppercase">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-gray-200">
@@ -90,8 +87,8 @@
                                 @empty
                                 <tr>
                                     <td colspan="5" class="py-6 text-center text-gray-500">
-                                        @if(request('status'))
-                                            Tidak ada pengajuan dengan status tersebut.
+                                        @if(request('q') || request('status'))
+                                            Tidak ada pengajuan yang sesuai dengan kriteria filter/pencarian.
                                         @else
                                             Belum ada pengajuan.
                                         @endif

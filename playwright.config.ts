@@ -1,35 +1,61 @@
 import { defineConfig, devices } from '@playwright/test';
 
 const PORT = process.env.E2E_PORT || '8000';
-const BASE_URL = process.env.E2E_BASE_URL || `http://127.0.0.1:${PORT}`;
+const BASE_URL =
+  process.env.E2E_BASE_URL || `http://127.0.0.1:${PORT}`;
 
 export default defineConfig({
   testDir: './e2e',
+
+  // Test dijalankan secara berurutan
   fullyParallel: false,
-  forbidOnly: !!process.env.CI,
-  retries: 2,
   workers: 1,
-  reporter: 'html',
-  timeout: 60000,
-  expect: { timeout: 10000 },
+
+  // CI: fail kalau ada test.only
+  forbidOnly: !!process.env.CI,
+
+  // Retry hanya berguna ketika test gagal
+  retries: process.env.CI ? 2 : 0,
+
+  // Report
+  reporter: [
+    ['list'],
+    ['html', { open: 'always' }],
+  ],
+
+  // Global timeout
+  timeout: 60_000,
+
+  // expect(locator).toBe...()
+  expect: {
+    timeout: 10_000,
+  },
+
   use: {
     baseURL: BASE_URL,
-    trace: 'on-first-retry',
-    actionTimeout: 10000,
-    navigationTimeout: 30000,
+
+    // Debugging failure
+    trace: 'retain-on-failure',
+    screenshot: 'only-on-failure',
+    video: 'retain-on-failure',
+
+    actionTimeout: 10_000,
+    navigationTimeout: 30_000,
   },
 
   webServer: {
     command: `php -S 127.0.0.1:${PORT} -t public`,
     url: BASE_URL,
     reuseExistingServer: false,
-    timeout: 30000,
+    timeout: 30_000,
   },
 
   projects: [
     {
       name: 'chromium',
-      use: { ...devices['Desktop Chrome'] },
-    }
+      use: {
+        ...devices['Desktop Chrome'],
+      },
+    },
   ],
 });

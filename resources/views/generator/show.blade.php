@@ -8,16 +8,14 @@
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             
-            @if (session('success'))
-                <div class="mb-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative">
-                    {{ session('success') }}
-                </div>
-            @endif
 
             <div class="flex gap-4 mb-6">
                 <a href="{{ route('generator.index') }}" class="text-indigo-600 hover:underline">&larr; Kembali ke daftar</a>
-                <a href="{{ route('generator.print', $proposal) }}" target="_blank" class="ml-auto bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded shadow">
-                    🖨️ Cetak Proposal (Print / Save as PDF)
+                <a href="{{ route('generator.pdf', $proposal) }}" class="ml-auto bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded shadow">
+                    ⬇️ Unduh PDF
+                </a>
+                <a href="{{ route('generator.print', $proposal) }}" target="_blank" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded shadow">
+                    🖨️ Cetak Proposal
                 </a>
             </div>
 
@@ -44,6 +42,23 @@
                             <h3 class="font-bold">C. Sasaran Peserta</h3>
                             <p class="text-justify whitespace-pre-wrap">{{ $proposal->sasaran }}</p>
                         </div>
+
+                        @if($proposal->indikator || $proposal->luaran || $proposal->dampak)
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div>
+                                <h3 class="font-bold">Indikator Keberhasilan</h3>
+                                <p class="text-justify whitespace-pre-wrap">{{ $proposal->indikator ?: '-' }}</p>
+                            </div>
+                            <div>
+                                <h3 class="font-bold">Luaran (Output)</h3>
+                                <p class="text-justify whitespace-pre-wrap">{{ $proposal->luaran ?: '-' }}</p>
+                            </div>
+                            <div>
+                                <h3 class="font-bold">Dampak (Outcome)</h3>
+                                <p class="text-justify whitespace-pre-wrap">{{ $proposal->dampak ?: '-' }}</p>
+                            </div>
+                        </div>
+                        @endif
 
                         <div>
                             <h3 class="font-bold">D. Susunan Kepanitiaan</h3>

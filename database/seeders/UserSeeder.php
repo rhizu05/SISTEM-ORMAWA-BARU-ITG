@@ -15,7 +15,7 @@ class UserSeeder extends Seeder
     {
         $users = [
             [
-                'name' => 'Administrator',
+                'name' => 'Administrator Sistem',
                 'username' => 'admin',
                 'email' => 'admin@test.com',
                 'password' => Hash::make('password'),
@@ -26,6 +26,8 @@ class UserSeeder extends Seeder
                 'username' => 'bem',
                 'email' => 'bem@test.com',
                 'password' => Hash::make('password'),
+                'saldo' => 10000000,
+                'saldo_awal' => 10000000,
                 'role' => 'bem'
             ],
             [
@@ -33,6 +35,8 @@ class UserSeeder extends Seeder
                 'username' => 'bpm',
                 'email' => 'bpm@test.com',
                 'password' => Hash::make('password'),
+                'saldo' => 10000000,
+                'saldo_awal' => 10000000,
                 'role' => 'bpm'
             ],
             [
@@ -68,6 +72,8 @@ class UserSeeder extends Seeder
                 'username' => 'himaif',
                 'email' => 'himaif@test.com',
                 'password' => Hash::make('password'),
+                'saldo' => 10000000,
+                'saldo_awal' => 10000000,
                 'role' => 'ormawa'
             ],
             [
@@ -83,7 +89,7 @@ class UserSeeder extends Seeder
             $role = $userData['role'];
             unset($userData['role']);
             
-            $user = User::firstOrCreate(['email' => $userData['email']], $userData);
+            $user = User::updateOrCreate(['email' => $userData['email']], $userData);
             if (!$user->hasRole($role)) {
                 $user->assignRole($role);
             }

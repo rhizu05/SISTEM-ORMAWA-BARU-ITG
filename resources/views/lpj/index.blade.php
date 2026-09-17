@@ -10,16 +10,6 @@
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900">
                     
-                    @if (session('success'))
-                        <div class="mb-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative">
-                            {{ session('success') }}
-                        </div>
-                    @endif
-                    @if (session('error'))
-                        <div class="mb-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative">
-                            {{ session('error') }}
-                        </div>
-                    @endif
 
                     <div class="mb-4 text-gray-600 text-sm">
                         <p>Daftar kegiatan yang telah dicairkan dan membutuhkan Laporan Pertanggungjawaban (LPJ).</p>
@@ -45,13 +35,19 @@
                                     <td class="py-3 px-4 text-center">
                                         @php
                                             $badgeClass = 'bg-gray-100 text-gray-800';
-                                            if ($pengajuan->state->name === 'funds_disbursed') $badgeClass = 'bg-red-100 text-red-800 border border-red-300';
-                                            elseif ($pengajuan->state->name === 'completed') $badgeClass = 'bg-green-100 text-green-800 border border-green-300';
-                                            else $badgeClass = 'bg-yellow-100 text-yellow-800';
+                                            if ($pengajuan->state->name === 'funds_disbursed') {
+                                                $badgeClass = $pengajuan->file_lpj 
+                                                    ? 'bg-amber-100 text-amber-800 border border-amber-300' 
+                                                    : 'bg-red-100 text-red-800 border border-red-300';
+                                            } elseif ($pengajuan->state->name === 'completed') {
+                                                $badgeClass = 'bg-green-100 text-green-800 border border-green-300';
+                                            } else {
+                                                $badgeClass = 'bg-yellow-100 text-yellow-800';
+                                            }
                                         @endphp
                                         <span class="px-2 py-1 {{ $badgeClass }} rounded-full text-xs font-semibold">
                                             @if($pengajuan->state->name === 'funds_disbursed')
-                                                Belum Upload
+                                                {{ $pengajuan->file_lpj ? 'Perlu Revisi LPJ' : 'Belum Upload' }}
                                             @else
                                                 {{ $pengajuan->state->label }}
                                             @endif
@@ -59,7 +55,9 @@
                                     </td>
                                     <td class="py-3 px-4 text-center space-x-2">
                                         @if($pengajuan->state->name === 'funds_disbursed')
-                                            <a href="{{ route('lpj.create', $pengajuan) }}" class="text-indigo-600 hover:text-indigo-900 text-sm font-semibold border border-indigo-600 px-3 py-1 rounded">Upload LPJ</a>
+                                            <a href="{{ route('lpj.create', $pengajuan) }}" class="text-indigo-600 hover:text-indigo-900 text-sm font-semibold border border-indigo-600 px-3 py-1 rounded">
+                                                {{ $pengajuan->file_lpj ? 'Upload Revisi LPJ' : 'Upload LPJ' }}
+                                            </a>
                                         @else
                                             <a href="{{ route('pengajuan.show', $pengajuan) }}" class="text-blue-600 hover:text-blue-900 text-sm font-semibold">Detail</a>
                                         @endif

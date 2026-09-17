@@ -14,7 +14,17 @@ class JadwalKuliahController extends Controller
         $jadwals = JadwalKuliah::with('ruangan')->orderBy('hari')->orderBy('jam_mulai')->paginate(15);
         $ruangans = MasterRuangan::orderBy('nama_ruangan')->get();
 
-        return view('sarpras.jadwal.index', compact('jadwals', 'ruangans'));
+        // FR-018 / UI-013: data untuk kalender interaktif (semua jadwal + peminjaman ruangan).
+        $calendarJadwals = JadwalKuliah::with('ruangan')
+            ->where('aktif', true)
+            ->orderBy('hari')
+            ->orderBy('jam_mulai')
+            ->get();
+        $peminjamanTempat = \App\Models\PeminjamanTempat::with('ruangan')
+            ->whereIn('status_akhir', ['Selesai / Disetujui', 'Proses Sarpras'])
+            ->get();
+
+        return view('sarpras.jadwal.index', compact('jadwals', 'ruangans', 'calendarJadwals', 'peminjamanTempat'));
     }
 
     public function store(Request $request)

@@ -2,6 +2,7 @@
     <x-slot name="header"><h2 class="font-semibold text-xl text-gray-800">Pusat Regulasi & Pengumuman BPM</h2></x-slot>
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+
             <div class="flex justify-between items-center mb-6">
                 <h3 class="text-lg font-bold">Daftar Regulasi Terbit</h3>
                 <a href="{{ route('bpm.regulasi.create') }}" class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 text-sm">Terbitkan Regulasi Baru</a>
@@ -28,7 +29,7 @@
                             <td class="p-3 border">{{ Str::limit($r->deskripsi, 80) }}</td>
                             <td class="p-3 border">{{ $r->tanggal_terbit }}</td>
                             <td class="p-3 border text-center">
-                                <a href="{{ asset('storage/'.$r->file_path) }}" target="_blank" class="text-indigo-600 hover:underline">PDF</a>
+                                <a href="{{ route('informasi.regulasi.unduh', $r) }}" target="_blank" class="text-indigo-600 hover:underline">PDF</a>
                             </td>
                             <td class="p-3 border text-center flex justify-center gap-2">
                                 <form action="{{ route('bpm.regulasi.destroy', $r) }}" method="POST" onsubmit="return confirm('Hapus regulasi ini?')">

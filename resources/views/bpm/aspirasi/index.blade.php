@@ -3,17 +3,18 @@
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
-                @if(session('success'))
-                    <div class="mb-4 p-3 bg-green-50 border border-green-200 text-green-700 rounded text-sm">{{ session('success') }}</div>
-                @endif
                 <div class="flex justify-between items-center mb-6">
                     <h3 class="text-lg font-bold">Daftar Aspirasi Masuk</h3>
                     <div class="flex gap-2">
                         <select onchange="window.location.href='?status='+this.value" class="text-sm border-gray-300 rounded-md">
                             <option value="">Semua Status</option>
                             <option value="pending">Pending</option>
+                            <option value="direkap">Direkap BPM</option>
                             <option value="diproses">Diproses</option>
+                            <option value="ditindaklanjuti">Ditindaklanjuti</option>
                             <option value="selesai">Selesai</option>
+                            <option value="ditolak">Ditolak</option>
+                            <option value="tidak_terbukti">Tidak Terbukti</option>
                         </select>
                     </div>
                 </div>
@@ -44,8 +45,19 @@
                                 <div class="text-xs text-gray-600">{{ Str::limit($a->isi, 100) }}</div>
                             </td>
                             <td class="p-3 border text-center">
-                                <span class="px-2 py-1 rounded-full text-xs {{ $a->status==='pending'?'bg-yellow-100 text-yellow-700':($a->status==='diproses'?'bg-blue-100 text-blue-700':'bg-green-100 text-green-700') }}">
-                                    {{ ucfirst($a->status) }}
+                                @php
+                                    $statusClass = [
+                                        'pending' => 'bg-yellow-100 text-yellow-700',
+                                        'direkap' => 'bg-purple-100 text-purple-700',
+                                        'diproses' => 'bg-blue-100 text-blue-700',
+                                        'ditindaklanjuti' => 'bg-indigo-100 text-indigo-700',
+                                        'selesai' => 'bg-green-100 text-green-700',
+                                        'ditolak' => 'bg-red-100 text-red-700',
+                                        'tidak_terbukti' => 'bg-gray-200 text-gray-700',
+                                    ][$a->status] ?? 'bg-gray-100 text-gray-700';
+                                @endphp
+                                <span class="px-2 py-1 rounded-full text-xs {{ $statusClass }}">
+                                    {{ \Illuminate\Support\Str::of($a->status)->replace('_', ' ')->title() }}
                                 </span>
                             </td>
                             <td class="p-3 border text-center">
@@ -76,8 +88,12 @@
                             <x-input-label for="status" :value="__('Status')" />
                             <select name="status" id="status" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
                                 <option value="pending">Pending</option>
+                                <option value="direkap">Direkap BPM</option>
                                 <option value="diproses">Diproses</option>
+                                <option value="ditindaklanjuti">Ditindaklanjuti</option>
                                 <option value="selesai">Selesai</option>
+                                <option value="ditolak">Ditolak</option>
+                                <option value="tidak_terbukti">Tidak Terbukti</option>
                             </select>
                         </div>
                         <div>

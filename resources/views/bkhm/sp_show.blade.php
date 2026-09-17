@@ -2,6 +2,11 @@
     <x-slot name="header"><h2 class="font-semibold text-xl">Surat Peringatan - {{ $sp->nomor_surat }}</h2></x-slot>
     <div class="py-6"><div class="max-w-3xl mx-auto sm:px-6 lg:px-8">
         <div class="bg-white p-6 rounded shadow">
+            <div class="text-center border-b-2 border-double border-black pb-2 mb-4">
+                <div class="text-xs">{{ $konfig['kop_baris1'] ?? '' }}</div>
+                <div class="font-bold uppercase">{{ $konfig['kop_baris2'] ?? 'INSTITUT TEKNOLOGI GARUT' }}</div>
+                <div class="text-xs italic">{{ $konfig['kop_baris3'] ?? '' }}</div>
+            </div>
             <div class="border-b pb-2 mb-4 text-center"><div class="font-bold">SURAT PERINGATAN ({{ $sp->tingkat }})</div><div class="text-xs">No: {{ $sp->nomor_surat }}</div></div>
             <div class="text-sm space-y-2">
                 <p>Target: <b>{{ $sp->target->name }}</b></p>
@@ -12,7 +17,7 @@
                 <p>Tanggal: {{ $sp->tanggal_surat->format('d/m/Y') }}</p>
             </div>
             <div class="text-right mt-6">Penandatangan: <b>{{ $sp->penandatangan }}</b></div>
-            <div class="mt-4"><button onclick="window.print()" class="bg-indigo-600 text-white px-4 py-2 rounded">Cetak</button> <a href="{{ route('bkhm.arsip.index') }}" class="border px-4 py-2 rounded">Kembali ke Arsip</a></div>
+            <div class="mt-4 flex gap-2"><a href="{{ route('bkhm.sp.pdf', $sp) }}" class="bg-green-600 text-white px-4 py-2 rounded">Unduh PDF</a> <button onclick="window.print()" class="bg-indigo-600 text-white px-4 py-2 rounded">Cetak</button> <a href="{{ route('bkhm.arsip.index') }}" class="border px-4 py-2 rounded">Kembali ke Arsip</a></div>
         </div>
     </div></div>
 </x-app-layout>

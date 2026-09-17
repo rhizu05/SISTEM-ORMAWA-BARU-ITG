@@ -11,6 +11,7 @@
             <!-- Detail Card -->
             <div class="md:col-span-2 bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900">
+
                     <div class="flex justify-between items-center mb-4 border-b pb-2">
                         <h3 class="text-lg font-bold">Informasi Pengajuan</h3>
                         @if(in_array($pengajuan->state->name, ['draft', 'rejected']))
@@ -108,9 +109,6 @@
                 <div class="p-6 text-gray-900">
                     <h3 class="text-lg font-bold mb-4 border-b pb-2">Diskusi & Follow-up</h3>
 
-                    @if (session('success'))
-                        <div class="mb-3 bg-green-100 border border-green-400 text-green-700 px-3 py-2 rounded text-sm">{{ session('success') }}</div>
-                    @endif
 
                     <div class="space-y-3 mb-4 max-h-72 overflow-y-auto">
                         @forelse($pengajuan->komunikasi as $k)

@@ -9,7 +9,10 @@
         <div class="max-w-4xl mx-auto sm:px-6 lg:px-8">
             <div class="flex justify-between mb-4">
                 <a href="{{ route('generator.archive') }}" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">Kembali ke Arsip</a>
-                <button onclick="window.print()" class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700">🖨️ Cetak / PDF</button>
+                <div class="flex gap-2">
+                    <a href="{{ route('generator.lpj.pdf', $lpj) }}" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">⬇️ Unduh PDF</a>
+                    <button onclick="window.print()" class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700">🖨️ Cetak</button>
+                </div>
             </div>
 
             <div class="bg-white p-10 shadow-lg mx-auto" style="width: 210mm; min-height: 297mm; font-family: 'Times New Roman';">
@@ -17,8 +20,8 @@
                 <div style="display: flex; align-items: center; border-bottom: 3px double black; padding-bottom: 10px; margin-bottom: 30px;">
                     <div style="width: 80px;">LOGO</div>
                     <div style="text-align: center; flex-grow: 1;">
-                        <div style="font-size: 12pt; font-weight: bold; text-transform: uppercase;">INSTITUT TEKNOLOGI GARUT</div>
-                        <div style="font-size: 10pt; font-style: italic;">Jl. Mayor Syamsu No. 1 Jayaraga Garut 44151</div>
+                        <div style="font-size: 12pt; font-weight: bold; text-transform: uppercase;">{{ $konfig['kop_baris2'] ?? 'INSTITUT TEKNOLOGI GARUT' }}</div>
+                        <div style="font-size: 10pt; font-style: italic;">{{ $konfig['kop_baris3'] ?? 'Jl. Mayor Syamsu No. 1 Jayaraga Garut 44151' }}</div>
                     </div>
                     <div style="width: 80px; text-align: right;">LOGO</div>
                 </div>
@@ -29,10 +32,17 @@
                 </div>
 
                 <div class="content" style="text-align: justify; line-height: 1.6;">
-                    <p><strong>I. Pelaksanaan Kegiatan</strong></p>
-                    <p style="white-space: pre-wrap;">{{ $lpj->content }}</p>
+                    @php
+                        $c = is_string($lpj->content) ? (json_decode($lpj->content, true) ?: []) : (array) $lpj->content;
+                    @endphp
+                    <p><strong>I. Pendahuluan</strong></p>
+                    <p style="white-space: pre-wrap;">{{ $c['pendahuluan'] ?? '-' }}</p>
+                    <p><strong>II. Waktu &amp; Tempat Pelaksanaan</strong></p>
+                    <p style="white-space: pre-wrap;">{{ $c['waktu_tempat'] ?? '-' }}</p>
+                    <p><strong>III. Hasil Kegiatan</strong></p>
+                    <p style="white-space: pre-wrap;">{{ $c['hasil_kegiatan'] ?? '-' }}</p>
 
-                    <p style="margin-top: 20px;"><strong>II. Realisasi Anggaran</strong></p>
+                    <p style="margin-top: 20px;"><strong>IV. Realisasi Anggaran</strong></p>
                     <table style="width: 100%; border-collapse: collapse; margin-top: 10px; border: 1px solid black;">
                         <thead>
                             <tr style="background: #eee;">
@@ -55,6 +65,13 @@
                             </tr>
                         </tbody>
                     </table>
+
+                    <p style="margin-top: 20px;"><strong>V. Hambatan</strong></p>
+                    <p style="white-space: pre-wrap;">{{ $c['hambatan'] ?? '-' }}</p>
+                    <p><strong>VI. Saran</strong></p>
+                    <p style="white-space: pre-wrap;">{{ $c['saran'] ?? '-' }}</p>
+                    <p><strong>VII. Penutup</strong></p>
+                    <p style="white-space: pre-wrap;">{{ $c['penutup'] ?? '-' }}</p>
                 </div>
 
                 <div style="margin-top: 50px; text-align: right;">

@@ -10,11 +10,6 @@
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900 max-w-2xl mx-auto">
                     
-                    @if (session('error'))
-                        <div class="mb-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative">
-                            {{ session('error') }}
-                        </div>
-                    @endif
 
                     <form method="POST" action="{{ route('peminjaman.barang.store') }}" enctype="multipart/form-data">
                         @csrf
@@ -50,10 +45,14 @@
                                     <div class="flex items-center justify-between">
                                         <label class="flex items-center w-2/3">
                                             <input type="hidden" name="barang_id[{{$i}}]" value="{{ $barang->id }}">
-                                            <span class="ml-2">{{ $barang->nama_barang }} <small class="text-gray-500">(Stok: {{ $barang->stok_tersedia }})</small></span>
+                                            <span class="ml-2">{{ $barang->nama_barang }} <small class="text-gray-500">(Stok: {{ $barang->stok_tersedia }})</small>
+                                                @unless($barang->boleh_dibawa_keluar)
+                                                    <small class="text-red-600 font-semibold">— tidak boleh dibawa keluar kampus</small>
+                                                @endunless
+                                            </span>
                                         </label>
                                         <div class="w-1/3 text-right">
-                                            <input type="number" name="qty[{{$i}}]" min="0" max="{{ $barang->stok_tersedia }}" value="0" class="border-gray-300 rounded w-20 px-2 py-1 text-right">
+                                            <input type="number" name="qty[{{$i}}]" min="0" max="{{ $barang->stok_tersedia }}" value="0" class="border-gray-300 rounded w-20 px-2 py-1 text-right" @unless($barang->boleh_dibawa_keluar) disabled @endunless>
                                         </div>
                                     </div>
                                 @empty

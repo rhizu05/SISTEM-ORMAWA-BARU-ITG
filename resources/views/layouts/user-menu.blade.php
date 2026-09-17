@@ -7,9 +7,9 @@
     <div class="relative">
         <x-dropdown align="right" width="48">
             <x-slot name="trigger">
-                <button class="flex items-center focus:outline-none transition duration-150 ease-in-out">
+                <button class="flex items-center focus:outline-none transition duration-150 ease-in-out" aria-label="Menu pengguna">
                     <img class="h-8 w-8 rounded-full object-cover border" src="{{ (Auth::user()->foto_profil ?? null) ? asset('storage/'.Auth::user()->foto_profil) : 'https://ui-avatars.com/api/?name='.urlencode(Auth::user()->name ?? 'User') }}" alt="{{ Auth::user()->name ?? 'User' }}">
-                    <svg class="ml-1 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
+                    <svg class="ml-1 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
                 </button>
             </x-slot>
             <x-slot name="content">

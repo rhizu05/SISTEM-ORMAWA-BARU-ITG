@@ -2,7 +2,7 @@
 
 Aplikasi manajemen keuangan, pengajuan dana, peminjaman sarpras, dan persuratan untuk Organisasi Mahasiswa (Ormawa) berbasis **Laravel 13 + Breeze + Spatie Permission + DomPDF**.
 
-Verifikasi E2E terakhir: **90 passed / 0 failed / 11 skipped** (`npx playwright test`, `php -S 127.0.0.1:8000`, `retries:2`).
+Verifikasi E2E: suite **156 test (17 file spec)** di `e2e/` (`npx playwright test`, `php -S 127.0.0.1:8000`, `retries:2`). Jalankan `php artisan migrate:fresh --seed` sebelum E2E untuk hasil penuh (aturan *blocking* pengajuan membuat sebagian test di-skip bila state DB tidak bersih).
 
 ## Prasyarat
 
@@ -72,39 +72,43 @@ Buka `http://127.0.0.1:8000`.
 | BKHM | bkhm@test.com | bkhm |
 | WR3 | wr3@test.com | wr3 |
 | Bendahara | bendahara@test.com | bendahara |
-| Sarpras Ruangan | sarprasruangan@test.com | sarpras_ruangan |
-| Sarpras Barang | sarprasbarang@test.com | sarprasbarang |
+| Sarpras | sarpras@test.com | sarpras |
 | Ormawa (HIMA IF) | himaif@test.com | himaif |
+| Mahasiswa | mahasiswa@test.com | mahasiswa |
 
-Seed tambahan: `WorkflowSeeder`, `KonfigurasiSeeder`, `MasterDataSeeder` (4 ruangan + 6 barang).
+Login dapat memakai **email atau username (NIM)**. Akun pengaju (Ormawa/BEM/BPM) di-seed dengan `saldo_awal` Rp 10.000.000 (batas BR-04).
+
+Seed tambahan: `WorkflowSeeder`, `KonfigurasiSeeder`, `MasterDataSeeder` (4 ruangan + 6 barang), `PeriodeAnggaranSeeder` (periode anggaran berjalan).
 
 ## Testing
 
 ```bash
-# Unit / Feature
+# Unit / Feature — 55 test, berjalan di sqlite :memory: (terisolasi dari DB kerja)
 php artisan test
 # atau
 composer run test
 
-# E2E Playwright (90/90 passed, 11 skipped = cascade proposal-workflow blocking)
+# E2E Playwright (156 test / 17 file spec; sebagian skip bila ada pengajuan blocking)
 npx playwright install --with-deps   # sekali
 npx playwright test --reporter=list
 npx playwright show-report           # html report
 
 # Satu file
-npx playwright test e2e/04-peminjaman-sarpras.spec.ts --reporter=list
+npx playwright test e2e/08-sarpras-peminjaman.spec.ts --reporter=list
 ```
 
 Konfigurasi E2E: `playwright.config.ts` — `baseURL http://127.0.0.1:8000`, `webServer: php -S 127.0.0.1:8000 -t public`, `workers:1`, `retries:2`, `timeout:60s`.
+
+> **Penting (isolasi test):** test PHPUnit dipaksa memakai `sqlite :memory:` oleh `tests/bootstrap.php`, karena sebagian mesin (mis. Laragon) mengekspor `APP_ENV`/`DB_CONNECTION` di level OS yang membuat `phpunit.xml` terabaikan dan `RefreshDatabase` bisa menghapus data DB kerja. Guard di `tests/TestCase.php` akan menggagalkan test bila koneksinya bukan sqlite in-memory.
 
 ## Git & Kebersihan Repo
 
 `.gitignore` sudah mengabaikan:
 ```
 .env, /vendor, /node_modules, /storage/*.key, /public/build,
-/test-results, /playwright-report, /playwright/.cache, CLAUDE.md, AGENTS.md
+/test-results, /playwright-report, /playwright/.cache, /e2e, /docs, CLAUDE.md, AGENTS.md
 ```
-`CLAUDE.md` & `AGENTS.md` sengaja tidak di-track (instruksi internal agent). `docs/` & `e2e/` tetap ter-track agar dokumentasi progres dan test suite ikut terdistribusi — jangan di-ignore bila butuh audit E2E.
+`CLAUDE.md` & `AGENTS.md` sengaja tidak di-track (instruksi internal agent). `e2e/` **dan** `docs/` juga **di-ignore** (lihat `.gitignore`), sehingga suite E2E dan dokumentasi bersifat lokal dan **tidak ikut terdistribusi lewat git** — lakukan backup manual bila dokumentasi perlu dibagikan.
 
 ## Troubleshooting
 

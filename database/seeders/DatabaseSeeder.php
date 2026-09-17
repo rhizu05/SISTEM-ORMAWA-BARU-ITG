@@ -21,6 +21,7 @@ class DatabaseSeeder extends Seeder
             WorkflowSeeder::class,
             KonfigurasiSeeder::class,
             MasterDataSeeder::class,
+            PeriodeAnggaranSeeder::class,
         ]);
     }
 }

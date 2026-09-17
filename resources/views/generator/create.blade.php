@@ -45,6 +45,20 @@
                                     <textarea id="sasaran" name="sasaran" rows="3" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required placeholder="Contoh: Mahasiswa Se-Indonesia"></textarea>
                                 </div>
                             </div>
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                <div>
+                                    <x-input-label for="indikator" :value="__('Indikator Keberhasilan')" />
+                                    <textarea id="indikator" name="indikator" rows="3" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" placeholder="Cth: Jumlah peserta, tingkat kepuasan"></textarea>
+                                </div>
+                                <div>
+                                    <x-input-label for="luaran" :value="__('Luaran (Output)')" />
+                                    <textarea id="luaran" name="luaran" rows="3" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" placeholder="Cth: Laporan, produk, publikasi"></textarea>
+                                </div>
+                                <div>
+                                    <x-input-label for="dampak" :value="__('Dampak (Outcome)')" />
+                                    <textarea id="dampak" name="dampak" rows="3" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" placeholder="Cth: Peningkatan kompetensi mahasiswa"></textarea>
+                                </div>
+                            </div>
                             <div>
                                 <x-input-label for="penutup" :value="__('Penutup')" />
                                 <textarea id="penutup" name="penutup" rows="2" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required placeholder="Kalimat penutup proposal..."></textarea>

@@ -5,9 +5,6 @@
 
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
-            @if (session('success'))
-                <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded">{{ session('success') }}</div>
-            @endif
 
             <div class="flex justify-between items-center">
                 <p class="text-sm text-gray-600">Laporkan prestasi/kompetisi Anda (termasuk kegiatan individual/non-afiliasi).</p>
@@ -20,13 +17,13 @@
                         <table class="min-w-full text-sm border">
                             <thead class="bg-gray-50">
                                 <tr>
-                                    <th class="p-2 border text-left">Kegiatan</th>
-                                    <th class="p-2 border text-left">Pelapor</th>
-                                    <th class="p-2 border text-left">Tingkat</th>
-                                    <th class="p-2 border text-left">Juara</th>
-                                    <th class="p-2 border text-left">Afiliasi</th>
-                                    <th class="p-2 border text-center">Status</th>
-                                    <th class="p-2 border text-center">Aksi</th>
+                                    <th scope="col" class="p-2 border text-left">Kegiatan</th>
+                                    <th scope="col" class="p-2 border text-left">Pelapor</th>
+                                    <th scope="col" class="p-2 border text-left">Tingkat</th>
+                                    <th scope="col" class="p-2 border text-left">Juara</th>
+                                    <th scope="col" class="p-2 border text-left">Afiliasi</th>
+                                    <th scope="col" class="p-2 border text-center">Status</th>
+                                    <th scope="col" class="p-2 border text-center">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody>

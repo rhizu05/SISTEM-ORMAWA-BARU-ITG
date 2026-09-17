@@ -10,13 +10,8 @@
             
             <div class="md:col-span-2 space-y-6">
                 
-                @if (session('error'))
-                    <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative">
-                        {{ session('error') }}
-                    </div>
-                @endif
                 @if ($errors->any())
-                    <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative">
+                    <div role="alert" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative">
                         <ul class="list-disc pl-5">
                             @foreach ($errors->all() as $error)
                                 <li>{{ $error }}</li>
@@ -63,6 +58,21 @@
                         </div>
                     </div>
                 </div>
+
+                {{-- BR-11: evaluasi termin sebelum pencairan termin berikutnya --}}
+                @php $roleName = Auth::user()->roles->first()->name; @endphp
+                @if(in_array($roleName, ['wr3','bkhm','admin']) && $pengajuan->state->name === 'funds_disbursed' && !$pengajuan->evaluasi_termin_ok)
+                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg border-2 border-yellow-200">
+                    <div class="p-6 text-gray-900">
+                        <h3 class="text-lg font-bold mb-2">Evaluasi Termin</h3>
+                        <p class="text-sm text-gray-600 mb-4">Tandai bila evaluasi pelaksanaan &amp; LPJ termin sebelumnya memungkinkan pencairan termin berikutnya (BR-11).</p>
+                        <form action="{{ route('verifikasi.evaluasi-termin', $pengajuan) }}" method="POST">
+                            @csrf
+                            <x-primary-button class="bg-yellow-500 hover:bg-yellow-600">Tandai Evaluasi Termin Selesai</x-primary-button>
+                        </form>
+                    </div>
+                </div>
+                @endif
 
                 @if($availableTransitions->count() > 0)
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg border-2 border-indigo-200">

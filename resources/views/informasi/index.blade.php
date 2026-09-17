@@ -8,11 +8,6 @@
     <div class="py-12" x-data="{ activeTab: 'pengumuman', showPengumumanModal: false, showRegulasiModal: false }">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             
-            @if (session('success'))
-                <div class="mb-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative">
-                    {{ session('success') }}
-                </div>
-            @endif
             @if ($errors->any())
                 <div class="mb-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative">
                     <ul class="list-disc pl-5">
@@ -63,7 +58,7 @@
                             <p class="text-gray-700 text-sm whitespace-pre-wrap mb-4">{{ $p->isi }}</p>
                             
                             @if($p->file_lampiran)
-                            <a href="{{ Storage::url($p->file_lampiran) }}" target="_blank" class="inline-flex items-center px-3 py-1 bg-gray-200 hover:bg-gray-300 text-gray-800 text-xs font-semibold rounded">
+                            <a href="{{ route('informasi.pengumuman.lampiran', $p) }}" target="_blank" class="inline-flex items-center px-3 py-1 bg-gray-200 hover:bg-gray-300 text-gray-800 text-xs font-semibold rounded">
                                 📎 Lihat Lampiran
                             </a>
                             @endif
@@ -108,7 +103,7 @@
                                     <td class="py-3 px-4"><span class="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">{{ $r->kategori }}</span></td>
                                     <td class="py-3 px-4 text-sm">{{ $r->user->name }}<br><span class="text-xs text-gray-500">{{ \Carbon\Carbon::parse($r->created_at)->format('d M Y') }}</span></td>
                                     <td class="py-3 px-4 text-center">
-                                        <a href="{{ Storage::url($r->file_path) }}" target="_blank" class="text-indigo-600 hover:underline text-sm mr-2">Unduh PDF</a>
+                                        <a href="{{ route('informasi.regulasi.unduh', $r) }}" target="_blank" class="text-indigo-600 hover:underline text-sm mr-2">Unduh PDF</a>
                                         
                                         @hasrole('bpm')
                                         @if($r->user_id === Auth::id())

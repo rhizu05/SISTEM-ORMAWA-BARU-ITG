@@ -5,12 +5,6 @@
 
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
-            @if (session('success'))
-                <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded">{{ session('success') }}</div>
-            @endif
-            @if (session('error'))
-                <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">{{ session('error') }}</div>
-            @endif
 
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900">
@@ -96,6 +90,40 @@
                     <div class="mt-4">{{ $jadwals->links() }}</div>
                 </div>
             </div>
+
+            {{-- FR-018 / UI-013: kalender interaktif ketersediaan ruangan --}}
+            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                <div class="p-6 text-gray-900">
+                    <h3 class="text-lg font-bold mb-4 border-b pb-2">Kalender Ketersediaan Ruangan</h3>
+                    <p class="text-xs text-gray-500 mb-3">Biru = jadwal kuliah (pola mingguan). Oranye = peminjaman ruangan disetujui/proses.</p>
+                    <div id="calendar" class="p-2 border rounded shadow-sm"></div>
+                </div>
+            </div>
         </div>
     </div>
+
+    <script defer src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const el = document.getElementById('calendar');
+            if (!el || typeof FullCalendar === 'undefined') return;
+            const cal = new FullCalendar.Calendar(el, {
+                locale: 'id',
+                initialView: 'timeGridWeek',
+                headerToolbar: { left: 'prev,next today', center: 'title', right: 'timeGridWeek,dayGridMonth' },
+                slotMinTime: '06:00:00',
+                slotMaxTime: '22:00:00',
+                height: 'auto',
+                events: [
+                    @foreach($calendarJadwals as $j)
+                    { title: 'Kuliah: {{ $j->mata_kuliah }} ({{ $j->ruangan->nama_ruangan ?? '-' }})', daysOfWeek: [{{ $j->hari % 7 }}], startTime: '{{ substr($j->jam_mulai, 0, 5) }}', endTime: '{{ substr($j->jam_selesai, 0, 5) }}', color: '#4f46e5' },
+                    @endforeach
+                    @foreach($peminjamanTempat as $p)
+                    { title: 'Pinjam: {{ $p->nama_kegiatan }} ({{ $p->ruangan->nama_ruangan ?? '-' }})', start: '{{ $p->tgl_mulai }}T{{ substr($p->jam_mulai, 0, 5) }}', end: '{{ $p->tgl_selesai }}T{{ substr($p->jam_selesai, 0, 5) }}', color: '#f59e0b' },
+                    @endforeach
+                ]
+            });
+            cal.render();
+        });
+    </script>
 </x-app-layout>

@@ -32,6 +32,16 @@ class ProgramKerjaController extends Controller
             'rencana_pelaksanaan' => 'required|date',
         ]);
 
+        // FR-005: Validasi duplikasi proker per periode/tanggal untuk pengguna yang sama
+        $exists = ProgramKerja::where('user_id', Auth::id())
+            ->where('nama_proker', $request->nama_proker)
+            ->where('rencana_pelaksanaan', $request->rencana_pelaksanaan)
+            ->exists();
+
+        if ($exists) {
+            return back()->withInput()->with('error', 'Program kerja dengan nama dan tanggal pelaksanaan yang sama sudah terdaftar.');
+        }
+
         ProgramKerja::create([
             'user_id' => Auth::id(),
             'nama_proker' => $request->nama_proker,

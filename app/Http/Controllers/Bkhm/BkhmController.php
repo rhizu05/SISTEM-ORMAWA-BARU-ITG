@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Bkhm;
 use App\Http\Controllers\Controller;
 use App\Models\Pengajuan;
 use App\Models\PeminjamanTempat;
+use App\Models\PeriodeAnggaran;
 use App\Models\SaldoHistori;
 use App\Models\SuratPeringatan;
 use App\Models\User;
@@ -23,9 +24,50 @@ class BkhmController extends Controller
             $u->rincian = $u->pengajuans()->latest()->take(3)->pluck('nama_kegiatan')->implode(', ');
             return $u;
         });
-        $saldoHistori = SaldoHistori::with(['user', 'actor'])->latest()->take(20)->get();
+        $saldoHistori = SaldoHistori::with(['user', 'actor', 'periode'])->latest()->take(20)->get();
 
-        return view('bkhm.saldo', compact('users', 'saldoHistori'));
+        // Q-BKHM-02: periode anggaran ditetapkan dari rapat pimpinan.
+        $periodes = PeriodeAnggaran::orderByDesc('tanggal_mulai')->get();
+        $periodeAktif = PeriodeAnggaran::aktif();
+
+        return view('bkhm.saldo', compact('users', 'saldoHistori', 'periodes', 'periodeAktif'));
+    }
+
+    /**
+     * Q-BKHM-02: buat periode anggaran baru.
+     */
+    public function storePeriode(Request $request)
+    {
+        $validated = $request->validate([
+            'nama' => 'required|string|max:255',
+            'tanggal_mulai' => 'required|date',
+            'tanggal_selesai' => 'required|date|after_or_equal:tanggal_mulai',
+            'aktif' => 'boolean',
+        ]);
+
+        $periode = PeriodeAnggaran::create([
+            'nama' => $validated['nama'],
+            'tanggal_mulai' => $validated['tanggal_mulai'],
+            'tanggal_selesai' => $validated['tanggal_selesai'],
+            'aktif' => $request->boolean('aktif'),
+        ]);
+
+        if ($periode->aktif) {
+            PeriodeAnggaran::where('id', '!=', $periode->id)->update(['aktif' => false]);
+        }
+
+        return redirect()->route('bkhm.saldo.index')->with('success', 'Periode anggaran berhasil ditambahkan.');
+    }
+
+    /**
+     * Q-BKHM-02: jadikan satu periode sebagai periode berjalan.
+     */
+    public function aktifkanPeriode(PeriodeAnggaran $periode)
+    {
+        PeriodeAnggaran::where('id', '!=', $periode->id)->update(['aktif' => false]);
+        $periode->update(['aktif' => true]);
+
+        return redirect()->route('bkhm.saldo.index')->with('success', 'Periode anggaran aktif diperbarui.');
     }
 
     public function arsipSurat(Request $request)
@@ -79,7 +121,24 @@ class BkhmController extends Controller
     public function spShow(SuratPeringatan $sp)
     {
         $sp->load(['target','creator']);
-        return view('bkhm.sp_show', compact('sp'));
+        $konfig = \App\Models\Konfigurasi::pluck('nilai_konfigurasi', 'nama_konfigurasi');
+        return view('bkhm.sp_show', compact('sp', 'konfig'));
+    }
+
+    /**
+     * FR-008: unduh Surat Peringatan sebagai PDF (DomPDF).
+     */
+    public function spPdf(SuratPeringatan $sp)
+    {
+        $sp->load(['target','creator']);
+        $konfig = \App\Models\Konfigurasi::pluck('nilai_konfigurasi', 'nama_konfigurasi');
+
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('bkhm.sp_pdf', [
+            'sp' => $sp,
+            'konfig' => $konfig,
+        ])->setPaper('a4');
+
+        return $pdf->download('surat-peringatan-' . \Illuminate\Support\Str::slug($sp->nomor_surat) . '.pdf');
     }
 
     public function verifikasiTempat()

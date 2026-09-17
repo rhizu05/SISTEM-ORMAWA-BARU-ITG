@@ -21,6 +21,10 @@
             <a href="{{ route('aspirasi.create') }}" class="block w-64 text-center bg-white border border-indigo-600 text-indigo-600 hover:bg-indigo-50 font-bold py-3 px-4 rounded shadow">
                 Sampaikan Aspirasi
             </a>
+
+            <a href="{{ route('informasi.index') }}" class="block w-64 text-center bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 font-bold py-3 px-4 rounded shadow">
+                Informasi Kampus
+            </a>
         </div>
     </div>
 </body>

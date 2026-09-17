@@ -8,11 +8,6 @@
     <div class="py-12" x-data="{ showAddModal: false, showEditModal: false, editBarang: null }">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             
-            @if (session('success'))
-                <div class="mb-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative">
-                    {{ session('success') }}
-                </div>
-            @endif
 
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900">
@@ -30,6 +25,7 @@
                                     <th class="py-3 px-4 border-b text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Nama Barang</th>
                                     <th class="py-3 px-4 border-b text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">Stok Tersedia</th>
                                     <th class="py-3 px-4 border-b text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">Status</th>
+                                    <th class="py-3 px-4 border-b text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">Boleh Dibawa Keluar</th>
                                     <th class="py-3 px-4 border-b text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">Aksi</th>
                                 </tr>
                             </thead>
@@ -47,6 +43,13 @@
                                             <span class="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs">Aktif</span>
                                         @else
                                             <span class="px-2 py-1 bg-gray-100 text-gray-800 rounded-full text-xs">Nonaktif</span>
+                                        @endif
+                                    </td>
+                                    <td class="py-3 px-4 text-center">
+                                        @if($barang->boleh_dibawa_keluar)
+                                            <span class="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs">Ya</span>
+                                        @else
+                                            <span class="px-2 py-1 bg-red-100 text-red-800 rounded-full text-xs">Tidak</span>
                                         @endif
                                     </td>
                                     <td class="py-3 px-4 text-center space-x-2">
@@ -96,6 +99,10 @@
                                 <input id="status_aktif" name="status_aktif" type="checkbox" class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500" checked value="1">
                                 <label for="status_aktif" class="ml-2 text-sm text-gray-600">Aktif (Dapat dipinjam)</label>
                             </div>
+                            <div class="flex items-center mt-2">
+                                <input id="boleh_dibawa_keluar" name="boleh_dibawa_keluar" type="checkbox" class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500" checked value="1">
+                                <label for="boleh_dibawa_keluar" class="ml-2 text-sm text-gray-600">Boleh dibawa keluar kampus</label>
+                            </div>
                         </div>
                         <div class="mt-6 flex justify-end gap-3">
                             <button type="button" @click="showAddModal = false" class="px-4 py-2 border rounded text-gray-600">Batal</button>
@@ -129,6 +136,10 @@
                             <div class="flex items-center mt-4">
                                 <input id="edit_status_aktif" name="status_aktif" type="checkbox" class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500" :checked="editBarang?.status_aktif" value="1">
                                 <label for="edit_status_aktif" class="ml-2 text-sm text-gray-600">Aktif (Dapat dipinjam)</label>
+                            </div>
+                            <div class="flex items-center mt-2">
+                                <input id="edit_boleh_dibawa_keluar" name="boleh_dibawa_keluar" type="checkbox" class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500" :checked="editBarang?.boleh_dibawa_keluar" value="1">
+                                <label for="edit_boleh_dibawa_keluar" class="ml-2 text-sm text-gray-600">Boleh dibawa keluar kampus</label>
                             </div>
                         </div>
                         <div class="mt-6 flex justify-end gap-3">

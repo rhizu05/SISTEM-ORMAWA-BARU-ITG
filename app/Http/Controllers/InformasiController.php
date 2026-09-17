@@ -37,10 +37,14 @@ class InformasiController extends Controller
         ];
 
         if ($request->hasFile('file_lampiran')) {
-            $data['file_lampiran'] = $request->file('file_lampiran')->store('pengumuman', 'public');
+            // SEC-01: file disimpan di disk privat, disajikan lewat controller.
+            $data['file_lampiran'] = $request->file('file_lampiran')->store('pengumuman', 'local');
         }
 
         Pengumuman::create($data);
+
+        // FR-022 §22 no.8: beri tahu seluruh pengguna atas pengumuman baru.
+        \App\Services\NotifikasiService::kirimKeSemua('Pengumuman baru: "' . $request->judul . '".');
 
         return redirect()->back()->with('success', 'Pengumuman berhasil ditambahkan.');
     }
@@ -51,8 +55,8 @@ class InformasiController extends Controller
             abort(403);
         }
 
-        if ($pengumuman->file_lampiran && Storage::disk('public')->exists($pengumuman->file_lampiran)) {
-            Storage::disk('public')->delete($pengumuman->file_lampiran);
+        if ($pengumuman->file_lampiran && Storage::disk('local')->exists($pengumuman->file_lampiran)) {
+            Storage::disk('local')->delete($pengumuman->file_lampiran);
         }
 
         $pengumuman->delete();
@@ -77,10 +81,14 @@ class InformasiController extends Controller
             'judul' => $request->judul,
             'kategori' => $request->kategori,
             'deskripsi' => $request->deskripsi,
-            'file_path' => $request->file('file_path')->store('regulasi', 'public'),
+            // SEC-01: file disimpan di disk privat, disajikan lewat controller.
+            'file_path' => $request->file('file_path')->store('regulasi', 'local'),
         ];
 
         Regulasi::create($data);
+
+        // FR-022 §22 no.8: beri tahu seluruh pengguna atas regulasi baru.
+        \App\Services\NotifikasiService::kirimKeSemua('Regulasi baru: "' . $request->judul . '".');
 
         return redirect()->back()->with('success', 'Regulasi/UU berhasil ditambahkan.');
     }
@@ -91,11 +99,51 @@ class InformasiController extends Controller
             abort(403);
         }
 
-        if ($regulasi->file_path && Storage::disk('public')->exists($regulasi->file_path)) {
-            Storage::disk('public')->delete($regulasi->file_path);
+        if ($regulasi->file_path && Storage::disk('local')->exists($regulasi->file_path)) {
+            Storage::disk('local')->delete($regulasi->file_path);
         }
 
         $regulasi->delete();
         return redirect()->back()->with('success', 'Regulasi berhasil dihapus.');
+    }
+
+    /**
+     * SEC-01: sajikan lampiran pengumuman dari disk privat (dapat diakses publik).
+     */
+    public function lampiranPengumuman(Pengumuman $pengumuman)
+    {
+        abort_if(! $pengumuman->file_lampiran, 404, 'Lampiran tidak ditemukan.');
+
+        return $this->serveFile(
+            $pengumuman->file_lampiran,
+            'lampiran-pengumuman-' . $pengumuman->id . '.' . pathinfo($pengumuman->file_lampiran, PATHINFO_EXTENSION)
+        );
+    }
+
+    /**
+     * SEC-01: sajikan dokumen regulasi dari disk privat (dapat diakses publik).
+     */
+    public function unduhRegulasi(Regulasi $regulasi)
+    {
+        abort_if(! $regulasi->file_path, 404, 'Dokumen tidak ditemukan.');
+
+        return $this->serveFile(
+            $regulasi->file_path,
+            'regulasi-' . $regulasi->id . '.' . pathinfo($regulasi->file_path, PATHINFO_EXTENSION)
+        );
+    }
+
+    /**
+     * Utamakan disk privat; fallback ke disk public untuk file lama yang belum dimigrasikan.
+     */
+    private function serveFile(string $path, string $downloadName)
+    {
+        foreach (['local', 'public'] as $disk) {
+            if (Storage::disk($disk)->exists($path)) {
+                return Storage::disk($disk)->download($path, $downloadName);
+            }
+        }
+
+        abort(404, 'Dokumen tidak ditemukan.');
     }
 }

@@ -118,6 +118,7 @@
     </style>
 </head>
 <body>
+    @if(!($pdf ?? false))
     <div class="no-print" style="text-align:center; margin-bottom:20px; background:#fff; padding:15px; border-radius:10px; box-shadow:0 2px 5px rgba(0,0,0,0.1);">
         <button onclick="window.print()" style="padding:10px 20px; cursor:pointer; background:#4f46e5; color:white; border:none; border-radius:5px; font-weight:bold;">
             🖨️ Cetak / Simpan PDF
@@ -125,6 +126,7 @@
         <a href="{{ route('generator.index') }}" style="text-decoration:none; margin-left:10px; color:#666; font-size:14px;">Kembali ke Daftar</a>
         <p style="margin-top:10px; font-size:13px; color:#666; font-family:sans-serif;">Tekan Ctrl+P. Atur margin ke Default dan centang Background graphics.</p>
     </div>
+    @endif
 
     <div class="paper">
         <!-- KOP SURAT -->
@@ -162,6 +164,13 @@
 
             <span class="section-title">III. SASARAN</span>
             <p>{{ $proposal->sasaran }}</p>
+
+            @if($proposal->indikator || $proposal->luaran || $proposal->dampak)
+            <span class="section-title">INDIKATOR, LUARAN &amp; DAMPAK</span>
+            <p><strong>Indikator:</strong> {{ $proposal->indikator ?: '-' }}</p>
+            <p><strong>Luaran:</strong> {{ $proposal->luaran ?: '-' }}</p>
+            <p><strong>Dampak:</strong> {{ $proposal->dampak ?: '-' }}</p>
+            @endif
 
             <span class="section-title">IV. RENCANA ANGGARAN BIAYA (RAB)</span>
             <table>

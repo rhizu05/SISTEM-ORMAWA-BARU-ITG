@@ -30,9 +30,11 @@ class RegulasiController extends Controller
             'tanggal_terbit' => 'required|date',
         ]);
 
-        $filePath = $request->file('file')->store('regulasis', 'public');
+        // SEC-01: disimpan di disk privat, disajikan via controller (informasi.regulasi.unduh).
+        $filePath = $request->file('file')->store('regulasis', 'local');
 
         Regulasi::create([
+            'user_id' => Auth::id(),
             'judul' => $request->judul,
             'kategori' => $request->kategori,
             'deskripsi' => $request->deskripsi,
@@ -45,7 +47,7 @@ class RegulasiController extends Controller
 
     public function destroy(Regulasi $regulasi)
     {
-        Storage::disk('public')->delete($regulasi->file_path);
+        Storage::disk('local')->delete($regulasi->file_path);
         $regulasi->delete();
         return back()->with('success', 'Regulasi berhasil dihapus.');
     }

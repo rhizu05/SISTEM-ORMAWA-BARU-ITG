@@ -28,7 +28,8 @@ class LoginRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'email' => ['required', 'string', 'email'],
+            // BR-01: mahasiswa dapat login memakai NIM/username, bukan hanya email.
+            'email' => ['required', 'string'],
             'password' => ['required', 'string'],
         ];
     }
@@ -42,7 +43,24 @@ class LoginRequest extends FormRequest
     {
         $this->ensureIsNotRateLimited();
 
-        if (! Auth::attempt($this->only('email', 'password'), $this->boolean('remember'))) {
+        $login = (string) $this->string('email');
+        $password = (string) $this->input('password');
+        $remember = $this->boolean('remember');
+
+        // Coba email lebih dulu, lalu fallback ke NIM/username (hanya akun yang aktif)
+        $authenticated = Auth::attempt(['email' => $login, 'password' => $password, 'status_akun' => 'aktif'], $remember)
+            || Auth::attempt(['username' => $login, 'password' => $password, 'status_akun' => 'aktif'], $remember);
+
+        if (! $authenticated) {
+            // Cek apakah akun ada tapi nonaktif
+            $userInactive = \App\Models\User::where('email', $login)->orWhere('username', $login)->first();
+            if ($userInactive && $userInactive->status_akun === 'nonaktif' && \Illuminate\Support\Facades\Hash::check($password, $userInactive->password)) {
+                RateLimiter::hit($this->throttleKey());
+                throw ValidationException::withMessages([
+                    'email' => 'Akun Anda berstatus nonaktif. Silakan hubungi administrator.',
+                ]);
+            }
+
             RateLimiter::hit($this->throttleKey());
 
             throw ValidationException::withMessages([

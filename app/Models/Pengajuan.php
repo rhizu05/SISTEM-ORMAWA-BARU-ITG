@@ -24,7 +24,12 @@ class Pengajuan extends Model
         'catatan_revisi',
         'nomor_surat',
         'unique_code',
-        'notif_cair_terlihat'
+        'notif_cair_terlihat',
+        'evaluasi_termin_ok'
+    ];
+
+    protected $casts = [
+        'evaluasi_termin_ok' => 'boolean',
     ];
 
     public function user(): BelongsTo

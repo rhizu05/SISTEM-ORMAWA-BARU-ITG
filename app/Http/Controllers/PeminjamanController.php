@@ -49,7 +49,14 @@ class PeminjamanController extends Controller
     public function createTempat()
     {
         $ruangans = MasterRuangan::where('status_aktif', true)->get();
-        return view('peminjaman.create_tempat', compact('ruangans'));
+
+        // FR-018 / UI-013: kalender ketersediaan ruangan.
+        $peminjamanTempat = PeminjamanTempat::with('ruangan')
+            ->whereIn('status_akhir', ['Selesai / Disetujui', 'Proses Sarpras'])
+            ->where('tgl_selesai', '>=', now()->toDateString())
+            ->get();
+
+        return view('peminjaman.create_tempat', compact('ruangans', 'peminjamanTempat'));
     }
 
     // Store pinjam ruangan
@@ -160,6 +167,9 @@ class PeminjamanController extends Controller
         foreach ($request->barang_id as $key => $id_barang) {
             if (isset($request->qty[$key]) && $request->qty[$key] > 0) {
                 $barang = MasterBarang::find($id_barang);
+                if ($barang && ! $barang->boleh_dibawa_keluar) {
+                    return back()->withInput()->with('error', 'Barang ' . $barang->nama_barang . ' tidak boleh dibawa keluar kampus.');
+                }
                 if ($barang && $barang->stok_tersedia >= $request->qty[$key]) {
                     $kebutuhan[] = [
                         'id_barang' => $id_barang,

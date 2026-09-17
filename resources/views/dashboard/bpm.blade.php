@@ -2,6 +2,7 @@
     <x-slot name="header"><h2 class="font-semibold text-xl text-gray-800">Dashboard BPM</h2></x-slot>
     <div class="py-6">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
+
             <div class="bg-white p-4 rounded shadow">Selamat Datang kembali, BPM!</div>
 
             <div class="bg-white p-4 rounded shadow">
@@ -51,7 +52,7 @@
             </div>
         </div>
     </div>
-    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js"></script>
     <script>
     document.addEventListener('DOMContentLoaded',function(){
         const el=document.getElementById('calendar');

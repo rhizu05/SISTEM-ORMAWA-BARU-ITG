@@ -15,15 +15,21 @@ class BendaharaController extends Controller
 {
     public function proses(Request $request, Pengajuan $pengajuan)
     {
+        $user = $pengajuan->user;
+        $maxCair = min((float) $pengajuan->dana_diajukan, (float) $user->saldo);
+
         $request->validate([
-            'nominal_cair' => 'required|numeric|min:0',
+            'nominal_cair' => ['required', 'numeric', 'min:1', 'max:' . $maxCair],
             'tanggal_cair' => 'required|date',
             'catatan' => 'nullable|string'
+        ], [
+            'nominal_cair.min' => 'Nominal pencairan minimal Rp 1.',
+            'nominal_cair.max' => 'Nominal pencairan tidak boleh melebihi dana diajukan (Rp ' . number_format($pengajuan->dana_diajukan, 0, ',', '.') . ') atau sisa saldo ormawa (Rp ' . number_format($user->saldo, 0, ',', '.') . ').',
         ]);
 
-        $stateFundsDisbursed = WorkflowState::where('name', 'funds_disbursed')->first();
+        $stateFundsDisbursed = WorkflowState::where('name', 'funds_disbursed')->firstOrFail();
 
-        // Verifikasi bahwa status pengajuan adalah to_treasurer
+        // Verifikasi awal bahwa status pengajuan adalah to_treasurer
         if ($pengajuan->state->name !== 'to_treasurer') {
             return back()->with('error', 'Pengajuan ini belum disetujui untuk dicairkan.');
         }
@@ -34,43 +40,75 @@ class BendaharaController extends Controller
             return back()->with('error', 'Pencairan termin berikutnya menunggu LPJ dan evaluasi termin sebelumnya selesai.');
         }
 
-        DB::transaction(function () use ($request, $pengajuan, $stateFundsDisbursed, $terminKe) {
-            $user = $pengajuan->user;
-            $before = (float) $user->saldo;
-            $after = $before - (float) $request->nominal_cair;
+        // BR-11: termin berikutnya menunggu evaluasi termin sebelumnya dinyatakan memungkinkan.
+        if ($terminKe > 1 && ! $pengajuan->evaluasi_termin_ok) {
+            return back()->with('error', 'Pencairan termin berikutnya menunggu evaluasi termin sebelumnya dinyatakan selesai oleh WR3/BKHM.');
+        }
 
-            Dana::create([
-                'pengajuan_id' => $pengajuan->id,
-                'termin_ke' => $terminKe,
-                'nominal_cair' => $request->nominal_cair,
-                'tanggal_cair' => $request->tanggal_cair,
-                'catatan' => $request->catatan,
-            ]);
+        try {
+            DB::transaction(function () use ($request, $pengajuan, $stateFundsDisbursed, $terminKe) {
+                // V1: Kunci baris pengajuan untuk mencegah double-submit / race condition konkurensi
+                $lockedPengajuan = Pengajuan::where('id', $pengajuan->id)->lockForUpdate()->first();
+                if ($lockedPengajuan->workflow_state_id === $stateFundsDisbursed->id || $lockedPengajuan->state->name !== 'to_treasurer') {
+                    throw new \Exception('Pengajuan ini telah diproses pencairannya sebelumnya.');
+                }
 
-            $user->update(['saldo' => $after]);
+                // Kunci akun user untuk integritas saldo
+                $lockedUser = \App\Models\User::where('id', $lockedPengajuan->user_id)->lockForUpdate()->first();
+                $before = (float) $lockedUser->saldo;
+                $nominalCair = (float) $request->nominal_cair;
 
-            SaldoHistori::create([
-                'user_id' => $user->id,
-                'actor_id' => Auth::id(),
-                'tipe' => 'pencairan',
-                'nominal_sebelum' => $before,
-                'nominal_sesudah' => $after,
-                'selisih' => $after - $before,
-                'catatan' => $request->catatan ?? 'Pencairan termin ' . $terminKe . ' untuk pengajuan ' . $pengajuan->nama_kegiatan,
-            ]);
+                if ($before < $nominalCair) {
+                    throw new \Exception('Saldo ormawa tidak mencukupi untuk nominal pencairan tersebut.');
+                }
 
-            $pengajuan->update([
-                'workflow_state_id' => $stateFundsDisbursed->id,
-                'notif_cair_terlihat' => false,
-            ]);
+                $after = $before - $nominalCair;
 
-            HistoriStatus::create([
-                'pengajuan_id' => $pengajuan->id,
-                'user_id' => Auth::id(),
-                'workflow_state_id' => $stateFundsDisbursed->id,
-                'catatan' => $request->catatan ?? 'Dana termin ' . $terminKe . ' telah dicairkan oleh bendahara sebesar Rp ' . number_format($request->nominal_cair, 0, ',', '.'),
-            ]);
-        });
+                Dana::create([
+                    'pengajuan_id' => $lockedPengajuan->id,
+                    'termin_ke' => $terminKe,
+                    'nominal_cair' => $nominalCair,
+                    'tanggal_cair' => $request->tanggal_cair,
+                    'catatan' => $request->catatan,
+                ]);
+
+                // V4: Decrement saldo atomik
+                $lockedUser->decrement('saldo', $nominalCair);
+
+                SaldoHistori::create([
+                    'user_id' => $lockedUser->id,
+                    'actor_id' => Auth::id(),
+                    'periode_anggaran_id' => \App\Models\PeriodeAnggaran::aktif()?->id,
+                    'tipe' => 'pencairan',
+                    'nominal_sebelum' => $before,
+                    'nominal_sesudah' => $after,
+                    'selisih' => -$nominalCair,
+                    'catatan' => $request->catatan ?? 'Pencairan termin ' . $terminKe . ' untuk pengajuan ' . $lockedPengajuan->nama_kegiatan,
+                ]);
+
+                $lockedPengajuan->update([
+                    'workflow_state_id' => $stateFundsDisbursed->id,
+                    'notif_cair_terlihat' => false,
+                    // BR-11: evaluasi direset agar termin berikutnya dievaluasi ulang.
+                    'evaluasi_termin_ok' => false,
+                ]);
+
+                HistoriStatus::create([
+                    'pengajuan_id' => $lockedPengajuan->id,
+                    'user_id' => Auth::id(),
+                    'workflow_state_id' => $stateFundsDisbursed->id,
+                    'catatan' => $request->catatan ?? 'Dana termin ' . $terminKe . ' telah dicairkan oleh bendahara sebesar Rp ' . number_format($nominalCair, 0, ',', '.'),
+                ]);
+            });
+        } catch (\Exception $e) {
+            return back()->with('error', $e->getMessage());
+        }
+
+        // FR-022 §22 no.3: beri tahu pengaju bahwa dana telah dicairkan.
+        \App\Services\NotifikasiService::kirim(
+            $pengajuan->user_id,
+            'Dana termin ' . $terminKe . ' untuk pengajuan "' . $pengajuan->nama_kegiatan . '" telah dicairkan.'
+        );
 
         return redirect()->route('verifikasi.index')->with('success', 'Dana termin ' . $terminKe . ' berhasil diproses dan dicairkan.');
     }

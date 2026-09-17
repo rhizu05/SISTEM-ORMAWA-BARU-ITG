@@ -4,15 +4,18 @@
         <div class="max-w-4xl mx-auto sm:px-6 lg:px-8">
             <div class="flex justify-between mb-4">
                 <a href="{{ route('generator.letters.create') }}" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">Kembali</a>
-                <button onclick="window.print()" class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700">🖨️ Cetak / PDF</button>
+                <div class="flex gap-2">
+                    <a href="{{ route('generator.letters.pdf', $letter) }}" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">⬇️ Unduh PDF</a>
+                    <button onclick="window.print()" class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700">🖨️ Cetak</button>
+                </div>
             </div>
             @php $m=$letter->metadata ?? []; $penanda=$m['penandatangan'] ?? 'ketua'; $namaPenanda = $penanda==='sekretaris' ? (Auth::user()->nama_sekretaris ?? Auth::user()->name) : ($penanda==='bendahara' ? (Auth::user()->nama_bendahara ?? Auth::user()->name) : (Auth::user()->nama_ketua ?? Auth::user()->name)); @endphp
             <div class="bg-white p-10 shadow-lg mx-auto" style="width: 210mm; min-height: 297mm; font-family: 'Times New Roman';">
                 <div style="display: flex; align-items: center; border-bottom: 3px double black; padding-bottom: 10px; margin-bottom: 30px;">
                     <div style="width: 80px;">LOGO</div>
                     <div style="text-align: center; flex-grow: 1;">
-                        <div style="font-size: 12pt; font-weight: bold; text-transform: uppercase;">INSTITUT TEKNOLOGI GARUT</div>
-                        <div style="font-size: 10pt; font-style: italic;">Jl. Mayor Syamsu No. 1 Jayaraga Garut 44151</div>
+                        <div style="font-size: 12pt; font-weight: bold; text-transform: uppercase;">{{ $konfig['kop_baris2'] ?? 'INSTITUT TEKNOLOGI GARUT' }}</div>
+                        <div style="font-size: 10pt; font-style: italic;">{{ $konfig['kop_baris3'] ?? 'Jl. Mayor Syamsu No. 1 Jayaraga Garut 44151' }}</div>
                     </div>
                     <div style="width: 80px; text-align: right;">LOGO</div>
                 </div>

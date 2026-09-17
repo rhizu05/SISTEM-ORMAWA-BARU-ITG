@@ -25,7 +25,13 @@ class PengajuanController extends Controller
             });
         }
 
-        $pengajuans = $query->latest()->paginate(10);
+        // Search keyword (nama kegiatan)
+        if ($request->filled('q')) {
+            $keyword = $request->q;
+            $query->where('nama_kegiatan', 'like', "%{$keyword}%");
+        }
+
+        $pengajuans = $query->latest()->paginate(10)->withQueryString();
         $states = WorkflowState::orderBy('order_num')->get();
             
         return view('pengajuan.index', compact('pengajuans', 'states'));
@@ -52,10 +58,15 @@ class PengajuanController extends Controller
 
         $validated = $request->validate([
             'nama_kegiatan' => 'required|string|max:255',
-            'dana_diajukan' => 'required|numeric|min:0',
+            'dana_diajukan' => 'required|numeric|min:1',
             'tanggal_pengajuan' => 'required|date',
             'file_proposal' => 'required|file|mimes:pdf|mimetypes:application/pdf|max:5120', // SEC-02: validasi ekstensi + MIME
         ]);
+
+        // BR-04: nominal pengajuan tidak boleh melebihi sisa saldo pengaju.
+        if ($error = $this->validasiBatasSaldo((float) $validated['dana_diajukan'])) {
+            return back()->withInput()->withErrors(['dana_diajukan' => $error]);
+        }
 
         // SEC-01: simpan di disk privat (bukan public)
         $fileProposal = $request->file('file_proposal');
@@ -120,10 +131,15 @@ class PengajuanController extends Controller
 
         $validated = $request->validate([
             'nama_kegiatan' => 'required|string|max:255',
-            'dana_diajukan' => 'required|numeric|min:0',
+            'dana_diajukan' => 'required|numeric|min:1',
             'tanggal_pengajuan' => 'required|date',
             'file_proposal' => 'nullable|file|mimes:pdf|mimetypes:application/pdf|max:5120', // SEC-02
         ]);
+
+        // BR-04: nominal pengajuan tidak boleh melebihi sisa saldo pengaju.
+        if ($error = $this->validasiBatasSaldo((float) $validated['dana_diajukan'])) {
+            return back()->withInput()->withErrors(['dana_diajukan' => $error]);
+        }
 
         $dataToUpdate = [
             'nama_kegiatan' => $validated['nama_kegiatan'],
@@ -196,6 +212,8 @@ class PengajuanController extends Controller
                     'catatan' => 'Revisi diajukan ulang ke tahap: ' . $returnState->label,
                 ]);
 
+                $this->notifikasiAntrean($returnState->name, $pengajuan->nama_kegiatan);
+
                 return redirect()->route('pengajuan.index')
                     ->with('success', 'Revisi berhasil diajukan ulang ke tahap ' . $returnState->label . '.');
             }
@@ -226,6 +244,46 @@ class PengajuanController extends Controller
             'catatan' => 'Pengajuan disubmit untuk diverifikasi'
         ]);
 
+        $this->notifikasiAntrean($targetStateName, $pengajuan->nama_kegiatan);
+
         return redirect()->route('pengajuan.index')->with('success', $flashMessage);
+    }
+
+    /**
+     * FR-022 §22 no.2: beri tahu verifikator saat pengajuan masuk antrean mereka.
+     */
+    private function notifikasiAntrean(string $stateName, string $namaKegiatan): void
+    {
+        $role = match ($stateName) {
+            'submitted' => 'bem',
+            'bem_approved' => 'bpm',
+            'bpm_approved' => 'bkhm',
+            'bkhm_approved' => 'wr3',
+            'wr3_approved', 'to_treasurer' => 'bendahara',
+            default => null,
+        };
+
+        if ($role) {
+            \App\Services\NotifikasiService::kirimKeRole(
+                $role,
+                'Pengajuan "' . $namaKegiatan . '" masuk antrean verifikasi Anda.'
+            );
+        }
+    }
+
+    /**
+     * BR-04: batas nominal pengajuan terhadap sisa saldo pengaju.
+     * Mengembalikan pesan error bila melebihi, atau null bila valid.
+     */
+    private function validasiBatasSaldo(float $nominal): ?string
+    {
+        $saldo = (float) Auth::user()->saldo;
+
+        if ($nominal > $saldo) {
+            return 'Dana yang diajukan (Rp ' . number_format($nominal, 0, ',', '.')
+                . ') melebihi sisa saldo Anda (Rp ' . number_format($saldo, 0, ',', '.') . ').';
+        }
+
+        return null;
     }
 }

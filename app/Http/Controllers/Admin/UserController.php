@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\PeriodeAnggaran;
 use App\Models\SaldoHistori;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -88,6 +89,7 @@ class UserController extends Controller
             SaldoHistori::create([
                 'user_id' => $user->id,
                 'actor_id' => auth()->id(),
+                'periode_anggaran_id' => PeriodeAnggaran::aktif()?->id,
                 'tipe' => 'koreksi',
                 'nominal_sebelum' => $before,
                 'nominal_sesudah' => $after,

@@ -12,6 +12,7 @@ class SaldoHistori extends Model
     protected $fillable = [
         'user_id',
         'actor_id',
+        'periode_anggaran_id',
         'tipe',
         'nominal_sebelum',
         'nominal_sesudah',
@@ -33,5 +34,10 @@ class SaldoHistori extends Model
     public function actor(): BelongsTo
     {
         return $this->belongsTo(User::class, 'actor_id');
+    }
+
+    public function periode(): BelongsTo
+    {
+        return $this->belongsTo(PeriodeAnggaran::class, 'periode_anggaran_id');
     }
 }

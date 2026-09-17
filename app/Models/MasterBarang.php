@@ -14,6 +14,12 @@ class MasterBarang extends Model
     protected $fillable = [
         'nama_barang',
         'stok_tersedia',
-        'status_aktif'
+        'status_aktif',
+        'boleh_dibawa_keluar',
+    ];
+
+    protected $casts = [
+        'status_aktif' => 'boolean',
+        'boleh_dibawa_keluar' => 'boolean',
     ];
 }

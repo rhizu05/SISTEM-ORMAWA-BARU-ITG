@@ -57,7 +57,7 @@ class AspirasiController extends Controller
     public function update(Request $request, Aspirasi $aspirasi)
     {
         $request->validate([
-            'status' => 'required|in:pending,diproses,selesai,ditolak',
+            'status' => 'required|in:pending,direkap,diproses,ditindaklanjuti,selesai,ditolak,tidak_terbukti',
             'catatan_bpm' => 'nullable|string',
         ]);
 

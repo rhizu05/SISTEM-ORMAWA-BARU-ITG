@@ -29,8 +29,19 @@
                                 <td class="p-2 border">{{ $a->kategori }}</td>
                                 <td class="p-2 border">{{ $a->created_at->format('d/m/Y H:i') }}</td>
                                 <td class="p-2 border text-center">
-                                    <span class="px-2 py-1 rounded-full text-xs {{ $a->status==='selesai' ? 'bg-green-100 text-green-800' : ($a->status==='ditolak' ? 'bg-red-100 text-red-800' : ($a->status==='diproses' ? 'bg-blue-100 text-blue-800' : 'bg-yellow-100 text-yellow-800')) }}">
-                                        {{ ucfirst($a->status) }}
+                                    @php
+                                        $statusClass = [
+                                            'pending' => 'bg-yellow-100 text-yellow-800',
+                                            'direkap' => 'bg-purple-100 text-purple-800',
+                                            'diproses' => 'bg-blue-100 text-blue-800',
+                                            'ditindaklanjuti' => 'bg-indigo-100 text-indigo-800',
+                                            'selesai' => 'bg-green-100 text-green-800',
+                                            'ditolak' => 'bg-red-100 text-red-800',
+                                            'tidak_terbukti' => 'bg-gray-200 text-gray-800',
+                                        ][$a->status] ?? 'bg-gray-100 text-gray-800';
+                                    @endphp
+                                    <span class="px-2 py-1 rounded-full text-xs {{ $statusClass }}">
+                                        {{ \Illuminate\Support\Str::of($a->status)->replace('_', ' ')->title() }}
                                     </span>
                                 </td>
                                 <td class="p-2 border">{{ $a->catatan_bpm ?? '-' }}</td>

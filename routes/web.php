@@ -32,6 +32,13 @@ Route::get('/', function () {
 Route::get('/aspirasi/kirim', [AspirasiController::class, 'create'])->name('aspirasi.create');
 Route::post('/aspirasi/kirim', [AspirasiController::class, 'store'])->name('aspirasi.store');
 
+// FR-021 / UI-009: pusat informasi dapat diakses publik tanpa login.
+Route::get('/informasi', [InformasiController::class, 'index'])->name('informasi.index');
+
+// SEC-01: unduhan lampiran informasi (publik, tetapi file tersimpan privat).
+Route::get('/informasi/pengumuman/{pengumuman}/lampiran', [InformasiController::class, 'lampiranPengumuman'])->name('informasi.pengumuman.lampiran');
+Route::get('/informasi/regulasi/{regulasi}/unduh', [InformasiController::class, 'unduhRegulasi'])->name('informasi.regulasi.unduh');
+
 // Auth Routes (Breeze)
 Route::get('/dashboard', [DashboardController::class, 'index'])
     ->middleware(['auth', 'verified'])
@@ -45,8 +52,7 @@ Route::middleware('auth')->group(function () {
     // Custom Profile Data (Logo, TTD)
     Route::patch('/profile/data', [ProfileDataController::class, 'update'])->name('profile.data.update');
 
-    // Pusat Informasi & Regulasi
-    Route::get('/informasi', [InformasiController::class, 'index'])->name('informasi.index');
+    // Pusat Informasi & Regulasi (GET sudah publik; ini aksi penulisan)
     Route::post('/informasi/pengumuman', [InformasiController::class, 'storePengumuman'])->name('informasi.pengumuman.store');
     Route::delete('/informasi/pengumuman/{pengumuman}', [InformasiController::class, 'destroyPengumuman'])->name('informasi.pengumuman.destroy');
     Route::post('/informasi/regulasi', [InformasiController::class, 'storeRegulasi'])->name('informasi.regulasi.store');
@@ -118,11 +124,13 @@ Route::middleware('auth')->group(function () {
         Route::get('/generator/letters/create', [ProposalGeneratorController::class, 'createLetter'])->name('generator.letters.create');
         Route::post('/generator/letters', [ProposalGeneratorController::class, 'storeLetter'])->name('generator.letters.store');
         Route::get('/generator/letters/{letter}', [ProposalGeneratorController::class, 'showLetter'])->name('generator.letters.show');
+        Route::get('/generator/letters/{letter}/pdf', [ProposalGeneratorController::class, 'pdfLetter'])->name('generator.letters.pdf');
 
         // LPJ Generator
         Route::get('/generator/lpj/create/{proposal?}', [ProposalGeneratorController::class, 'createLpj'])->name('generator.lpj.create');
         Route::post('/generator/lpj', [ProposalGeneratorController::class, 'storeLpj'])->name('generator.lpj.store');
         Route::get('/generator/lpj/{lpj}', [ProposalGeneratorController::class, 'showLpj'])->name('generator.lpj.show');
+        Route::get('/generator/lpj/{lpj}/pdf', [ProposalGeneratorController::class, 'pdfLpj'])->name('generator.lpj.pdf');
 
         // Digital Archive
         Route::get('/archive', [ProposalGeneratorController::class, 'archive'])->name('archive.index');
@@ -134,6 +142,11 @@ Route::middleware('auth')->group(function () {
         ->middleware(['auth', 'admin.readonly'])
         ->name('generator.print');
 
+    // FR-008: unduh PDF proposal
+    Route::get('/generator/{proposal}/pdf', [ProposalGeneratorController::class, 'pdf'])
+        ->middleware(['auth', 'admin.readonly'])
+        ->name('generator.pdf');
+
     // Dokumen privat (SEC-01): proposal & LPJ diakses via controller ber-RBAC
     Route::get('/dokumen/pengajuan/{pengajuan}/proposal', [DocumentController::class, 'proposal'])->name('dokumen.proposal');
     Route::get('/dokumen/pengajuan/{pengajuan}/lpj', [DocumentController::class, 'lpj'])->name('dokumen.lpj');
@@ -143,6 +156,8 @@ Route::middleware('auth')->group(function () {
         Route::get('/verifikasi', [VerifikasiController::class, 'index'])->name('verifikasi.index');
         Route::get('/verifikasi/{pengajuan}', [VerifikasiController::class, 'show'])->name('verifikasi.show');
         Route::post('/verifikasi/{pengajuan}/process', [VerifikasiController::class, 'process'])->name('verifikasi.process');
+        // BR-11: tandai evaluasi termin selesai
+        Route::post('/verifikasi/{pengajuan}/evaluasi-termin', [VerifikasiController::class, 'evaluasiTermin'])->name('verifikasi.evaluasi-termin');
     });
 
 
@@ -176,10 +191,14 @@ Route::middleware('auth')->group(function () {
     // BKHM Khusus: 8 menu sesuai spec
     Route::middleware(['role:bkhm|admin', 'admin.readonly'])->prefix('bkhm')->name('bkhm.')->group(function () {
         Route::get('/saldo', [\App\Http\Controllers\Bkhm\BkhmController::class, 'saldo'])->name('saldo.index');
+        // Q-BKHM-02: periode anggaran
+        Route::post('/periode', [\App\Http\Controllers\Bkhm\BkhmController::class, 'storePeriode'])->name('periode.store');
+        Route::post('/periode/{periode}/aktifkan', [\App\Http\Controllers\Bkhm\BkhmController::class, 'aktifkanPeriode'])->name('periode.aktifkan');
         Route::get('/arsip-surat', [\App\Http\Controllers\Bkhm\BkhmController::class, 'arsipSurat'])->name('arsip.index');
         Route::get('/surat-peringatan/create', [\App\Http\Controllers\Bkhm\BkhmController::class, 'spCreate'])->name('sp.create');
         Route::post('/surat-peringatan', [\App\Http\Controllers\Bkhm\BkhmController::class, 'spStore'])->name('sp.store');
         Route::get('/surat-peringatan/{sp}', [\App\Http\Controllers\Bkhm\BkhmController::class, 'spShow'])->name('sp.show');
+        Route::get('/surat-peringatan/{sp}/pdf', [\App\Http\Controllers\Bkhm\BkhmController::class, 'spPdf'])->name('sp.pdf');
         Route::get('/verifikasi-tempat', [\App\Http\Controllers\Bkhm\BkhmController::class, 'verifikasiTempat'])->name('verifikasi-tempat.index');
     });
 

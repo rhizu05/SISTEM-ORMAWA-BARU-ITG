@@ -31,6 +31,7 @@
                                 <td class="py-3 px-4 text-sm">{{ \Carbon\Carbon::parse($p->created_at)->format('d/m/Y H:i') }}</td>
                                 <td class="py-3 px-4 text-center space-x-3">
                                     <a href="{{ route('generator.show', $p) }}" class="text-blue-600 hover:underline text-sm">Detail</a>
+                                    <a href="{{ route('generator.pdf', $p) }}" class="text-green-600 hover:underline text-sm">Unduh PDF</a>
                                     <a href="{{ route('generator.print', $p) }}" target="_blank" class="text-indigo-600 hover:underline text-sm">Cetak (PDF/Print)</a>
                                 </td>
                             </tr>
