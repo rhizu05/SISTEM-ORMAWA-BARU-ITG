@@ -22,6 +22,7 @@ class DatabaseSeeder extends Seeder
             KonfigurasiSeeder::class,
             MasterDataSeeder::class,
             PeriodeAnggaranSeeder::class,
+            ContohLayananDanInformasiSeeder::class,
         ]);
     }
 }

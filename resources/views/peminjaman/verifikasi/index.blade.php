@@ -30,7 +30,17 @@
                                 @forelse ($antrian_tempat as $p)
                                 <tr>
                                     <td class="py-3 px-4 font-semibold">{{ $p->user->name }}</td>
-                                    <td class="py-3 px-4">{{ $p->nama_kegiatan }}</td>
+                                    <td class="py-3 px-4">
+                                        <div class="font-medium text-gray-900">{{ $p->nama_kegiatan }}</div>
+                                        @if($p->file_persetujuan_prodi)
+                                            <div class="mt-1">
+                                                <a href="{{ route('dokumen.peminjaman-tempat.prodi', $p) }}" target="_blank" class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-semibold bg-purple-100 text-purple-800 hover:bg-purple-200">
+                                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
+                                                    Surat Prodi (Jalur Langsung)
+                                                </a>
+                                            </div>
+                                        @endif
+                                    </td>
                                     <td class="py-3 px-4 text-sm">{{ $p->ruangan->nama_ruangan }}</td>
                                     <td class="py-3 px-4 text-sm">
                                         {{ \Carbon\Carbon::parse($p->tgl_mulai)->format('d/m/Y') }} s/d {{ \Carbon\Carbon::parse($p->tgl_selesai)->format('d/m/Y') }}<br>
@@ -84,7 +94,17 @@
                                 @forelse ($antrian_barang as $p)
                                 <tr>
                                     <td class="py-3 px-4 font-semibold">{{ $p->user->name }}</td>
-                                    <td class="py-3 px-4">{{ $p->nama_kegiatan }}</td>
+                                    <td class="py-3 px-4">
+                                        <div class="font-medium text-gray-900">{{ $p->nama_kegiatan }}</div>
+                                        @if($p->file_persetujuan_prodi)
+                                            <div class="mt-1">
+                                                <a href="{{ route('dokumen.peminjaman-barang.prodi', $p) }}" target="_blank" class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-semibold bg-purple-100 text-purple-800 hover:bg-purple-200">
+                                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
+                                                    Surat Prodi (Jalur Langsung)
+                                                </a>
+                                            </div>
+                                        @endif
+                                    </td>
                                     <td class="py-3 px-4 text-sm">
                                         <ul class="list-disc pl-4">
                                             @foreach($p->kebutuhan_barang as $brg)

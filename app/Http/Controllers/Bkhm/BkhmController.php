@@ -146,4 +146,20 @@ class BkhmController extends Controller
         $antrian = PeminjamanTempat::with(['user','ruangan'])->where('status_bkhm','pending')->latest()->get();
         return view('bkhm.verifikasi_tempat', compact('antrian'));
     }
+
+    /**
+     * Ekspor rekapitulasi data keuangan resmi format Excel (.xlsx).
+     */
+    public function exportExcel(Request $request)
+    {
+        return \App\Services\RekapKeuanganExportService::exportExcel($request->periode_id);
+    }
+
+    /**
+     * Ekspor rekapitulasi data keuangan resmi format PDF.
+     */
+    public function exportPdf(Request $request)
+    {
+        return \App\Services\RekapKeuanganExportService::exportPdf($request->periode_id);
+    }
 }

@@ -154,4 +154,20 @@ class BendaharaController extends Controller
             fclose($out);
         }, $filename, ['Content-Type' => 'text/csv']);
     }
+
+    /**
+     * Ekspor rekapitulasi data keuangan format Excel (.xlsx) resmi.
+     */
+    public function exportExcel(Request $request)
+    {
+        return \App\Services\RekapKeuanganExportService::exportExcel($request->periode_id);
+    }
+
+    /**
+     * Ekspor rekapitulasi data keuangan format PDF resmi.
+     */
+    public function exportPdf(Request $request)
+    {
+        return \App\Services\RekapKeuanganExportService::exportPdf($request->periode_id);
+    }
 }

@@ -29,6 +29,28 @@ class DocumentController extends Controller
         return $this->serve($pengajuan->file_lpj, 'lpj-' . $pengajuan->id . '.pdf');
     }
 
+    /**
+     * Menyajikan file Surat Persetujuan Prodi Peminjaman Tempat secara privat.
+     */
+    public function persetujuanProdiTempat(\App\Models\PeminjamanTempat $peminjaman): StreamedResponse
+    {
+        $user = Auth::user();
+        abort_unless($user->id === $peminjaman->user_id || $user->hasAnyRole(['sarpras', 'bkhm', 'admin']), 403);
+
+        return $this->serve($peminjaman->file_persetujuan_prodi, 'surat-prodi-tempat-' . $peminjaman->id . '.pdf');
+    }
+
+    /**
+     * Menyajikan file Surat Persetujuan Prodi Peminjaman Barang secara privat.
+     */
+    public function persetujuanProdiBarang(\App\Models\PeminjamanBarang $peminjaman): StreamedResponse
+    {
+        $user = Auth::user();
+        abort_unless($user->id === $peminjaman->user_id || $user->hasAnyRole(['sarpras', 'bkhm', 'admin']), 403);
+
+        return $this->serve($peminjaman->file_persetujuan_prodi, 'surat-prodi-barang-' . $peminjaman->id . '.pdf');
+    }
+
     private function serve(?string $path, string $downloadName): StreamedResponse
     {
         abort_if(! $path, 404, 'Dokumen tidak ditemukan.');

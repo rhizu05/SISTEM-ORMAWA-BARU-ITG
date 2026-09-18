@@ -194,40 +194,18 @@ class PengajuanController extends Controller
             return back()->with('error', 'Hanya pengajuan berstatus draft yang bisa diajukan.');
         }
 
-        // FR-009: jika ini hasil revisi (ditolak/dikembalikan), ajukan ulang
-        // kembali ke tahap yang menolak, bukan mengulang dari awal.
-        if ($pengajuan->rejected_from_state_id) {
-            $returnState = WorkflowState::find($pengajuan->rejected_from_state_id);
-
-            if ($returnState) {
-                $pengajuan->update([
-                    'workflow_state_id' => $returnState->id,
-                    'rejected_from_state_id' => null,
-                ]);
-
-                HistoriStatus::create([
-                    'pengajuan_id' => $pengajuan->id,
-                    'user_id' => Auth::id(),
-                    'workflow_state_id' => $returnState->id,
-                    'catatan' => 'Revisi diajukan ulang ke tahap: ' . $returnState->label,
-                ]);
-
-                $this->notifikasiAntrean($returnState->name, $pengajuan->nama_kegiatan);
-
-                return redirect()->route('pengajuan.index')
-                    ->with('success', 'Revisi berhasil diajukan ulang ke tahap ' . $returnState->label . '.');
-            }
-        }
-
-        // Routing tujuan submit berdasarkan role pengaju:
+        // BR-13 & Gambaran MD §3.1: ketika revisi diajukan kembali, alur verifikasi
+        // di-reset kembali ke tahap paling awal sesuai jenis pengaju:
         // - Ormawa/HIMA/UKM -> BEM (submitted)
         // - BEM             -> BPM (bem_approved)
         // - BPM             -> BKHM (bpm_approved)
+        $isRevisi = (bool) $pengajuan->rejected_from_state_id;
+
         $role = Auth::user()->roles->first()->name;
         [$targetStateName, $flashMessage] = match ($role) {
-            'bem' => ['bem_approved', 'Pengajuan berhasil dikirim ke BPM.'],
-            'bpm' => ['bpm_approved', 'Pengajuan berhasil dikirim ke BKHM.'],
-            default => ['submitted', 'Pengajuan berhasil dikirim ke BEM.'],
+            'bem' => ['bem_approved', $isRevisi ? 'Revisi berhasil diajukan kembali ke BPM (alur di-reset ke awal).' : 'Pengajuan berhasil dikirim ke BPM.'],
+            'bpm' => ['bpm_approved', $isRevisi ? 'Revisi berhasil diajukan kembali ke BKHM (alur di-reset ke awal).' : 'Pengajuan berhasil dikirim ke BKHM.'],
+            default => ['submitted', $isRevisi ? 'Revisi berhasil diajukan kembali ke BEM (alur di-reset ke awal).' : 'Pengajuan berhasil dikirim ke BEM.'],
         };
 
         $targetState = WorkflowState::where('name', $targetStateName)->first();
@@ -241,7 +219,7 @@ class PengajuanController extends Controller
             'pengajuan_id' => $pengajuan->id,
             'user_id' => Auth::id(),
             'workflow_state_id' => $targetState->id,
-            'catatan' => 'Pengajuan disubmit untuk diverifikasi'
+            'catatan' => $isRevisi ? 'Revisi diajukan kembali (alur di-reset ke tahap awal): ' . $targetState->label : 'Pengajuan disubmit untuk diverifikasi'
         ]);
 
         $this->notifikasiAntrean($targetStateName, $pengajuan->nama_kegiatan);

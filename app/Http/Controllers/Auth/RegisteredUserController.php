@@ -16,40 +16,19 @@ use Illuminate\View\View;
 class RegisteredUserController extends Controller
 {
     /**
-     * Display the registration view.
+     * BR-01: Mahasiswa adalah Guest tanpa akun. Akun ormawa/internal dikelola terpusat oleh BKHM/Admin.
+     * Pendaftaran akun mandiri dinonaktifkan.
      */
-    public function create(): View
+    public function create(): RedirectResponse
     {
-        return view('auth.register');
+        return redirect()->route('login')->with('status', 'Pendaftaran akun mandiri ditiadakan. Mahasiswa dapat langsung mengakses layanan (Aspirasi, Konseling, Prestasi) tanpa akun melalui Portal Layanan Mahasiswa. Akun pengurus dan ormawa diterbitkan terpusat oleh BKHM.');
     }
 
     /**
      * Handle an incoming registration request.
-     *
-     * @throws ValidationException
      */
     public function store(Request $request): RedirectResponse
     {
-        $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
-            'password' => ['required', 'confirmed', Rules\Password::defaults()],
-        ]);
-
-        $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-        ]);
-
-        // Q-BKHM-03/Q-MHS-02: pendaftaran mandiri hanya untuk mahasiswa (pelapor prestasi).
-        \Spatie\Permission\Models\Role::findOrCreate('mahasiswa', 'web');
-        $user->assignRole('mahasiswa');
-
-        event(new Registered($user));
-
-        Auth::login($user);
-
-        return redirect(route('dashboard', absolute: false));
+        return redirect()->route('login')->with('status', 'Pendaftaran akun mandiri ditiadakan. Akun pengurus/ormawa diterbitkan secara resmi oleh BKHM.');
     }
 }

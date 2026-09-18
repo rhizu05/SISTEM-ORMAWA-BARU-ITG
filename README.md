@@ -74,11 +74,14 @@ Buka `http://127.0.0.1:8000`.
 | Bendahara | bendahara@test.com | bendahara |
 | Sarpras | sarpras@test.com | sarpras |
 | Ormawa (HIMA IF) | himaif@test.com | himaif |
-| Mahasiswa | mahasiswa@test.com | mahasiswa |
+| Ormawa (UKM Olahraga) | ukm.olahraga@test.com | ukmolahraga |
+
+> [!NOTE]
+> **Mahasiswa Umum berstatus Guest (Tanpa Akun Login)**: Sesuai aturan bisnis **BR-01**, mahasiswa umum tidak memiliki akun di tabel `users`. Akses layanan publik (Aspirasi, Konseling Personal Rahasia, Pelaporan Prestasi) dan pelacakan status tiket diakses langsung melalui portal publik tanpa login berbasis **Kode Tiket unik (`SKIN-TKT-YYYY-XXXX`) + Alamat Email**.
 
 Login dapat memakai **email atau username (NIM)**. Akun pengaju (Ormawa/BEM/BPM) di-seed dengan `saldo_awal` Rp 10.000.000 (batas BR-04).
 
-Seed tambahan: `WorkflowSeeder`, `KonfigurasiSeeder`, `MasterDataSeeder` (4 ruangan + 6 barang), `PeriodeAnggaranSeeder` (periode anggaran berjalan).
+Seed tambahan: `WorkflowSeeder`, `KonfigurasiSeeder`, `MasterDataSeeder` (ruangan + barang + jadwal kuliah), `PeriodeAnggaranSeeder` (periode anggaran berjalan), dan `ContohLayananDanInformasiSeeder` (sample pengumuman kurasi BEM & tiket layanan publik).
 
 ## Testing
 

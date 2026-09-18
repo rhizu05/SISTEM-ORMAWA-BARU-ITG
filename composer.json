@@ -10,6 +10,7 @@
         "barryvdh/laravel-dompdf": "*",
         "laravel/framework": "^13.17",
         "laravel/tinker": "^3.0",
+        "phpoffice/phpspreadsheet": "*",
         "spatie/laravel-permission": "^8.3",
         "thecodingmachine/safe": "3.4"
     },

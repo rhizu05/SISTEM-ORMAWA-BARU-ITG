@@ -70,8 +70,22 @@
         </div>
 
         <div class="bg-white p-4 rounded shadow">
-            <h3 class="font-bold mb-3">Daftar Rincian Saldo Pengguna</h3>
-            <p class="text-xs text-gray-500 mb-3">Data Saldo Ormawa, BEM, dan BPM</p>
+            <div class="flex flex-wrap justify-between items-center gap-2 mb-3">
+                <div>
+                    <h3 class="font-bold">Daftar Rincian Saldo Pengguna</h3>
+                    <p class="text-xs text-gray-500">Data Saldo Ormawa, BEM, dan BPM</p>
+                </div>
+                <div class="flex items-center gap-2">
+                    <a href="{{ route('bkhm.export.excel') }}" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold px-3 py-2 rounded flex items-center gap-1 shadow-sm">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                        Unduh Rekap Excel (.xlsx)
+                    </a>
+                    <a href="{{ route('bkhm.export.pdf') }}" class="bg-rose-600 hover:bg-rose-700 text-white text-xs font-semibold px-3 py-2 rounded flex items-center gap-1 shadow-sm">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
+                        Unduh Rekap PDF
+                    </a>
+                </div>
+            </div>
             <div class="overflow-x-auto">
             <table class="min-w-full text-sm border">
                 <thead class="bg-gray-50"><tr><th class="p-2 border">No</th><th class="p-2 border">Nama Ormawa</th><th class="p-2 border">Saldo Awal</th><th class="p-2 border">Total Terpakai & Diproses</th><th class="p-2 border">Sisa Saldo</th><th class="p-2 border">Rincian Kegiatan</th><th class="p-2 border">Aksi</th></tr></thead>

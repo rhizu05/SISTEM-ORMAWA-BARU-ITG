@@ -21,6 +21,11 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // Rate Limiter anti-spam untuk formulir tiket layanan publik mahasiswa
+        \Illuminate\Support\Facades\RateLimiter::for('layanan-publik', function (\Illuminate\Http\Request $request) {
+            return \Illuminate\Cache\RateLimiting\Limit::perMinute(10)->by($request->ip());
+        });
+
         // UI-011: jumlah notifikasi belum dibaca untuk badge di sidebar/nav.
         View::composer(['layouts.sidebar', 'layouts.navigation'], function ($view) {
             $user = Auth::user();

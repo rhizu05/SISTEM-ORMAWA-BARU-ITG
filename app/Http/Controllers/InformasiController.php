@@ -10,57 +10,152 @@ use Illuminate\Support\Facades\Storage;
 
 class InformasiController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $pengumuman = Pengumuman::with('user')->latest()->get();
+        $kategoriFilter = $request->query('kategori');
+
+        $query = Pengumuman::published()->with(['user', 'disetujuiOleh'])->latest();
+
+        if ($kategoriFilter && $kategoriFilter !== 'semua') {
+            $query->where('kategori', $kategoriFilter);
+        }
+
+        $pengumuman = $query->get();
         $regulasi = Regulasi::with('user')->latest()->get();
+
+        $pengumumanSaya = collect();
+        $antreanKurasiCount = 0;
+
+        if (Auth::check()) {
+            $user = Auth::user();
+            if ($user->hasRole('ormawa')) {
+                $pengumumanSaya = Pengumuman::where('user_id', $user->id)->latest()->get();
+            }
+            if ($user->hasRole('bem') || $user->hasRole('admin')) {
+                $antreanKurasiCount = Pengumuman::pendingKurasi()->count();
+            }
+        }
         
-        return view('informasi.index', compact('pengumuman', 'regulasi'));
+        return view('informasi.index', compact('pengumuman', 'regulasi', 'pengumumanSaya', 'antreanKurasiCount', 'kategoriFilter'));
     }
 
     public function storePengumuman(Request $request)
     {
-        if (Auth::user()->roles->first()->name !== 'bem') {
-            abort(403);
-        }
+        $user = Auth::user();
+        abort_unless($user->hasAnyRole(['bem', 'bkhm', 'ormawa', 'admin']), 403);
 
         $request->validate([
             'judul' => 'required|string|max:255',
             'isi' => 'required|string',
+            'kategori' => 'nullable|string|max:50',
+            'tanggal_kegiatan' => 'nullable|date',
             'file_lampiran' => 'nullable|file|mimes:pdf,jpg,jpeg,png|mimetypes:application/pdf,image/jpeg,image/png|max:5120',
         ]);
 
-        $data = [
-            'user_id' => Auth::id(),
-            'judul' => $request->judul,
-            'isi' => $request->isi,
-        ];
-
+        $lampiranPath = null;
         if ($request->hasFile('file_lampiran')) {
             // SEC-01: file disimpan di disk privat, disajikan lewat controller.
-            $data['file_lampiran'] = $request->file('file_lampiran')->store('pengumuman', 'local');
+            $lampiranPath = $request->file('file_lampiran')->store('pengumuman', 'local');
         }
 
-        Pengumuman::create($data);
+        // Tentukan status & kategori sesuai role pengunggah (Saran A)
+        if ($user->hasRole('bkhm') || $user->hasRole('admin')) {
+            $status = 'published';
+            $kategori = $request->kategori ?: 'resmi_kampus';
+            $flashMsg = 'Pengumuman resmi kampus berhasil diterbitkan.';
+        } elseif ($user->hasRole('bem')) {
+            $status = 'published';
+            $kategori = $request->kategori ?: 'kegiatan_kemahasiswaan';
+            $flashMsg = 'Pengumuman BEM berhasil diterbitkan.';
+        } else {
+            // HIMA & UKM (ormawa): masuk antrean kurasi BEM
+            $status = 'pending_kurasi';
+            $kategori = 'kegiatan_kemahasiswaan';
+            $flashMsg = 'Pengajuan berita berhasil dikirim dan menunggu kurasi BEM sebelum diterbitkan.';
+        }
 
-        // FR-022 §22 no.8: beri tahu seluruh pengguna atas pengumuman baru.
-        \App\Services\NotifikasiService::kirimKeSemua('Pengumuman baru: "' . $request->judul . '".');
+        Pengumuman::create([
+            'user_id' => $user->id,
+            'judul' => $request->judul,
+            'isi' => $request->isi,
+            'kategori' => $kategori,
+            'status' => $status,
+            'tanggal_kegiatan' => $request->tanggal_kegiatan,
+            'file_lampiran' => $lampiranPath,
+        ]);
 
-        return redirect()->back()->with('success', 'Pengumuman berhasil ditambahkan.');
+        // Notifikasi:
+        if ($status === 'published') {
+            // FR-022: pengumuman resmi broadcast ke semua pengguna
+            \App\Services\NotifikasiService::kirimKeSemua('Pengumuman baru: "' . $request->judul . '".');
+        } else {
+            // Pengajuan HIMA/UKM hanya memberitahu pengurus BEM (tanpa spam ke semua user)
+            \App\Services\NotifikasiService::kirimKeRole('bem', 'Pengajuan berita baru dari ' . $user->name . ': "' . $request->judul . '". Silakan periksa di antrean kurasi BEM.');
+        }
+
+        return redirect()->route('informasi.index')->with('success', $flashMsg)->with('status', $flashMsg);
+    }
+
+    public function kurasiIndex()
+    {
+        abort_unless(Auth::user()->hasAnyRole(['bem', 'admin']), 403);
+
+        $pengumumans = Pengumuman::pendingKurasi()->with('user')->latest()->paginate(15);
+        return view('bem.kurasi.index', compact('pengumumans'));
+    }
+
+    public function kurasiApprove(Pengumuman $pengumuman)
+    {
+        abort_unless(Auth::user()->hasAnyRole(['bem', 'admin']), 403);
+
+        $pengumuman->update([
+            'status' => 'published',
+            'disetujui_oleh_id' => Auth::id(),
+        ]);
+
+        \App\Services\NotifikasiService::kirim(
+            $pengumuman->user_id,
+            'Berita kegiatan Anda "' . $pengumuman->judul . '" telah disetujui BEM dan resmi diterbitkan di Pusat Informasi.'
+        );
+
+        $msg = 'Pengumuman / berita telah disetujui dan diterbitkan.';
+        return redirect()->route('bem.kurasi.index')->with('success', $msg)->with('status', $msg);
+    }
+
+    public function kurasiReject(Request $request, Pengumuman $pengumuman)
+    {
+        abort_unless(Auth::user()->hasAnyRole(['bem', 'admin']), 403);
+
+        $request->validate([
+            'catatan_kurasi' => 'required|string',
+        ]);
+
+        $pengumuman->update([
+            'status' => 'ditolak',
+            'catatan_kurasi' => $request->catatan_kurasi,
+        ]);
+
+        \App\Services\NotifikasiService::kirim(
+            $pengumuman->user_id,
+            'Pengajuan berita "' . $pengumuman->judul . '" ditolak oleh BEM dengan catatan: ' . $request->catatan_kurasi
+        );
+
+        $msg = 'Pengumuman / berita telah ditolak.';
+        return redirect()->route('bem.kurasi.index')->with('success', $msg)->with('status', $msg);
     }
 
     public function destroyPengumuman(Pengumuman $pengumuman)
     {
-        if (Auth::user()->roles->first()->name !== 'bem') {
-            abort(403);
-        }
+        $canDelete = Auth::user()->hasAnyRole(['bem', 'bkhm', 'admin']) || Auth::id() === $pengumuman->user_id;
+        abort_unless($canDelete, 403);
 
         if ($pengumuman->file_lampiran && Storage::disk('local')->exists($pengumuman->file_lampiran)) {
             Storage::disk('local')->delete($pengumuman->file_lampiran);
         }
 
         $pengumuman->delete();
-        return redirect()->back()->with('success', 'Pengumuman berhasil dihapus.');
+        $msg = 'Pengumuman berhasil dihapus.';
+        return redirect()->route('informasi.index')->with('success', $msg)->with('status', $msg);
     }
 
     public function storeRegulasi(Request $request)

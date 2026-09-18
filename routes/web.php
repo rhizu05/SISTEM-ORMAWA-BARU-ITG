@@ -21,6 +21,8 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProfileDataController;
 use App\Http\Controllers\ProgramKerjaController;
 use App\Http\Controllers\RegulasiController;
+use App\Http\Controllers\TiketPublicController;
+use App\Http\Controllers\Bkhm\BkhmTiketController;
 use Illuminate\Support\Facades\Route;
 
 // Public Route
@@ -38,6 +40,22 @@ Route::get('/informasi', [InformasiController::class, 'index'])->name('informasi
 // SEC-01: unduhan lampiran informasi (publik, tetapi file tersimpan privat).
 Route::get('/informasi/pengumuman/{pengumuman}/lampiran', [InformasiController::class, 'lampiranPengumuman'])->name('informasi.pengumuman.lampiran');
 Route::get('/informasi/regulasi/{regulasi}/unduh', [InformasiController::class, 'unduhRegulasi'])->name('informasi.regulasi.unduh');
+
+// Portal Layanan Publik Mahasiswa (Aspirasi, Konseling, Prestasi, Tracking)
+Route::prefix('layanan')->name('layanan.')->group(function () {
+    Route::get('/', [TiketPublicController::class, 'index'])->name('index');
+    Route::get('/aspirasi', [TiketPublicController::class, 'aspirasiCreate'])->name('aspirasi.create');
+    Route::post('/aspirasi', [TiketPublicController::class, 'aspirasiStore'])->middleware('throttle:layanan-publik')->name('aspirasi.store');
+    Route::get('/konseling', [TiketPublicController::class, 'konselingCreate'])->name('konseling.create');
+    Route::post('/konseling', [TiketPublicController::class, 'konselingStore'])->middleware('throttle:layanan-publik')->name('konseling.store');
+    Route::get('/prestasi', [TiketPublicController::class, 'prestasiCreate'])->name('prestasi.create');
+    Route::post('/prestasi', [TiketPublicController::class, 'prestasiStore'])->middleware('throttle:layanan-publik')->name('prestasi.store');
+    Route::get('/cek-status', [TiketPublicController::class, 'tracking'])->name('cek-status');
+    Route::get('/tracking', [TiketPublicController::class, 'tracking'])->name('tracking');
+    Route::post('/konseling/{tiket:kode_tiket}/konfirmasi', [TiketPublicController::class, 'konselingKonfirmasi'])->middleware('throttle:layanan-publik')->name('konseling.konfirmasi');
+    Route::get('/lampiran/{tiket}', [TiketPublicController::class, 'unduhLampiran'])->name('lampiran');
+});
+Route::get('/prestasi/showcase', [TiketPublicController::class, 'showcasePrestasi'])->name('prestasi.showcase');
 
 // Auth Routes (Breeze)
 Route::get('/dashboard', [DashboardController::class, 'index'])
@@ -57,6 +75,13 @@ Route::middleware('auth')->group(function () {
     Route::delete('/informasi/pengumuman/{pengumuman}', [InformasiController::class, 'destroyPengumuman'])->name('informasi.pengumuman.destroy');
     Route::post('/informasi/regulasi', [InformasiController::class, 'storeRegulasi'])->name('informasi.regulasi.store');
     Route::delete('/informasi/regulasi/{regulasi}', [InformasiController::class, 'destroyRegulasi'])->name('informasi.regulasi.destroy');
+
+    // Kurasi Berita HIMA/UKM oleh BEM
+    Route::middleware(['role:bem|admin'])->prefix('bem')->name('bem.')->group(function () {
+        Route::get('/kurasi-pengumuman', [InformasiController::class, 'kurasiIndex'])->name('kurasi.index');
+        Route::post('/kurasi-pengumuman/{pengumuman}/approve', [InformasiController::class, 'kurasiApprove'])->name('kurasi.approve');
+        Route::post('/kurasi-pengumuman/{pengumuman}/reject', [InformasiController::class, 'kurasiReject'])->name('kurasi.reject');
+    });
 
     // FR-016: tracking aspirasi milik pengirim
     Route::get('/aspirasi/saya', [AspirasiController::class, 'mine'])->name('aspirasi.mine');
@@ -79,6 +104,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard'); // This will actually use the index method, but we can handle it in Controller
         Route::get('/aspirasi', [AspirasiController::class, 'index'])->name('aspirasi.index');
         Route::put('/aspirasi/update/{aspirasi}', [AspirasiController::class, 'update'])->name('aspirasi.update');
+        Route::post('/aspirasi/{tiket}/teruskan', [AspirasiController::class, 'teruskanKeBkhm'])->name('aspirasi.teruskan');
         Route::get('/regulasi', [RegulasiController::class, 'index'])->name('regulasi.index');
         Route::get('/regulasi/create', [RegulasiController::class, 'create'])->name('regulasi.create');
         Route::post('/regulasi', [RegulasiController::class, 'store'])->name('regulasi.store');
@@ -110,6 +136,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/peminjaman/tempat', [PeminjamanController::class, 'historyTempat'])->name('peminjaman.tempat.index');
         Route::get('/peminjaman/barang', [PeminjamanController::class, 'historyBarang'])->name('peminjaman.barang.index');
         Route::get('/peminjaman/tempat/create', [PeminjamanController::class, 'createTempat'])->name('peminjaman.tempat.create');
+        Route::get('/peminjaman/tempat/jadwal-ruangan', [PeminjamanController::class, 'jadwalRuangan'])->name('peminjaman.tempat.jadwal-ruangan');
         Route::post('/peminjaman/tempat', [PeminjamanController::class, 'storeTempat'])->name('peminjaman.tempat.store');
         Route::get('/peminjaman/barang/create', [PeminjamanController::class, 'createBarang'])->name('peminjaman.barang.create');
         Route::post('/peminjaman/barang', [PeminjamanController::class, 'storeBarang'])->name('peminjaman.barang.store');
@@ -150,6 +177,8 @@ Route::middleware('auth')->group(function () {
     // Dokumen privat (SEC-01): proposal & LPJ diakses via controller ber-RBAC
     Route::get('/dokumen/pengajuan/{pengajuan}/proposal', [DocumentController::class, 'proposal'])->name('dokumen.proposal');
     Route::get('/dokumen/pengajuan/{pengajuan}/lpj', [DocumentController::class, 'lpj'])->name('dokumen.lpj');
+    Route::get('/dokumen/peminjaman-tempat/{peminjaman}/prodi', [DocumentController::class, 'persetujuanProdiTempat'])->name('dokumen.peminjaman-tempat.prodi');
+    Route::get('/dokumen/peminjaman-barang/{peminjaman}/prodi', [DocumentController::class, 'persetujuanProdiBarang'])->name('dokumen.peminjaman-barang.prodi');
 
     // Verifikator Roles: Modul Verifikasi (BEM, BPM, BKHM, WR3, Bendahara)
     Route::middleware(['role:bem|bpm|bkhm|wr3|bendahara|admin', 'admin.readonly'])->group(function () {
@@ -186,6 +215,8 @@ Route::middleware('auth')->group(function () {
     Route::middleware(['role:bendahara'])->group(function () {
         Route::post('/bendahara/proses/{pengajuan}', [BendaharaController::class, 'proses'])->name('bendahara.proses');
         Route::get('/bendahara/export-pencairan', [BendaharaController::class, 'export'])->name('bendahara.export');
+        Route::get('/bendahara/export-excel', [BendaharaController::class, 'exportExcel'])->name('bendahara.export.excel');
+        Route::get('/bendahara/export-pdf', [BendaharaController::class, 'exportPdf'])->name('bendahara.export.pdf');
     });
 
     // BKHM Khusus: 8 menu sesuai spec
@@ -200,6 +231,17 @@ Route::middleware('auth')->group(function () {
         Route::get('/surat-peringatan/{sp}', [\App\Http\Controllers\Bkhm\BkhmController::class, 'spShow'])->name('sp.show');
         Route::get('/surat-peringatan/{sp}/pdf', [\App\Http\Controllers\Bkhm\BkhmController::class, 'spPdf'])->name('sp.pdf');
         Route::get('/verifikasi-tempat', [\App\Http\Controllers\Bkhm\BkhmController::class, 'verifikasiTempat'])->name('verifikasi-tempat.index');
+        Route::get('/export-excel', [\App\Http\Controllers\Bkhm\BkhmController::class, 'exportExcel'])->name('export.excel');
+        Route::get('/export-pdf', [\App\Http\Controllers\Bkhm\BkhmController::class, 'exportPdf'])->name('export.pdf');
+
+        // Manajemen Layanan & Tiket Mahasiswa (Konseling, Aspirasi Eskalasi, Prestasi & Delegasi)
+        Route::get('/konseling', [BkhmTiketController::class, 'konselingIndex'])->name('konseling.index');
+        Route::get('/konseling/{tiket}', [BkhmTiketController::class, 'konselingShow'])->name('konseling.show');
+        Route::post('/konseling/{tiket}/update', [BkhmTiketController::class, 'konselingUpdate'])->name('konseling.update');
+        Route::get('/tiket-aspirasi', [BkhmTiketController::class, 'aspirasiIndex'])->name('tiket-aspirasi.index');
+        Route::post('/tiket-aspirasi/{tiket}/update', [BkhmTiketController::class, 'aspirasiUpdate'])->name('tiket-aspirasi.update');
+        Route::get('/tiket-prestasi', [BkhmTiketController::class, 'prestasiIndex'])->name('tiket-prestasi.index');
+        Route::post('/tiket-prestasi/{tiket}/update', [BkhmTiketController::class, 'prestasiUpdate'])->name('tiket-prestasi.update');
     });
 
     // Admin/BKHM Role: User management remains available to both roles.

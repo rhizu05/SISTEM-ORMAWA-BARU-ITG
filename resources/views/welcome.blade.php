@@ -23,9 +23,10 @@
             </div>
 
             <nav class="hidden md:flex items-center gap-6 text-sm font-medium text-slate-600">
-                <a href="#layanan" class="hover:text-indigo-600 transition-colors">Layanan Utama</a>
+                <a href="{{ route('layanan.index') }}" class="text-blue-600 font-bold hover:text-blue-700 transition-colors">Portal Layanan Mahasiswa</a>
+                <a href="{{ route('layanan.cek-status') }}" class="hover:text-indigo-600 transition-colors">Lacak Tiket</a>
+                <a href="{{ route('prestasi.showcase') }}" class="hover:text-indigo-600 transition-colors">Showcase Prestasi</a>
                 <a href="{{ route('informasi.index') }}" class="hover:text-indigo-600 transition-colors">Pengumuman & Regulasi</a>
-                <a href="{{ route('aspirasi.create') }}" class="hover:text-indigo-600 transition-colors">Aspirasi Mahasiswa</a>
             </nav>
 
             <div class="flex items-center gap-3">
@@ -36,7 +37,7 @@
                     </a>
                 @else
                     <a href="{{ route('login') }}" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-sm shadow-sm transition-all focus:ring-2 focus:ring-indigo-500 focus:ring-offset-1">
-                        <span>Login Sistem</span>
+                        <span>Login Pengurus</span>
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/></svg>
                     </a>
                 @endauth
@@ -51,28 +52,27 @@
                 <div class="text-center max-w-3xl mx-auto">
                     <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-100/80 text-indigo-700 text-xs font-semibold uppercase tracking-wider mb-6 border border-indigo-200/60">
                         <span class="w-2 h-2 rounded-full bg-indigo-600 animate-pulse"></span>
-                        Portal Resmi Institut Teknologi Garut
+                        Portal Resmi Kemahasiswaan Institut Teknologi Garut
                     </div>
                     <h1 class="text-4xl sm:text-5xl lg:text-6xl font-black text-slate-900 tracking-tight leading-tight mb-6">
                         Satu Portal Terpadu <br class="hidden sm:inline" />
                         <span class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-violet-600">Aktivitas Kemahasiswaan</span>
                     </h1>
                     <p class="text-base sm:text-lg text-slate-600 mb-8 leading-relaxed">
-                        Pengelolaan proposal, pencairan anggaran kegiatan, peminjaman fasilitas kampus, pengawasan program kerja, hingga layanan aspirasi mahasiswa secara transparan dan akuntabel.
+                        Layanan aspirasi, konseling personal BKHM secara rahasia, pelaporan prestasi, pengajuan dana delegasi lomba, hingga tata kelola ormawa dan peminjaman fasilitas kampus terintegrasi.
                     </p>
 
                     <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
-                        <a href="{{ route('aspirasi.create') }}" class="w-full sm:w-auto px-6 py-3.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm sm:text-base shadow-md hover:shadow-indigo-500/20 transition-all flex items-center justify-center gap-2">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/></svg>
-                            <span>Sampaikan Aspirasi</span>
+                        <a href="{{ route('layanan.index') }}" class="w-full sm:w-auto px-6 py-3.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm sm:text-base shadow-md hover:shadow-blue-500/20 transition-all flex items-center justify-center gap-2">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+                            <span>Portal Layanan Mahasiswa (Tanpa Login)</span>
                         </a>
-                        <a href="{{ route('informasi.index') }}" class="w-full sm:w-auto px-6 py-3.5 rounded-xl bg-white border border-slate-300 hover:border-slate-400 hover:bg-slate-50 text-slate-700 font-bold text-sm sm:text-base shadow-sm transition-all flex items-center justify-center gap-2">
-                            <svg class="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"/></svg>
-                            <span>Informasi & Regulasi</span>
+                        <a href="{{ route('layanan.cek-status') }}" class="w-full sm:w-auto px-6 py-3.5 rounded-xl bg-white border border-slate-300 hover:border-slate-400 hover:bg-slate-50 text-slate-700 font-bold text-sm sm:text-base shadow-sm transition-all flex items-center justify-center gap-2">
+                            <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                            <span>Lacak Status Tiket</span>
                         </a>
-                        <a href="{{ route('login') }}" class="w-full sm:w-auto px-6 py-3.5 rounded-xl bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold text-sm sm:text-base transition-all flex items-center justify-center gap-2">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/></svg>
-                            <span>Login Sistem</span>
+                        <a href="{{ route('prestasi.showcase') }}" class="w-full sm:w-auto px-6 py-3.5 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-800 font-bold text-sm sm:text-base transition-all flex items-center justify-center gap-2">
+                            <span>🏆 Showcase Prestasi</span>
                         </a>
                     </div>
                 </div>
@@ -88,21 +88,24 @@
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                    {{-- Card 1: Aspirasi --}}
+                    {{-- Card 1: Portal Layanan Mahasiswa --}}
                     <div class="bg-slate-50 border border-slate-200/80 rounded-2xl p-6 hover:shadow-lg transition-all flex flex-col justify-between">
                         <div>
-                            <div class="w-12 h-12 rounded-xl bg-indigo-100 text-indigo-600 flex items-center justify-center mb-5">
-                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+                            <div class="w-12 h-12 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center mb-5">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
                             </div>
-                            <h3 class="text-xl font-bold text-slate-900 mb-2">Suara & Aspirasi Mahasiswa</h3>
+                            <h3 class="text-xl font-bold text-slate-900 mb-2">Portal Layanan & Konseling</h3>
                             <p class="text-sm text-slate-600 leading-relaxed">
-                                Mahasiswa dapat menyampaikan kritik, saran, maupun kendala fasilitas secara terbuka maupun anonim. Dihimpun dan ditindaklanjuti langsung oleh BPM dan BKHM.
+                                Mahasiswa dapat menyampaikan aspirasi, mengajukan konseling personal rahasia ke BKHM, serta mendaftarkan prestasi & bantuan dana delegasi lomba tanpa perlu login akun.
                             </p>
                         </div>
-                        <div class="mt-6 pt-4 border-t border-slate-200">
-                            <a href="{{ route('aspirasi.create') }}" class="text-indigo-600 font-semibold text-sm hover:text-indigo-700 flex items-center gap-1">
-                                <span>Buat Pengaduan / Aspirasi</span>
+                        <div class="mt-6 pt-4 border-t border-slate-200 flex items-center justify-between">
+                            <a href="{{ route('layanan.index') }}" class="text-blue-600 font-semibold text-sm hover:text-blue-700 flex items-center gap-1">
+                                <span>Buka Portal Layanan</span>
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                            </a>
+                            <a href="{{ route('layanan.cek-status') }}" class="text-xs text-slate-500 hover:text-blue-600">
+                                Lacak Tiket &rarr;
                             </a>
                         </div>
                     </div>

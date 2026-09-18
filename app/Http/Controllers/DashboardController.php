@@ -162,20 +162,6 @@ class DashboardController extends Controller
             return view('dashboard.admin', compact('stats'));
         }
 
-        elseif ($role === 'mahasiswa') {
-            $stats = [
-                'total_aspirasi' => Aspirasi::where('user_id', $user->id)->count(),
-            ];
-            $meetings = \App\Models\JadwalRapat::where('tanggal_rapat', '>=', now()->toDateString())
-                ->orderBy('tanggal_rapat', 'asc')
-                ->take(5)
-                ->get();
-            $announcements = \App\Models\Pengumuman::latest()->take(5)->get();
-            $facilities = PeminjamanTempat::with('ruangan')->whereIn('status_akhir', ['Selesai / Disetujui', 'Proses Sarpras'])->get();
-            
-            return view('dashboard.mahasiswa', compact('stats', 'meetings', 'announcements', 'facilities'));
-        }
-
         // Fallback default
         return view('dashboard');
     }

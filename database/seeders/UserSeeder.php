@@ -77,11 +77,13 @@ class UserSeeder extends Seeder
                 'role' => 'ormawa'
             ],
             [
-                'name' => 'Mahasiswa Umum',
-                'username' => 'mahasiswa',
-                'email' => 'mahasiswa@test.com',
+                'name' => 'UKM Olahraga',
+                'username' => 'ukmolahraga',
+                'email' => 'ukm.olahraga@test.com',
                 'password' => Hash::make('password'),
-                'role' => 'mahasiswa'
+                'saldo' => 10000000,
+                'saldo_awal' => 10000000,
+                'role' => 'ormawa'
             ],
         ];
 

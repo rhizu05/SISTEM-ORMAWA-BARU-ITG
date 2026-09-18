@@ -50,13 +50,86 @@ class PeminjamanController extends Controller
     {
         $ruangans = MasterRuangan::where('status_aktif', true)->get();
 
-        // FR-018 / UI-013: kalender ketersediaan ruangan.
+        // FR-018 / UI-013: kalender ketersediaan ruangan (gabungan peminjaman aktif + jadwal perkuliahan)
         $peminjamanTempat = PeminjamanTempat::with('ruangan')
             ->whereIn('status_akhir', ['Selesai / Disetujui', 'Proses Sarpras'])
             ->where('tgl_selesai', '>=', now()->toDateString())
             ->get();
 
-        return view('peminjaman.create_tempat', compact('ruangans', 'peminjamanTempat'));
+        // Generate visual events 30 hari ke depan untuk jadwal perkuliahan rutin
+        $jadwalKuliahAktif = \App\Models\JadwalKuliah::with('ruangan')
+            ->where('aktif', true)
+            ->get();
+
+        $kuliahEvents = [];
+        $startDate = now()->startOfWeek();
+        $endDate = now()->addDays(30);
+
+        for ($curr = $startDate->copy(); $curr->lte($endDate); $curr->addDay()) {
+            $isoDay = $curr->isoWeekday();
+            $dateStr = $curr->toDateString();
+
+            foreach ($jadwalKuliahAktif->where('hari', $isoDay) as $jk) {
+                $kuliahEvents[] = [
+                    'title' => '[Kuliah] ' . $jk->mata_kuliah . ' (' . ($jk->ruangan->nama_ruangan ?? '-') . ')',
+                    'start' => $dateStr . 'T' . substr($jk->jam_mulai, 0, 5),
+                    'end' => $dateStr . 'T' . substr($jk->jam_selesai, 0, 5),
+                    'color' => '#2563eb', // Biru
+                    'ruangan_id' => $jk->ruangan_id,
+                ];
+            }
+        }
+
+        return view('peminjaman.create_tempat', compact('ruangans', 'peminjamanTempat', 'kuliahEvents'));
+    }
+
+    /**
+     * Endpoint ketersediaan jadwal ruangan untuk tanggal tertentu (AJAX Slot Checker)
+     */
+    public function jadwalRuangan(Request $request)
+    {
+        $ruanganId = $request->query('ruangan_id');
+        $tanggal = $request->query('tanggal', now()->toDateString());
+
+        if (! $ruanganId) {
+            return response()->json(['kuliah' => [], 'peminjaman' => []]);
+        }
+
+        $date = \Carbon\Carbon::parse($tanggal);
+        $dayOfWeek = $date->isoWeekday();
+
+        $kuliah = \App\Models\JadwalKuliah::where('ruangan_id', $ruanganId)
+            ->where('hari', $dayOfWeek)
+            ->where('aktif', true)
+            ->orderBy('jam_mulai')
+            ->get()
+            ->map(fn($k) => [
+                'tipe' => 'kuliah',
+                'judul' => $k->mata_kuliah . ($k->semester ? ' (Sem ' . $k->semester . ')' : ''),
+                'jam_mulai' => substr($k->jam_mulai, 0, 5),
+                'jam_selesai' => substr($k->jam_selesai, 0, 5),
+            ]);
+
+        $peminjaman = PeminjamanTempat::where('ruangan_id', $ruanganId)
+            ->whereNotIn('status_akhir', ['Ditolak Sarpras', 'Ditolak BKHM'])
+            ->where('tgl_mulai', '<=', $tanggal)
+            ->where('tgl_selesai', '>=', $tanggal)
+            ->orderBy('jam_mulai')
+            ->get()
+            ->map(fn($p) => [
+                'tipe' => 'peminjaman',
+                'judul' => $p->nama_kegiatan . ' (' . $p->status_akhir . ')',
+                'jam_mulai' => substr($p->jam_mulai, 0, 5),
+                'jam_selesai' => substr($p->jam_selesai, 0, 5),
+            ]);
+
+        return response()->json([
+            'ruangan_id' => $ruanganId,
+            'tanggal' => $tanggal,
+            'hari_nama' => \App\Models\JadwalKuliah::HARI[$dayOfWeek] ?? '',
+            'kuliah' => $kuliah,
+            'peminjaman' => $peminjaman,
+        ]);
     }
 
     // Store pinjam ruangan
@@ -122,6 +195,8 @@ class PeminjamanController extends Controller
                 ->storeAs('persetujuan-prodi', time() . '_prodi.pdf', 'local');
         }
 
+        $isDirectToSarpras = (Auth::user()->hasRole('ormawa') || $isHima) && $dokumenProdi !== null;
+
         PeminjamanTempat::create([
             'user_id' => Auth::id(),
             'ruangan_id' => $request->ruangan_id,
@@ -132,9 +207,18 @@ class PeminjamanController extends Controller
             'jam_selesai' => $request->jam_selesai,
             'deskripsi_kegiatan' => $request->deskripsi_kegiatan,
             'file_persetujuan_prodi' => $dokumenProdi,
+            'status_bkhm' => $isDirectToSarpras ? 'disetujui' : 'pending',
+            'status_sarpras' => 'pending',
+            'status_akhir' => $isDirectToSarpras ? 'Proses Sarpras' : 'Proses BKHM',
         ]);
 
-        return redirect()->route('peminjaman.tempat.index')->with('success', 'Pengajuan peminjaman ruangan berhasil dikirim.');
+        if ($isDirectToSarpras) {
+            \App\Services\NotifikasiService::kirimKeRole('sarpras', 'Peminjaman ruangan baru dari Ormawa: "' . $request->nama_kegiatan . '" (Surat Prodi terlampir, langsung ke Sarpras).');
+            return redirect()->route('peminjaman.tempat.index')->with('success', 'Pengajuan peminjaman ruangan berhasil dikirim langsung ke Sarpras (Surat Prodi terlampir).');
+        }
+
+        \App\Services\NotifikasiService::kirimKeRole('bkhm', 'Peminjaman ruangan baru diajukan: "' . $request->nama_kegiatan . '".');
+        return redirect()->route('peminjaman.tempat.index')->with('success', 'Pengajuan peminjaman ruangan berhasil dikirim ke BKHM.');
     }
 
     // Form pinjam barang
@@ -192,6 +276,8 @@ class PeminjamanController extends Controller
                 ->storeAs('persetujuan-prodi', time() . '_prodi.pdf', 'local');
         }
 
+        $isDirectToSarpras = (Auth::user()->hasRole('ormawa') || $isHima) && $dokumenProdi !== null;
+
         PeminjamanBarang::create([
             'user_id' => Auth::id(),
             'nama_kegiatan' => $request->nama_kegiatan,
@@ -199,9 +285,18 @@ class PeminjamanController extends Controller
             'tgl_selesai' => $request->tgl_selesai,
             'kebutuhan_barang' => $kebutuhan,
             'file_persetujuan_prodi' => $dokumenProdi,
+            'status_bkhm' => $isDirectToSarpras ? 'disetujui' : 'pending',
+            'status_sarpras' => 'pending',
+            'status_akhir' => $isDirectToSarpras ? 'Proses Sarpras' : 'Proses BKHM',
         ]);
 
-        return redirect()->route('peminjaman.barang.index')->with('success', 'Pengajuan peminjaman barang berhasil dikirim.');
+        if ($isDirectToSarpras) {
+            \App\Services\NotifikasiService::kirimKeRole('sarpras', 'Peminjaman barang baru dari Ormawa: "' . $request->nama_kegiatan . '" (Surat Prodi terlampir, langsung ke Sarpras).');
+            return redirect()->route('peminjaman.barang.index')->with('success', 'Pengajuan peminjaman barang berhasil dikirim langsung ke Sarpras (Surat Prodi terlampir).');
+        }
+
+        \App\Services\NotifikasiService::kirimKeRole('bkhm', 'Peminjaman barang baru diajukan: "' . $request->nama_kegiatan . '".');
+        return redirect()->route('peminjaman.barang.index')->with('success', 'Pengajuan peminjaman barang berhasil dikirim ke BKHM.');
     }
 
     // Verifikasi (digunakan oleh BKHM, Sarpras Ruangan, & Sarpras Barang)

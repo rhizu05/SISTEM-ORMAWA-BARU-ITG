@@ -42,11 +42,31 @@
                     </button>
                 </div>
 
-                <div class="flex items-center gap-3">
-                    @hasrole('bem')
-                    <button x-show="activeTab === 'pengumuman'" @click="showPengumumanModal = true" class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-4 rounded-lg text-sm shadow-sm transition-all">
+                <div class="flex flex-wrap items-center gap-2">
+                    @hasrole('bkhm')
+                    <button x-show="activeTab === 'pengumuman'" @click="showPengumumanModal = true" class="inline-flex items-center gap-1.5 bg-blue-700 hover:bg-blue-800 text-white font-semibold py-2 px-3.5 rounded-lg text-xs sm:text-sm shadow-sm transition-all">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-                        <span>+ Tambah Pengumuman</span>
+                        <span>+ Pengumuman Resmi Kampus</span>
+                    </button>
+                    @endhasrole
+
+                    @hasrole('bem')
+                    <a href="{{ route('bem.kurasi.index') }}" x-show="activeTab === 'pengumuman'" class="inline-flex items-center gap-1.5 bg-amber-500 hover:bg-amber-600 text-white font-semibold py-2 px-3 rounded-lg text-xs sm:text-sm shadow-sm transition-all">
+                        <span>Kurasi Berita</span>
+                        @if($antreanKurasiCount > 0)
+                            <span class="px-1.5 py-0.5 rounded-full text-[10px] font-black bg-rose-600 text-white animate-pulse">{{ $antreanKurasiCount }}</span>
+                        @endif
+                    </a>
+                    <button x-show="activeTab === 'pengumuman'" @click="showPengumumanModal = true" class="inline-flex items-center gap-1.5 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-3.5 rounded-lg text-xs sm:text-sm shadow-sm transition-all">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                        <span>+ Pengumuman BEM</span>
+                    </button>
+                    @endhasrole
+
+                    @hasrole('ormawa')
+                    <button x-show="activeTab === 'pengumuman'" @click="showPengumumanModal = true" class="inline-flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-2 px-3.5 rounded-lg text-xs sm:text-sm shadow-sm transition-all">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                        <span>+ Ajukan Berita / Pamflet Acara</span>
                     </button>
                     @endhasrole
 
@@ -61,24 +81,76 @@
 
             <!-- Tab Content: Pengumuman -->
             <div x-show="activeTab === 'pengumuman'" class="space-y-6">
+
+                <!-- Filter Kategori Pengumuman -->
+                <div class="flex flex-wrap items-center gap-2 text-xs">
+                    <span class="text-slate-500 font-semibold mr-1">Filter Kategori:</span>
+                    <a href="{{ route('informasi.index') }}" class="px-3 py-1.5 rounded-lg font-medium transition {{ empty($kategoriFilter) || $kategoriFilter === 'semua' ? 'bg-slate-900 text-white shadow-xs' : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-100' }}">
+                        Semua
+                    </a>
+                    <a href="{{ route('informasi.index', ['kategori' => 'resmi_kampus']) }}" class="px-3 py-1.5 rounded-lg font-medium transition {{ $kategoriFilter === 'resmi_kampus' ? 'bg-blue-700 text-white shadow-xs' : 'bg-white text-blue-700 border border-blue-200 hover:bg-blue-50' }}">
+                        🏛️ Resmi Kampus (BKHM)
+                    </a>
+                    <a href="{{ route('informasi.index', ['kategori' => 'kegiatan_kemahasiswaan']) }}" class="px-3 py-1.5 rounded-lg font-medium transition {{ $kategoriFilter === 'kegiatan_kemahasiswaan' ? 'bg-indigo-700 text-white shadow-xs' : 'bg-white text-indigo-700 border border-indigo-200 hover:bg-indigo-50' }}">
+                        ⚡ Agenda & Acara Ormawa
+                    </a>
+                </div>
+
+                @hasrole('ormawa')
+                @if($pengumumanSaya->isNotEmpty())
+                    <!-- Status Pengajuan Berita Ormawa Saya -->
+                    <div class="bg-gradient-to-r from-emerald-50 to-teal-50 rounded-2xl p-5 border border-emerald-200/80 shadow-xs mb-6">
+                        <div class="flex items-center justify-between mb-3">
+                            <div class="flex items-center gap-2">
+                                <span class="w-6 h-6 rounded-full bg-emerald-600 text-white flex items-center justify-center font-bold text-xs">📢</span>
+                                <h4 class="font-bold text-sm text-emerald-950">Status Pengajuan Berita Organisasi Saya</h4>
+                            </div>
+                            <span class="text-xs text-emerald-700 font-medium">{{ $pengumumanSaya->count() }} diajukan</span>
+                        </div>
+                        <div class="space-y-2">
+                            @foreach($pengumumanSaya as $ps)
+                                <div class="bg-white/90 border border-emerald-100 rounded-xl p-3 flex flex-wrap items-center justify-between gap-2 text-xs">
+                                    <div class="space-y-0.5">
+                                        <span class="font-bold text-slate-800">{{ $ps->judul }}</span>
+                                        <span class="text-slate-400 block text-[11px]">{{ $ps->created_at->format('d/m/Y H:i') }}</span>
+                                        @if($ps->catatan_kurasi)
+                                            <div class="text-rose-700 bg-rose-50 p-1.5 rounded mt-1 text-[11px]">
+                                                <strong>Catatan BEM:</strong> {{ $ps->catatan_kurasi }}
+                                            </div>
+                                        @endif
+                                    </div>
+                                    <span class="px-2.5 py-0.5 rounded-full font-bold text-[11px] {{ $ps->status === 'published' ? 'bg-emerald-100 text-emerald-800' : ($ps->status === 'pending_kurasi' ? 'bg-amber-100 text-amber-800' : 'bg-rose-100 text-rose-800') }}">
+                                        {{ $ps->status_label }}
+                                    </span>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+                @endif
+                @endhasrole
+
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     @forelse($pengumuman as $p)
                     <div class="bg-white rounded-xl shadow-sm border border-slate-200/80 hover:shadow-md transition-all overflow-hidden flex flex-col justify-between">
                         <div class="p-6">
                             <div class="flex items-center justify-between gap-2 mb-3">
-                                <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-50 text-indigo-700 border border-indigo-200/60">
-                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-                                    {{ \Carbon\Carbon::parse($p->created_at)->format('d M Y') }}
-                                </span>
+                                <div class="flex items-center gap-2">
+                                    <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold border {{ $p->badge_color }}">
+                                        {{ $p->badge_label }}
+                                    </span>
+                                    @if($p->tanggal_kegiatan)
+                                        <span class="text-[11px] text-slate-500 bg-slate-100 px-2 py-0.5 rounded-md">
+                                            📅 {{ $p->tanggal_kegiatan->format('d M Y') }}
+                                        </span>
+                                    @endif
+                                </div>
                                 
-                                @hasrole('bem')
-                                @if($p->user_id === Auth::id())
+                                @if(Auth::check() && (Auth::user()->hasAnyRole(['bem', 'bkhm', 'admin']) || Auth::id() === $p->user_id))
                                 <form action="{{ route('informasi.pengumuman.destroy', $p) }}" method="POST" onsubmit="return confirm('Hapus pengumuman ini?')">
                                     @csrf @method('DELETE')
                                     <button type="submit" class="text-rose-500 hover:text-rose-700 text-xs font-semibold hover:underline">Hapus</button>
                                 </form>
                                 @endif
-                                @endhasrole
                             </div>
 
                             <h3 class="text-lg font-bold text-slate-900 mb-2 leading-snug">{{ $p->judul }}</h3>
@@ -86,7 +158,7 @@
                         </div>
 
                         <div class="px-6 py-3.5 bg-slate-50 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
-                            <span>Diterbitkan oleh: <strong class="text-slate-700 font-medium">{{ $p->user->name }}</strong></span>
+                            <span>Diterbitkan oleh: <strong class="text-slate-700 font-medium">{{ $p->user->name ?? 'Kemahasiswaan' }}</strong></span>
                             
                             @if($p->file_lampiran)
                             <a href="{{ route('informasi.pengumuman.lampiran', $p) }}" target="_blank" class="inline-flex items-center gap-1 px-3 py-1 bg-white border border-slate-300 hover:bg-slate-100 text-slate-700 font-medium rounded shadow-2xs transition-colors">
@@ -179,40 +251,69 @@
         </div>
 
         <!-- Modal Tambah Pengumuman -->
-        @hasrole('bem')
+        @hasanyrole('bem|bkhm|ormawa|admin')
         <div x-show="showPengumumanModal" class="fixed inset-0 z-50 overflow-y-auto" style="display: none;">
             <div class="flex items-center justify-center min-h-screen px-4">
                 <div class="fixed inset-0 transition-opacity bg-slate-900/60 backdrop-blur-xs" @click="showPengumumanModal = false"></div>
                 <div class="relative bg-white w-full max-w-lg p-6 rounded-2xl shadow-2xl border border-slate-200">
                     <div class="flex items-center justify-between pb-3 mb-4 border-b border-slate-200">
-                        <h3 class="text-lg font-bold text-slate-900">Buat Pengumuman Baru</h3>
-                        <button @click="showPengumumanModal = false" class="text-slate-400 hover:text-slate-600">&times;</button>
+                        <div>
+                            <h3 class="text-lg font-bold text-slate-900">
+                                @role('bkhm') Terbitkan Pengumuman Resmi Kampus
+                                @elserole('bem') Terbitkan Agenda / Berita BEM
+                                @elserole('ormawa') Ajukan Publikasi Berita / Acara Ormawa
+                                @else Buat Pengumuman Baru
+                                @endrole
+                            </h3>
+                            <p class="text-xs text-slate-500 mt-0.5">
+                                @role('ormawa')
+                                    Berita yang Anda ajukan akan dikurasi oleh BEM terlebih dahulu sebelum tayang ke publik.
+                                @else
+                                    Pengumuman akan langsung dipublikasikan dan dapat diakses mahasiswa.
+                                @endrole
+                            </p>
+                        </div>
+                        <button @click="showPengumumanModal = false" class="text-slate-400 hover:text-slate-600 text-xl font-bold">&times;</button>
                     </div>
+
+                    @role('ormawa')
+                    <div class="mb-4 p-3 bg-amber-50 border border-amber-200 rounded-xl flex items-start gap-2.5 text-xs text-amber-800">
+                        <svg class="w-4 h-4 text-amber-600 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        <span>Draf publikasi Anda akan melalui proses kurasi oleh BEM. Pastikan pamflet atau informasi jelas dan tidak melanggar etika kemahasiswaan.</span>
+                    </div>
+                    @endrole
+
                     <form action="{{ route('informasi.pengumuman.store') }}" method="POST" enctype="multipart/form-data">
                         @csrf
                         <div class="space-y-4">
                             <div>
-                                <x-input-label for="judul" value="Judul Pengumuman" />
-                                <x-text-input id="judul" name="judul" type="text" class="mt-1 block w-full" placeholder="Contoh: Rilis Timeline Kegiatan Ormawa 2026" required />
+                                <x-input-label for="judul" value="Judul Pengumuman / Agenda" />
+                                <x-text-input id="judul" name="judul" type="text" class="mt-1 block w-full" placeholder="Contoh: Open Recruitment Anggota Baru / Lomba Nasional" required />
                             </div>
                             <div>
-                                <x-input-label for="isi" value="Isi / Deskripsi" />
-                                <textarea id="isi" name="isi" rows="4" class="border-slate-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-lg shadow-2xs block mt-1 w-full text-sm" placeholder="Rincian isi pengumuman..." required></textarea>
+                                <x-input-label for="tanggal_kegiatan" value="Tanggal Kegiatan (Opsional untuk Agenda Acara)" />
+                                <x-text-input id="tanggal_kegiatan" name="tanggal_kegiatan" type="date" class="mt-1 block w-full" />
                             </div>
                             <div>
-                                <x-input-label for="file_lampiran" value="File Lampiran (Opsional, PDF/JPG/PNG)" />
-                                <input id="file_lampiran" name="file_lampiran" type="file" class="mt-1 block w-full border border-slate-300 rounded-lg p-2 text-sm text-slate-600 bg-slate-50" />
+                                <x-input-label for="isi" value="Isi / Deskripsi Lengkap" />
+                                <textarea id="isi" name="isi" rows="4" class="border-slate-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-lg shadow-2xs block mt-1 w-full text-sm" placeholder="Rincian isi pengumuman, deskripsi agenda, persyaratan lomba, narasi..." required></textarea>
+                            </div>
+                            <div>
+                                <x-input-label for="file_lampiran" value="File Lampiran / Pamflet (Opsional, PDF/JPG/PNG/JPEG maks 5MB)" />
+                                <input id="file_lampiran" name="file_lampiran" type="file" accept=".pdf,.jpg,.jpeg,.png" class="mt-1 block w-full border border-slate-300 rounded-lg p-2 text-sm text-slate-600 bg-slate-50" />
                             </div>
                         </div>
                         <div class="mt-6 flex justify-end gap-3 pt-3 border-t border-slate-200">
                             <button type="button" @click="showPengumumanModal = false" class="px-4 py-2 border border-slate-300 rounded-lg text-slate-600 hover:bg-slate-50 font-medium text-sm">Batal</button>
-                            <x-primary-button>Terbitkan</x-primary-button>
+                            <x-primary-button>
+                                @role('ormawa') Ajukan ke BEM @else Terbitkan Sekarang @endrole
+                            </x-primary-button>
                         </div>
                     </form>
                 </div>
             </div>
         </div>
-        @endhasrole
+        @endhasanyrole
 
         <!-- Modal Tambah Regulasi -->
         @hasrole('bpm')

@@ -116,8 +116,8 @@ class Phase1Test extends TestCase
         $this->assertEquals(4600000, (float) $ormawa->fresh()->saldo);
     }
 
-    /** FR-009: setelah ditolak, ajukan() kembali ke titik penolakan. */
-    public function test_rejected_pengajuan_resubmits_to_rejection_point(): void
+    /** FR-009 / PRD v3.0 BR-13: setelah revisi diajukan kembali, alur di-reset ke tahap paling awal (submitted). */
+    public function test_rejected_pengajuan_resubmits_to_initial_stage(): void
     {
         $ormawa = User::factory()->create();
         $ormawa->assignRole('ormawa');
@@ -133,7 +133,7 @@ class Phase1Test extends TestCase
 
         $response->assertRedirect(route('pengajuan.index'));
         $fresh = $pengajuan->fresh();
-        $this->assertEquals('bpm_approved', $fresh->state->name);
+        $this->assertEquals('submitted', $fresh->state->name);
         $this->assertNull($fresh->rejected_from_state_id);
     }
 
