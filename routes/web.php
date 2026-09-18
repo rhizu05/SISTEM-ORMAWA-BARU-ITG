@@ -41,6 +41,9 @@ Route::get('/informasi', [InformasiController::class, 'index'])->name('informasi
 Route::get('/informasi/pengumuman/{pengumuman}/lampiran', [InformasiController::class, 'lampiranPengumuman'])->name('informasi.pengumuman.lampiran');
 Route::get('/informasi/regulasi/{regulasi}/unduh', [InformasiController::class, 'unduhRegulasi'])->name('informasi.regulasi.unduh');
 
+// Detail Berita & Pengumuman Publik
+Route::get('/informasi/{pengumuman}', [InformasiController::class, 'show'])->name('informasi.show');
+
 // Portal Layanan Publik Mahasiswa (Aspirasi, Konseling, Prestasi, Tracking)
 Route::prefix('layanan')->name('layanan.')->group(function () {
     Route::get('/', [TiketPublicController::class, 'index'])->name('index');

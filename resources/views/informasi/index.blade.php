@@ -131,41 +131,64 @@
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     @forelse($pengumuman as $p)
-                    <div class="bg-white rounded-xl shadow-sm border border-slate-200/80 hover:shadow-md transition-all overflow-hidden flex flex-col justify-between">
-                        <div class="p-6">
-                            <div class="flex items-center justify-between gap-2 mb-3">
-                                <div class="flex items-center gap-2">
-                                    <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold border {{ $p->badge_color }}">
+                    <div class="bg-white rounded-2xl shadow-sm border border-slate-200/80 hover:shadow-md transition-all overflow-hidden flex flex-col justify-between group">
+                        <div>
+                            @if($p->gambar_sampul)
+                                <a href="{{ route('informasi.show', $p) }}" class="block aspect-video w-full overflow-hidden bg-slate-100 relative">
+                                    <img src="{{ $p->gambar_url }}" alt="{{ $p->judul }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+                                    <span class="absolute top-3 left-3 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold shadow-sm backdrop-blur-md bg-white/90 text-slate-800 border border-white/60">
                                         {{ $p->badge_label }}
                                     </span>
-                                    @if($p->tanggal_kegiatan)
-                                        <span class="text-[11px] text-slate-500 bg-slate-100 px-2 py-0.5 rounded-md">
-                                            📅 {{ $p->tanggal_kegiatan->format('d M Y') }}
-                                        </span>
+                                </a>
+                            @endif
+
+                            <div class="p-6">
+                                <div class="flex items-center justify-between gap-2 mb-3">
+                                    <div class="flex items-center gap-2">
+                                        @if(!$p->gambar_sampul)
+                                            <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold border {{ $p->badge_color }}">
+                                                {{ $p->badge_label }}
+                                            </span>
+                                        @endif
+                                        @if($p->tanggal_kegiatan)
+                                            <span class="text-[11px] text-slate-500 bg-slate-100 px-2 py-0.5 rounded-md">
+                                                📅 {{ $p->tanggal_kegiatan->format('d M Y') }}
+                                            </span>
+                                        @endif
+                                    </div>
+                                    
+                                    @if(Auth::check() && (Auth::user()->hasAnyRole(['bem', 'bkhm', 'admin']) || Auth::id() === $p->user_id))
+                                    <form action="{{ route('informasi.pengumuman.destroy', $p) }}" method="POST" onsubmit="return confirm('Hapus pengumuman ini?')">
+                                        @csrf @method('DELETE')
+                                        <button type="submit" class="text-rose-500 hover:text-rose-700 text-xs font-semibold hover:underline">Hapus</button>
+                                    </form>
                                     @endif
                                 </div>
-                                
-                                @if(Auth::check() && (Auth::user()->hasAnyRole(['bem', 'bkhm', 'admin']) || Auth::id() === $p->user_id))
-                                <form action="{{ route('informasi.pengumuman.destroy', $p) }}" method="POST" onsubmit="return confirm('Hapus pengumuman ini?')">
-                                    @csrf @method('DELETE')
-                                    <button type="submit" class="text-rose-500 hover:text-rose-700 text-xs font-semibold hover:underline">Hapus</button>
-                                </form>
-                                @endif
-                            </div>
 
-                            <h3 class="text-lg font-bold text-slate-900 mb-2 leading-snug">{{ $p->judul }}</h3>
-                            <p class="text-slate-600 text-sm whitespace-pre-wrap leading-relaxed line-clamp-4">{{ $p->isi }}</p>
+                                <h3 class="text-lg font-bold text-slate-900 mb-2 leading-snug">
+                                    <a href="{{ route('informasi.show', $p) }}" class="hover:text-indigo-600 transition">
+                                        {{ $p->judul }}
+                                    </a>
+                                </h3>
+                                <p class="text-slate-600 text-sm whitespace-pre-line leading-relaxed line-clamp-3">{{ $p->isi }}</p>
+                            </div>
                         </div>
 
-                        <div class="px-6 py-3.5 bg-slate-50 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
-                            <span>Diterbitkan oleh: <strong class="text-slate-700 font-medium">{{ $p->user->name ?? 'Kemahasiswaan' }}</strong></span>
+                        <div class="px-6 py-3.5 bg-slate-50/80 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+                            <span>Oleh: <strong class="text-slate-700 font-medium">{{ $p->user->name ?? 'Kemahasiswaan' }}</strong></span>
                             
-                            @if($p->file_lampiran)
-                            <a href="{{ route('informasi.pengumuman.lampiran', $p) }}" target="_blank" class="inline-flex items-center gap-1 px-3 py-1 bg-white border border-slate-300 hover:bg-slate-100 text-slate-700 font-medium rounded shadow-2xs transition-colors">
-                                <svg class="w-3.5 h-3.5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"/></svg>
-                                <span>Lihat Lampiran</span>
-                            </a>
-                            @endif
+                            <div class="flex items-center gap-3">
+                                @if($p->file_lampiran)
+                                <a href="{{ route('informasi.pengumuman.lampiran', $p) }}" target="_blank" class="inline-flex items-center gap-1 px-2.5 py-1 bg-white border border-slate-300 hover:bg-slate-100 text-slate-700 font-medium rounded shadow-2xs transition-colors">
+                                    <svg class="w-3.5 h-3.5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"/></svg>
+                                    <span>Lampiran</span>
+                                </a>
+                                @endif
+                                <a href="{{ route('informasi.show', $p) }}" class="inline-flex items-center gap-1 font-bold text-indigo-600 hover:text-indigo-800 transition">
+                                    <span>Detail</span>
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                                </a>
+                            </div>
                         </div>
                     </div>
                     @empty
@@ -299,7 +322,12 @@
                                 <textarea id="isi" name="isi" rows="4" class="border-slate-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-lg shadow-2xs block mt-1 w-full text-sm" placeholder="Rincian isi pengumuman, deskripsi agenda, persyaratan lomba, narasi..." required></textarea>
                             </div>
                             <div>
-                                <x-input-label for="file_lampiran" value="File Lampiran / Pamflet (Opsional, PDF/JPG/PNG/JPEG maks 5MB)" />
+                                <x-input-label for="gambar_sampul" value="Gambar Sampul / Poster Pamflet (Opsional, JPG/PNG/WebP maks 5MB)" />
+                                <input id="gambar_sampul" name="gambar_sampul" type="file" accept="image/jpeg,image/png,image/webp" class="mt-1 block w-full border border-slate-300 rounded-lg p-2 text-sm text-slate-600 bg-slate-50" />
+                                <p class="text-[11px] text-slate-400 mt-1">Akan ditampilkan sebagai cover poster pada kartu dan halaman detail.</p>
+                            </div>
+                            <div>
+                                <x-input-label for="file_lampiran" value="Dokumen Panduan / Lampiran PDF (Opsional, maks 5MB)" />
                                 <input id="file_lampiran" name="file_lampiran" type="file" accept=".pdf,.jpg,.jpeg,.png" class="mt-1 block w-full border border-slate-300 rounded-lg p-2 text-sm text-slate-600 bg-slate-50" />
                             </div>
                         </div>

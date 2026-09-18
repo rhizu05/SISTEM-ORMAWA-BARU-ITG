@@ -4,28 +4,7 @@
         <span x-show="sidebarOpen" class="ml-3 font-bold text-lg whitespace-nowrap">Sistem Keuangan</span>
     </div>
 
-        @hasrole('mahasiswa')
-        <div class="pb-4">
-            <a href="{{ route('dashboard') }}" class="flex items-center p-2 rounded-lg hover:bg-indigo-800 transition-colors {{ request()->routeIs('dashboard') ? 'bg-indigo-800' : '' }}">
-                <svg class="w-6 h-6 min-w-[24px]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0h6" /></svg>
-                <span x-show="sidebarOpen" class="ml-3 text-sm font-medium truncate">Dashboard</span>
-            </a>
-        </div>
-        <div class="space-y-1 pb-4">
-            <div class="px-2 text-[10px] font-bold text-indigo-300 uppercase tracking-widest">Layanan Mahasiswa</div>
-            <a href="{{ route('aspirasi.create') }}" class="block p-2 rounded hover:bg-indigo-700 text-sm {{ request()->routeIs('aspirasi.create') ? 'bg-indigo-700' : '' }}">Kirim Aspirasi</a>
-            <a href="{{ route('aspirasi.mine') }}" class="block p-2 rounded hover:bg-indigo-700 text-sm {{ request()->routeIs('aspirasi.mine') ? 'bg-indigo-700' : '' }}">Aspirasi Saya</a>
-            <a href="{{ route('prestasi.index') }}" class="block p-2 rounded hover:bg-indigo-700 text-sm {{ request()->routeIs('prestasi.*') ? 'bg-indigo-700' : '' }}">Prestasi & Kompetisi</a>
-            <a href="{{ route('notifikasi.index') }}" class="flex items-center justify-between p-2 rounded hover:bg-indigo-700 text-sm {{ request()->routeIs('notifikasi.*') ? 'bg-indigo-700' : '' }}">
-                <span>Notifikasi</span>
-                @if(($unreadNotifikasi ?? 0) > 0)
-                    <span class="ml-2 bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full" aria-label="{{ $unreadNotifikasi }} notifikasi belum dibaca">{{ $unreadNotifikasi }}</span>
-                @endif
-            </a>
-            <a href="{{ route('informasi.index') }}" class="block p-2 rounded hover:bg-indigo-700 text-sm {{ request()->routeIs('informasi.index') ? 'bg-indigo-700' : '' }}">Informasi Kampus</a>
-            <a href="{{ route('rapat.index') }}" class="block p-2 rounded hover:bg-indigo-700 text-sm {{ request()->routeIs('rapat.index') ? 'bg-indigo-700' : '' }}">Agenda Rapat</a>
-        </div>
-        @endhasrole
+
 
         @hasrole('admin')
         <div class="pb-4">

@@ -53,20 +53,43 @@
                                 </span>
                             </div>
 
-                            <div class="space-y-2">
-                                <h4 class="font-bold text-slate-900 text-lg leading-snug">{{ $p->judul }}</h4>
-                                <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 text-sm text-slate-700 whitespace-pre-line leading-relaxed">
-                                    {{ $p->isi }}
+                            @if ($p->gambar_sampul)
+                                <div class="flex flex-col sm:flex-row items-start gap-4">
+                                    <a href="{{ $p->gambar_url }}" target="_blank" class="shrink-0 w-full sm:w-44 h-44 rounded-xl overflow-hidden bg-slate-100 border border-slate-200 block group relative shadow-2xs">
+                                        <img src="{{ $p->gambar_url }}" alt="{{ $p->judul }}" class="w-full h-full object-cover group-hover:scale-105 transition">
+                                        <span class="absolute inset-0 bg-slate-900/30 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white text-xs font-bold backdrop-blur-2xs">
+                                            Buka Poster &nearr;
+                                        </span>
+                                    </a>
+                                    <div class="flex-1 space-y-2 w-full">
+                                        <h4 class="font-bold text-slate-900 text-lg leading-snug">{{ $p->judul }}</h4>
+                                        <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 text-sm text-slate-700 whitespace-pre-line leading-relaxed">
+                                            {{ $p->isi }}
+                                        </div>
+                                    </div>
                                 </div>
-                            </div>
+                            @else
+                                <div class="space-y-2">
+                                    <h4 class="font-bold text-slate-900 text-lg leading-snug">{{ $p->judul }}</h4>
+                                    <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 text-sm text-slate-700 whitespace-pre-line leading-relaxed">
+                                        {{ $p->isi }}
+                                    </div>
+                                </div>
+                            @endif
 
                             <div class="flex flex-wrap items-center justify-between gap-4 pt-2 border-t border-slate-100">
-                                <div>
+                                <div class="flex items-center gap-2">
+                                    <a href="{{ route('informasi.show', $p) }}" target="_blank"
+                                        class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold text-slate-700 bg-white border border-slate-300 hover:bg-slate-50 transition">
+                                        <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                                        Pratinjau Tampilan Berita
+                                    </a>
+
                                     @if ($p->file_lampiran)
                                         <a href="{{ route('informasi.pengumuman.lampiran', $p) }}" target="_blank"
                                             class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold text-indigo-700 bg-indigo-50 border border-indigo-200 hover:bg-indigo-100 transition">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                                            Lihat Lampiran / Poster Pamflet
+                                            Dokumen PDF
                                         </a>
                                     @endif
                                 </div>

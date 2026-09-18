@@ -49,8 +49,14 @@ class InformasiController extends Controller
             'isi' => 'required|string',
             'kategori' => 'nullable|string|max:50',
             'tanggal_kegiatan' => 'nullable|date',
+            'gambar_sampul' => 'nullable|image|mimes:jpeg,jpg,png,webp|max:5120',
             'file_lampiran' => 'nullable|file|mimes:pdf,jpg,jpeg,png|mimetypes:application/pdf,image/jpeg,image/png|max:5120',
         ]);
+
+        $gambarSampulPath = null;
+        if ($request->hasFile('gambar_sampul')) {
+            $gambarSampulPath = $request->file('gambar_sampul')->store('pengumuman/sampul', 'public');
+        }
 
         $lampiranPath = null;
         if ($request->hasFile('file_lampiran')) {
@@ -81,6 +87,7 @@ class InformasiController extends Controller
             'kategori' => $kategori,
             'status' => $status,
             'tanggal_kegiatan' => $request->tanggal_kegiatan,
+            'gambar_sampul' => $gambarSampulPath,
             'file_lampiran' => $lampiranPath,
         ]);
 
@@ -144,10 +151,39 @@ class InformasiController extends Controller
         return redirect()->route('bem.kurasi.index')->with('success', $msg)->with('status', $msg);
     }
 
+    /**
+     * Tampilan detail berita publik / pratinjau draf untuk kurator.
+     */
+    public function show(Pengumuman $pengumuman)
+    {
+        // Jika belum published, hanya penulis, BEM, BKHM, atau Admin yang boleh melihat pratinjau
+        if ($pengumuman->status !== 'published') {
+            $canPreview = Auth::check() && (
+                Auth::user()->hasAnyRole(['bem', 'bkhm', 'admin']) ||
+                Auth::id() === $pengumuman->user_id
+            );
+            abort_unless($canPreview, 404, 'Informasi tidak ditemukan atau belum diterbitkan.');
+        }
+
+        $pengumuman->load(['user', 'disetujuiOleh']);
+
+        $beritaTerkait = Pengumuman::published()
+            ->where('id', '!=', $pengumuman->id)
+            ->latest()
+            ->take(4)
+            ->get();
+
+        return view('informasi.show', compact('pengumuman', 'beritaTerkait'));
+    }
+
     public function destroyPengumuman(Pengumuman $pengumuman)
     {
         $canDelete = Auth::user()->hasAnyRole(['bem', 'bkhm', 'admin']) || Auth::id() === $pengumuman->user_id;
         abort_unless($canDelete, 403);
+
+        if ($pengumuman->gambar_sampul && Storage::disk('public')->exists($pengumuman->gambar_sampul)) {
+            Storage::disk('public')->delete($pengumuman->gambar_sampul);
+        }
 
         if ($pengumuman->file_lampiran && Storage::disk('local')->exists($pengumuman->file_lampiran)) {
             Storage::disk('local')->delete($pengumuman->file_lampiran);

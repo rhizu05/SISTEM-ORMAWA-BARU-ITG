@@ -21,12 +21,21 @@ class Pengumuman extends Model
         'disetujui_oleh_id',
         'catatan_kurasi',
         'tanggal_kegiatan',
+        'gambar_sampul',
         'file_lampiran',
     ];
 
     protected $casts = [
         'tanggal_kegiatan' => 'date',
     ];
+
+    public function getGambarUrlAttribute(): ?string
+    {
+        if (!$this->gambar_sampul) {
+            return null;
+        }
+        return asset('storage/' . $this->gambar_sampul);
+    }
 
     public function user(): BelongsTo
     {
