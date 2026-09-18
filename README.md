@@ -1,125 +1,179 @@
-# Sistem Keuangan Ormawa — ITG
+# SKIN ITG — Sistem Informasi Kemahasiswaan Terpadu
+**Institut Teknologi Garut (Versi 3.0)**
 
-Aplikasi manajemen keuangan, pengajuan dana, peminjaman sarpras, dan persuratan untuk Organisasi Mahasiswa (Ormawa) berbasis **Laravel 13 + Breeze + Spatie Permission + DomPDF**.
+Aplikasi terpadu tata kelola kemahasiswaan, persuratan digital ormawa, pengajuan anggaran berbasis saldo, peminjaman sarana prasarana, serta portal layanan publik mahasiswa berbasis **Laravel 11 / 12 / 13 + Tailwind CSS + Breeze + Spatie Permission + DomPDF + PhpSpreadsheet**.
 
-Verifikasi E2E: suite **156 test (17 file spec)** di `e2e/` (`npx playwright test`, `php -S 127.0.0.1:8000`, `retries:2`). Jalankan `php artisan migrate:fresh --seed` sebelum E2E untuk hasil penuh (aturan *blocking* pengajuan membuat sebagian test di-skip bila state DB tidak bersih).
+---
 
-## Prasyarat
+## 🚀 Panduan Inisialisasi Proyek (Project Setup & Initialization)
 
-| Kebutuhan | Versi |
-|-----------|-------|
-| PHP | ^8.3 (teruji 8.4.14) |
-| Composer | ^2.x |
-| Node.js | ^18 / ^22 (teruji 22.22.3) |
-| DB | SQLite (default) atau MySQL 8 |
-| OS | Windows (Laragon) / Linux / macOS |
+Ikuti langkah-langkah berikut secara berurutan untuk menginisialisasi proyek ini di lingkungan lokal Anda (mendukung Windows/Laragon, macOS, dan Linux):
 
-## Setup Lokal (Tim)
-
+### 1. Kloning Repositori & Masuk ke Direktori
 ```bash
-# 1. Clone
-git clone <repo-url> sistem_keuangan
+git clone https://github.com/rhizu05/SISTEM-ORMAWA-BARU-ITG.git sistem_keuangan
 cd sistem_keuangan
-git checkout develop   # atau main sesuai kesepakatan
-
-# 2. Install dependencies
-composer install
-npm install
-
-# 3. Environment
-copy .env.example .env          # Windows
-# cp .env.example .env          # Linux/macOS
-php artisan key:generate
-
-# SQLite (default .env.example: DB_CONNECTION=sqlite)
-# buat file jika belum ada
-if not exist database\database.sqlite type nul > database\database.sqlite
-# Linux/macOS: touch database/database.sqlite
-
-# MySQL (opsional) — edit .env:
-# DB_CONNECTION=mysql
-# DB_HOST=127.0.0.1
-# DB_PORT=3306
-# DB_DATABASE=sistem_keuangan
-# DB_USERNAME=root
-# DB_PASSWORD=
-
-# 4. Migrasi & seed (wajib: roles, users, workflow, konfigurasi, master sarpras)
-php artisan migrate:fresh --seed
-
-# 5. Build frontend
-npm run build        # produksi
-# npm run dev        # dev (vite HMR)
-
-# 6. Storage link (untuk upload TTD & lampiran)
-php artisan storage:link
-
-# 7. Jalankan
-php artisan serve --host=127.0.0.1 --port=8000
-# atau via composer:
-composer run dev     # serve + queue + vite concurrent (butuh @laravel/multiplex)
+git checkout develop
 ```
 
-Buka `http://127.0.0.1:8000`.
+### 2. Instalasi Dependensi Backend (Composer)
+Pastikan PHP versi minimal **8.3** (teruji pada PHP 8.4) dan ekstensi `pdo_mysql`, `gd`, `zip`, `fileinfo`, `mbstring` telah aktif.
+```bash
+composer install
+```
 
-## Akun Default (password semua: `password`)
+### 3. Instalasi Dependensi Frontend (NPM)
+Pastikan Node.js versi minimal **v18** atau **v20+** telah terpasang.
+```bash
+npm install
+```
 
-| Role | Email | Username |
-|------|-------|----------|
-| Admin | admin@test.com | admin |
-| BEM | bem@test.com | bem |
-| BPM | bpm@test.com | bpm |
-| BKHM | bkhm@test.com | bkhm |
-| WR3 | wr3@test.com | wr3 |
-| Bendahara | bendahara@test.com | bendahara |
-| Sarpras | sarpras@test.com | sarpras |
-| Ormawa (HIMA IF) | himaif@test.com | himaif |
-| Ormawa (UKM Olahraga) | ukm.olahraga@test.com | ukmolahraga |
+### 4. Konfigurasi Environment (`.env`)
+Salin berkas konfigurasi sampel dan hasilkan enkripsi kunci aplikasi:
+```bash
+# Windows:
+copy .env.example .env
 
-> [!NOTE]
-> **Mahasiswa Umum berstatus Guest (Tanpa Akun Login)**: Sesuai aturan bisnis **BR-01**, mahasiswa umum tidak memiliki akun di tabel `users`. Akses layanan publik (Aspirasi, Konseling Personal Rahasia, Pelaporan Prestasi) dan pelacakan status tiket diakses langsung melalui portal publik tanpa login berbasis **Kode Tiket unik (`SKIN-TKT-YYYY-XXXX`) + Alamat Email**.
+# Linux / macOS:
+cp .env.example .env
 
-Login dapat memakai **email atau username (NIM)**. Akun pengaju (Ormawa/BEM/BPM) di-seed dengan `saldo_awal` Rp 10.000.000 (batas BR-04).
+# Generate Application Key:
+php artisan key:generate
+```
 
-Seed tambahan: `WorkflowSeeder`, `KonfigurasiSeeder`, `MasterDataSeeder` (ruangan + barang + jadwal kuliah), `PeriodeAnggaranSeeder` (periode anggaran berjalan), dan `ContohLayananDanInformasiSeeder` (sample pengumuman kurasi BEM & tiket layanan publik).
+### 5. Konfigurasi Database
+Buka file `.env` dan sesuaikan koneksi database Anda:
 
-## Testing
+**Opsi A: Menggunakan MySQL (Disarankan untuk Laragon / XAMPP):**
+Buat database bernama `sistem_kemahasiswaan` (atau `sistem_keuangan`) di phpMyAdmin / HeidiSQL, lalu atur di `.env`:
+```env
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=sistem_kemahasiswaan
+DB_USERNAME=root
+DB_PASSWORD=
+```
+
+**Opsi B: Menggunakan SQLite (Opsional untuk pengujian cepat):**
+```bash
+# Buat file database jika belum ada (Windows):
+type nul > database\database.sqlite
+# Linux/macOS:
+touch database/database.sqlite
+```
+Sesuaikan `.env`:
+```env
+DB_CONNECTION=sqlite
+```
+
+### 6. Migrasi Database & Seeding Data Awal Lengkap
+Jalankan migrasi seluruh 51 tabel dan isi seluruh data akun resmi, hak akses, alur kerja, data master ruangan/barang, serta sampel berita ber-poster dan tiket layanan publik:
+```bash
+php artisan migrate:fresh --seed
+```
+
+### 7. Buat Symlink Storage Publik
+Wajib dijalankan agar gambar poster berita (`storage/app/public/pengumuman/sampul`), tanda tangan digital, dan lampiran publik dapat diakses oleh browser:
+```bash
+php artisan storage:link
+```
+
+### 8. Kompilasi Aset Frontend (Vite)
+```bash
+# Untuk mode pengembangan (Hot Reload / HMR):
+npm run dev
+
+# ATAU untuk kompilasi berkas produksi siap saji:
+npm run build
+```
+
+### 9. Jalankan Server Aplikasi
+Buka terminal baru dan jalankan server lokal Laravel:
+```bash
+php artisan serve --host=127.0.0.1 --port=8000
+```
+Buka browser Anda di alamat: **`http://127.0.0.1:8000`**
+
+---
+
+## 🔑 Kredensial Akun Default Sistem
+
+Seluruh akun di bawah ini telah disiapkan oleh seeder dengan kata sandi default: **`password`**
+
+| Peran / Aktor | Email Login | Username (NIM) | Keterangan Akses |
+| :--- | :--- | :--- | :--- |
+| **Admin Sistem** | `admin@test.com` | `admin` | Pengelolaan pengguna dan konfigurasi global. |
+| **Biro Kemahasiswaan (BKHM)** | `bkhm@test.com` | `bkhm` | Saldo ormawa, ekspor Excel/PDF, konseling, dan verifikasi prestasi. |
+| **BEM ITG** | `bem@test.com` | `bem` | Kurasi berita HIMA/UKM, verifikasi proposal tahap 1, dan agenda BEM. |
+| **BPM ITG** | `bpm@test.com` | `bpm` | Himpun aspirasi mahasiswa publik, regulasi UU ormawa, verifikasi tahap 2. |
+| **Sarana & Prasarana (Sarpras)**| `sarpras@test.com` | `sarpras` | Kalender ruangan (slot checker kuliah vs ormawa), persetujuan tempat/barang. |
+| **Wakil Rektor III (WR3)** | `wr3@test.com` | `wr3` | Persetujuan proposal tahap 4 dan monitoring LPJ. |
+| **Bendahara Kampus** | `bendahara@test.com` | `bendahara` | Verifikasi pencairan dana dan konfirmasi transfer ormawa. |
+| **Himpunan (HIMA IF)** | `himaif@test.com` | `himaif` | Pengajuan anggaran saldo, proposal ber-TTD, pinjam sarpras, draf berita. |
+| **Unit Kegiatan (UKM Olahraga)**| `ukm.olahraga@test.com`| `ukmolahraga` | Pengajuan kegiatan UKM, surat pengantar sarpras jalur mandiri. |
+
+> [!IMPORTANT]
+> **Kebijakan Mahasiswa Umum (Guest Model — Aturan Bisnis BR-01):**
+> Mahasiswa umum **tidak memiliki akun login dan tidak terdaftar di tabel `users`**. Seluruh layanan mahasiswa (Aspirasi, Konseling Rahasia BKHM, dan Pelaporan Prestasi) diakses secara publik melalui sistem tiket unik (`SKIN-TKT-YYYY-XXXX`). Pelacakan status perkembangan dilakukan via halaman **Lacak Tiket** menggunakan kombinasi **Kode Tiket + Alamat Email**.
+
+---
+
+## 🌟 Fitur Unggulan Sistem
+
+1. **Portal Layanan Publik Mahasiswa Bertiket:**
+   - Formulir Aspirasi Mahasiswa (opsi kirim anonim, terhubung ke BPM dan dapat dieskalasi ke BKHM).
+   - Layanan Konseling Personal BKHM Rahasia (data dienkripsi *at-rest* AES-256-CBC, penetapan jadwal temu, dan tombol konfirmasi kehadiran mahasiswa).
+   - Pelaporan Prestasi Mandiri & Pengajuan Bantuan Dana Delegasi Lomba.
+   - Showcase Galeri Prestasi Mahasiswa Publik.
+2. **Pusat Informasi & Kurasi Berita Berjenjang (Model Delegasi):**
+   - Halaman detail berita interaktif dengan tampilan poster pamflet gambar, lightbox modal, tombol share ke WhatsApp, dan unduh dokumen Juknis PDF.
+   - Panel Kurasi BEM: Validasi draf poster pamflet dan narasi kegiatan HIMA/UKM sebelum dipublikasikan ke publik.
+3. **Sistem Tata Kelola Pengajuan Anggaran Ormawa:**
+   - Alur persetujuan berjenjang 11 status workflow (Ormawa &rarr; BEM &rarr; BPM &rarr; BKHM &rarr; WR3 &rarr; Bendahara &rarr; Cair &rarr; LPJ).
+   - Generator Proposal & LPJ otomatis berkop surat resmi ITG dan tanda tangan digital QR Code.
+   - Kolom komunikasi revisi interaktif dua arah antara pengaju dan verifikator.
+4. **Modul Rekapitulasi Keuangan BKHM:**
+   - Pelacakan mutasi saldo ormawa per periode anggaran (*audit trail*).
+   - Fitur ekspor laporan keuangan instan ke format **Excel (.xlsx)** dan **PDF Resmi**.
+5. **Manajemen Sarpras & Kalender Interaktif:**
+   - *Slot checker* ketersediaan ruangan real-time yang memetakan jam perkuliahan rutin kampus vs jadwal peminjaman kegiatan ormawa.
+   - Mendukung 2 jalur peminjaman: Jalur HIMA/UKM ber-surat rekomendasi prodi (*bypass* langsung ke Sarpras) dan Jalur BEM/BPM (melalui verifikasi BKHM).
+
+---
+
+## 🧪 Pengujian Sistem (Testing)
+
+Proyek ini dilengkapi dengan cakupan pengujian otomatis (*automated testing*) yang komprehensif:
 
 ```bash
-# Unit / Feature — 55 test, berjalan di sqlite :memory: (terisolasi dari DB kerja)
+# Menjalankan seluruh test suite unit & fitur (121 tests, 480 assertions):
 php artisan test
-# atau
-composer run test
 
-# E2E Playwright (156 test / 17 file spec; sebagian skip bila ada pengajuan blocking)
-npx playwright install --with-deps   # sekali
-npx playwright test --reporter=list
-npx playwright show-report           # html report
-
-# Satu file
-npx playwright test e2e/08-sarpras-peminjaman.spec.ts --reporter=list
+# Menjalankan filter spesifik modul:
+php artisan test --filter=DetailBeritaDanGambarTest
+php artisan test --filter=PublicTicketingTest
+php artisan test --filter=KonselingDanSarprasPenyempurnaanTest
+php artisan test --filter=KurasiPengumumanTest
 ```
 
-Konfigurasi E2E: `playwright.config.ts` — `baseURL http://127.0.0.1:8000`, `webServer: php -S 127.0.0.1:8000 -t public`, `workers:1`, `retries:2`, `timeout:60s`.
+---
 
-> **Penting (isolasi test):** test PHPUnit dipaksa memakai `sqlite :memory:` oleh `tests/bootstrap.php`, karena sebagian mesin (mis. Laragon) mengekspor `APP_ENV`/`DB_CONNECTION` di level OS yang membuat `phpunit.xml` terabaikan dan `RefreshDatabase` bisa menghapus data DB kerja. Guard di `tests/TestCase.php` akan menggagalkan test bila koneksinya bukan sqlite in-memory.
+## 📁 Dokumentasi Tambahan
 
-## Git & Kebersihan Repo
+- **Spesifikasi Lengkap Frontend & UI/UX:** Lihat berkas [`FRONTEND_UIUX_REQUIREMENTS.md`](FRONTEND_UIUX_REQUIREMENTS.md) pada root proyek.
+- **Out of Scope & Saran Pengembangan Masa Depan:** Lihat berkas [`docs/OUT_OF_SCOPE_DAN_SARAN_PENGEMBANGAN.md`](docs/OUT_OF_SCOPE_DAN_SARAN_PENGEMBANGAN.md).
 
-`.gitignore` sudah mengabaikan:
-```
-.env, /vendor, /node_modules, /storage/*.key, /public/build,
-/test-results, /playwright-report, /playwright/.cache, /e2e, /docs, CLAUDE.md, AGENTS.md
-```
-`CLAUDE.md` & `AGENTS.md` sengaja tidak di-track (instruksi internal agent). `e2e/` **dan** `docs/` juga **di-ignore** (lihat `.gitignore`), sehingga suite E2E dan dokumentasi bersifat lokal dan **tidak ikut terdistribusi lewat git** — lakukan backup manual bila dokumentasi perlu dibagikan.
+---
 
-## Troubleshooting
+## 🛠️ Troubleshooting Umum
 
-- `vite manifest not found` → `npm run build` atau `npm run dev`.
-- `SQLSTATE[HY000] database.sqlite not found` → `touch database/database.sqlite` lalu `php artisan migrate:fresh --seed`.
-- `419 Page Expired` saat E2E → clear cookies/session: `php artisan optimize:clear`.
-- `net::ERR_ABORTED` di `php -S` → sudah ditangani via `gotoStable` (`waitUntil: domcontentloaded`) dan `retries:2`; cukup rerun `npx playwright test`.
+- **Gambar poster tidak muncul / Broken Image:** Pastikan Anda telah menjalankan perintah `php artisan storage:link`.
+- **Vite manifest not found:** Jalankan perintah `npm run build` atau `npm run dev`.
+- **Pembersihan Cache Sistem:** Jalankan `php artisan optimize:clear`.
 
-## Lisensi
+---
 
-MIT — lihat `LICENSE`.
+## 📄 Lisensi
+
+Hak Cipta &copy; Institut Teknologi Garut (ITG). Seluruh hak cipta dilindungi undang-undang.
