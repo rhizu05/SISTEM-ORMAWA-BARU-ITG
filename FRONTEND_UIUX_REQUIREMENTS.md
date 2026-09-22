@@ -18,14 +18,14 @@ Dokumen ini merupakan acuan resmi (*single source of truth*) bagi Tim Frontend D
 | Kode Peran | Nama Peran / Pengguna | Status Login | Akses Utama di Frontend |
 | :--- | :--- | :--- | :--- |
 | **GUEST** | Mahasiswa Umum & Publik | **Tanpa Login** | Portal Layanan Publik, Formulir Tiket (Aspirasi, Konseling Rahasia, Prestasi), Lacak Status Tiket, Konfirmasi Hadir Konseling, Showcase Prestasi, Pusat Informasi & Detail Berita, Unduh Regulasi BPM. |
-| **ORMAWA** | Himpunan (HIMA) & Unit Kegiatan (UKM) | Wajib Login | Dashboard Ormawa, Pengajuan Anggaran, Generator Proposal & LPJ Otomatis, Peminjaman Tempat & Barang, Draf Pengumuman Acara (Antrean BEM), Aspirasi Ormawa. |
-| **BEM** | Badan Eksekutif Mahasiswa | Wajib Login | Dashboard BEM, Verifikasi Proposal Tahap 1, **Panel Kurasi Berita HIMA/UKM**, Penerbitan Berita/Agenda BEM, Peminjaman Fasilitas. |
-| **BPM** | Badan Perwakilan Mahasiswa | Wajib Login | Dashboard BPM, Verifikasi Proposal Tahap 2, **Panel Himpun Aspirasi Mahasiswa & Tombol Teruskan ke BKHM**, Penerbitan Regulasi/UU/Pedoman Kampus. |
-| **BKHM** | Biro Kemahasiswaan | Wajib Login | Dashboard BKHM, Verifikasi Proposal Tahap 3, **Manajemen Saldo Ormawa & Ekspor Keuangan (Excel & PDF)**, **Verifikasi Tiket Konseling Rahasia & Jadwal Temu**, **Verifikasi Tiket Prestasi & Delegasi**, Verifikasi Tempat Tahap 1, Pengumuman Resmi Kampus. |
-| **SARPRAS**| Bagian Sarana & Prasarana | Wajib Login | Dashboard Sarpras, **Kalender Interaktif Slot Ruangan (Jadwal Kuliah vs Ormawa)**, Verifikasi Tempat Tahap 2, Verifikasi Peminjaman Barang, Kelola Master Ruangan & Barang. |
-| **WR3** | Wakil Rektor III | Wajib Login | Dashboard Pimpinan, Verifikasi Proposal Tahap 4, Verifikasi Evaluasi LPJ, Monitoring Laporan Keuangan & Prestasi. |
-| **BENDAHARA**| Bagian Keuangan Kampus | Wajib Login | Dashboard Bendahara, Verifikasi Akhir Pencairan Dana, Input Bukti Transfer & Konfirmasi Dana Cair. |
-| **ADMIN** | Administrator Sistem | Wajib Login | Dashboard Admin, Manajemen Akun Pengurus Terpusat (CRUD Users & Roles), Pengaturan Konfigurasi Sistem. |
+| **ORMAWA** | Himpunan (HIMA) & Unit Kegiatan (UKM) | Wajib Login | Dashboard Ormawa, Pengajuan Anggaran, Generator Proposal & LPJ Otomatis, Peminjaman Tempat & Barang, Draf Pengumuman Acara (Antrean BEM), Pelaporan Prestasi Mahasiswa, Aspirasi Ormawa. |
+| **BEM** | Badan Eksekutif Mahasiswa | Wajib Login | Dashboard BEM, **Pengajuan Anggaran Kegiatan BEM (Auto-bypass langsung ke BPM)**, Verifikasi Proposal Ormawa Tahap 1, **Panel Kurasi Berita HIMA/UKM**, Penerbitan Berita/Agenda BEM, Program Kerja, Peminjaman Fasilitas, Pelaporan Prestasi, Kirim Nudge ke BPM/BKHM/WR3/Bendahara. |
+| **BPM** | Badan Perwakilan Mahasiswa | Wajib Login | Dashboard BPM, **Pengajuan Anggaran Kegiatan BPM (Auto-bypass langsung ke BKHM)**, Verifikasi Proposal BEM/Ormawa Tahap 2, **Panel Himpun Aspirasi Mahasiswa & Tombol Teruskan ke BKHM**, Penerbitan Regulasi/UU/Pedoman Kampus, Monitoring Proker, Kirim Nudge ke BKHM/WR3/Bendahara. |
+| **BKHM** | Biro Kemahasiswaan | Wajib Login | Dashboard BKHM, Verifikasi Proposal Anggaran Tahap 3, **Manajemen Saldo Ormawa & Ekspor Keuangan (Excel & PDF)**, **Verifikasi Tiket Konseling Rahasia & Jadwal Temu**, **Verifikasi Tiket Prestasi & Delegasi**, Verifikasi Tempat Tahap 1 & Peminjaman Barang, Pengumuman Resmi Kampus. |
+| **SARPRAS**| Bagian Sarana & Prasarana | Wajib Login | Dashboard Sarpras, **Kalender Interaktif Slot Ruangan (Jadwal Kuliah vs Ormawa)**, Verifikasi Tempat Tahap 2, Verifikasi Peminjaman Barang, Kelola Master Ruangan & Barang, Jadwal Perkuliahan Mingguan. |
+| **WR3** | Wakil Rektor III | Wajib Login | Dashboard Pimpinan WR3, Verifikasi Proposal Pimpinan Tahap 4, Verifikasi Evaluasi LPJ, Monitoring Laporan Keuangan, Verifikasi & Monitoring Prestasi Mahasiswa. |
+| **BENDAHARA**| Bagian Keuangan Kampus | Wajib Login | Dashboard Bendahara, Menu Khusus Kelola Bendahara, Antrean Pencairan Dana Proposal Tahap 5, Input Bukti Transfer & Konfirmasi Dana Cair, Ekspor Rekapitulasi Pencairan (Excel, PDF, CSV). |
+| **ADMIN** | Administrator Sistem | Wajib Login | Dashboard Admin, Manajemen Akun Pengurus Terpusat (CRUD Users & Roles), Pengaturan Konfigurasi Sistem, Monitoring Read-Only Seluruh Modul. |
 
 ---
 
@@ -62,6 +62,16 @@ Dokumen ini merupakan acuan resmi (*single source of truth*) bagi Tim Frontend D
   * `Body Text`: 14px – 16px, Font-weight: 400 (Regular), line-height: 1.6
   * `Caption / Meta Text`: 12px – 13px, Font-weight: 500 (Medium), text-slate-500
   * `Badge / Code`: 11px – 12px, Font-weight: 700 (Bold), tracking-wider, font-mono untuk Kode Tiket
+
+### 2.3 Standar Aset & Logo Resmi ITG (Brand Assets)
+* **Lokasi Berkas Resmi:**
+  * Path Aset: `public/images/logo_itg.png` (dan alias `logo-itg.png`)
+  * Path Konfigurasi Kop: `storage/app/public/konfigurasi/logo_itg.png`
+* **Implementasi Desain:**
+  * **Sidebar Pengurus (Background Gelap):** Wajib menggunakan kontainer lingkaran putih bersih (`w-10 h-10 rounded-full bg-white p-1 shadow-sm shrink-0`) agar logo roda gigi biru dan rantai ITG tampil kontras dan tajam.
+  * **Halaman Login & Autentikasi (`/login`):** Menggunakan kartu rounded persegi (`w-24 h-24 rounded-2xl bg-white p-2 shadow-sm border border-gray-200`) dengan teks subjudul *"Institut Teknologi Garut"*.
+  * **Kop Surat Dokumen Resmi (PDF & Print):** Logo diletakkan di sisi kiri kop surat dengan ukuran proporsional `width: 70px s.d 80px, height: 70px s.d 80px, object-fit: contain`.
+  * **Navbar Publik:** Terpasang pada kartu rounded `w-10 h-10 bg-white p-1 border border-slate-200` bersanding dengan teks *"SKIN ITG"*.
 
 ---
 
@@ -284,28 +294,57 @@ Dokumen ini merupakan acuan resmi (*single source of truth*) bagi Tim Frontend D
 
 ### 5.1 Navigasi Utama Pengurus (Sidebar & Topbar)
 * **Sidebar Navigasi (Dinamis Berdasarkan Peran Pengguna):**
-  * Logo ITG & teks *"Sistem Kemahasiswaan"*.
-  * **Menu Bersama (Semua Role Login):** Dashboard, Notifikasi (dengan badge angka belum dibaca), Jadwal Rapat Kampus, Pusat Informasi.
-  * **Menu Ormawa (HIMA/UKM):** Pengajuan Anggaran, Buat Proposal Baru, Peminjaman Sarpras, Arsip Surat Digital, Arsip LPJ, Aspirasi Ormawa.
-  * **Menu BEM:** Verifikasi Proposal, **Kurasi Berita Ormawa (dengan badge angka antrean pending)**, Peminjaman.
-  * **Menu BPM:** Verifikasi Proposal, **Kelola Aspirasi Mahasiswa (dengan badge antrean)**, Kelola Regulasi/UU.
-  * **Menu BKHM:** Verifikasi Proposal Tahap 1, **Manajemen Saldo & Ekspor Keuangan**, **Tiket Konseling Personal**, **Eskalasi Aspirasi**, **Verifikasi Tiket Prestasi**, Verifikasi Sarpras.
-  * **Menu Sarpras:** **Kalender Jadwal Ruangan**, Verifikasi Tempat, Verifikasi Barang, Master Data Sarpras.
-  * **Menu WR3 & Bendahara:** Verifikasi Tingkat Tinggi, Monitoring Pengajuan, Ekspor Keuangan.
-  * **Menu Admin:** Manajemen Pengguna, Konfigurasi Sistem, Periode Anggaran.
-* **Topbar:** Tombol toggle sidebar, indikator judul halaman aktif, profil user login (avatar, nama, role), dan menu dropdown profil / Logout.
+  * Logo resmi ITG dalam kontainer lingkaran putih bersih & teks *"Sistem Keuangan"*.
+  * **Menu Bersama (Semua Role Login):**
+    * Notifikasi (dengan lencana merah angka belum dibaca).
+    * Dashboard Utama.
+    * Informasi & Agenda: *Pusat Info & Berita* (`/informasi`) dan *Jadwal Rapat & Koordinasi* (`/rapat`).
+  * **Menu Khusus Verifikator (BEM, BPM, BKHM, WR3, Bendahara):**
+    * Tautan langsung: **"Verifikasi Proposal"** (atau **"Pencairan Dana"** khusus Bendahara) &rarr; menuju antrean kerja `/verifikasi`.
+  * **Grup Menu Kelola BEM (`role: bem`):**
+    * Verifikasi Proposal Ormawa (`/verifikasi`).
+    * Kurasi Berita Ormawa (`/bem/kurasi-pengumuman`).
+    * Monitoring Program Kerja Ormawa (`/proker`).
+  * **Grup Menu Kelola BPM (`role: bpm`):**
+    * Dashboard BPM (`/bpm/dashboard`).
+    * Verifikasi Proposal (`/verifikasi`).
+    * Buat Surat Peringatan SP (`/bpm/sp/create`).
+    * Kelola Aspirasi Mahasiswa (`/bpm/aspirasi`).
+    * Kelola Regulasi & Dokumen Hukum (`/bpm/regulasi`).
+    * Monitoring Program Kerja Ormawa (`/proker`).
+  * **Grup Menu Kelola WR3 (`role: wr3`):**
+    * Dashboard Pimpinan WR3 (`/dashboard`).
+    * Verifikasi Proposal Pimpinan (`/verifikasi`).
+    * Verifikasi & Monitoring Prestasi Mahasiswa (`/prestasi`).
+  * **Grup Menu Kelola Bendahara (`role: bendahara`):**
+    * Antrean Pencairan Dana Proposal (`/verifikasi`).
+    * Unduh Rekap Pencairan Excel (`/bendahara/export-excel`).
+    * Unduh Rekap Pencairan PDF (`/bendahara/export-pdf`).
+    * Unduh Rekap Pencairan CSV (`/bendahara/export`).
+  * **Grup Menu Kelola BKHM (`role: bkhm`):**
+    * *Sub-grup Verifikasi & Anggaran:* Verifikasi Proposal (`/verifikasi`), Verifikasi Peminjaman Ruangan & Barang (`/verifikasi-peminjaman`), Manajemen Saldo Ormawa (`/bkhm/saldo`), Manajemen User (`/admin/users`), Arsip Surat BKHM (`/bkhm/arsip-surat`), Buat Surat Peringatan SP (`/bkhm/surat-peringatan/create`).
+    * *Sub-grup Layanan Mahasiswa:* Tiket Konseling Rahasia (`/bkhm/konseling`), Eskalasi Aspirasi (`/bkhm/tiket-aspirasi`), Verifikasi Prestasi (`/bkhm/tiket-prestasi`).
+    * *Sub-grup Ekspor Laporan:* Ekspor Keuangan Excel (`/bkhm/export-excel`), Ekspor Keuangan PDF (`/bkhm/export-pdf`).
+  * **Grup Pengajuan & Dokumen (Ormawa, BEM, BPM):**
+    * *Pengajuan:* Buat Pengajuan Anggaran, Riwayat Pengajuan, Program Kerja.
+    * *Sarpras:* Tempat & Fasilitas (Ajukan & Riwayat), Sarana & Barang (Ajukan & Riwayat).
+    * *Persuratan Digital:* Buat Proposal, Buat Surat Lain, Buat LPJ, Arsip Digital.
+    * *Laporan:* Arsip LPJ.
+    * *Prestasi & Aspirasi:* Pelaporan Prestasi (`/prestasi`), Aspirasi Saya (`/aspirasi/saya` - khusus ormawa).
+  * **Menu Admin:** Manajemen Pengguna, Konfigurasi Sistem, Monitoring Read-Only Seluruh Modul.
+* **Topbar:** Tombol toggle sidebar, judul halaman aktif, profil user login (avatar, nama, role), dan menu dropdown profil / Logout.
 
 ---
 
-### 5.2 M-01 s.d M-03: Modul Pengajuan Anggaran & Proposal Digital
+### 5.2 M-01 s.d M-03: Modul Pengajuan Anggaran & Fitur Pengingat Cepat (Nudge)
 * **Halaman Daftar Pengajuan (`/pengajuan`):**
   * Kartu Indikator Saldo: Saldo Awal, Total Terpakai, Sisa Saldo Tersedia.
   * Tabel Pengajuan: Nomor Surat, Nama Kegiatan, Nominal Diajukan, Tanggal Pengajuan, Lencana Status Workflow, Tombol Aksi (*Detail*, *Lacak Stepper*, *Unggah LPJ*).
 * **Alur Visual Lencana Status Workflow (Workflow States):**
-  1. `draft`: Abu-abu (*Draf Ormawa*)
+  1. `draft`: Abu-abu (*Draf Ormawa / BEM / BPM*)
   2. `submitted`: Biru Muda (*Menunggu Review BEM*)
-  3. `bem_approved`: Indigo (*Menunggu Verifikasi BPM*)
-  4. `bpm_approved`: Ungu (*Menunggu Verifikasi BKHM Tahap 1*)
+  3. `bem_approved`: Indigo (*Menunggu Verifikasi BPM*) &mdash; *Proposal BEM otomatis mulai dari tahap ini.*
+  4. `bpm_approved`: Ungu (*Menunggu Verifikasi BKHM Tahap 1*) &mdash; *Proposal BPM otomatis mulai dari tahap ini.*
   5. `bkhm_approved`: Biru Tua (*Menunggu Persetujuan WR3*)
   6. `wr3_approved`: Amber (*Disetujui WR3 - Siap ke Bendahara*)
   7. `to_treasurer`: Oranye (*Proses Verifikasi Bendahara*)
@@ -317,10 +356,35 @@ Dokumen ini merupakan acuan resmi (*single source of truth*) bagi Tim Frontend D
   * Stepper timeline horizontal status persetujuan dari BEM &rarr; BPM &rarr; BKHM &rarr; WR3 &rarr; Bendahara.
   * Panel Dokumen: Pratinjau berkas proposal PDF bertanda tangan digital resmi.
   * Kotak Komunikasi Revisi (FR-011): Feed chat dua arah antara verifikator dan ormawa pengaju untuk mencatat revisi anggaran atau perbaikan teknis.
+* **Fitur Pengingat Cepat (Nudge / Quick Reminder):**
+  * **Lokasi UI:** Terletak di dalam kotak *"Status PIC Saat Ini"* pada halaman detail pengajuan (`/pengajuan/{id}`).
+  * **Otorisasi:** Hanya tampil untuk pengusul pemilik proposal (`$pengajuan->user_id === Auth::id()`) saat proposal berada pada status aktif diverifikasi.
+  * **Kondisi 1 (Tombol Aktif):**
+    * Tombol warna Amber/Kuning: *"🔔 Kirim Pengingat ke [Lembaga Pemeriksa]"*.
+    * Dialog Konfirmasi: Memunculkan konfirmasi *"Kirim notifikasi pengingat cepat kepada [Lembaga Pemeriksa] sekarang?"*.
+  * **Kondisi 2 (Proteksi Cooldown 12 Jam Anti-Spam):**
+    * Tombol otomatis dinonaktifkan jika pengingat telah dikirim dalam rentang waktu < 12 jam.
+    * Menampilkan lencana peringatan: `Cooldown: X jam Y menit lagi` serta riwayat *"Pengingat terakhir dikirim [Tanggal & Jam] WIB (Nx dikirim)"*.
+  * **Dampak Sistem Otomatis:**
+    * Mengirimkan notifikasi in-app instan ke seluruh akun lembaga pemeriksa yang dituju.
+    * Menyisipkan pesan audit otomatis ke thread diskusi follow-up: `🔔 [PENGINGAT CEPAT] Pengusul (...) telah mengirimkan pengingat verifikasi kepada [Lembaga] pada [Waktu] WIB`.
 
 ---
 
-### 5.3 S-01: Modul Saldo Ormawa & Ekspor Keuangan BKHM (`/bkhm/saldo`)
+### 5.3 V-01: Modul Antrean Verifikasi Proposal Multi-Tier (`/verifikasi` & `/verifikasi/{id}`)
+* **Pengguna:** BEM, BPM, BKHM, WR3, Bendahara, Admin.
+* **Tampilan Tabel Antrean (`/verifikasi`):**
+  * Menampilkan daftar proposal yang sedang menunggu persetujuan sesuai kewenangan peran pemeriksa.
+  * **Badge Prioritas Pengingat (Nudge Priority Badge):** Baris proposal yang baru saja diingatkan oleh pengusul (< 48 jam) diberikan latar belakang warna lembut (`bg-amber-50/40`) dan lencana prioritas:
+    * `🔔 Diingatkan (X jam lalu)` (warna amber tegas).
+  * Tombol Aksi: **"Verifikasi"** (atau **"Proses Cair"** untuk Bendahara) &rarr; membuka `/verifikasi/{id}`.
+* **Halaman Form Verifikasi (`/verifikasi/{id}`):**
+  * Pratinjau proposal dan riwayat persetujuan sebelumnya.
+  * Aksi transisi: *Setujui*, *Tolak dengan Catatan*, atau *Proses Transfer Dana*.
+
+---
+
+### 5.4 S-01: Modul Saldo Ormawa & Ekspor Keuangan BKHM (`/bkhm/saldo`)
 * **Pengguna:** BKHM, Bendahara, WR3, Admin.
 * **Komponen & Data yang Tampil:**
   1. **Widget Periode Anggaran Aktif:** Menampilkan nama periode (contoh: *Tahun Anggaran 2026*), rentang tanggal, dan status aktif. Form cepat aktivasi periode baru.
@@ -334,7 +398,7 @@ Dokumen ini merupakan acuan resmi (*single source of truth*) bagi Tim Frontend D
 
 ---
 
-### 5.4 F-01: Modul Sarpras & Kalender Interaktif Ruangan (`/peminjaman/create-tempat`)
+### 5.5 F-01: Modul Sarpras & Kalender Interaktif Ruangan (`/peminjaman/create-tempat`)
 * **Pengguna:** Ormawa, BEM, BPM.
 * **Tujuan:** Mengajukan peminjaman ruangan kampus tanpa risiko bentrok jadwal.
 * **Komponen Kalender & Slot Checker:**
@@ -354,7 +418,7 @@ Dokumen ini merupakan acuan resmi (*single source of truth*) bagi Tim Frontend D
 
 ---
 
-### 5.5 K-01: Panel Kurasi Berita BEM (`/bem/kurasi`)
+### 5.6 K-01: Panel Kurasi Berita BEM (`/bem/kurasi-pengumuman`)
 * **Pengguna:** Pengurus BEM ITG & Admin.
 * **Tujuan:** Memvalidasi draf publikasi pengumuman/pamflet acara yang diajukan oleh HIMA dan UKM sebelum tayang ke mahasiswa umum.
 * **Tampilan Data Antrean:**
@@ -370,7 +434,7 @@ Dokumen ini merupakan acuan resmi (*single source of truth*) bagi Tim Frontend D
 
 ---
 
-### 5.6 K-02: Panel Himpun Aspirasi BPM (`/bpm/aspirasi`)
+### 5.7 K-02: Panel Himpun Aspirasi BPM (`/bpm/aspirasi`)
 * **Pengguna:** Pengurus BPM ITG.
 * **Tujuan:** Mengelola suara mahasiswa dan meneruskan aspirasi krusial ke BKHM.
 * **Tampilan 2 Tab/Section:**
@@ -381,7 +445,7 @@ Dokumen ini merupakan acuan resmi (*single source of truth*) bagi Tim Frontend D
 
 ---
 
-### 5.7 K-03 & K-04: Panel BKHM untuk Tiket Konseling & Prestasi
+### 5.8 K-03 & K-04: Panel BKHM untuk Tiket Konseling & Prestasi
 * **Panel Konseling Personal (`/bkhm/konseling` & `/bkhm/konseling/{tiket}`):**
   * Tampilan daftar mahasiswa yang membutuhkan pendampingan konseling.
   * Indikator data terenkripsi.
