@@ -13,8 +13,8 @@
     <header class="bg-white/80 backdrop-blur-md border-b border-slate-200 sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
             <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-700 to-indigo-500 flex items-center justify-center shadow-md text-white font-bold text-xl tracking-wider">
-                    ITG
+                <div class="w-10 h-10 rounded-xl bg-white p-1 flex items-center justify-center shadow-sm shrink-0 border border-slate-200">
+                    <img src="{{ asset('images/logo_itg.png') }}" alt="Logo ITG" class="w-full h-full object-contain">
                 </div>
                 <div>
                     <span class="font-extrabold text-lg tracking-tight text-slate-900 block leading-tight">SKIN ITG</span>

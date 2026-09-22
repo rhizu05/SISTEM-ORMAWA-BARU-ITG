@@ -133,6 +133,8 @@
         <div class="header">
             @if(isset($konfig['kop_logo']) && $konfig['kop_logo'])
                 <img src="{{ asset('storage/' . $konfig['kop_logo']) }}" class="header-logo" alt="Logo">
+            @elseif(file_exists(public_path('images/logo_itg.png')))
+                <img src="{{ asset('images/logo_itg.png') }}" class="header-logo" alt="Logo ITG">
             @else
                 <div style="width: 80px;"></div>
             @endif

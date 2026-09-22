@@ -2,6 +2,8 @@
 <div class="kop">
     @if(!empty($konfig['kop_logo']) && file_exists(public_path('storage/' . $konfig['kop_logo'])))
         <img src="{{ public_path('storage/' . $konfig['kop_logo']) }}" class="kop-logo" alt="Logo ITG">
+    @elseif(file_exists(public_path('images/logo_itg.png')))
+        <img src="{{ public_path('images/logo_itg.png') }}" class="kop-logo" alt="Logo ITG">
     @else
         <div class="kop-logo"></div>
     @endif

@@ -10,6 +10,7 @@ use App\Http\Controllers\InformasiController;
 use App\Http\Controllers\KomunikasiController;
 use App\Http\Controllers\LpjController;
 use App\Http\Controllers\NotifikasiController;
+use App\Http\Controllers\NudgeController;
 use App\Http\Controllers\PeminjamanController;
 use App\Http\Controllers\PengajuanController;
 use App\Http\Controllers\PrestasiController;
@@ -96,6 +97,7 @@ Route::middleware('auth')->group(function () {
 
     // FR-011: follow-up/komunikasi pengajuan
     Route::post('/pengajuan/{pengajuan}/komunikasi', [KomunikasiController::class, 'store'])->name('pengajuan.komunikasi.store');
+    Route::post('/pengajuan/{pengajuan}/nudge', [NudgeController::class, 'kirim'])->name('pengajuan.nudge');
 
     // Jadwal Rapat
     Route::get('/rapat', [RapatController::class, 'index'])->name('rapat.index');

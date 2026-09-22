@@ -25,9 +25,18 @@
                             </thead>
                             <tbody>
                                 @forelse ($pengajuans as $pengajuan)
-                                <tr>
+                                <tr class="{{ ($pengajuan->terakhir_diingatkan_at && $pengajuan->terakhir_diingatkan_at->diffInHours(now()) < 48) ? 'bg-amber-50/40' : '' }}">
                                     <td class="py-2 px-4 border-b font-semibold">{{ $pengajuan->user->name }}</td>
-                                    <td class="py-2 px-4 border-b">{{ $pengajuan->nama_kegiatan }}</td>
+                                    <td class="py-2 px-4 border-b">
+                                        <div class="flex items-center flex-wrap gap-1">
+                                            <span>{{ $pengajuan->nama_kegiatan }}</span>
+                                            @if($pengajuan->terakhir_diingatkan_at && $pengajuan->terakhir_diingatkan_at->diffInHours(now()) < 48)
+                                                <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-900 border border-amber-300">
+                                                    🔔 Diingatkan ({{ $pengajuan->terakhir_diingatkan_at->diffForHumans() }})
+                                                </span>
+                                            @endif
+                                        </div>
+                                    </td>
                                     <td class="py-2 px-4 border-b">{{ \Carbon\Carbon::parse($pengajuan->tanggal_pengajuan)->format('d/m/Y') }}</td>
                                     <td class="py-2 px-4 border-b">Rp {{ number_format($pengajuan->dana_diajukan, 0, ',', '.') }}</td>
                                     <td class="py-2 px-4 border-b text-center">

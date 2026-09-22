@@ -18,12 +18,20 @@
             <div class="bg-white p-10 shadow-lg mx-auto" style="width: 210mm; min-height: 297mm; font-family: 'Times New Roman';">
                 <!-- Kop Surat -->
                 <div style="display: flex; align-items: center; border-bottom: 3px double black; padding-bottom: 10px; margin-bottom: 30px;">
-                    <div style="width: 80px;">LOGO</div>
+                    <div style="width: 80px; text-align: left;">
+                        <img src="{{ asset('images/logo_itg.png') }}" style="width: 70px; height: 70px; object-fit: contain;" alt="Logo ITG">
+                    </div>
                     <div style="text-align: center; flex-grow: 1;">
                         <div style="font-size: 12pt; font-weight: bold; text-transform: uppercase;">{{ $konfig['kop_baris2'] ?? 'INSTITUT TEKNOLOGI GARUT' }}</div>
                         <div style="font-size: 10pt; font-style: italic;">{{ $konfig['kop_baris3'] ?? 'Jl. Mayor Syamsu No. 1 Jayaraga Garut 44151' }}</div>
                     </div>
-                    <div style="width: 80px; text-align: right;">LOGO</div>
+                    <div style="width: 80px; text-align: right;">
+                        @if(isset($proposal->user) && $proposal->user->logo_ormawa)
+                            <img src="{{ asset('storage/' . $proposal->user->logo_ormawa) }}" style="width: 70px; height: 70px; object-fit: contain;" alt="Logo Ormawa">
+                        @else
+                            <div style="width: 70px; height: 70px;"></div>
+                        @endif
+                    </div>
                 </div>
 
                 <div style="text-align: center; font-weight: bold; text-decoration: underline; margin-bottom: 30px;">

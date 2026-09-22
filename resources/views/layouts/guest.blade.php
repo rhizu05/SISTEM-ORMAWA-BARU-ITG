@@ -17,8 +17,11 @@
     <body class="font-sans text-gray-900 antialiased">
         <div class="min-h-screen flex flex-col sm:justify-center items-center pt-6 sm:pt-0 bg-gray-100">
             <div>
-                <a href="/">
-                    <x-application-logo class="w-20 h-20 fill-current text-gray-500" />
+                <a href="/" class="flex flex-col items-center">
+                    <div class="w-24 h-24 rounded-2xl bg-white p-2 shadow-sm border border-gray-200 flex items-center justify-center mb-2">
+                        <x-application-logo class="w-full h-full object-contain" />
+                    </div>
+                    <span class="text-xl font-bold text-gray-800 tracking-tight">Institut Teknologi Garut</span>
                 </a>
             </div>
 

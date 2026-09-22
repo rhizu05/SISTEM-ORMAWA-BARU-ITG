@@ -79,6 +79,32 @@
                         <span class="font-bold text-indigo-800 uppercase block mb-1">Status PIC Saat Ini:</span>
                         <p class="text-indigo-900 font-semibold">{{ $pengajuan->state->pic_role }}</p>
                         <p class="text-indigo-700 mt-0.5">Kontak / Pihak terkait: <span class="font-medium">{{ $pengajuan->state->pic_contact }}</span></p>
+
+                        @if($pengajuan->user_id === Auth::id() && $pengajuan->targetRoleNudge())
+                            @if($pengajuan->bisaDiingatkan())
+                            <div class="mt-3 pt-3 border-t border-indigo-200 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                                <span class="text-indigo-700 text-xs">Perlu tindak lanjut lebih cepat?</span>
+                                <form action="{{ route('pengajuan.nudge', $pengajuan) }}" method="POST" onsubmit="return confirm('Kirim notifikasi pengingat cepat kepada {{ $pengajuan->targetLembagaLabel() }} sekarang?')">
+                                    @csrf
+                                    <button type="submit" class="inline-flex items-center px-3 py-1.5 bg-amber-500 hover:bg-amber-600 text-white font-semibold rounded shadow-sm transition text-xs">
+                                        <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" /></svg>
+                                        Kirim Pengingat ke {{ $pengajuan->targetLembagaLabel() }}
+                                    </button>
+                                </form>
+                            </div>
+                            @elseif($pengajuan->apakahDalamCooldown())
+                            <div class="mt-3 pt-3 border-t border-indigo-200">
+                                <div class="flex items-center justify-between text-xs">
+                                    <span class="text-gray-600 font-medium">Pengingat telah dikirim ({{ $pengajuan->jumlah_nudge }}x)</span>
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded bg-amber-100 text-amber-800 font-medium text-[11px]">
+                                        <svg class="w-3 h-3 mr-1 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                                        Cooldown: {{ $pengajuan->sisaWaktuCooldown() }} lagi
+                                    </span>
+                                </div>
+                                <p class="text-[11px] text-gray-500 mt-1">Pengingat terakhir dikirim {{ $pengajuan->terakhir_diingatkan_at->format('d/m/Y H:i') }} WIB.</p>
+                            </div>
+                            @endif
+                        @endif
                     </div>
                     @endif
 
