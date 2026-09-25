@@ -21,7 +21,7 @@
                         @endif
                     </div>
                     
-                    <div class="grid grid-cols-2 gap-4 mb-6">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
                         <div>
                             <p class="text-sm text-gray-500">Kode Unik</p>
                             <p class="font-semibold font-mono">{{ $pengajuan->unique_code }}</p>
@@ -31,15 +31,48 @@
                             <p class="font-semibold text-indigo-600">{{ $pengajuan->state->label }}</p>
                         </div>
                         <div>
-                            <p class="text-sm text-gray-500">Tanggal Kegiatan</p>
+                            <p class="text-sm text-gray-500">Program Kerja Terkait</p>
+                            @if($pengajuan->programKerja)
+                                <p class="font-semibold text-indigo-700 flex items-center gap-1.5 mt-0.5">
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-indigo-50 text-indigo-700 border border-indigo-200">
+                                        📋 {{ $pengajuan->programKerja->nama_proker }}
+                                    </span>
+                                </p>
+                            @else
+                                <p class="text-gray-400 italic text-sm mt-0.5">Non-Program Kerja (Insidental)</p>
+                            @endif
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-500">Jadwal Pelaksanaan Kegiatan</p>
+                            @if($pengajuan->tanggal_mulai_kegiatan)
+                                <div class="mt-0.5 flex flex-wrap items-center gap-1.5">
+                                    <span class="font-semibold text-gray-800 text-sm">
+                                        {{ \Carbon\Carbon::parse($pengajuan->tanggal_mulai_kegiatan)->format('d/m/Y') }}
+                                        @if($pengajuan->tanggal_selesai_kegiatan && $pengajuan->tanggal_selesai_kegiatan != $pengajuan->tanggal_mulai_kegiatan)
+                                            s/d {{ \Carbon\Carbon::parse($pengajuan->tanggal_selesai_kegiatan)->format('d/m/Y') }}
+                                        @endif
+                                    </span>
+                                    @php $urgensi = $pengajuan->statusUrgensi(); @endphp
+                                    @if($urgensi)
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] {{ $urgensi['badge_class'] }}">
+                                            ⏱️ {{ $urgensi['label'] }}
+                                        </span>
+                                    @endif
+                                </div>
+                            @else
+                                <p class="text-gray-400 italic text-sm mt-0.5">- Belum Ditentukan -</p>
+                            @endif
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-500">Tanggal Pengajuan Proposal</p>
                             <p class="font-semibold">{{ \Carbon\Carbon::parse($pengajuan->tanggal_pengajuan)->format('d F Y') }}</p>
                         </div>
                         <div>
                             <p class="text-sm text-gray-500">Dana Diajukan</p>
-                            <p class="font-semibold">Rp {{ number_format($pengajuan->dana_diajukan, 0, ',', '.') }}</p>
+                            <p class="font-semibold text-emerald-700">Rp {{ number_format($pengajuan->dana_diajukan, 0, ',', '.') }}</p>
                         </div>
                         @if($pengajuan->nomor_surat)
-                        <div class="col-span-2">
+                        <div class="sm:col-span-2">
                             <p class="text-sm text-gray-500">Nomor Surat Resmi</p>
                             <p class="font-semibold">{{ $pengajuan->nomor_surat }}</p>
                         </div>

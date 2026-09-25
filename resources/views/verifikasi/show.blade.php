@@ -22,27 +22,72 @@
 
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                     <div class="p-6 text-gray-900">
+                        @php $urgensi = $pengajuan->statusUrgensi(); @endphp
+                        @if($urgensi && $urgensi['is_urgent'])
+                            <div class="mb-5 p-4 rounded-lg border-l-4 {{ $urgensi['days'] <= 0 ? 'bg-red-50 border-red-500 text-red-800' : 'bg-rose-50 border-rose-500 text-rose-800' }}">
+                                <div class="flex items-start gap-3">
+                                    <span class="text-2xl">⚠️</span>
+                                    <div>
+                                        <h4 class="font-bold text-sm">Prioritas Pelaksanaan: {{ $urgensi['label'] }}</h4>
+                                        <p class="text-xs mt-1">Kegiatan dijadwalkan pada <strong>{{ \Carbon\Carbon::parse($pengajuan->tanggal_mulai_kegiatan)->format('d F Y') }}</strong>. Harap prioritaskan verifikasi & pencairan dana agar panitia tidak perlu menalangi dana operasional kegiatan secara pribadi.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        @endif
+
                         <h3 class="text-lg font-bold mb-4 border-b pb-2">Informasi Pengajuan</h3>
                         
-                        <div class="grid grid-cols-2 gap-4 mb-6">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
                             <div>
                                 <p class="text-sm text-gray-500">Ormawa / Pengaju</p>
-                                <p class="font-semibold">{{ $pengajuan->user->name }}</p>
+                                <p class="font-semibold text-gray-900">{{ $pengajuan->user->name }}</p>
                             </div>
                             <div>
                                 <p class="text-sm text-gray-500">Status Saat Ini</p>
                                 <p class="font-semibold text-indigo-600">{{ $pengajuan->state->label }}</p>
                             </div>
                             <div>
+                                <p class="text-sm text-gray-500">Program Kerja Terkait</p>
+                                @if($pengajuan->programKerja)
+                                    <p class="font-semibold text-indigo-700 flex items-center gap-1.5 mt-0.5">
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-indigo-50 text-indigo-700 border border-indigo-200">
+                                            📋 {{ $pengajuan->programKerja->nama_proker }}
+                                        </span>
+                                    </p>
+                                @else
+                                    <p class="text-gray-400 italic text-sm mt-0.5">Non-Program Kerja (Insidental)</p>
+                                @endif
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-500">Jadwal Pelaksanaan Kegiatan</p>
+                                @if($pengajuan->tanggal_mulai_kegiatan)
+                                    <div class="mt-0.5 flex flex-wrap items-center gap-1.5">
+                                        <span class="font-semibold text-gray-800 text-sm">
+                                            {{ \Carbon\Carbon::parse($pengajuan->tanggal_mulai_kegiatan)->format('d/m/Y') }}
+                                            @if($pengajuan->tanggal_selesai_kegiatan && $pengajuan->tanggal_selesai_kegiatan != $pengajuan->tanggal_mulai_kegiatan)
+                                                s/d {{ \Carbon\Carbon::parse($pengajuan->tanggal_selesai_kegiatan)->format('d/m/Y') }}
+                                            @endif
+                                        </span>
+                                        @if($urgensi)
+                                            <span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] {{ $urgensi['badge_class'] }}">
+                                                ⏱️ {{ $urgensi['label'] }}
+                                            </span>
+                                        @endif
+                                    </div>
+                                @else
+                                    <p class="text-gray-400 italic text-sm mt-0.5">- Belum Ditentukan -</p>
+                                @endif
+                            </div>
+                            <div>
                                 <p class="text-sm text-gray-500">Dana Diajukan</p>
-                                <p class="font-semibold text-xl text-green-600">Rp {{ number_format($pengajuan->dana_diajukan, 0, ',', '.') }}</p>
+                                <p class="font-bold text-xl text-emerald-600">Rp {{ number_format($pengajuan->dana_diajukan, 0, ',', '.') }}</p>
                             </div>
                             <div>
                                 <p class="text-sm text-gray-500">Kode Unik</p>
                                 <p class="font-semibold font-mono">{{ $pengajuan->unique_code }}</p>
                             </div>
                             @if($pengajuan->nomor_surat)
-                            <div class="col-span-2">
+                            <div class="sm:col-span-2">
                                 <p class="text-sm text-gray-500">Nomor Surat Resmi</p>
                                 <p class="font-semibold">{{ $pengajuan->nomor_surat }}</p>
                             </div>

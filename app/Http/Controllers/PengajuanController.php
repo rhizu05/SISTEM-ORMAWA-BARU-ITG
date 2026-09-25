@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Pengajuan;
+use App\Models\ProgramKerja;
 use App\Models\WorkflowState;
 use App\Models\HistoriStatus;
 use Illuminate\Http\Request;
@@ -15,8 +16,8 @@ class PengajuanController extends Controller
     public function index(Request $request)
     {
         $query = Auth::user()->hasRole('admin')
-            ? Pengajuan::with('state')
-            : Pengajuan::where('user_id', Auth::id())->with('state');
+            ? Pengajuan::with(['state', 'programKerja'])
+            : Pengajuan::where('user_id', Auth::id())->with(['state', 'programKerja']);
 
         // Filter status
         if ($request->has('status') && $request->status !== '') {
@@ -44,7 +45,8 @@ class PengajuanController extends Controller
             ->with('state')
             ->latest()
             ->first();
-        return view('pengajuan.create', compact('blocking'));
+        $prokers = ProgramKerja::where('user_id', Auth::id())->orderBy('nama_proker')->get();
+        return view('pengajuan.create', compact('blocking', 'prokers'));
     }
 
     public function store(Request $request)
@@ -60,6 +62,9 @@ class PengajuanController extends Controller
             'nama_kegiatan' => 'required|string|max:255',
             'dana_diajukan' => 'required|numeric|min:1',
             'tanggal_pengajuan' => 'required|date',
+            'tanggal_mulai_kegiatan' => 'nullable|date',
+            'tanggal_selesai_kegiatan' => 'nullable|date|after_or_equal:tanggal_mulai_kegiatan',
+            'program_kerja_id' => 'nullable|exists:program_kerjas,id',
             'file_proposal' => 'required|file|mimes:pdf|mimetypes:application/pdf|max:5120', // SEC-02: validasi ekstensi + MIME
         ]);
 
@@ -80,6 +85,9 @@ class PengajuanController extends Controller
             'nama_kegiatan' => $validated['nama_kegiatan'],
             'dana_diajukan' => $validated['dana_diajukan'],
             'tanggal_pengajuan' => $validated['tanggal_pengajuan'],
+            'tanggal_mulai_kegiatan' => $validated['tanggal_mulai_kegiatan'] ?? null,
+            'tanggal_selesai_kegiatan' => $validated['tanggal_selesai_kegiatan'] ?? null,
+            'program_kerja_id' => $validated['program_kerja_id'] ?? null,
             'file_proposal' => $path,
             'workflow_state_id' => $draftState->id,
             'unique_code' => strtoupper(Str::random(10)),
@@ -101,7 +109,7 @@ class PengajuanController extends Controller
             abort(403);
         }
 
-        $pengajuan->load(['state', 'histori.user', 'histori.state']);
+        $pengajuan->load(['state', 'histori.user', 'histori.state', 'programKerja']);
         return view('pengajuan.show', compact('pengajuan'));
     }
 
@@ -116,7 +124,8 @@ class PengajuanController extends Controller
             return redirect()->route('pengajuan.index')->with('error', 'Hanya pengajuan Draft atau Revisi yang dapat diedit.');
         }
 
-        return view('pengajuan.edit', compact('pengajuan'));
+        $prokers = ProgramKerja::where('user_id', Auth::id())->orderBy('nama_proker')->get();
+        return view('pengajuan.edit', compact('pengajuan', 'prokers'));
     }
 
     public function update(Request $request, Pengajuan $pengajuan)
@@ -133,6 +142,9 @@ class PengajuanController extends Controller
             'nama_kegiatan' => 'required|string|max:255',
             'dana_diajukan' => 'required|numeric|min:1',
             'tanggal_pengajuan' => 'required|date',
+            'tanggal_mulai_kegiatan' => 'nullable|date',
+            'tanggal_selesai_kegiatan' => 'nullable|date|after_or_equal:tanggal_mulai_kegiatan',
+            'program_kerja_id' => 'nullable|exists:program_kerjas,id',
             'file_proposal' => 'nullable|file|mimes:pdf|mimetypes:application/pdf|max:5120', // SEC-02
         ]);
 
@@ -145,6 +157,9 @@ class PengajuanController extends Controller
             'nama_kegiatan' => $validated['nama_kegiatan'],
             'dana_diajukan' => $validated['dana_diajukan'],
             'tanggal_pengajuan' => $validated['tanggal_pengajuan'],
+            'tanggal_mulai_kegiatan' => $validated['tanggal_mulai_kegiatan'] ?? null,
+            'tanggal_selesai_kegiatan' => $validated['tanggal_selesai_kegiatan'] ?? null,
+            'program_kerja_id' => $validated['program_kerja_id'] ?? null,
         ];
 
         if ($request->hasFile('file_proposal')) {

@@ -28,12 +28,17 @@ class Pengajuan extends Model
         'evaluasi_termin_ok',
         'terakhir_diingatkan_at',
         'jumlah_nudge',
+        'tanggal_mulai_kegiatan',
+        'tanggal_selesai_kegiatan',
+        'program_kerja_id',
     ];
 
     protected $casts = [
         'evaluasi_termin_ok' => 'boolean',
         'terakhir_diingatkan_at' => 'datetime',
         'jumlah_nudge' => 'integer',
+        'tanggal_mulai_kegiatan' => 'date',
+        'tanggal_selesai_kegiatan' => 'date',
     ];
 
     public function user(): BelongsTo
@@ -164,5 +169,72 @@ class Pengajuan extends Model
 
         return ! $this->apakahDalamCooldown();
     }
+
+    /**
+     * Program kerja tahunan yang terkait dengan pengajuan ini (jika ada).
+     */
+    public function programKerja(): BelongsTo
+    {
+        return $this->belongsTo(ProgramKerja::class, 'program_kerja_id');
+    }
+
+    /**
+     * Menghitung status urgensi pelaksanaan kegiatan (H-X) terhadap hari ini.
+     */
+    public function statusUrgensi(): ?array
+    {
+        if (! $this->tanggal_mulai_kegiatan) {
+            return null;
+        }
+
+        $today = now()->startOfDay();
+        $eventDate = $this->tanggal_mulai_kegiatan->copy()->startOfDay();
+        $diffDays = (int) $today->diffInDays($eventDate, false);
+
+        if ($diffDays < 0) {
+            $daysAgo = abs($diffDays);
+            return [
+                'label' => "Hari-H Terlewat ({$daysAgo} hari lalu)",
+                'badge_class' => 'bg-red-700 text-white font-bold',
+                'is_urgent' => true,
+                'days' => $diffDays,
+            ];
+        }
+
+        if ($diffDays === 0) {
+            return [
+                'label' => 'Hari-H Kegiatan (Hari Ini!)',
+                'badge_class' => 'bg-red-600 text-white font-bold animate-pulse',
+                'is_urgent' => true,
+                'days' => 0,
+            ];
+        }
+
+        if ($diffDays <= 3) {
+            return [
+                'label' => "Mendesak: H-{$diffDays} Kegiatan",
+                'badge_class' => 'bg-rose-100 text-rose-800 border border-rose-300 font-bold',
+                'is_urgent' => true,
+                'days' => $diffDays,
+            ];
+        }
+
+        if ($diffDays <= 7) {
+            return [
+                'label' => "Perhatian: H-{$diffDays} Kegiatan",
+                'badge_class' => 'bg-amber-100 text-amber-800 border border-amber-300 font-semibold',
+                'is_urgent' => true,
+                'days' => $diffDays,
+            ];
+        }
+
+        return [
+            'label' => "H-{$diffDays} Kegiatan",
+            'badge_class' => 'bg-slate-100 text-slate-700 border border-slate-200',
+            'is_urgent' => false,
+            'days' => $diffDays,
+        ];
+    }
 }
+
 

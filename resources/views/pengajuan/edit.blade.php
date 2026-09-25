@@ -35,6 +35,44 @@
                             <x-input-error :messages="$errors->get('nama_kegiatan')" class="mt-2" />
                         </div>
 
+                        <!-- Program Kerja Terkait -->
+                        <div class="mb-4">
+                            <x-input-label for="program_kerja_id" :value="__('Program Kerja Terkait (Opsional)')" />
+                            <select id="program_kerja_id" name="program_kerja_id" class="block mt-1 w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm text-sm">
+                                <option value="">-- Tidak Terkait / Di Luar Program Kerja Tahunan --</option>
+                                @foreach($prokers ?? [] as $proker)
+                                    <option value="{{ $proker->id }}" {{ (string)old('program_kerja_id', $pengajuan->program_kerja_id) === (string)$proker->id ? 'selected' : '' }}>
+                                        {{ $proker->nama_proker }} (Rencana: {{ \Carbon\Carbon::parse($proker->rencana_pelaksanaan)->format('d/m/Y') }})
+                                    </option>
+                                @endforeach
+                            </select>
+                            @if(count($prokers ?? []) === 0)
+                                <p class="text-xs text-indigo-600 mt-1">💡 Belum memiliki program kerja tahunan? Daftarkan proker Anda di <a href="{{ route('proker.create') }}" class="underline font-semibold" target="_blank">Menu Program Kerja</a>.</p>
+                            @else
+                                <p class="text-xs text-gray-500 mt-1">Pilih proker tahunan ormawa Anda untuk memudahkan monitoring realisasi oleh BPM dan BKHM.</p>
+                            @endif
+                            <x-input-error :messages="$errors->get('program_kerja_id')" class="mt-2" />
+                        </div>
+
+                        <!-- Tanggal Pelaksanaan Kegiatan -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                            <div>
+                                <x-input-label for="tanggal_mulai_kegiatan" :value="__('Tanggal Mulai Kegiatan (Opsional)')" />
+                                <x-text-input id="tanggal_mulai_kegiatan" class="block mt-1 w-full" type="date" name="tanggal_mulai_kegiatan" :value="old('tanggal_mulai_kegiatan', $pengajuan->tanggal_mulai_kegiatan ? \Carbon\Carbon::parse($pengajuan->tanggal_mulai_kegiatan)->format('Y-m-d') : '')" onchange="document.getElementById('tanggal_selesai_kegiatan').min = this.value" />
+                                <x-input-error :messages="$errors->get('tanggal_mulai_kegiatan')" class="mt-2" />
+                            </div>
+                            <div>
+                                <x-input-label for="tanggal_selesai_kegiatan" :value="__('Tanggal Selesai Kegiatan (Opsional)')" />
+                                <x-text-input id="tanggal_selesai_kegiatan" class="block mt-1 w-full" type="date" name="tanggal_selesai_kegiatan" :value="old('tanggal_selesai_kegiatan', $pengajuan->tanggal_selesai_kegiatan ? \Carbon\Carbon::parse($pengajuan->tanggal_selesai_kegiatan)->format('Y-m-d') : '')" :min="old('tanggal_mulai_kegiatan', $pengajuan->tanggal_mulai_kegiatan ? \Carbon\Carbon::parse($pengajuan->tanggal_mulai_kegiatan)->format('Y-m-d') : '')" />
+                                <x-input-error :messages="$errors->get('tanggal_selesai_kegiatan')" class="mt-2" />
+                            </div>
+                            <div class="col-span-1 md:col-span-2 -mt-2">
+                                <p class="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded p-2">
+                                    💡 <strong>Urgensi Pencairan:</strong> Mengisi tanggal pelaksanaan kegiatan akan menampilkan indikator hitung mundur (H-X) pada antrean verifikator sehingga proposal dapat diprioritaskan sebelum acara berlangsung.
+                                </p>
+                            </div>
+                        </div>
+
                         <!-- Dana Diajukan -->
                         <div class="mb-4">
                             <x-input-label for="dana_diajukan" :value="__('Dana Diajukan (Rp)')" />
@@ -44,7 +82,7 @@
 
                         <!-- Tanggal Pengajuan -->
                         <div class="mb-4">
-                            <x-input-label for="tanggal_pengajuan" :value="__('Tanggal Kegiatan')" />
+                            <x-input-label for="tanggal_pengajuan" :value="__('Tanggal Pengajuan Proposal')" />
                             <x-text-input id="tanggal_pengajuan" class="block mt-1 w-full" type="date" name="tanggal_pengajuan" :value="old('tanggal_pengajuan', \Carbon\Carbon::parse($pengajuan->tanggal_pengajuan)->format('Y-m-d'))" required />
                             <x-input-error :messages="$errors->get('tanggal_pengajuan')" class="mt-2" />
                         </div>

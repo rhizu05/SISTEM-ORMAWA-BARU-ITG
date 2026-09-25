@@ -21,7 +21,7 @@ class RekapKeuanganExportService
      */
     public static function getData(?int $periodeId = null): array
     {
-        $periode = $periodeId ? PeriodeAnggaran::find($periodeId) : PeriodeAnggaran::where('is_aktif', true)->first();
+        $periode = $periodeId ? PeriodeAnggaran::find($periodeId) : PeriodeAnggaran::aktif();
 
         // Ambil data pencairan (Dana) beserta relasi pengajuan & user
         $danas = Dana::with(['pengajuan.user', 'pengajuan.state'])
@@ -79,7 +79,7 @@ class RekapKeuanganExportService
         }
 
         return [
-            'periodeNama' => $periode?->nama_periode ?? 'Tahun Anggaran Berjalan',
+            'periodeNama' => $periode?->nama ?? 'Tahun Anggaran Berjalan',
             'items' => $rows,
         ];
     }

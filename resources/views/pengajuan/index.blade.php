@@ -50,10 +50,37 @@
                             </thead>
                             <tbody class="divide-y divide-gray-200">
                                 @forelse ($pengajuans as $pengajuan)
-                                <tr>
-                                    <td class="py-3 px-4">{{ $pengajuan->nama_kegiatan }}</td>
-                                    <td class="py-3 px-4">{{ \Carbon\Carbon::parse($pengajuan->tanggal_pengajuan)->format('d/m/Y') }}</td>
-                                    <td class="py-3 px-4">Rp {{ number_format($pengajuan->dana_diajukan, 0, ',', '.') }}</td>
+                                @php
+                                    $urgensi = $pengajuan->statusUrgensi();
+                                    $rowClass = ($urgensi && $urgensi['is_urgent']) ? 'bg-rose-50/50 hover:bg-rose-50/80' : 'hover:bg-gray-50';
+                                @endphp
+                                <tr class="{{ $rowClass }} transition-colors">
+                                    <td class="py-3 px-4">
+                                        <div class="font-medium text-gray-900">{{ $pengajuan->nama_kegiatan }}</div>
+                                        <div class="flex items-center flex-wrap gap-1.5 mt-1">
+                                            @if($urgensi)
+                                                <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] {{ $urgensi['badge_class'] }}">
+                                                    ⏱️ {{ $urgensi['label'] }}
+                                                </span>
+                                            @endif
+                                            @if($pengajuan->programKerja)
+                                                <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold bg-indigo-50 text-indigo-700 border border-indigo-200">
+                                                    📋 {{ $pengajuan->programKerja->nama_proker }}
+                                                </span>
+                                            @endif
+                                        </div>
+                                    </td>
+                                    <td class="py-3 px-4 text-xs">
+                                        @if($pengajuan->tanggal_mulai_kegiatan)
+                                            <div class="font-semibold text-gray-900">
+                                                {{ \Carbon\Carbon::parse($pengajuan->tanggal_mulai_kegiatan)->format('d/m/Y') }}
+                                            </div>
+                                            <div class="text-[10px] text-gray-400">Diajukan: {{ \Carbon\Carbon::parse($pengajuan->tanggal_pengajuan)->format('d/m/Y') }}</div>
+                                        @else
+                                            <div class="text-gray-700">{{ \Carbon\Carbon::parse($pengajuan->tanggal_pengajuan)->format('d/m/Y') }}</div>
+                                        @endif
+                                    </td>
+                                    <td class="py-3 px-4 font-semibold text-gray-800">Rp {{ number_format($pengajuan->dana_diajukan, 0, ',', '.') }}</td>
                                     <td class="py-3 px-4 text-center">
                                         @php
                                             $badgeClass = 'bg-gray-100 text-gray-800';

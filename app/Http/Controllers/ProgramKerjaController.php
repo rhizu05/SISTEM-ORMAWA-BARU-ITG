@@ -12,9 +12,9 @@ class ProgramKerjaController extends Controller
     {
         $user = Auth::user();
         if ($user->hasRole('bpm') || $user->hasRole('admin') || $user->hasRole('bkhm')) {
-            $prokers = ProgramKerja::with('user')->latest()->paginate(10);
+            $prokers = ProgramKerja::with('user')->withCount('pengajuans')->latest()->paginate(10);
         } else {
-            $prokers = ProgramKerja::where('user_id', $user->id)->latest()->paginate(10);
+            $prokers = ProgramKerja::where('user_id', $user->id)->withCount('pengajuans')->latest()->paginate(10);
         }
         return view('proker.index', compact('prokers'));
     }

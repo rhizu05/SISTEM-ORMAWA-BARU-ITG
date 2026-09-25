@@ -16,7 +16,7 @@ class VerifikasiController extends Controller
         $userRole = Auth::user()->roles->first()->name;
 
         if ($userRole === 'admin') {
-            $pengajuans = Pengajuan::with(['user', 'state'])->latest()->paginate(10);
+            $pengajuans = Pengajuan::with(['user', 'state', 'programKerja'])->latest()->paginate(10);
             return view('verifikasi.index', compact('pengajuans'));
         }
 
@@ -36,7 +36,7 @@ class VerifikasiController extends Controller
 
         // Get all pengajuan that are currently in a state that this user can action
         $pengajuans = Pengajuan::whereIn('workflow_state_id', $allowedStateIds)
-            ->with(['user', 'state'])
+            ->with(['user', 'state', 'programKerja'])
             ->latest()
             ->paginate(10);
             
@@ -47,7 +47,7 @@ class VerifikasiController extends Controller
     {
         $userRole = Auth::user()->roles->first()->name;
         
-        $pengajuan->load(['user', 'state', 'histori.user', 'histori.state']);
+        $pengajuan->load(['user', 'state', 'histori.user', 'histori.state', 'programKerja']);
 
         if ($userRole === 'admin') {
             $availableTransitions = collect();

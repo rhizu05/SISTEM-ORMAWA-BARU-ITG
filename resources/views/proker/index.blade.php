@@ -36,7 +36,21 @@
                             @forelse ($prokers as $proker)
                             <tr class="hover:bg-gray-50">
                                 <td class="py-3 px-4 border-b font-medium">{{ $proker->user->name }}</td>
-                                <td class="py-3 px-4 border-b font-semibold text-indigo-600">{{ $proker->nama_proker }}<br><span class="text-xs font-normal text-gray-500">{{ Str::limit($proker->deskripsi, 40) }}</span></td>
+                                <td class="py-3 px-4 border-b">
+                                    <div class="font-semibold text-indigo-600">{{ $proker->nama_proker }}</div>
+                                    <div class="text-xs text-gray-500 mt-0.5">{{ Str::limit($proker->deskripsi, 40) }}</div>
+                                    <div class="mt-1">
+                                        @if(($proker->pengajuans_count ?? 0) > 0)
+                                            <span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                                                📑 {{ $proker->pengajuans_count }} Proposal Diajukan
+                                            </span>
+                                        @else
+                                            <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] text-gray-400 bg-gray-50 border border-gray-200">
+                                                Belum ada proposal
+                                            </span>
+                                        @endif
+                                    </div>
+                                </td>
                                 <td class="py-3 px-4 border-b">{{ \Carbon\Carbon::parse($proker->rencana_pelaksanaan)->format('d/m/Y') }}</td>
                                 <td class="py-3 px-4 border-b text-center">
                                     @if($proker->status == 'rencana')
