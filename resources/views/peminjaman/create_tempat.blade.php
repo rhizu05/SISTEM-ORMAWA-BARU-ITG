@@ -114,17 +114,26 @@
 
                     {{-- FR-018 / UI-013: kalender ketersediaan ruangan --}}
                     <div class="mt-10 pt-6 border-t border-slate-200">
-                        <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-3 gap-2">
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-4 border-b pb-3 gap-2">
                             <div>
                                 <h3 class="text-lg font-bold text-slate-900">Kalender Ketersediaan Fasilitas</h3>
-                                <p class="text-xs text-slate-500">Jadwal resmi perkuliahan dan peminjaman kegiatan ormawa.</p>
+                                <p class="text-xs text-slate-500 mt-1">Jadwal resmi perkuliahan dan peminjaman kegiatan ormawa.</p>
                             </div>
-                            <div class="flex items-center gap-3 text-xs">
-                                <span class="inline-flex items-center gap-1.5"><span class="w-3 h-3 rounded bg-blue-600 inline-block"></span> Jadwal Kuliah</span>
-                                <span class="inline-flex items-center gap-1.5"><span class="w-3 h-3 rounded bg-amber-500 inline-block"></span> Peminjaman Ormawa</span>
+                            <div class="flex flex-wrap items-center gap-4 text-xs mt-2 sm:mt-0">
+                                <span class="inline-flex items-center gap-1.5 font-medium text-slate-600">
+                                    <span class="w-3 h-3 rounded-full bg-indigo-500 shadow-sm ring-2 ring-indigo-100"></span> 
+                                    Jadwal Kuliah
+                                </span>
+                                <span class="inline-flex items-center gap-1.5 font-medium text-slate-600">
+                                    <span class="w-3 h-3 rounded-full bg-amber-500 shadow-sm ring-2 ring-amber-100"></span> 
+                                    Peminjaman Ormawa
+                                </span>
                             </div>
                         </div>
-                        <div id="calendar" class="p-3 bg-white border border-slate-200 rounded-xl shadow-xs"></div>
+                        <x-calendar-style />
+                        <div class="skin-calendar-wrapper mt-4">
+                            <div id="calendar"></div>
+                        </div>
                     </div>
 
                 </div>

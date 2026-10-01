@@ -342,4 +342,21 @@ Route::middleware('auth')->group(function () {
     });
 });
 
+
+// DEV ONLY: Auto-login / logout routes for pen.dev design tool
+if (app()->environment('local')) {
+    Route::get('/dev-login/{email}', function (string $email) {
+        $user = \App\Models\User::where('email', $email)->firstOrFail();
+        \Illuminate\Support\Facades\Auth::login($user);
+        return redirect('/dashboard');
+    });
+
+    Route::get('/dev-logout', function () {
+        \Illuminate\Support\Facades\Auth::logout();
+        request()->session()->invalidate();
+        request()->session()->regenerateToken();
+        return redirect('/login');
+    });
+}
+
 require __DIR__.'/auth.php';

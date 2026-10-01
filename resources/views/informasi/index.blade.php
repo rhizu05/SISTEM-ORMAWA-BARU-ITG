@@ -1,10 +1,5 @@
 <x-public-layout title="Pusat Informasi & Regulasi" brand-label="Pusat Informasi & Regulasi" accent="indigo">
     <x-slot name="nav">
-        @auth
-            <a href="{{ route('dashboard') }}" class="inline-flex items-center min-h-[44px] px-4 py-2 rounded-xl text-sm font-semibold text-slate-700 hover:bg-slate-100 border border-slate-200 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2">
-                Dashboard
-            </a>
-        @endauth
         <a href="{{ route('layanan.index') }}" class="inline-flex items-center min-h-[44px] px-4 py-2 rounded-xl text-sm font-semibold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 border border-indigo-100 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2">
             Portal Layanan
         </a>

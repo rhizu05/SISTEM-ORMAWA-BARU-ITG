@@ -117,98 +117,129 @@
             <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-4">
                 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-3">
                     <div>
-                        <h3 class="font-bold text-slate-900 text-base">Antrean Verifikasi Proposal Legislatif</h3>
+            {{-- Widget Antrean Verifikasi Proposal Legislatif --}}
+            <div class="bg-white border border-slate-200/80 rounded-2xl shadow-[0_4px_20px_rgba(0,0,0,0.02)] overflow-hidden">
+                <div class="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
+                    <div>
+                        <h3 class="font-bold text-slate-900 text-sm sm:text-base">Antrean Verifikasi Proposal Legislatif</h3>
                         <p class="text-xs text-slate-500 mt-0.5">Proposal kegiatan yang telah disetujui BEM dan membutuhkan pertimbangan serta persetujuan BPM.</p>
                     </div>
-                    <a href="{{ route('verifikasi.index') }}" class="inline-flex items-center text-xs font-semibold text-indigo-700 hover:text-indigo-900 border border-indigo-200 bg-indigo-50/50 px-3 py-1.5 rounded-lg transition min-h-[36px]">
-                        Lihat Seluruh Arsip &rarr;
+                    <a href="{{ route('verifikasi.index') }}" class="inline-flex items-center gap-1 text-xs font-bold text-blue-700 hover:text-blue-900 transition">
+                        <span>Buka Semua Arsip</span>
+                        <span>&rarr;</span>
                     </a>
                 </div>
 
-                <div class="overflow-x-auto rounded-xl border border-slate-200">
-                    <table class="min-w-full text-xs text-left divide-y divide-slate-200">
-                        <thead class="bg-slate-50 font-semibold text-slate-700">
-                            <tr>
-                                <th class="px-3 py-3 text-center w-12">No</th>
-                                <th class="px-4 py-3">Nama Kegiatan</th>
-                                <th class="px-4 py-3">Organisasi Pengaju</th>
-                                <th class="px-4 py-3">Tanggal Kegiatan</th>
-                                <th class="px-4 py-3 text-right">Dana Diajukan</th>
-                                <th class="px-4 py-3 text-center">Aksi</th>
+                <div class="overflow-x-auto skin-scrollbar">
+                    <table class="min-w-full divide-y divide-slate-100 text-left border-collapse">
+                        <thead>
+                            <tr class="bg-slate-50/80 text-[11px] font-bold text-slate-600 uppercase tracking-wider select-none">
+                                <th scope="col" class="py-3 px-5 text-center w-12">No</th>
+                                <th scope="col" class="py-3 px-5">Nama Kegiatan</th>
+                                <th scope="col" class="py-3 px-5">Organisasi Pengaju</th>
+                                <th scope="col" class="py-3 px-5">Tanggal Diajukan</th>
+                                <th scope="col" class="py-3 px-5 text-right">Dana Diajukan</th>
+                                <th scope="col" class="py-3 px-5 text-center">Tindakan</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-slate-200 bg-white">
+                        <tbody class="divide-y divide-slate-100 text-sm">
                             @forelse($proposalQueue as $i => $p)
-                            <tr class="hover:bg-slate-50/80 transition">
-                                <td class="px-3 py-3 text-center font-medium text-slate-500">{{ $i + 1 }}</td>
-                                <td class="px-4 py-3 font-semibold text-slate-900">{{ $p->nama_kegiatan }}</td>
-                                <td class="px-4 py-3 text-slate-700">{{ $p->user->name }}</td>
-                                <td class="px-4 py-3 text-slate-600">{{ $p->tanggal_pengajuan ?? $p->created_at->format('d/m/Y') }}</td>
-                                <td class="px-4 py-3 text-right font-bold text-slate-900">Rp {{ number_format($p->dana_diajukan, 0, ',', '.') }}</td>
-                                <td class="px-4 py-3 text-center">
-                                    <a href="{{ route('verifikasi.show', $p) }}" class="inline-flex items-center justify-center px-3.5 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-semibold shadow-sm transition min-h-[36px] focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500">
-                                        Telaah Proposal
-                                    </a>
-                                </td>
-                            </tr>
+                                <tr class="hover:bg-slate-50/70 transition">
+                                    <td class="py-3.5 px-5 text-center text-xs font-bold text-slate-400">{{ $i + 1 }}</td>
+                                    <td class="py-3.5 px-5">
+                                        <div class="font-bold text-slate-900 text-sm">{{ $p->nama_kegiatan }}</div>
+                                    </td>
+                                    <td class="py-3.5 px-5">
+                                        <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-blue-50 text-blue-700 text-xs font-bold">
+                                            🏛️ {{ $p->user->name }}
+                                        </span>
+                                    </td>
+                                    <td class="py-3.5 px-5 text-xs text-slate-600 whitespace-nowrap">
+                                        {{ $p->tanggal_pengajuan ?? $p->created_at->format('d/m/Y') }}
+                                    </td>
+                                    <td class="py-3.5 px-5 text-right font-mono font-extrabold text-slate-900 text-xs whitespace-nowrap">
+                                        Rp {{ number_format($p->dana_diajukan, 0, ',', '.') }}
+                                    </td>
+                                    <td class="py-3.5 px-5 text-center whitespace-nowrap">
+                                        <a href="{{ route('verifikasi.show', $p) }}" 
+                                           class="inline-flex items-center gap-1 px-3 py-1.5 bg-[#0B1528] hover:bg-[#1E3A8A] text-white rounded-xl text-xs font-bold shadow-2xs transition active:scale-95">
+                                            <span>Telaah Proposal</span>
+                                            <svg class="w-3 h-3 text-blue-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                                        </a>
+                                    </td>
+                                </tr>
                             @empty
-                            <tr>
-                                <td colspan="6" class="px-4 py-8 text-center text-slate-500 text-xs italic">
-                                    Tidak ada proposal yang menunggu verifikasi BPM saat ini.
-                                </td>
-                            </tr>
+                                <tr>
+                                    <td colspan="6" class="py-8 text-center text-slate-400 text-xs italic">
+                                        Tidak ada proposal yang menunggu verifikasi BPM saat ini.
+                                    </td>
+                                </tr>
                             @endforelse
                         </tbody>
                     </table>
                 </div>
             </div>
 
-            <!-- Agenda Rapat & Koordinasi Ormawa -->
-            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-4">
-                <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+            {{-- Widget Agenda Rapat & Koordinasi Parlemen --}}
+            <div class="bg-white border border-slate-200/80 rounded-2xl shadow-[0_4px_20px_rgba(0,0,0,0.02)] overflow-hidden">
+                <div class="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
                     <div>
-                        <h3 class="font-bold text-slate-900 text-base">Agenda Rapat &amp; Koordinasi Parlemen</h3>
+                        <h3 class="font-bold text-slate-900 text-sm sm:text-base">Agenda Rapat &amp; Koordinasi Parlemen</h3>
                         <p class="text-xs text-slate-500 mt-0.5">Jadwal sidang pleno, dengar pendapat, dan koordinasi dengan ormawa kampus.</p>
                     </div>
-                    <a href="{{ route('rapat.index') }}" class="text-xs font-semibold text-indigo-700 hover:underline">
-                        Kelola Agenda Rapat &rarr;
+                    <a href="{{ route('rapat.index') }}" class="inline-flex items-center gap-1 text-xs font-bold text-blue-700 hover:text-blue-900 transition">
+                        <span>Kelola Agenda</span>
+                        <span>&rarr;</span>
                     </a>
                 </div>
 
-                <div class="overflow-x-auto rounded-xl border border-slate-200">
-                    <table class="min-w-full text-xs text-left divide-y divide-slate-200">
-                        <thead class="bg-slate-50 font-semibold text-slate-700">
-                            <tr>
-                                <th class="px-4 py-3">Waktu Pelaksanaan</th>
-                                <th class="px-4 py-3">Judul Agenda Rapat</th>
-                                <th class="px-4 py-3">Lokasi / Ruang</th>
-                                <th class="px-4 py-3">Penyelenggara</th>
-                                <th class="px-4 py-3 text-center">Tautan Meeting</th>
+                <div class="overflow-x-auto skin-scrollbar">
+                    <table class="min-w-full divide-y divide-slate-100 text-left border-collapse">
+                        <thead>
+                            <tr class="bg-slate-50/80 text-[11px] font-bold text-slate-600 uppercase tracking-wider select-none">
+                                <th scope="col" class="py-3 px-5">Waktu Pelaksanaan</th>
+                                <th scope="col" class="py-3 px-5">Judul Agenda Rapat</th>
+                                <th scope="col" class="py-3 px-5">Lokasi / Ruang</th>
+                                <th scope="col" class="py-3 px-5">Penyelenggara</th>
+                                <th scope="col" class="py-3 px-5 text-center">Tautan Meeting</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-slate-200 bg-white">
+                        <tbody class="divide-y divide-slate-100 text-sm">
                             @forelse($rapats as $r)
-                            <tr class="hover:bg-slate-50/80 transition">
-                                <td class="px-4 py-3 text-slate-700 font-medium whitespace-nowrap">{{ $r->tanggal_rapat }} {{ $r->jam_rapat }}</td>
-                                <td class="px-4 py-3 font-semibold text-slate-900">{{ $r->judul_rapat }}</td>
-                                <td class="px-4 py-3 text-slate-600">{{ $r->lokasi }}</td>
-                                <td class="px-4 py-3 text-slate-700">{{ $r->penyelenggara->name ?? '-' }}</td>
-                                <td class="px-4 py-3 text-center">
-                                    @if($r->link_meeting)
-                                        <a href="{{ $r->link_meeting }}" target="_blank" class="inline-flex items-center text-indigo-600 hover:text-indigo-800 font-semibold underline">
-                                            Buka Tautan &nearr;
-                                        </a>
-                                    @else
-                                        <span class="text-slate-400 italic">Offline</span>
-                                    @endif
-                                </td>
-                            </tr>
+                                <tr class="hover:bg-slate-50/70 transition">
+                                    <td class="py-3.5 px-5 whitespace-nowrap">
+                                        <div class="font-bold text-slate-800 text-xs">{{ \Carbon\Carbon::parse($r->tanggal_rapat)->isoFormat('D MMM Y') }}</div>
+                                        <div class="text-[11px] text-slate-400 mt-0.5">{{ $r->jam_rapat ?? '' }} WIB</div>
+                                    </td>
+                                    <td class="py-3.5 px-5">
+                                        <div class="font-bold text-slate-900 text-sm">{{ $r->judul_rapat }}</div>
+                                    </td>
+                                    <td class="py-3.5 px-5 text-xs text-slate-600">
+                                        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-100/80 text-slate-700 font-medium">
+                                            🏢 {{ $r->lokasi }}
+                                        </span>
+                                    </td>
+                                    <td class="py-3.5 px-5 text-xs font-semibold text-slate-700">
+                                        {{ $r->penyelenggara->name ?? '-' }}
+                                    </td>
+                                    <td class="py-3.5 px-5 text-center whitespace-nowrap">
+                                        @if($r->link_meeting)
+                                            <a href="{{ $r->link_meeting }}" target="_blank" 
+                                               class="inline-flex items-center gap-1 px-2.5 py-1 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-lg text-xs font-bold transition">
+                                                <span>Buka Tautan</span>
+                                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                                            </a>
+                                        @else
+                                            <span class="text-xs text-slate-400 italic">Offline</span>
+                                        @endif
+                                    </td>
+                                </tr>
                             @empty
-                            <tr>
-                                <td colspan="5" class="px-4 py-8 text-center text-slate-500 text-xs italic">
-                                    Belum ada agenda rapat atau sidang yang terdaftar.
-                                </td>
-                            </tr>
+                                <tr>
+                                    <td colspan="5" class="py-8 text-center text-slate-400 text-xs italic">
+                                        Belum ada agenda rapat atau sidang yang terdaftar.
+                                    </td>
+                                </tr>
                             @endforelse
                         </tbody>
                     </table>
@@ -217,11 +248,26 @@
 
             <!-- Kalender Terpadu Peminjaman Tempat & Fasilitas -->
             <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-3">
-                <div class="border-b border-slate-100 pb-3">
-                    <h3 class="font-bold text-slate-900 text-base">Jadwal Terpadu Fasilitas &amp; Barang Kampus</h3>
-                    <p class="text-xs text-slate-500 mt-0.5">Pemantauan okupansi ruangan dan sarana inventaris kampus untuk kelancaran kegiatan ormawa.</p>
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-100 pb-3 mb-4">
+                    <div>
+                        <h3 class="font-bold text-slate-900 text-base">Jadwal Terpadu Fasilitas &amp; Barang Kampus</h3>
+                        <p class="text-xs text-slate-500 mt-0.5">Pemantauan okupansi ruangan dan sarana inventaris kampus untuk kelancaran kegiatan ormawa.</p>
+                    </div>
+                    <div class="flex flex-wrap items-center gap-4 text-xs mt-2 sm:mt-0">
+                        <span class="inline-flex items-center gap-1.5 font-medium text-slate-600">
+                            <span class="w-3 h-3 rounded-full bg-indigo-500 shadow-sm ring-2 ring-indigo-100"></span> 
+                            Fasilitas
+                        </span>
+                        <span class="inline-flex items-center gap-1.5 font-medium text-slate-600">
+                            <span class="w-3 h-3 rounded-full bg-amber-500 shadow-sm ring-2 ring-amber-100"></span> 
+                            Barang
+                        </span>
+                    </div>
                 </div>
-                <div id="calendar" class="border border-slate-200 p-3 rounded-xl bg-slate-50/50"></div>
+                <x-calendar-style />
+                <div class="skin-calendar-wrapper">
+                    <div id="calendar"></div>
+                </div>
             </div>
 
         </div>

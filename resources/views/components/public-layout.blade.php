@@ -25,17 +25,36 @@
     </a>
 
     <header class="bg-white border-b border-slate-200 lg:sticky lg:top-0 z-40">
-        <div class="max-w-5xl mx-auto px-4 sm:px-6 py-2.5 flex flex-wrap items-center justify-between gap-x-3 gap-y-2">
-            <a href="{{ route('layanan.index') }}" class="flex items-center gap-2.5 min-w-0 min-h-[44px]">
-                <img src="{{ asset('images/logo_itg.png') }}" alt="Logo Institut Teknologi Garut" class="h-10 sm:h-11 w-auto object-contain shrink-0">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 py-3 flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
+            <a href="{{ route('layanan.index') }}" class="flex items-center gap-3 min-w-0 min-h-[44px]">
+                <div class="flex items-center gap-2 shrink-0">
+                    <img src="{{ asset('images/logo_itg.png') }}" alt="Logo Institut Teknologi Garut" class="h-10 sm:h-11 w-auto object-contain">
+                    <div class="h-7 w-[1px] bg-slate-200 hidden sm:block"></div>
+                    <img src="{{ asset('images/logo-skin-torch.png') }}" alt="Logo Obor Kemahasiswaan ITG" class="h-9 sm:h-10 w-auto object-contain">
+                </div>
                 <span class="min-w-0">
-                    <span class="hidden sm:block text-[11px] font-semibold tracking-wide {{ $accentText }}">Institut Teknologi Garut</span>
+                    <span class="hidden sm:block text-[11px] font-bold tracking-wider text-blue-900 uppercase">Institut Teknologi Garut</span>
                     <span class="block text-sm sm:text-base font-extrabold text-slate-900 leading-tight truncate">{{ $brandLabel }}</span>
                 </span>
             </a>
 
             <div class="flex flex-wrap items-center gap-1.5 sm:gap-2">
                 {{ $nav ?? '' }}
+                @guest
+                    <a href="{{ route('login') }}" class="inline-flex items-center gap-1.5 min-h-[44px] px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold text-white bg-[#0B1528] hover:bg-slate-800 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-900 focus-visible:ring-offset-2 ml-1 shadow-sm">
+                        <svg class="w-4 h-4 text-slate-300" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
+                        </svg>
+                        <span>Login Pengurus</span>
+                    </a>
+                @else
+                    <a href="{{ route('dashboard') }}" class="inline-flex items-center gap-1.5 min-h-[44px] px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold text-white bg-[#1E3A8A] hover:bg-blue-800 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-700 focus-visible:ring-offset-2 ml-1 shadow-sm">
+                        <svg class="w-4 h-4 text-blue-200" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z" />
+                        </svg>
+                        <span>Dashboard</span>
+                    </a>
+                @endguest
             </div>
         </div>
     </header>

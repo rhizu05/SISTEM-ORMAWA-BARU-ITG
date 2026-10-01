@@ -45,119 +45,403 @@
                 </div>
             </div>
 
-            <div class="grid grid-cols-2 md:grid-cols-6 gap-4">
-                <a href="{{ route('verifikasi.index') }}" class="bg-white p-4 rounded shadow text-center hover:bg-indigo-50 transition-colors block">
-                    <div class="text-2xl font-bold text-indigo-700">{{ $counts['verifikasi_proposal'] }}</div>
-                    <div class="text-xs text-gray-700 font-semibold">Verifikasi Proposal</div>
-                    <span class="text-[10px] text-indigo-500">Antrean &rarr;</span>
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3.5">
+                <!-- Verifikasi Proposal -->
+                <a href="{{ route('verifikasi.index') }}" class="group bg-white rounded-2xl border border-slate-200/80 shadow-[0_4px_16px_rgba(0,0,0,0.03)] hover:shadow-md hover:border-blue-300 transition-all duration-200 p-3.5 flex flex-col justify-between min-h-[136px]">
+                    <div class="flex items-center justify-between gap-1.5 mb-2">
+                        <div class="w-8 h-8 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-center text-sm shadow-2xs group-hover:scale-105 transition-transform">
+                            <span>📑</span>
+                        </div>
+                        <span class="px-2 py-0.5 rounded-full bg-slate-100 text-slate-500 font-bold text-[10px]">
+                            Tahap 1
+                        </span>
+                    </div>
+                    <div class="my-auto py-1">
+                        <div class="text-2xl font-extrabold font-mono text-[#1E40AF] tracking-tight leading-none">{{ $counts['verifikasi_proposal'] }}</div>
+                        <div class="text-xs font-bold text-slate-900 mt-1 line-clamp-1">Verifikasi Proposal</div>
+                    </div>
+                    <div class="pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] font-bold text-blue-600 group-hover:text-blue-800 transition-colors">
+                        <span>Antrean</span>
+                        <span class="group-hover:translate-x-0.5 transition-transform">&rarr;</span>
+                    </div>
                 </a>
-                <a href="{{ route('lpj.index') }}" class="bg-white p-4 rounded shadow text-center hover:bg-emerald-50 transition-colors block">
-                    <div class="text-2xl font-bold text-emerald-700">{{ $counts['verifikasi_lpj'] }}</div>
-                    <div class="text-xs text-gray-700 font-semibold">Verifikasi LPJ</div>
-                    <span class="text-[10px] text-emerald-600">Arsip & Antrean &rarr;</span>
+
+                <!-- Verifikasi LPJ -->
+                <a href="{{ route('lpj.index') }}" class="group bg-white rounded-2xl border border-slate-200/80 shadow-[0_4px_16px_rgba(0,0,0,0.03)] hover:shadow-md hover:border-emerald-300 transition-all duration-200 p-3.5 flex flex-col justify-between min-h-[136px]">
+                    <div class="flex items-center justify-between gap-1.5 mb-2">
+                        <div class="w-8 h-8 rounded-xl bg-emerald-50 border border-emerald-100 flex items-center justify-center text-sm shadow-2xs group-hover:scale-105 transition-transform">
+                            <span>📋</span>
+                        </div>
+                        <span class="px-2 py-0.5 rounded-full bg-slate-100 text-slate-500 font-bold text-[10px]">
+                            Akuntabilitas
+                        </span>
+                    </div>
+                    <div class="my-auto py-1">
+                        <div class="text-2xl font-extrabold font-mono text-emerald-600 tracking-tight leading-none">{{ $counts['verifikasi_lpj'] }}</div>
+                        <div class="text-xs font-bold text-slate-900 mt-1 line-clamp-1">Verifikasi LPJ</div>
+                    </div>
+                    <div class="pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] font-bold text-blue-600 group-hover:text-blue-800 transition-colors">
+                        <span>Buka Arsip</span>
+                        <span class="group-hover:translate-x-0.5 transition-transform">&rarr;</span>
+                    </div>
                 </a>
-                <a href="{{ route('bkhm.kurasi.index') }}" class="bg-white p-4 rounded shadow text-center hover:bg-amber-50 transition-colors block">
-                    <div class="text-2xl font-bold text-amber-600">{{ $counts['kurasi_berita'] ?? 0 }}</div>
-                    <div class="text-xs text-gray-700 font-semibold">Kurasi Berita</div>
-                    <span class="text-[10px] text-amber-600">Review Usulan &rarr;</span>
+
+                <!-- Kurasi Berita -->
+                <a href="{{ route('bkhm.kurasi.index') }}" class="group bg-white rounded-2xl border @if(($counts['kurasi_berita'] ?? 0) > 0) border-amber-300 shadow-[0_4px_16px_rgba(245,158,11,0.10)] @else border-slate-200/80 shadow-[0_4px_16px_rgba(0,0,0,0.03)] @endif hover:shadow-md hover:border-amber-400 transition-all duration-200 p-3.5 flex flex-col justify-between min-h-[136px]">
+                    <div class="flex items-center justify-between gap-1.5 mb-2">
+                        <div class="w-8 h-8 rounded-xl bg-amber-50 border border-amber-200 flex items-center justify-center text-sm shadow-2xs group-hover:scale-105 transition-transform">
+                            <span>📰</span>
+                        </div>
+                        <span class="px-2 py-0.5 rounded-full @if(($counts['kurasi_berita'] ?? 0) > 0) bg-amber-100 text-amber-800 font-bold @else bg-slate-100 text-slate-500 @endif text-[10px]">
+                            Perlu Review
+                        </span>
+                    </div>
+                    <div class="my-auto py-1">
+                        <div class="text-2xl font-extrabold font-mono text-amber-600 tracking-tight leading-none">{{ $counts['kurasi_berita'] ?? 0 }}</div>
+                        <div class="text-xs font-bold text-slate-900 mt-1 line-clamp-1">Kurasi Berita</div>
+                    </div>
+                    <div class="pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] font-bold text-blue-600 group-hover:text-blue-800 transition-colors">
+                        <span>Kurasi</span>
+                        <span class="group-hover:translate-x-0.5 transition-transform">&rarr;</span>
+                    </div>
                 </a>
-                <div class="bg-white p-4 rounded shadow text-center"><div class="text-2xl font-bold">{{ $counts['siap_bendahara'] }}</div><div class="text-xs">Siap Bendahara</div></div>
-                <div class="bg-white p-4 rounded shadow text-center"><div class="text-2xl font-bold">{{ $counts['verifikasi_tempat'] }}</div><div class="text-xs">Verifikasi Tempat</div><a href="{{ route('peminjaman.verifikasi.index') }}" class="text-xs text-indigo-600">Kelola</a></div>
-                <div class="bg-white p-4 rounded shadow text-center"><div class="text-2xl font-bold">{{ $counts['verifikasi_barang'] }}</div><div class="text-xs">Verifikasi Barang</div><a href="{{ route('peminjaman.verifikasi.index') }}" class="text-xs text-indigo-600">Kelola</a></div>
+
+                <!-- Siap Bendahara -->
+                <div class="group bg-white rounded-2xl border border-slate-200/80 shadow-[0_4px_16px_rgba(0,0,0,0.03)] hover:shadow-md transition-all duration-200 p-3.5 flex flex-col justify-between min-h-[136px] cursor-default">
+                    <div class="flex items-center justify-between gap-1.5 mb-2">
+                        <div class="w-8 h-8 rounded-xl bg-purple-50 border border-purple-100 flex items-center justify-center text-sm shadow-2xs">
+                            <span>💰</span>
+                        </div>
+                        <span class="px-2 py-0.5 rounded-full bg-slate-100 text-slate-500 font-bold text-[10px]">
+                            Pencairan
+                        </span>
+                    </div>
+                    <div class="my-auto py-1">
+                        <div class="text-2xl font-extrabold font-mono text-purple-600 tracking-tight leading-none">{{ $counts['siap_bendahara'] }}</div>
+                        <div class="text-xs font-bold text-slate-900 mt-1 line-clamp-1">Siap Bendahara</div>
+                    </div>
+                    <div class="pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] font-bold text-purple-600">
+                        <span>Antrean Kasir</span>
+                        <span>&rarr;</span>
+                    </div>
+                </div>
+
+                <!-- Verifikasi Tempat -->
+                <a href="{{ route('peminjaman.verifikasi.index') }}" class="group bg-white rounded-2xl border border-slate-200/80 shadow-[0_4px_16px_rgba(0,0,0,0.03)] hover:shadow-md hover:border-emerald-300 transition-all duration-200 p-3.5 flex flex-col justify-between min-h-[136px]">
+                    <div class="flex items-center justify-between gap-1.5 mb-2">
+                        <div class="w-8 h-8 rounded-xl bg-emerald-50/60 border border-emerald-100 flex items-center justify-center text-sm shadow-2xs group-hover:scale-105 transition-transform">
+                            <span>🏢</span>
+                        </div>
+                        <span class="px-2 py-0.5 rounded-full bg-slate-100 text-slate-500 font-bold text-[10px]">
+                            Sarpras
+                        </span>
+                    </div>
+                    <div class="my-auto py-1">
+                        <div class="text-2xl font-extrabold font-mono text-emerald-700 tracking-tight leading-none">{{ $counts['verifikasi_tempat'] }}</div>
+                        <div class="text-xs font-bold text-slate-900 mt-1 line-clamp-1">Verifikasi Tempat</div>
+                    </div>
+                    <div class="pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] font-bold text-blue-600 group-hover:text-blue-800 transition-colors">
+                        <span>Kelola Slot</span>
+                        <span class="group-hover:translate-x-0.5 transition-transform">&rarr;</span>
+                    </div>
+                </a>
+
+                <!-- Verifikasi Barang -->
+                <a href="{{ route('peminjaman.verifikasi.index') }}" class="group bg-white rounded-2xl border border-slate-200/80 shadow-[0_4px_16px_rgba(0,0,0,0.03)] hover:shadow-md hover:border-slate-300 transition-all duration-200 p-3.5 flex flex-col justify-between min-h-[136px]">
+                    <div class="flex items-center justify-between gap-1.5 mb-2">
+                        <div class="w-8 h-8 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-center text-sm shadow-2xs group-hover:scale-105 transition-transform">
+                            <span>📦</span>
+                        </div>
+                        <span class="px-2 py-0.5 rounded-full bg-slate-100 text-slate-500 font-bold text-[10px]">
+                            Inventaris
+                        </span>
+                    </div>
+                    <div class="my-auto py-1">
+                        <div class="text-2xl font-extrabold font-mono text-slate-700 tracking-tight leading-none">{{ $counts['verifikasi_barang'] }}</div>
+                        <div class="text-xs font-bold text-slate-900 mt-1 line-clamp-1">Verifikasi Barang</div>
+                    </div>
+                    <div class="pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] font-bold text-blue-600 group-hover:text-blue-800 transition-colors">
+                        <span>Kelola Alat</span>
+                        <span class="group-hover:translate-x-0.5 transition-transform">&rarr;</span>
+                    </div>
+                </a>
             </div>
 
             <!-- Tabel Verifikasi Proposal & Verifikasi LPJ -->
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <!-- Tabel Proposal -->
-                <div class="bg-white p-4 rounded shadow">
-                    <div class="flex items-center justify-between mb-2">
-                        <h3 class="font-bold text-sm text-gray-800">Antrean Verifikasi Proposal (Tahap 1)</h3>
-                        <a href="{{ route('verifikasi.index') }}" class="text-xs text-indigo-600 hover:underline">Semua &rarr;</a>
+                <div class="bg-white border border-slate-200/80 rounded-2xl shadow-[0_4px_20px_rgba(0,0,0,0.02)] overflow-hidden">
+                    <div class="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
+                        <div>
+                            <h3 class="font-bold text-slate-900 text-sm flex items-center gap-1.5">
+                                <span class="w-2 h-2 rounded-full bg-blue-600"></span>
+                                Antrean Verifikasi Proposal (BKHM)
+                            </h3>
+                            <p class="text-xs text-slate-500 mt-0.5">Proposal kegiatan ormawa menunggu persetujuan institusi</p>
+                        </div>
+                        <a href="{{ route('verifikasi.index') }}" class="text-xs font-bold text-blue-700 hover:text-blue-900 transition">Semua &rarr;</a>
                     </div>
-                    <div class="overflow-x-auto">
-                    <table class="min-w-full text-xs border">
-                        <thead class="bg-gray-50"><tr><th class="p-2 border text-left">Kegiatan</th><th class="p-2 border text-left">Ormawa</th><th class="p-2 border text-left">Dana</th><th class="p-2 border text-center">Aksi</th></tr></thead>
-                        <tbody>
-                        @forelse($proposalQueue as $p)
-                        <tr>
-                            <td class="p-2 border font-medium">{{ $p->nama_kegiatan }}</td>
-                            <td class="p-2 border">{{ $p->user->name }}</td>
-                            <td class="p-2 border font-semibold text-emerald-700">Rp {{ number_format($p->dana_diajukan,0,',','.') }}</td>
-                            <td class="p-2 border text-center"><a href="{{ route('verifikasi.show',$p) }}" class="inline-block px-2 py-1 bg-indigo-600 text-white rounded text-[11px] font-semibold hover:bg-indigo-700">Verifikasi</a></td>
-                        </tr>
-                        @empty<tr><td colspan="4" class="p-4 text-center text-gray-400">Tidak ada proposal menunggu verifikasi.</td></tr>@endforelse
-                        </tbody>
-                    </table>
+                    <div class="overflow-x-auto skin-scrollbar">
+                        <table class="min-w-full divide-y divide-slate-100 text-left border-collapse text-xs">
+                            <thead>
+                                <tr class="bg-slate-50/80 text-[11px] font-bold text-slate-600 uppercase tracking-wider select-none">
+                                    <th scope="col" class="py-2.5 px-4">Nama Kegiatan</th>
+                                    <th scope="col" class="py-2.5 px-4">Ormawa</th>
+                                    <th scope="col" class="py-2.5 px-4">Dana</th>
+                                    <th scope="col" class="py-2.5 px-4 text-center">Tindakan</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-100 bg-white">
+                                @forelse($proposalQueue as $p)
+                                    <tr class="hover:bg-slate-50/70 transition">
+                                        <td class="py-3 px-4 font-bold text-slate-900">{{ $p->nama_kegiatan }}</td>
+                                        <td class="py-3 px-4 text-slate-600">{{ $p->user->name }}</td>
+                                        <td class="py-3 px-4 font-mono font-extrabold text-slate-900">Rp {{ number_format($p->dana_diajukan,0,',','.') }}</td>
+                                        <td class="py-3 px-4 text-center whitespace-nowrap">
+                                            <a href="{{ route('verifikasi.show',$p) }}" 
+                                               class="inline-flex items-center gap-1 px-2.5 py-1 bg-[#0B1528] hover:bg-[#1E3A8A] text-white rounded-lg text-xs font-bold transition">
+                                                <span>Telaah</span>
+                                                <svg class="w-3 h-3 text-blue-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="4" class="py-8 text-center text-slate-400 text-xs italic">
+                                            Tidak ada proposal menunggu verifikasi saat ini.
+                                        </td>
+                                    </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
                     </div>
                 </div>
 
                 <!-- Tabel Antrean LPJ -->
-                <div class="bg-white p-4 rounded shadow">
-                    <div class="flex items-center justify-between mb-2">
-                        <h3 class="font-bold text-sm text-gray-800 flex items-center gap-1.5">
-                            <span class="inline-flex w-2 h-2 rounded-full bg-emerald-500"></span>
-                            Antrean Verifikasi LPJ Mahasiswa
-                        </h3>
-                        <a href="{{ route('lpj.index') }}" class="text-xs text-indigo-600 hover:underline">Semua LPJ &rarr;</a>
+                <div class="bg-white border border-slate-200/80 rounded-2xl shadow-[0_4px_20px_rgba(0,0,0,0.02)] overflow-hidden">
+                    <div class="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
+                        <div>
+                            <h3 class="font-bold text-slate-900 text-sm flex items-center gap-1.5">
+                                <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                                Antrean Verifikasi LPJ Mahasiswa
+                            </h3>
+                            <p class="text-xs text-slate-500 mt-0.5">Laporan pertanggungjawaban dana kegiatan</p>
+                        </div>
+                        <a href="{{ route('lpj.index') }}" class="text-xs font-bold text-emerald-700 hover:text-emerald-900 transition">Semua LPJ &rarr;</a>
                     </div>
-                    <div class="overflow-x-auto">
-                    <table class="min-w-full text-xs border">
-                        <thead class="bg-emerald-50/60"><tr><th class="p-2 border text-left">Kegiatan</th><th class="p-2 border text-left">Ormawa</th><th class="p-2 border text-center">Berkas</th><th class="p-2 border text-center">Aksi</th></tr></thead>
-                        <tbody>
-                        @forelse($lpjQueue as $p)
-                        <tr>
-                            <td class="p-2 border font-medium">{{ $p->nama_kegiatan }}</td>
-                            <td class="p-2 border">{{ $p->user->name }}</td>
-                            <td class="p-2 border text-center">
-                                @if($p->file_lpj)
-                                    <a href="{{ route('dokumen.lpj', $p) }}" target="_blank" class="text-indigo-600 font-semibold hover:underline inline-flex items-center gap-0.5">
-                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-                                        PDF
-                                    </a>
-                                @else
-                                    <span class="text-gray-400">-</span>
-                                @endif
-                            </td>
-                            <td class="p-2 border text-center">
-                                <a href="{{ route('verifikasi.show', $p) }}" class="inline-block px-2 py-1 bg-emerald-600 text-white rounded text-[11px] font-semibold hover:bg-emerald-700">Verifikasi LPJ</a>
-                            </td>
-                        </tr>
-                        @empty<tr><td colspan="4" class="p-4 text-center text-gray-400">Tidak ada berkas LPJ baru menunggu verifikasi.</td></tr>@endforelse
+                    <div class="overflow-x-auto skin-scrollbar">
+                        <table class="min-w-full divide-y divide-slate-100 text-left border-collapse text-xs">
+                            <thead>
+                                <tr class="bg-slate-50/80 text-[11px] font-bold text-slate-600 uppercase tracking-wider select-none">
+                                    <th scope="col" class="py-2.5 px-4">Nama Kegiatan</th>
+                                    <th scope="col" class="py-2.5 px-4">Ormawa</th>
+                                    <th scope="col" class="py-2.5 px-4 text-center">Berkas</th>
+                                    <th scope="col" class="py-2.5 px-4 text-center">Tindakan</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-100 bg-white">
+                                @forelse($lpjQueue as $p)
+                                    <tr class="hover:bg-slate-50/70 transition">
+                                        <td class="py-3 px-4 font-bold text-slate-900">{{ $p->nama_kegiatan }}</td>
+                                        <td class="py-3 px-4 text-slate-600">{{ $p->user->name }}</td>
+                                        <td class="py-3 px-4 text-center whitespace-nowrap">
+                                            @if($p->file_lpj)
+                                                <a href="{{ route('dokumen.lpj', $p) }}" target="_blank" 
+                                                   class="inline-flex items-center gap-1 px-2 py-0.5 bg-blue-50 text-blue-700 border border-blue-200/80 rounded-md font-bold text-[11px]">
+                                                    <svg class="w-3 h-3 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                                                    <span>PDF</span>
+                                                </a>
+                                            @else
+                                                <span class="text-slate-400 italic">-</span>
+                                            @endif
+                                        </td>
+                                        <td class="py-3 px-4 text-center whitespace-nowrap">
+                                            <a href="{{ route('verifikasi.show', $p) }}" 
+                                               class="inline-flex items-center gap-1 px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold transition">
+                                                <span>Verifikasi</span>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="4" class="py-8 text-center text-slate-400 text-xs italic">
+                                            Tidak ada berkas LPJ baru menunggu verifikasi.
+                                        </td>
+                                    </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tabel Antrean Verifikasi Tempat -->
+            <div class="bg-white border border-slate-200/80 rounded-2xl shadow-[0_4px_20px_rgba(0,0,0,0.02)] overflow-hidden">
+                <div class="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
+                    <div>
+                        <h3 class="font-bold text-slate-900 text-sm sm:text-base">Antrean Peminjaman Tempat (BKHM)</h3>
+                        <p class="text-xs text-slate-500 mt-0.5">Permohonan izin pemakaian gedung &amp; ruangan kegiatan</p>
+                    </div>
+                    <a href="{{ route('peminjaman.verifikasi.index') }}" class="text-xs font-bold text-blue-700 hover:text-blue-900 transition">Kelola &rarr;</a>
+                </div>
+                <div class="overflow-x-auto skin-scrollbar">
+                    <table class="min-w-full divide-y divide-slate-100 text-left border-collapse text-xs">
+                        <thead>
+                            <tr class="bg-slate-50/80 text-[11px] font-bold text-slate-600 uppercase tracking-wider select-none">
+                                <th scope="col" class="py-3 px-5">Ormawa Pengusul</th>
+                                <th scope="col" class="py-3 px-5">Nama Kegiatan</th>
+                                <th scope="col" class="py-3 px-5">Ruangan / Gedung</th>
+                                <th scope="col" class="py-3 px-5">Waktu Penggunaan</th>
+                                <th scope="col" class="py-3 px-5 text-center">Tindakan</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100 bg-white">
+                            @forelse($tempatQueue as $p)
+                                <tr class="hover:bg-slate-50/70 transition">
+                                    <td class="py-3 px-5 font-bold text-slate-800">{{ $p->user->name }}</td>
+                                    <td class="py-3 px-5 font-semibold text-slate-900">{{ $p->nama_kegiatan }}</td>
+                                    <td class="py-3 px-5">
+                                        <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-lg bg-slate-100 font-medium text-slate-700">
+                                            🏢 {{ $p->ruangan->nama_ruangan ?? '-' }}
+                                        </span>
+                                    </td>
+                                    <td class="py-3 px-5 text-slate-600 whitespace-nowrap">{{ $p->tgl_mulai }} {{ $p->jam_mulai }}</td>
+                                    <td class="py-3 px-5 text-center whitespace-nowrap">
+                                        <a href="{{ route('peminjaman.verifikasi.index') }}" 
+                                           class="inline-flex items-center gap-1 px-3 py-1 bg-[#0B1528] hover:bg-[#1E3A8A] text-white rounded-lg text-xs font-bold transition">
+                                            Proses
+                                        </a>
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="5" class="py-8 text-center text-slate-400 text-xs italic">
+                                        Tidak ada antrean verifikasi tempat saat ini.
+                                    </td>
+                                </tr>
+                            @endforelse
                         </tbody>
                     </table>
+                </div>
+            </div>
+
+            <!-- Tabel Antrean Verifikasi Barang -->
+            <div class="bg-white border border-slate-200/80 rounded-2xl shadow-[0_4px_20px_rgba(0,0,0,0.02)] overflow-hidden">
+                <div class="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
+                    <div>
+                        <h3 class="font-bold text-slate-900 text-sm sm:text-base">Antrean Peminjaman Barang &amp; Alat (BKHM)</h3>
+                        <p class="text-xs text-slate-500 mt-0.5">Permohonan peminjaman sarana inventaris ormawa</p>
+                    </div>
+                    <a href="{{ route('peminjaman.verifikasi.index') }}" class="text-xs font-bold text-blue-700 hover:text-blue-900 transition">Kelola &rarr;</a>
+                </div>
+                <div class="overflow-x-auto skin-scrollbar">
+                    <table class="min-w-full divide-y divide-slate-100 text-left border-collapse text-xs">
+                        <thead>
+                            <tr class="bg-slate-50/80 text-[11px] font-bold text-slate-600 uppercase tracking-wider select-none">
+                                <th scope="col" class="py-3 px-5">Ormawa Pengusul</th>
+                                <th scope="col" class="py-3 px-5">Nama Kegiatan</th>
+                                <th scope="col" class="py-3 px-5">Daftar Barang</th>
+                                <th scope="col" class="py-3 px-5">Mulai Tanggal</th>
+                                <th scope="col" class="py-3 px-5 text-center">Tindakan</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100 bg-white">
+                            @forelse($barangQueue as $p)
+                                <tr class="hover:bg-slate-50/70 transition">
+                                    <td class="py-3 px-5 font-bold text-slate-800">{{ $p->user->name }}</td>
+                                    <td class="py-3 px-5 font-semibold text-slate-900">{{ $p->nama_kegiatan }}</td>
+                                    <td class="py-3 px-5 text-slate-700">
+                                        <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-lg bg-amber-50 text-amber-900 font-medium">
+                                            📦 {{ collect($p->kebutuhan_barang)->pluck('nama_barang')->implode(', ') }}
+                                        </span>
+                                    </td>
+                                    <td class="py-3 px-5 text-slate-600 whitespace-nowrap">{{ $p->tgl_mulai }}</td>
+                                    <td class="py-3 px-5 text-center whitespace-nowrap">
+                                        <a href="{{ route('peminjaman.verifikasi.index') }}" 
+                                           class="inline-flex items-center gap-1 px-3 py-1 bg-[#0B1528] hover:bg-[#1E3A8A] text-white rounded-lg text-xs font-bold transition">
+                                            Proses
+                                        </a>
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="5" class="py-8 text-center text-slate-400 text-xs italic">
+                                        Tidak ada antrean verifikasi barang saat ini.
+                                    </td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Tabel Riwayat Perubahan Saldo -->
+            <div class="bg-white border border-slate-200/80 rounded-2xl shadow-[0_4px_20px_rgba(0,0,0,0.02)] overflow-hidden">
+                <div class="px-5 py-4 border-b border-slate-100">
+                    <h3 class="font-bold text-slate-900 text-sm sm:text-base">Audit Riwayat Perubahan Saldo Kas</h3>
+                    <p class="text-xs text-slate-500 mt-0.5">Log pencatatan mutasi penambahan, pengurangan, dan penyesuaian saldo ormawa</p>
+                </div>
+                <div class="overflow-x-auto skin-scrollbar">
+                    <table class="min-w-full divide-y divide-slate-100 text-left border-collapse text-xs">
+                        <thead>
+                            <tr class="bg-slate-50/80 text-[11px] font-bold text-slate-600 uppercase tracking-wider select-none">
+                                <th scope="col" class="py-3 px-5">Waktu Pencatatan</th>
+                                <th scope="col" class="py-3 px-5">Target Akun</th>
+                                <th scope="col" class="py-3 px-5">Aktor Eksekusi</th>
+                                <th scope="col" class="py-3 px-5">Perubahan Nominal</th>
+                                <th scope="col" class="py-3 px-5">Catatan / Alasan</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100 bg-white">
+                            @forelse($saldoHistori as $history)
+                                <tr class="hover:bg-slate-50/70 transition">
+                                    <td class="py-3 px-5 text-slate-600 whitespace-nowrap">{{ $history->created_at->format('d/m/Y H:i') }}</td>
+                                    <td class="py-3 px-5 font-bold text-slate-800">{{ $history->user->name }}</td>
+                                    <td class="py-3 px-5 text-slate-700">
+                                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-slate-100 font-semibold text-[11px]">
+                                            👤 {{ $history->actor->name }}
+                                        </span>
+                                    </td>
+                                    <td class="py-3 px-5 font-mono whitespace-nowrap">
+                                        <span class="text-slate-400">Rp {{ number_format($history->nominal_sebelum, 0, ',', '.') }}</span>
+                                        <span class="mx-1 text-slate-300">&rarr;</span>
+                                        <span class="font-extrabold text-emerald-600">Rp {{ number_format($history->nominal_sesudah, 0, ',', '.') }}</span>
+                                    </td>
+                                    <td class="py-3 px-5 text-slate-600">{{ $history->catatan }}</td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="5" class="py-8 text-center text-slate-400 text-xs italic">
+                                        Belum ada riwayat perubahan saldo.
+                                    </td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="bg-white p-4 rounded shadow">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-4 border-b pb-3">
+                    <div>
+                        <h3 class="font-bold text-slate-900">Jadwal Terpadu Fasilitas & Barang</h3>
+                        <p class="text-xs text-slate-500 mt-1">Klik pada agenda untuk melihat detail kegiatan</p>
+                    </div>
+                    <div class="flex flex-wrap items-center gap-4 text-xs mt-2 sm:mt-0">
+                        <span class="inline-flex items-center gap-1.5 font-medium text-slate-600">
+                            <span class="w-3 h-3 rounded-full bg-indigo-500 shadow-sm ring-2 ring-indigo-100"></span> 
+                            Fasilitas
+                        </span>
+                        <span class="inline-flex items-center gap-1.5 font-medium text-slate-600">
+                            <span class="w-3 h-3 rounded-full bg-amber-500 shadow-sm ring-2 ring-amber-100"></span> 
+                            Barang
+                        </span>
                     </div>
                 </div>
-            </div>
-
-            <div class="bg-white p-4 rounded shadow">
-                <h3 class="font-bold mb-2">Antrean Verifikasi Tempat (BKHM)</h3>
-                <div class="overflow-x-auto">
-                <table class="min-w-full text-sm border">
-                    <thead class="bg-gray-50"><tr><th class="p-2 border">Ormawa</th><th class="p-2 border">Kegiatan</th><th class="p-2 border">Ruangan</th><th class="p-2 border">Waktu</th><th class="p-2 border">Aksi</th></tr></thead>
-                    <tbody>@forelse($tempatQueue as $p)<tr><td class="p-2 border">{{ $p->user->name }}</td><td class="p-2 border">{{ $p->nama_kegiatan }}</td><td class="p-2 border">{{ $p->ruangan->nama_ruangan ?? '-' }}</td><td class="p-2 border">{{ $p->tgl_mulai }} {{ $p->jam_mulai }}</td><td class="p-2 border"><a href="{{ route('peminjaman.verifikasi.index') }}" class="text-indigo-600">Proses</a></td></tr>@empty<tr><td colspan="5" class="p-4 text-center text-gray-500">Tidak ada antrean verifikasi tempat.</td></tr>@endforelse</tbody>
-                </table>
+                <x-calendar-style />
+                <div class="skin-calendar-wrapper">
+                    <div id="calendar"></div>
                 </div>
-            </div>
-
-            <div class="bg-white p-4 rounded shadow">
-                <h3 class="font-bold mb-2">Antrean Verifikasi Barang (BKHM)</h3>
-                <div class="overflow-x-auto">
-                <table class="min-w-full text-sm border">
-                    <thead class="bg-gray-50"><tr><th class="p-2 border">Ormawa</th><th class="p-2 border">Kegiatan</th><th class="p-2 border">Barang</th><th class="p-2 border">Waktu</th><th class="p-2 border">Aksi</th></tr></thead>
-                    <tbody>@forelse($barangQueue as $p)<tr><td class="p-2 border">{{ $p->user->name }}</td><td class="p-2 border">{{ $p->nama_kegiatan }}</td><td class="p-2 border">{{ collect($p->kebutuhan_barang)->pluck('nama_barang')->implode(', ') }}</td><td class="p-2 border">{{ $p->tgl_mulai }}</td><td class="p-2 border"><a href="{{ route('peminjaman.verifikasi.index') }}" class="text-indigo-600">Proses</a></td></tr>@empty<tr><td colspan="5" class="p-4 text-center text-gray-500">Tidak ada antrean verifikasi barang.</td></tr>@endforelse</tbody>
-                </table>
-                </div>
-            </div>
-
-            <div class="bg-white p-4 rounded shadow">
-                <h3 class="font-bold mb-2">Riwayat Perubahan Saldo</h3>
-                <div class="overflow-x-auto"><table class="min-w-full text-sm border"><thead class="bg-gray-50"><tr><th class="p-2 border text-left">Waktu</th><th class="p-2 border text-left">Pengguna</th><th class="p-2 border text-left">Aktor</th><th class="p-2 border text-left">Saldo</th><th class="p-2 border text-left">Alasan</th></tr></thead><tbody>@forelse($saldoHistori as $history)<tr><td class="p-2 border">{{ $history->created_at->format('d/m/Y H:i') }}</td><td class="p-2 border">{{ $history->user->name }}</td><td class="p-2 border">{{ $history->actor->name }}</td><td class="p-2 border">Rp {{ number_format($history->nominal_sebelum, 0, ',', '.') }} → Rp {{ number_format($history->nominal_sesudah, 0, ',', '.') }}</td><td class="p-2 border">{{ $history->catatan }}</td></tr>@empty<tr><td colspan="5" class="p-4 border text-center text-gray-500">Belum ada riwayat perubahan saldo.</td></tr>@endforelse</tbody></table></div>
-            </div>
-
-            <div class="bg-white p-4 rounded shadow">
-                <h3 class="font-bold mb-2">Jadwal Terpadu Fasilitas & Barang</h3>
-                <p class="text-xs text-gray-500 mb-2">Klik pada agenda untuk melihat detail kegiatan</p>
-                <div id="calendar" class="border p-2 rounded"></div>
             </div>
         </div>
     </div>

@@ -269,8 +269,8 @@ class ContohLayananDanInformasiSeeder extends Seeder
                     'jam_mulai' => '08:00:00',
                     'jam_selesai' => '17:00:00',
                     'deskripsi_kegiatan' => 'Pameran karya inovasi teknologi dan seminar nasional mahasiswa informatika.',
-                    'status_bkhm' => 'Disetujui',
-                    'status_sarpras' => 'Disetujui',
+                    'status_bkhm' => 'disetujui',
+                    'status_sarpras' => 'disetujui',
                     'status_akhir' => 'Selesai / Disetujui',
                 ]
             );
@@ -290,8 +290,8 @@ class ContohLayananDanInformasiSeeder extends Seeder
                         ['barang_id' => $sound?->id ?? 1, 'nama_barang' => 'Sound System (Set)', 'jumlah' => 1],
                         ['barang_id' => $mic?->id ?? 4, 'nama_barang' => 'Microphone Wireless', 'jumlah' => 2],
                     ],
-                    'status_bkhm' => 'Disetujui',
-                    'status_sarpras' => 'Disetujui',
+                    'status_bkhm' => 'disetujui',
+                    'status_sarpras' => 'disetujui',
                     'status_akhir' => 'Selesai / Disetujui',
                 ]
             );

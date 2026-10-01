@@ -56,37 +56,42 @@
             </div>
 
             @if(isset($pendingSpQueue) && $pendingSpQueue->count() > 0)
-            <div class="bg-amber-50 border border-amber-200 p-5 rounded-xl shadow-sm">
+            <div class="bg-amber-50/60 border border-amber-200/80 p-5 rounded-2xl shadow-xs">
                 <div class="flex items-center justify-between mb-3">
                     <div class="flex items-center gap-2">
                         <span class="w-2.5 h-2.5 rounded-full bg-amber-500 animate-pulse"></span>
-                        <h3 class="font-bold text-gray-900 text-sm">Surat Peringatan Menunggu Tanda Tangan Anda</h3>
+                        <h3 class="font-bold text-slate-900 text-sm">Surat Peringatan Menunggu Tanda Tangan Anda</h3>
                     </div>
                     <a href="{{ route('wr3.sp.index') }}" class="text-xs font-bold text-indigo-700 hover:underline">
                         Lihat Semua ({{ $pendingSpCount }}) &rarr;
                     </a>
                 </div>
-                <div class="overflow-x-auto bg-white rounded-lg border border-amber-200">
-                    <table class="min-w-full text-xs">
-                        <thead class="bg-amber-100/50 text-amber-900 font-semibold uppercase">
+                <div class="overflow-x-auto bg-white rounded-xl border border-amber-200/90 shadow-2xs">
+                    <table class="min-w-full text-xs divide-y divide-amber-100 text-left">
+                        <thead class="bg-amber-100/50 text-amber-900 font-bold uppercase tracking-wider text-[11px]">
                             <tr>
-                                <th class="p-2.5 text-center">Tingkat</th>
-                                <th class="p-2.5 text-left">Nomor Surat</th>
-                                <th class="p-2.5 text-left">Penerima</th>
-                                <th class="p-2.5 text-left">Alasan Singkat</th>
-                                <th class="p-2.5 text-right">Aksi</th>
+                                <th scope="col" class="py-2.5 px-4 text-center">Tingkat</th>
+                                <th scope="col" class="py-2.5 px-4">Nomor Surat</th>
+                                <th scope="col" class="py-2.5 px-4">Penerima</th>
+                                <th scope="col" class="py-2.5 px-4">Alasan Singkat</th>
+                                <th scope="col" class="py-2.5 px-4 text-right">Tindakan</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-amber-100">
                             @foreach($pendingSpQueue as $sp)
                             <tr class="hover:bg-amber-50/50 transition">
-                                <td class="p-2.5 text-center font-bold text-amber-800">{{ $sp->tingkat }}</td>
-                                <td class="p-2.5 font-mono text-gray-900 font-semibold">{{ $sp->nomor_surat }}</td>
-                                <td class="p-2.5 font-medium text-gray-800">{{ $sp->nama_penerima }}</td>
-                                <td class="p-2.5 text-gray-600 truncate max-w-xs">{{ $sp->alasan_singkat }}</td>
-                                <td class="p-2.5 text-right">
-                                    <a href="{{ route('wr3.sp.show', $sp) }}" class="inline-flex items-center px-2.5 py-1 bg-indigo-600 hover:bg-indigo-700 text-white rounded font-bold text-[11px] transition">
-                                        Validasi &rarr;
+                                <td class="py-3 px-4 text-center">
+                                    <span class="px-2 py-0.5 rounded-full bg-amber-200/70 text-amber-900 font-extrabold text-[10px]">
+                                        {{ $sp->tingkat }}
+                                    </span>
+                                </td>
+                                <td class="py-3 px-4 font-mono text-slate-900 font-bold">{{ $sp->nomor_surat }}</td>
+                                <td class="py-3 px-4 font-semibold text-slate-800">{{ $sp->nama_penerima }}</td>
+                                <td class="py-3 px-4 text-slate-600 truncate max-w-xs">{{ $sp->alasan_singkat }}</td>
+                                <td class="py-3 px-4 text-right whitespace-nowrap">
+                                    <a href="{{ route('wr3.sp.show', $sp) }}" class="inline-flex items-center gap-1 px-3 py-1 bg-[#0B1528] hover:bg-[#1E3A8A] text-white rounded-lg font-bold text-xs shadow-2xs transition">
+                                        <span>Validasi</span>
+                                        <span>&rarr;</span>
                                     </a>
                                 </td>
                             </tr>
@@ -97,43 +102,173 @@
             </div>
             @endif
 
-            <div class="bg-white p-4 rounded shadow">
-                <h3 class="font-bold mb-2">Tabel Verifikasi Proposal</h3>
-                <div class="overflow-x-auto">
-                <table class="min-w-full text-sm border">
-                    <thead class="bg-gray-50"><tr><th class="p-2 border">No</th><th class="p-2 border">Nama Kegiatan</th><th class="p-2 border">Ormawa</th><th class="p-2 border">Tanggal Kegiatan</th><th class="p-2 border">Dana Diajukan</th><th class="p-2 border">Aksi</th></tr></thead>
-                    <tbody>
-                    @forelse($proposalQueue as $i=>$p)<tr><td class="p-2 border">{{ $i+1 }}</td><td class="p-2 border">{{ $p->nama_kegiatan }}</td><td class="p-2 border">{{ $p->user->name }}</td><td class="p-2 border">{{ $p->tanggal_pengajuan ?? $p->created_at->format('d/m/Y') }}</td><td class="p-2 border">Rp {{ number_format($p->dana_diajukan,0,',','.') }}</td><td class="p-2 border"><a href="{{ route('verifikasi.show',$p) }}" class="text-indigo-600">Verifikasi</a></td></tr>
-                    @empty<tr><td colspan="6" class="p-4 text-center text-gray-500">Tidak ada proposal untuk diverifikasi saat ini.</td></tr>@endforelse
-                    </tbody>
-                </table>
+            {{-- Widget Verifikasi Proposal Pimpinan --}}
+            <div class="bg-white border border-slate-200/80 rounded-2xl shadow-[0_4px_20px_rgba(0,0,0,0.02)] overflow-hidden">
+                <div class="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
+                    <div>
+                        <h3 class="font-bold text-slate-900 text-sm sm:text-base">Antrean Persetujuan Proposal (WR3)</h3>
+                        <p class="text-xs text-slate-500 mt-0.5">Tahap pengesahan akhir proposal kegiatan mahasiswa tingkat pimpinan kampus.</p>
+                    </div>
+                    <a href="{{ route('verifikasi.index') }}" class="text-xs font-bold text-blue-700 hover:text-blue-900 transition">Semua &rarr;</a>
+                </div>
+                <div class="overflow-x-auto skin-scrollbar">
+                    <table class="min-w-full divide-y divide-slate-100 text-left border-collapse text-xs">
+                        <thead>
+                            <tr class="bg-slate-50/80 text-[11px] font-bold text-slate-600 uppercase tracking-wider select-none">
+                                <th scope="col" class="py-3 px-5 text-center w-12">No</th>
+                                <th scope="col" class="py-3 px-5">Nama Kegiatan</th>
+                                <th scope="col" class="py-3 px-5">Ormawa Pengusul</th>
+                                <th scope="col" class="py-3 px-5">Jadwal Acara</th>
+                                <th scope="col" class="py-3 px-5">Dana Diajukan</th>
+                                <th scope="col" class="py-3 px-5 text-center">Tindakan</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100 text-sm">
+                            @forelse($proposalQueue as $i=>$p)
+                                <tr class="hover:bg-slate-50/70 transition">
+                                    <td class="py-3.5 px-5 text-center text-xs font-bold text-slate-400">{{ $i+1 }}</td>
+                                    <td class="py-3.5 px-5 font-bold text-slate-900 text-sm">{{ $p->nama_kegiatan }}</td>
+                                    <td class="py-3.5 px-5">
+                                        <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-blue-50 text-blue-700 text-xs font-bold">
+                                            🏛️ {{ $p->user->name }}
+                                        </span>
+                                    </td>
+                                    <td class="py-3.5 px-5 text-xs text-slate-600 whitespace-nowrap">{{ $p->tanggal_pengajuan ?? $p->created_at->format('d/m/Y') }}</td>
+                                    <td class="py-3.5 px-5 font-mono font-extrabold text-slate-900 text-xs whitespace-nowrap">Rp {{ number_format($p->dana_diajukan,0,',','.') }}</td>
+                                    <td class="py-3.5 px-5 text-center whitespace-nowrap">
+                                        <a href="{{ route('verifikasi.show',$p) }}" 
+                                           class="inline-flex items-center gap-1 px-3 py-1.5 bg-[#0B1528] hover:bg-[#1E3A8A] text-white rounded-xl text-xs font-bold shadow-2xs transition active:scale-95">
+                                            <span>Validasi</span>
+                                            <svg class="w-3 h-3 text-blue-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                                        </a>
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="6" class="py-8 text-center text-slate-400 text-xs italic">Tidak ada proposal untuk diverifikasi saat ini.</td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            {{-- Widget Manajemen Saldo Ormawa --}}
+            <div class="bg-white border border-slate-200/80 rounded-2xl shadow-[0_4px_20px_rgba(0,0,0,0.02)] overflow-hidden">
+                <div class="px-5 py-4 border-b border-slate-100">
+                    <h3 class="font-bold text-slate-900 text-sm sm:text-base">Monitoring Saldo Kas Ormawa &amp; Lembaga</h3>
+                    <p class="text-xs text-slate-500 mt-0.5">Daftar rincian pagu anggaran dan realisasi kas seluruh organisasi mahasiswa ITG</p>
+                </div>
+                <div class="overflow-x-auto skin-scrollbar">
+                    <table class="min-w-full divide-y divide-slate-100 text-left border-collapse text-xs">
+                        <thead>
+                            <tr class="bg-slate-50/80 text-[11px] font-bold text-slate-600 uppercase tracking-wider select-none">
+                                <th scope="col" class="py-3 px-5 text-center w-12">No</th>
+                                <th scope="col" class="py-3 px-5">Nama Ormawa / Lembaga</th>
+                                <th scope="col" class="py-3 px-5">Saldo Awal</th>
+                                <th scope="col" class="py-3 px-5">Total Terpakai &amp; Diproses</th>
+                                <th scope="col" class="py-3 px-5">Sisa Saldo Tersedia</th>
+                                <th scope="col" class="py-3 px-5 text-center">Status Aktivitas</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100 text-sm">
+                            @forelse($usersWithSaldo as $i=>$u)
+                                <tr class="hover:bg-slate-50/70 transition">
+                                    <td class="py-3.5 px-5 text-center text-xs font-bold text-slate-400">{{ $i+1 }}</td>
+                                    <td class="py-3.5 px-5">
+                                        <div class="font-bold text-slate-800 text-xs">{{ $u['name'] }}</div>
+                                        <div class="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">{{ $u['role'] }}</div>
+                                    </td>
+                                    <td class="py-3.5 px-5 font-mono text-slate-600 text-xs">Rp {{ number_format($u['saldo_awal'],0,',','.') }}</td>
+                                    <td class="py-3.5 px-5 font-mono font-bold text-amber-600 text-xs">Rp {{ number_format($u['terpakai'],0,',','.') }}</td>
+                                    <td class="py-3.5 px-5 font-mono font-extrabold text-emerald-600 text-xs">Rp {{ number_format($u['saldo'],0,',','.') }}</td>
+                                    <td class="py-3.5 px-5 text-center whitespace-nowrap">
+                                        @if($u['terpakai'] > 0)
+                                            <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-[11px] font-semibold">
+                                                ● Ada Pengajuan
+                                            </span>
+                                        @else
+                                            <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-500 text-[11px]">
+                                                Belum Ada Pengajuan
+                                            </span>
+                                        @endif
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="6" class="py-8 text-center text-slate-400 text-xs italic">Belum ada data saldo.</td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            {{-- Widget Riwayat Perubahan Saldo --}}
+            <div class="bg-white border border-slate-200/80 rounded-2xl shadow-[0_4px_20px_rgba(0,0,0,0.02)] overflow-hidden">
+                <div class="px-5 py-4 border-b border-slate-100">
+                    <h3 class="font-bold text-slate-900 text-sm sm:text-base">Audit Log Mutasi Saldo Kas</h3>
+                    <p class="text-xs text-slate-500 mt-0.5">Catatan riwayat transaksi dan penyesuaian nominal saldo ormawa</p>
+                </div>
+                <div class="overflow-x-auto skin-scrollbar">
+                    <table class="min-w-full divide-y divide-slate-100 text-left border-collapse text-xs">
+                        <thead>
+                            <tr class="bg-slate-50/80 text-[11px] font-bold text-slate-600 uppercase tracking-wider select-none">
+                                <th scope="col" class="py-3 px-5">Waktu Pencatatan</th>
+                                <th scope="col" class="py-3 px-5">Target Akun</th>
+                                <th scope="col" class="py-3 px-5">Aktor Eksekusi</th>
+                                <th scope="col" class="py-3 px-5">Perubahan Nominal</th>
+                                <th scope="col" class="py-3 px-5">Alasan / Catatan</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100 bg-white">
+                            @forelse($saldoHistori as $history)
+                                <tr class="hover:bg-slate-50/70 transition">
+                                    <td class="py-3 px-5 text-slate-600 whitespace-nowrap">{{ $history->created_at->format('d/m/Y H:i') }}</td>
+                                    <td class="py-3 px-5 font-bold text-slate-800">{{ $history->user->name }}</td>
+                                    <td class="py-3 px-5 text-slate-700">
+                                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-slate-100 font-semibold text-[11px]">
+                                            👤 {{ $history->actor->name }}
+                                        </span>
+                                    </td>
+                                    <td class="py-3 px-5 font-mono whitespace-nowrap">
+                                        <span class="text-slate-400">Rp {{ number_format($history->nominal_sebelum, 0, ',', '.') }}</span>
+                                        <span class="mx-1 text-slate-300">&rarr;</span>
+                                        <span class="font-extrabold text-emerald-600">Rp {{ number_format($history->nominal_sesudah, 0, ',', '.') }}</span>
+                                    </td>
+                                    <td class="py-3 px-5 text-slate-600">{{ $history->catatan }}</td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="5" class="py-8 text-center text-slate-400 text-xs italic">Belum ada riwayat perubahan saldo.</td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
                 </div>
             </div>
 
             <div class="bg-white p-4 rounded shadow">
-                <h3 class="font-bold mb-3">Manajemen Saldo</h3>
-                <p class="text-xs text-gray-500 mb-3">Daftar Rincian Saldo Pengguna: Data Saldo Ormawa, BEM, dan BPM (data real dari database)</p>
-                <div class="overflow-x-auto">
-                <table class="min-w-full text-sm border">
-                    <thead class="bg-gray-50"><tr><th class="p-2 border">No</th><th class="p-2 border">Nama Ormawa</th><th class="p-2 border">Saldo Awal</th><th class="p-2 border">Total Terpakai & Diproses</th><th class="p-2 border">Sisa Saldo</th><th class="p-2 border">Rincian Kegiatan</th></tr></thead>
-                    <tbody>
-                    @forelse($usersWithSaldo as $i=>$u)
-                    <tr><td class="p-2 border text-center">{{ $i+1 }}</td><td class="p-2 border">{{ $u['name'] }}<div class="text-xs text-gray-500">{{ strtoupper($u['role']) }}</div></td><td class="p-2 border">Rp {{ number_format($u['saldo_awal'],0,',','.') }}</td><td class="p-2 border">Rp {{ number_format($u['terpakai'],0,',','.') }}</td><td class="p-2 border font-semibold text-green-600">Rp {{ number_format($u['saldo'],0,',','.') }}</td><td class="p-2 border text-xs">{{ $u['terpakai']>0 ? 'Ada pengajuan' : 'Belum ada pengajuan' }}</td></tr>
-                    @empty<tr><td colspan="6" class="p-4 text-center text-gray-500">Belum ada data saldo.</td></tr>@endforelse
-                    </tbody>
-                </table>
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-4 border-b pb-3">
+                    <div>
+                        <h3 class="font-bold text-slate-900">Jadwal Terpadu Fasilitas & Barang</h3>
+                        <p class="text-xs text-slate-500 mt-1">Klik pada agenda untuk melihat detail kegiatan</p>
+                    </div>
+                    <div class="flex flex-wrap items-center gap-4 text-xs mt-2 sm:mt-0">
+                        <span class="inline-flex items-center gap-1.5 font-medium text-slate-600">
+                            <span class="w-3 h-3 rounded-full bg-indigo-500 shadow-sm ring-2 ring-indigo-100"></span> 
+                            Fasilitas
+                        </span>
+                        <span class="inline-flex items-center gap-1.5 font-medium text-slate-600">
+                            <span class="w-3 h-3 rounded-full bg-amber-500 shadow-sm ring-2 ring-amber-100"></span> 
+                            Barang
+                        </span>
+                    </div>
+                </div>>
+                <x-calendar-style />
+                <div class="skin-calendar-wrapper">
+                    <div id="calendar"></div>
                 </div>
-            </div>
-
-            <div class="bg-white p-4 rounded shadow">
-                <h3 class="font-bold mb-3">Riwayat Perubahan Saldo</h3>
-                <div class="overflow-x-auto"><table class="min-w-full text-sm border"><thead class="bg-gray-50"><tr><th class="p-2 border text-left">Waktu</th><th class="p-2 border text-left">Pengguna</th><th class="p-2 border text-left">Aktor</th><th class="p-2 border text-left">Saldo</th><th class="p-2 border text-left">Alasan</th></tr></thead><tbody>@forelse($saldoHistori as $history)<tr><td class="p-2 border">{{ $history->created_at->format('d/m/Y H:i') }}</td><td class="p-2 border">{{ $history->user->name }}</td><td class="p-2 border">{{ $history->actor->name }}</td><td class="p-2 border">Rp {{ number_format($history->nominal_sebelum, 0, ',', '.') }} → Rp {{ number_format($history->nominal_sesudah, 0, ',', '.') }}</td><td class="p-2 border">{{ $history->catatan }}</td></tr>@empty<tr><td colspan="5" class="p-4 border text-center text-gray-500">Belum ada riwayat perubahan saldo.</td></tr>@endforelse</tbody></table></div>
-            </div>
-
-            <div class="bg-white p-4 rounded shadow">
-                <h3 class="font-bold mb-3">Jadwal Terpadu Fasilitas & Barang</h3>
-                <p class="text-xs text-gray-500 mb-2">Klik pada agenda untuk melihat detail kegiatan</p>
-                <div id="calendar" class="border p-2 rounded"></div>
             </div>
         </div>
     </div>
