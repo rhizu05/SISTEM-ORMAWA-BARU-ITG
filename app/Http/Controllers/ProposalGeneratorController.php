@@ -138,6 +138,7 @@ class ProposalGeneratorController extends Controller
         $jenis    = $request->input('penandatangan_jenis', []);
         $names    = $request->input('penandatangan_nama', []);
         $jabatans = $request->input('penandatangan_jabatan', []);
+        $nims     = $request->input('penandatangan_nim', []);
         $user     = Auth::user();
 
         $namaMap = [
@@ -153,22 +154,23 @@ class ProposalGeneratorController extends Controller
         ];
 
         $list = [];
-        $count = max(count($roles), count($jenis), count($names), count($jabatans));
+        $count = max(count($roles), count($jenis), count($names), count($jabatans), count($nims));
         for ($idx = 0; $idx < $count; $idx++) {
             $role = $roles[$idx] ?? 'ketua';
             $tipe = ($jenis[$idx] ?? 'internal') === 'eksternal' ? 'eksternal' : 'internal';
             $nama = trim($names[$idx] ?? '');
+            $nimInput = trim($nims[$idx] ?? '');
 
             if ($tipe === 'internal') {
                 if ($nama === '') {
                     $nama = $namaMap[$role] ?? $user->name;
                 }
                 $jabatan = trim($jabatans[$idx] ?? '') ?: ucfirst($role);
-                $nim = $nimMap[$role] ?? null;
+                $nim = $nimInput !== '' ? $nimInput : ($nimMap[$role] ?? null);
             } else {
                 $nama = $nama !== '' ? $nama : 'Pihak Luar';
                 $jabatan = trim($jabatans[$idx] ?? '') ?: 'Pihak Luar';
-                $nim = null;
+                $nim = $nimInput !== '' ? $nimInput : null;
             }
 
             $list[] = [
@@ -268,7 +270,18 @@ class ProposalGeneratorController extends Controller
 
     public function showLetter(\App\Models\Letter $letter)
     {
-        if ($letter->user_id !== Auth::id() && ! Auth::user()->hasRole('admin')) abort(403);
+        if ($letter->user_id !== Auth::id() && ! Auth::user()->hasAnyRole(['admin', 'bkhm', 'wr3', 'bem', 'bpm', 'bendahara'])) {
+            abort(403);
+        }
+
+        if ($letter->type === 'lpj') {
+            return redirect()->route('generator.lpj.show', $letter);
+        }
+
+        if ($letter->type === 'sk_kepengurusan') {
+            return redirect()->route('dokumen.sk-ormawa', $letter->user_id);
+        }
+
         $konfig = \App\Models\Konfigurasi::pluck('nilai_konfigurasi', 'nama_konfigurasi');
         return view('generator.letters.show', compact('letter', 'konfig'));
     }
@@ -304,16 +317,64 @@ class ProposalGeneratorController extends Controller
     {
         $request->validate([
             'nama_kegiatan' => 'required|string',
-            'pendahuluan' => 'required|string',
-            'waktu_tempat' => 'required|string',
-            'hasil_kegiatan' => 'required|string',
-            'hambatan' => 'required|string',
-            'saran' => 'required|string',
-            'penutup' => 'required|string',
+            'tahun_akademik' => 'nullable|string',
+            'waktu_hari_tanggal' => 'nullable|string',
+            'waktu_jam' => 'nullable|string',
+            'tempat' => 'nullable|string',
+            'tujuan_kegiatan' => 'nullable|string',
+            'sasaran_kegiatan' => 'nullable|string',
+            'ruang_lingkup' => 'nullable|string',
+            'metode_kegiatan' => 'nullable|string',
+            'tahapan_kegiatan' => 'nullable|string',
+            'peserta_deskripsi' => 'nullable|string',
+            'jadwal_kegiatan' => 'nullable|string',
+            'indikator_keberhasilan' => 'nullable|string',
+            'hambatan' => 'nullable|string',
+            'upaya_mengatasi' => 'nullable|string',
+            'penutup' => 'nullable|string',
+            'foto_dokumentasi.*' => 'nullable|image|max:5120',
+            'bukti_pembayaran.*' => 'nullable|file|mimes:jpeg,png,jpg,pdf|max:5120',
         ]);
 
         $penandatanganList = $this->buildPenandatanganList($request);
         $isPrint = $request->action === 'print';
+
+        // Format tabel keuangan baru (6 kolom: tanggal, kebutuhan, pemasukan, pengeluaran, sisa, keterangan)
+        $keuanganItems = $request->keuangan_items ?? [];
+        $totalPemasukan = 0;
+        $totalPengeluaran = 0;
+        $totalSisa = 0;
+
+        if (is_array($keuanganItems)) {
+            foreach ($keuanganItems as &$item) {
+                $item['pemasukan'] = (int) ($item['pemasukan'] ?? 0);
+                $item['pengeluaran'] = (int) ($item['pengeluaran'] ?? 0);
+                $item['sisa'] = (int) ($item['sisa'] ?? ($item['pemasukan'] - $item['pengeluaran']));
+                $totalPemasukan += $item['pemasukan'];
+                $totalPengeluaran += $item['pengeluaran'];
+            }
+            $totalSisa = $totalPemasukan - $totalPengeluaran;
+        }
+
+        // Handle upload foto dokumentasi
+        $dokumentasiPaths = [];
+        if ($request->hasFile('foto_dokumentasi')) {
+            foreach ($request->file('foto_dokumentasi') as $file) {
+                $path = $file->store('lpj/dokumentasi', 'public');
+                $dokumentasiPaths[] = $path;
+            }
+        }
+
+        // Handle upload bukti kuitansi / struk
+        $strukPaths = [];
+        if ($request->hasFile('bukti_pembayaran')) {
+            foreach ($request->file('bukti_pembayaran') as $file) {
+                $path = $file->store('lpj/struk', 'public');
+                $strukPaths[] = $path;
+            }
+        }
+
+        $daftarHadirItems = $request->daftar_hadir_items ?? [];
 
         $lpj = \App\Models\Letter::create([
             'user_id' => Auth::id(),
@@ -321,23 +382,43 @@ class ProposalGeneratorController extends Controller
             'type' => 'lpj',
             'perihal' => 'Laporan Pertanggungjawaban (LPJ) - ' . $request->nama_kegiatan,
             'content' => json_encode([
-                'pendahuluan' => $request->pendahuluan,
-                'waktu_tempat' => $request->waktu_tempat,
-                'hasil_kegiatan' => $request->hasil_kegiatan,
+                'tahun_akademik' => $request->tahun_akademik ?? '2024-2025',
+                'waktu_hari_tanggal' => $request->waktu_hari_tanggal,
+                'waktu_jam' => $request->waktu_jam,
+                'tempat' => $request->tempat,
+                'tujuan_kegiatan' => $request->tujuan_kegiatan,
+                'sasaran_kegiatan' => $request->sasaran_kegiatan,
+                'ruang_lingkup' => $request->ruang_lingkup,
+                'metode_kegiatan' => $request->metode_kegiatan,
+                'tahapan_kegiatan' => $request->tahapan_kegiatan,
+                'peserta_deskripsi' => $request->peserta_deskripsi,
+                'jadwal_kegiatan' => $request->jadwal_kegiatan,
+                'indikator_keberhasilan' => $request->indikator_keberhasilan,
                 'hambatan' => $request->hambatan,
-                'saran' => $request->saran,
+                'upaya_mengatasi' => $request->upaya_mengatasi,
                 'penutup' => $request->penutup,
+                // Fallback compatibility
+                'pendahuluan' => $request->tujuan_kegiatan,
+                'waktu_tempat' => trim(($request->waktu_hari_tanggal ?? '') . ' ' . ($request->waktu_jam ?? '') . ' di ' . ($request->tempat ?? '')),
+                'hasil_kegiatan' => $request->indikator_keberhasilan,
+                'saran' => $request->upaya_mengatasi,
                 'is_draft' => ! $isPrint,
             ]),
             'metadata' => [
                 'proposal_id' => $request->proposal_id,
-                'realisasi_dana' => $request->total_realisasi ?? 0,
+                'tahun_akademik' => $request->tahun_akademik ?? '2024-2025',
+                'realisasi_dana' => $totalPengeluaran,
+                'total_pemasukan' => $totalPemasukan,
+                'total_sisa' => $totalSisa,
+                'keuangan_items' => $keuanganItems,
+                'daftar_hadir_items' => $daftarHadirItems,
+                'foto_dokumentasi' => $dokumentasiPaths,
+                'bukti_struk' => $strukPaths,
                 'penandatangan' => $penandatanganList[0]['role'] ?? 'internal',
                 'penandatangan_list' => $penandatanganList,
                 'ttd_1' => $request->ttd_1,
                 'ttd_2' => $request->ttd_2,
                 'ttd_3' => $request->ttd_3,
-                'realisasi_items' => $request->realisasi_items,
             ],
         ]);
 
@@ -355,7 +436,7 @@ class ProposalGeneratorController extends Controller
             abort(403);
         }
         
-        $proposal = \App\Models\ProposalOtomatis::find($lpj->metadata['proposal_id'] ?? null);
+        $proposal = \App\Models\ProposalOtomatis::find($lpj->metadata['proposal_id'] ?? $lpj->proposal_otomatis_id ?? null);
         $konfig = \App\Models\Konfigurasi::pluck('nilai_konfigurasi', 'nama_konfigurasi');
         return view('generator.lpj.show', compact('lpj', 'proposal', 'konfig'));
     }
@@ -398,8 +479,16 @@ class ProposalGeneratorController extends Controller
      */
     public function pdfLetter(\App\Models\Letter $letter)
     {
-        if ($letter->user_id !== Auth::id() && !Auth::user()->hasRole('admin')) {
+        if ($letter->user_id !== Auth::id() && !Auth::user()->hasAnyRole(['admin', 'bkhm', 'wr3', 'bem', 'bpm', 'bendahara'])) {
             abort(403);
+        }
+
+        if ($letter->type === 'lpj') {
+            return redirect()->route('generator.lpj.pdf', $letter);
+        }
+
+        if ($letter->type === 'sk_kepengurusan') {
+            return redirect()->route('dokumen.sk-ormawa', ['user' => $letter->user_id, 'download' => 1]);
         }
 
         $konfig = \App\Models\Konfigurasi::pluck('nilai_konfigurasi', 'nama_konfigurasi');
@@ -423,7 +512,7 @@ class ProposalGeneratorController extends Controller
             abort(403);
         }
 
-        $proposal = \App\Models\ProposalOtomatis::find($lpj->metadata['proposal_id'] ?? null);
+        $proposal = \App\Models\ProposalOtomatis::find($lpj->metadata['proposal_id'] ?? $lpj->proposal_otomatis_id ?? null);
         $konfig = \App\Models\Konfigurasi::pluck('nilai_konfigurasi', 'nama_konfigurasi');
 
         $pdf = Pdf::loadView('generator.lpj.pdf', [

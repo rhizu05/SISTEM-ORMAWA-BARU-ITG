@@ -135,8 +135,6 @@ class PeminjamanController extends Controller
     // Store pinjam ruangan
     public function storeTempat(Request $request)
     {
-        $isHima = Auth::user()->isHima();
-
         $rules = [
             'ruangan_id' => 'required|exists:master_ruangan,id',
             'nama_kegiatan' => 'required|string|max:255',
@@ -145,14 +143,8 @@ class PeminjamanController extends Controller
             'jam_mulai' => 'required',
             'jam_selesai' => 'required|after:jam_mulai',
             'deskripsi_kegiatan' => 'nullable|string',
+            'file_persetujuan_prodi' => 'nullable|file|mimes:pdf|mimetypes:application/pdf|max:5120',
         ];
-
-        // Q-SAR-04: HIMA wajib melampirkan dokumen persetujuan Prodi.
-        if ($isHima) {
-            $rules['file_persetujuan_prodi'] = 'required|file|mimes:pdf|mimetypes:application/pdf|max:5120';
-        } else {
-            $rules['file_persetujuan_prodi'] = 'nullable|file|mimes:pdf|mimetypes:application/pdf|max:5120';
-        }
 
         $request->validate($rules);
 
@@ -195,7 +187,8 @@ class PeminjamanController extends Controller
                 ->storeAs('persetujuan-prodi', time() . '_prodi.pdf', 'local');
         }
 
-        $isDirectToSarpras = (Auth::user()->hasRole('ormawa') || $isHima) && $dokumenProdi !== null;
+        $statusBkhm = $dokumenProdi ? 'disetujui' : 'pending';
+        $statusAkhir = $dokumenProdi ? 'Proses Sarpras' : 'Proses BKHM';
 
         PeminjamanTempat::create([
             'user_id' => Auth::id(),
@@ -207,18 +200,17 @@ class PeminjamanController extends Controller
             'jam_selesai' => $request->jam_selesai,
             'deskripsi_kegiatan' => $request->deskripsi_kegiatan,
             'file_persetujuan_prodi' => $dokumenProdi,
-            'status_bkhm' => $isDirectToSarpras ? 'disetujui' : 'pending',
+            'status_bkhm' => $statusBkhm,
             'status_sarpras' => 'pending',
-            'status_akhir' => $isDirectToSarpras ? 'Proses Sarpras' : 'Proses BKHM',
+            'status_akhir' => $statusAkhir,
         ]);
 
-        if ($isDirectToSarpras) {
-            \App\Services\NotifikasiService::kirimKeRole('sarpras', 'Peminjaman ruangan baru dari Ormawa: "' . $request->nama_kegiatan . '" (Surat Prodi terlampir, langsung ke Sarpras).');
-            return redirect()->route('peminjaman.tempat.index')->with('success', 'Pengajuan peminjaman ruangan berhasil dikirim langsung ke Sarpras (Surat Prodi terlampir).');
+        if ($dokumenProdi) {
+            \App\Services\NotifikasiService::kirimKeRole('sarpras', 'Peminjaman ruangan baru dengan persetujuan prodi diajukan oleh ' . Auth::user()->name . ': "' . $request->nama_kegiatan . '".');
+        } else {
+            \App\Services\NotifikasiService::kirimKeRole('bkhm', 'Peminjaman ruangan baru diajukan oleh ' . Auth::user()->name . ': "' . $request->nama_kegiatan . '".');
         }
-
-        \App\Services\NotifikasiService::kirimKeRole('bkhm', 'Peminjaman ruangan baru diajukan: "' . $request->nama_kegiatan . '".');
-        return redirect()->route('peminjaman.tempat.index')->with('success', 'Pengajuan peminjaman ruangan berhasil dikirim ke BKHM.');
+        return redirect()->route('peminjaman.tempat.index')->with('success', 'Pengajuan peminjaman ruangan berhasil dikirim' . ($dokumenProdi ? ' dan diteruskan ke Sarpras.' : ' dan menunggu konfirmasi BKHM.'));
     }
 
     // Form pinjam barang
@@ -231,19 +223,14 @@ class PeminjamanController extends Controller
     // Store pinjam barang
     public function storeBarang(Request $request)
     {
-        $isHima = Auth::user()->isHima();
-
         $rules = [
             'nama_kegiatan' => 'required|string|max:255',
             'tgl_mulai' => 'required|date|after_or_equal:today',
             'tgl_selesai' => 'required|date|after_or_equal:tgl_mulai',
             'barang_id' => 'required|array|min:1',
             'qty' => 'required|array|min:1',
+            'file_persetujuan_prodi' => 'nullable|file|mimes:pdf|mimetypes:application/pdf|max:5120',
         ];
-
-        // Q-SAR-04: HIMA wajib melampirkan dokumen persetujuan Prodi.
-        $rules['file_persetujuan_prodi'] = ($isHima ? 'required' : 'nullable')
-            . '|file|mimes:pdf|mimetypes:application/pdf|max:5120';
 
         $request->validate($rules);
 
@@ -276,8 +263,7 @@ class PeminjamanController extends Controller
                 ->storeAs('persetujuan-prodi', time() . '_prodi.pdf', 'local');
         }
 
-        $isDirectToSarpras = (Auth::user()->hasRole('ormawa') || $isHima) && $dokumenProdi !== null;
-
+        // Seluruh peminjaman (HIMA, UKM, BEM, BPM) masuk ke antrian BKHM terlebih dahulu
         PeminjamanBarang::create([
             'user_id' => Auth::id(),
             'nama_kegiatan' => $request->nama_kegiatan,
@@ -285,18 +271,13 @@ class PeminjamanController extends Controller
             'tgl_selesai' => $request->tgl_selesai,
             'kebutuhan_barang' => $kebutuhan,
             'file_persetujuan_prodi' => $dokumenProdi,
-            'status_bkhm' => $isDirectToSarpras ? 'disetujui' : 'pending',
+            'status_bkhm' => 'pending',
             'status_sarpras' => 'pending',
-            'status_akhir' => $isDirectToSarpras ? 'Proses Sarpras' : 'Proses BKHM',
+            'status_akhir' => 'Proses BKHM',
         ]);
 
-        if ($isDirectToSarpras) {
-            \App\Services\NotifikasiService::kirimKeRole('sarpras', 'Peminjaman barang baru dari Ormawa: "' . $request->nama_kegiatan . '" (Surat Prodi terlampir, langsung ke Sarpras).');
-            return redirect()->route('peminjaman.barang.index')->with('success', 'Pengajuan peminjaman barang berhasil dikirim langsung ke Sarpras (Surat Prodi terlampir).');
-        }
-
-        \App\Services\NotifikasiService::kirimKeRole('bkhm', 'Peminjaman barang baru diajukan: "' . $request->nama_kegiatan . '".');
-        return redirect()->route('peminjaman.barang.index')->with('success', 'Pengajuan peminjaman barang berhasil dikirim ke BKHM.');
+        \App\Services\NotifikasiService::kirimKeRole('bkhm', 'Peminjaman barang baru diajukan oleh ' . Auth::user()->name . ': "' . $request->nama_kegiatan . '".');
+        return redirect()->route('peminjaman.barang.index')->with('success', 'Pengajuan peminjaman barang berhasil dikirim dan menunggu konfirmasi BKHM.');
     }
 
     // Verifikasi (digunakan oleh BKHM, Sarpras Ruangan, & Sarpras Barang)

@@ -103,22 +103,27 @@
                             @endif
                         </div>
 
-                        @if($pengajuan->tandaTanganDigitals && $pengajuan->tandaTanganDigitals->isNotEmpty())
-                        <div class="mb-6 p-4 rounded-xl bg-slate-50 border border-slate-200">
+                        @php
+                            $sigProposal = $pengajuan->tandaTanganProposal();
+                            $sigLpj = $pengajuan->tandaTanganLpj();
+                        @endphp
+
+                        @if($sigProposal->isNotEmpty())
+                        <div class="mb-4 p-4 rounded-xl bg-slate-50 border border-slate-200">
                             <div class="flex items-center justify-between mb-3">
                                 <h4 class="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
-                                    <span class="text-emerald-600 font-bold">🔒</span> Pengesahan &amp; Tanda Tangan Digital Resmi ({{ $pengajuan->tandaTanganDigitals->count() }})
+                                    <span class="text-emerald-600 font-bold">🔒</span> Pengesahan Proposal Kegiatan ({{ $sigProposal->count() }})
                                 </h4>
                                 <span class="text-[10px] bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full font-bold">
                                     Terverifikasi Kriptografis
                                 </span>
                             </div>
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                @foreach($pengajuan->tandaTanganDigitals as $sig)
+                                @foreach($sigProposal as $sig)
                                 <div class="p-3 bg-white rounded-lg border border-slate-200 shadow-sm flex flex-col justify-between">
                                     <div>
                                         <div class="flex items-center justify-between text-xs mb-1">
-                                            <span class="font-bold text-indigo-700 uppercase tracking-wide">{{ strtoupper($sig->role) }}</span>
+                                            <span class="font-bold text-indigo-700 uppercase tracking-wide">{{ $sig->role_badge_label }}</span>
                                             <span class="text-[10px] text-slate-400">{{ $sig->signed_at ? $sig->signed_at->format('d/m/Y H:i') : '-' }} WIB</span>
                                         </div>
                                         <div class="font-semibold text-sm text-slate-900 leading-snug">{{ $sig->nama_penandatangan }}</div>
@@ -137,8 +142,50 @@
                         </div>
                         @endif
 
+                        @if($sigLpj->isNotEmpty())
+                        <div class="mb-6 p-4 rounded-xl bg-purple-50/70 border border-purple-200">
+                            <div class="flex items-center justify-between mb-3">
+                                <h4 class="text-xs font-bold uppercase tracking-wider text-purple-900 flex items-center gap-1.5">
+                                    <span class="text-purple-600 font-bold">📑</span> Legalisir TTD Digital LPJ Kegiatan ({{ $sigLpj->count() }}/3)
+                                </h4>
+                                <span class="text-[10px] bg-purple-100 text-purple-800 px-2 py-0.5 rounded-full font-bold">
+                                    {{ $sigLpj->count() === 3 ? 'Legalisir Penuh (Ormawa, BKHM, WR3)' : 'Proses Legalisir' }}
+                                </span>
+                            </div>
+                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                                @foreach($sigLpj as $sig)
+                                <div class="p-3 bg-white rounded-lg border border-purple-200 shadow-sm flex flex-col justify-between">
+                                    <div>
+                                        <div class="flex items-center justify-between text-xs mb-1">
+                                            <span class="font-bold text-purple-700 uppercase tracking-wide text-[11px]">{{ $sig->role_badge_label }}</span>
+                                            <span class="text-[10px] text-slate-400">{{ $sig->signed_at ? $sig->signed_at->format('d/m/Y H:i') : '-' }} WIB</span>
+                                        </div>
+                                        <div class="font-semibold text-sm text-slate-900 leading-snug">{{ $sig->nama_penandatangan }}</div>
+                                        <div class="text-[11px] text-slate-500 leading-tight mt-0.5">{{ $sig->jabatan_penandatangan }}</div>
+                                    </div>
+                                    <div class="mt-2 pt-2 border-t border-slate-100 flex items-center justify-between">
+                                        <span class="font-mono text-[9px] text-slate-400">ID: {{ substr($sig->token_verifikasi, 0, 14) }}...</span>
+                                        <a href="{{ $sig->verification_url }}" target="_blank" class="inline-flex items-center gap-1 text-[11px] font-semibold text-purple-700 hover:text-purple-900 hover:underline">
+                                            <span>Cek Keaslian</span>
+                                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                                        </a>
+                                    </div>
+                                </div>
+                                @endforeach
+                            </div>
+                        </div>
+                        @endif
+
                         @php
-                            $hasLpj = !empty($pengajuan->file_lpj);
+                            $proposalFileExists = !empty($pengajuan->file_proposal) && (
+                                \Illuminate\Support\Facades\Storage::disk('local')->exists($pengajuan->file_proposal) ||
+                                \Illuminate\Support\Facades\Storage::disk('public')->exists($pengajuan->file_proposal)
+                            );
+                            $lpjFileExists = !empty($pengajuan->file_lpj) && (
+                                \Illuminate\Support\Facades\Storage::disk('local')->exists($pengajuan->file_lpj) ||
+                                \Illuminate\Support\Facades\Storage::disk('public')->exists($pengajuan->file_lpj)
+                            );
+                            $hasLpj = $lpjFileExists;
                             $isLpjStage = in_array($pengajuan->state->name, ['lpj_submitted', 'lpj_wr3_review', 'completed']);
                             $defaultTab = ($hasLpj && $isLpjStage) ? 'lpj' : 'proposal';
                         @endphp
@@ -189,30 +236,52 @@
                                         <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
                                         Pratinjau Berkas LPJ Mahasiswa
                                     </span>
-                                    <div class="flex items-center gap-2">
-                                        <a href="{{ route('dokumen.lpj', $pengajuan) }}" target="_blank" class="inline-flex items-center px-2.5 py-1 text-xs font-semibold bg-white border border-gray-300 rounded text-gray-700 hover:bg-gray-50 shadow-sm transition">
-                                            <svg class="w-3.5 h-3.5 mr-1 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
-                                            Buka di tab baru
+                                    <div class="flex items-center gap-1.5 flex-wrap">
+                                        <a href="{{ route('dokumen.lpj', ['pengajuan' => $pengajuan, 'mode' => 'pengesahan']) }}" target="_blank" class="inline-flex items-center px-2 py-1 text-xs font-semibold bg-purple-50 border border-purple-200 rounded text-purple-700 hover:bg-purple-100 shadow-2xs transition" title="Lihat hanya Lembar Pengesahan resmi ITG (1 Halaman)">
+                                            <svg class="w-3.5 h-3.5 mr-1 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                            Lembar Pengesahan (PDF)
                                         </a>
-                                        <a href="{{ route('dokumen.lpj', $pengajuan) }}" download class="inline-flex items-center px-2.5 py-1 text-xs font-semibold bg-indigo-600 rounded text-white hover:bg-indigo-700 shadow-sm transition">
+                                        <a href="{{ route('dokumen.lpj', $pengajuan) }}" target="_blank" class="inline-flex items-center px-2 py-1 text-xs font-semibold bg-white border border-gray-300 rounded text-gray-700 hover:bg-gray-50 shadow-2xs transition" title="Buka Dokumen Lengkap Terlegalisir di Tab Baru">
+                                            <svg class="w-3.5 h-3.5 mr-1 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                                            Buka Tab Baru
+                                        </a>
+                                        <a href="{{ route('dokumen.lpj', ['pengajuan' => $pengajuan, 'download' => 1]) }}" class="inline-flex items-center px-2.5 py-1 text-xs font-semibold bg-indigo-600 rounded text-white hover:bg-indigo-700 shadow-2xs transition" title="Unduh Berkas Lengkap Terlegalisir">
                                             <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
                                             Unduh LPJ
                                         </a>
                                     </div>
                                 </div>
-                                <iframe src="{{ route('dokumen.lpj', $pengajuan) }}" class="w-full h-[520px] border rounded-lg bg-gray-50" frameborder="0"></iframe>
+                                @if($lpjFileExists)
+                                    <iframe src="{{ route('dokumen.lpj', $pengajuan) }}" class="w-full h-[520px] border rounded-lg bg-gray-50" frameborder="0"></iframe>
+                                @else
+                                    <div class="p-8 rounded-xl bg-slate-50 border border-slate-200 text-center flex flex-col items-center justify-center my-2">
+                                        <svg class="w-10 h-10 text-slate-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                                        <p class="text-sm font-semibold text-slate-700">Berkas LPJ Belum Tersedia</p>
+                                        <p class="text-xs text-slate-500 mt-1 max-w-sm">Ormawa belum mengunggah berkas LPJ atau dokumen fisik belum tersimpan di server.</p>
+                                    </div>
+                                @endif
                             </div>
 
                             <!-- Proposal Document Pane -->
                             <div x-show="docTab === 'proposal'" x-transition class="space-y-2">
                                 <div class="flex items-center justify-between bg-gray-50 p-2.5 rounded border border-gray-200">
-                                    <span class="text-xs font-semibold text-gray-700">Dokumen Proposal Acuan</span>
+                                    <span class="text-xs font-semibold text-gray-700">Dokumen Proposal Awal</span>
+                                    @if($proposalFileExists)
                                     <a href="{{ route('dokumen.proposal', $pengajuan) }}" target="_blank" class="inline-flex items-center px-2.5 py-1 text-xs font-semibold bg-white border border-gray-300 rounded text-gray-700 hover:bg-gray-50 shadow-sm transition">
                                         <svg class="w-3.5 h-3.5 mr-1 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
                                         Buka di tab baru
                                     </a>
+                                    @endif
                                 </div>
-                                <iframe src="{{ route('dokumen.proposal', $pengajuan) }}" class="w-full h-[520px] border rounded-lg bg-gray-50" frameborder="0"></iframe>
+                                @if($proposalFileExists)
+                                    <iframe src="{{ route('dokumen.proposal', $pengajuan) }}" class="w-full h-[520px] border rounded-lg bg-gray-50" frameborder="0"></iframe>
+                                @else
+                                    <div class="p-8 rounded-xl bg-slate-50 border border-slate-200 text-center flex flex-col items-center justify-center my-2">
+                                        <svg class="w-10 h-10 text-slate-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                                        <p class="text-sm font-semibold text-slate-700">Berkas Proposal Belum Tersedia</p>
+                                        <p class="text-xs text-slate-500 mt-1 max-w-sm">Pengajuan ini belum memiliki lampiran berkas proposal atau berkas fisik tidak ditemukan di penyimpanan server.</p>
+                                    </div>
+                                @endif
                             </div>
                         </div>
                         @else
@@ -220,12 +289,22 @@
                         <div class="mb-4">
                             <div class="flex items-center justify-between mb-2">
                                 <p class="text-sm font-semibold text-gray-700">Dokumen Proposal</p>
+                                @if($proposalFileExists)
                                 <a href="{{ route('dokumen.proposal', $pengajuan) }}" target="_blank" class="text-xs text-indigo-600 hover:underline flex items-center gap-1 font-semibold">
                                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
                                     Buka di tab baru &rarr;
                                 </a>
+                                @endif
                             </div>
-                            <iframe src="{{ route('dokumen.proposal', $pengajuan) }}" class="w-full h-96 border rounded-lg" frameborder="0"></iframe>
+                            @if($proposalFileExists)
+                                <iframe src="{{ route('dokumen.proposal', $pengajuan) }}" class="w-full h-96 border rounded-lg" frameborder="0"></iframe>
+                            @else
+                                <div class="p-8 rounded-xl bg-slate-50 border border-slate-200 text-center flex flex-col items-center justify-center">
+                                    <svg class="w-10 h-10 text-slate-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                                    <p class="text-sm font-semibold text-slate-700">Berkas Dokumen Belum Tersedia</p>
+                                    <p class="text-xs text-slate-500 mt-1 max-w-sm">Pengajuan ini belum memiliki lampiran berkas proposal fisik di server.</p>
+                                </div>
+                            @endif
                         </div>
                         @endif
                     </div>

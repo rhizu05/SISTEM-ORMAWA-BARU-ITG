@@ -41,7 +41,7 @@ class PengajuanController extends Controller
     public function create()
     {
         $blocking = Pengajuan::where('user_id', Auth::id())
-            ->whereHas('state', fn($q)=>$q->whereNotIn('name',['draft','completed']))
+            ->whereHas('state', fn($q)=>$q->whereNotIn('name', [WorkflowState::DRAFT, WorkflowState::COMPLETED, WorkflowState::CANCELLED, WorkflowState::REJECTED]))
             ->with('state')
             ->latest()
             ->first();
@@ -52,7 +52,7 @@ class PengajuanController extends Controller
     public function store(Request $request)
     {
         $blocking = Pengajuan::where('user_id', Auth::id())
-            ->whereHas('state', fn($q)=>$q->whereNotIn('name',['draft','completed']))
+            ->whereHas('state', fn($q)=>$q->whereNotIn('name', [WorkflowState::DRAFT, WorkflowState::COMPLETED, WorkflowState::CANCELLED, WorkflowState::REJECTED]))
             ->with('state')->latest()->first();
         if ($blocking) {
             return redirect()->route('pengajuan.index')->with('error', 'Pengajuan ditangguhkan: masih ada '.$blocking->nama_kegiatan.' ('.$blocking->state->label.') yang belum selesai.');
@@ -200,7 +200,7 @@ class PengajuanController extends Controller
         }
 
         $otherBlocking = Pengajuan::where('user_id', Auth::id())->where('id','!=',$pengajuan->id)
-            ->whereHas('state', fn($q)=>$q->whereNotIn('name',['draft','completed']))->with('state')->latest()->first();
+            ->whereHas('state', fn($q)=>$q->whereNotIn('name', [WorkflowState::DRAFT, WorkflowState::COMPLETED, WorkflowState::CANCELLED, WorkflowState::REJECTED]))->with('state')->latest()->first();
         if ($otherBlocking) {
             return back()->with('error', 'Pengajuan ditangguhkan: masih ada '.$otherBlocking->nama_kegiatan.' ('.$otherBlocking->state->label.') yang belum selesai.');
         }
@@ -241,6 +241,103 @@ class PengajuanController extends Controller
         $this->notifikasiAntrean($targetStateName, $pengajuan->nama_kegiatan);
 
         return redirect()->route('pengajuan.index')->with('success', $flashMessage);
+    }
+
+    /**
+     * Hapus draft proposal beserta file fisiknya jika ada.
+     */
+    public function destroy(Pengajuan $pengajuan)
+    {
+        if ($pengajuan->user_id !== Auth::id()) {
+            abort(403);
+        }
+
+        if ($pengajuan->state?->name !== WorkflowState::DRAFT) {
+            return redirect()->route('pengajuan.index')->with('error', 'Hanya pengajuan berstatus draft yang dapat dihapus.');
+        }
+
+        if ($pengajuan->file_proposal && Storage::disk('local')->exists($pengajuan->file_proposal)) {
+            Storage::disk('local')->delete($pengajuan->file_proposal);
+        }
+
+        $pengajuan->histori()->delete();
+        $pengajuan->delete();
+
+        return redirect()->route('pengajuan.index')->with('success', 'Draft proposal berhasil dihapus.');
+    }
+
+    /**
+     * Batalkan pengajuan proposal yang sedang dalam proses verifikasi (sebelum pencairan dana).
+     */
+    public function batalkan(Request $request, Pengajuan $pengajuan)
+    {
+        if ($pengajuan->user_id !== Auth::id()) {
+            abort(403);
+        }
+
+        $allowedCancelStates = [
+            WorkflowState::SUBMITTED,
+            WorkflowState::BEM_APPROVED,
+            WorkflowState::BPM_APPROVED,
+            WorkflowState::BKHM_APPROVED,
+            WorkflowState::WR3_APPROVED,
+            WorkflowState::TO_TREASURER,
+        ];
+
+        $currentStateName = $pengajuan->state?->name;
+
+        if (!in_array($currentStateName, $allowedCancelStates)) {
+            return redirect()->route('pengajuan.show', $pengajuan)
+                ->with('error', 'Pengajuan tidak dapat dibatalkan pada status saat ini.');
+        }
+
+        $validated = $request->validate([
+            'alasan' => 'required|string|min:5|max:500',
+        ], [
+            'alasan.required' => 'Alasan pembatalan wajib diisi.',
+            'alasan.min' => 'Alasan pembatalan minimal 5 karakter.',
+            'alasan.max' => 'Alasan pembatalan maksimal 500 karakter.',
+        ]);
+
+        $cancelledState = WorkflowState::firstOrCreate(
+            ['name' => WorkflowState::CANCELLED],
+            [
+                'label' => 'Dibatalkan Pengaju',
+                'order_num' => 98,
+                'pic_role' => 'Ormawa Pengaju',
+                'pic_contact' => 'Dibatalkan oleh Pengaju',
+            ]
+        );
+
+        $pengajuan->update([
+            'workflow_state_id' => $cancelledState->id,
+        ]);
+
+        HistoriStatus::create([
+            'pengajuan_id' => $pengajuan->id,
+            'user_id' => Auth::id(),
+            'workflow_state_id' => $cancelledState->id,
+            'catatan' => 'Dibatalkan oleh pengaju (' . Auth::user()->name . '). Alasan: ' . $validated['alasan'],
+        ]);
+
+        // Kirim notifikasi ke role verifikator yang saat itu menangani antrean
+        $currentVerifierRole = match ($currentStateName) {
+            WorkflowState::SUBMITTED => 'bem',
+            WorkflowState::BEM_APPROVED => 'bpm',
+            WorkflowState::BPM_APPROVED => 'bkhm',
+            WorkflowState::BKHM_APPROVED => 'wr3',
+            WorkflowState::WR3_APPROVED, WorkflowState::TO_TREASURER => 'bendahara',
+            default => null,
+        };
+
+        if ($currentVerifierRole) {
+            \App\Services\NotifikasiService::kirimKeRole(
+                $currentVerifierRole,
+                'Pengajuan "' . $pengajuan->nama_kegiatan . '" telah dibatalkan oleh pengaju (' . Auth::user()->name . '). Alasan: ' . $validated['alasan']
+            );
+        }
+
+        return redirect()->route('pengajuan.index')->with('success', 'Pengajuan proposal berhasil dibatalkan.');
     }
 
     /**

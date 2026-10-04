@@ -6,6 +6,10 @@
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
         <title>{{ isset($title) ? $title . ' - ' : '' }}SKIN - Sistem Ormawa Institut Teknologi Garut</title>
+        <link rel="icon" type="image/png" href="{{ asset('images/logo-skin-torch.png') }}">
+        <link rel="apple-touch-icon" href="{{ asset('images/logo-skin-torch.png') }}">
+        <link rel="manifest" href="{{ asset('manifest.json') }}">
+        <meta name="theme-color" content="#0B1528">
 
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">

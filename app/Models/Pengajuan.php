@@ -76,6 +76,37 @@ class Pengajuan extends Model
     }
 
     /**
+     * Tanda tangan digital untuk tahap pengesahan proposal kegiatan.
+     */
+    public function tandaTanganProposal(): \Illuminate\Support\Collection
+    {
+        return $this->tandaTanganDigitals->filter(fn ($t) => !in_array($t->role, ['ormawa_lpj', 'bkhm_lpj', 'wr3_lpj']));
+    }
+
+    /**
+     * Tanda tangan digital untuk tahap pengesahan dan legalisir LPJ.
+     */
+    public function tandaTanganLpj(): \Illuminate\Support\Collection
+    {
+        return $this->tandaTanganDigitals->filter(fn ($t) => in_array($t->role, ['ormawa_lpj', 'bkhm_lpj', 'wr3_lpj']));
+    }
+
+    public function tandaTanganLpjOrmawa(): ?TandaTanganDigital
+    {
+        return $this->tandaTanganDigitals->firstWhere('role', 'ormawa_lpj');
+    }
+
+    public function tandaTanganLpjBkhm(): ?TandaTanganDigital
+    {
+        return $this->tandaTanganDigitals->firstWhere('role', 'bkhm_lpj');
+    }
+
+    public function tandaTanganLpjWr3(): ?TandaTanganDigital
+    {
+        return $this->tandaTanganDigitals->firstWhere('role', 'wr3_lpj');
+    }
+
+    /**
      * Seluruh termin pencairan dana untuk pengajuan ini.
      */
     public function danaList(): HasMany

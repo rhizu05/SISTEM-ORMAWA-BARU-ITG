@@ -229,6 +229,10 @@ class ContohLayananDanInformasiSeeder extends Seeder
         $stateFundsDisbursed = WorkflowState::where('name', 'funds_disbursed')->first();
 
         if ($himaif && $stateSubmitted) {
+            $htmlWorkshop = '<!DOCTYPE html><html><head><style>body{font-family:sans-serif;padding:40px;line-height:1.6;color:#1e293b;}h1{color:#1e40af;font-size:18pt;text-align:center;}h2{font-size:14pt;text-align:center;margin-bottom:30px;color:#475569;}table{width:100%;margin-top:20px;border-collapse:collapse;}td{padding:8px 4px;font-size:11pt;}</style></head><body><h1>INSTITUT TEKNOLOGI GARUT</h1><h2>PROPOSAL KEGIATAN: WORKSHOP PENGEMBANGAN WEB FULLSTACK 2026</h2><table><tr><td width="200"><strong>Penyelenggara</strong></td><td>: HIMA Informatika ITG</td></tr><tr><td><strong>Dana Diajukan</strong></td><td>: Rp 3.500.000</td></tr><tr><td><strong>Nomor Surat</strong></td><td>: 012/HIMA-IF/PROP/ITG/2026</td></tr><tr><td><strong>Deskripsi</strong></td><td>: Pelatihan komprehensif arsitektur web modern bagi mahasiswa ITG.</td></tr></table><br><br><div style="text-align:right;">Garut, 30 September 2026<br>Ketua Pelaksana,<br><br><br><strong>Muhammad Rasyid</strong><br>NIM. 2206001</div></body></html>';
+            $pdfWorkshop = \Barryvdh\DomPDF\Facade\Pdf::loadHTML($htmlWorkshop)->output();
+            Storage::disk('local')->put('proposals/demo_proposal_workshop.pdf', $pdfWorkshop);
+
             Pengajuan::firstOrCreate(
                 ['nama_kegiatan' => 'Workshop Pengembangan Web Fullstack Modern ITG 2026'],
                 [
@@ -236,6 +240,7 @@ class ContohLayananDanInformasiSeeder extends Seeder
                     'dana_diajukan' => 3500000,
                     'tanggal_pengajuan' => Carbon::now()->subDays(3)->toDateString(),
                     'workflow_state_id' => $stateSubmitted->id,
+                    'file_proposal' => 'proposals/demo_proposal_workshop.pdf',
                     'nomor_surat' => '012/HIMA-IF/PROP/ITG/2026',
                     'unique_code' => 'PROP-IF-2026-001',
                 ]
@@ -243,6 +248,10 @@ class ContohLayananDanInformasiSeeder extends Seeder
         }
 
         if ($ukm && $stateFundsDisbursed) {
+            $htmlFutsal = '<!DOCTYPE html><html><head><style>body{font-family:sans-serif;padding:40px;line-height:1.6;color:#1e293b;}h1{color:#1e40af;font-size:18pt;text-align:center;}h2{font-size:14pt;text-align:center;margin-bottom:30px;color:#475569;}table{width:100%;margin-top:20px;border-collapse:collapse;}td{padding:8px 4px;font-size:11pt;}</style></head><body><h1>INSTITUT TEKNOLOGI GARUT</h1><h2>PROPOSAL KEGIATAN: TURNAMEN FUTSAL ITG CUP 2026</h2><table><tr><td width="200"><strong>Penyelenggara</strong></td><td>: UKM Olahraga ITG</td></tr><tr><td><strong>Dana Diajukan</strong></td><td>: Rp 2.000.000</td></tr><tr><td><strong>Nomor Surat</strong></td><td>: 005/UKM-OR/PROP/ITG/2026</td></tr></table></body></html>';
+            $pdfFutsal = \Barryvdh\DomPDF\Facade\Pdf::loadHTML($htmlFutsal)->output();
+            Storage::disk('local')->put('proposals/demo_proposal_futsal.pdf', $pdfFutsal);
+
             Pengajuan::firstOrCreate(
                 ['nama_kegiatan' => 'Turnamen Futsal Antar Angkatan ITG Cup 2026'],
                 [
@@ -250,6 +259,7 @@ class ContohLayananDanInformasiSeeder extends Seeder
                     'dana_diajukan' => 2000000,
                     'tanggal_pengajuan' => Carbon::now()->subWeeks(2)->toDateString(),
                     'workflow_state_id' => $stateFundsDisbursed->id,
+                    'file_proposal' => 'proposals/demo_proposal_futsal.pdf',
                     'nomor_surat' => '005/UKM-OR/PROP/ITG/2026',
                     'unique_code' => 'PROP-UKM-2026-002',
                 ]

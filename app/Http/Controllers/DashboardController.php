@@ -37,7 +37,7 @@ class DashboardController extends Controller
                 'total_dana' => $totalDanaDiberikan,
                 'dana_diproses' => $danaDiproses,
                 'sedang_proses' => Pengajuan::where('user_id', $user->id)->whereHas('state', function($q) {
-                    $q->whereNotIn('name', [WorkflowState::DRAFT, WorkflowState::COMPLETED, WorkflowState::REJECTED]);
+                    $q->whereNotIn('name', [WorkflowState::DRAFT, WorkflowState::COMPLETED, WorkflowState::REJECTED, WorkflowState::CANCELLED]);
                 })->count(),
             ];
 

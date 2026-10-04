@@ -18,6 +18,7 @@ class WorkflowState extends Model
     public const LPJ_WR3_REVIEW = 'lpj_wr3_review';
     public const COMPLETED = 'completed';
     public const REJECTED = 'rejected';
+    public const CANCELLED = 'cancelled';
 
     protected $fillable = ['name', 'label', 'order_num', 'pic_role', 'pic_contact'];
 

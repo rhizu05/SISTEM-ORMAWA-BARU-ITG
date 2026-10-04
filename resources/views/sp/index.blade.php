@@ -29,86 +29,92 @@
                 </div>
             </div>
 
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-xl border border-gray-100">
-                <div class="p-6">
-                    <h3 class="text-base font-bold text-gray-900 mb-4 flex items-center justify-between">
-                        <span>Riwayat Surat Peringatan Organisasi</span>
-                        <span class="text-xs font-normal text-gray-500">Total: {{ $spList->total() }} Dokumen</span>
-                    </h3>
-
-                    @if($spList->isEmpty())
-                        <div class="p-12 text-center">
-                            <div class="w-16 h-16 bg-green-50 text-green-600 rounded-full flex items-center justify-center mx-auto mb-3">
-                                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                                </svg>
-                            </div>
-                            <h4 class="text-base font-bold text-gray-800">Status Organisasi Baik</h4>
-                            <p class="text-xs text-gray-500 max-w-md mx-auto mt-1">
-                                Organisasi Anda tidak memiliki catatan surat peringatan aktif. Pertahankan kepatuhan pelaporan LPJ dan regulasi kegiatan kemahasiswaan!
-                            </p>
-                        </div>
-                    @else
-                        <div class="overflow-x-auto">
-                            <table class="min-w-full divide-y divide-gray-200 text-left text-xs">
-                                <thead class="bg-gray-50 text-gray-500 font-semibold uppercase tracking-wider">
-                                    <tr>
-                                        <th class="px-4 py-3">Tingkat</th>
-                                        <th class="px-4 py-3">Nomor Surat</th>
-                                        <th class="px-4 py-3">Tanggal</th>
-                                        <th class="px-4 py-3">Perihal & Alasan</th>
-                                        <th class="px-4 py-3">Sanksi</th>
-                                        <th class="px-4 py-3">Penerbit</th>
-                                        <th class="px-4 py-3 text-right">Aksi</th>
-                                    </tr>
-                                </thead>
-                                <tbody class="divide-y divide-gray-100">
-                                    @foreach($spList as $sp)
-                                    <tr class="hover:bg-gray-50 transition">
-                                        <td class="px-4 py-3 whitespace-nowrap">
-                                            <span class="px-2.5 py-1 rounded-full text-xs font-bold inline-block
-                                                @if($sp->tingkat === 'SP-3') bg-red-100 text-red-700 border border-red-300
-                                                @elseif($sp->tingkat === 'SP-2') bg-orange-100 text-orange-700 border border-orange-300
-                                                @else bg-amber-100 text-amber-800 border border-amber-300
-                                                @endif">
-                                                {{ $sp->tingkat }}
-                                            </span>
-                                        </td>
-                                        <td class="px-4 py-3 font-semibold text-gray-900 whitespace-nowrap">
-                                            {{ $sp->nomor_surat }}
-                                        </td>
-                                        <td class="px-4 py-3 text-gray-600 whitespace-nowrap">
-                                            {{ $sp->tanggal_surat ? $sp->tanggal_surat->format('d M Y') : '-' }}
-                                        </td>
-                                        <td class="px-4 py-3 max-w-xs">
-                                            <p class="font-bold text-gray-900 truncate">{{ $sp->perihal }}</p>
-                                            <p class="text-gray-500 text-[11px] truncate">{{ $sp->alasan_singkat }}</p>
-                                        </td>
-                                        <td class="px-4 py-3 max-w-xs text-red-700 text-[11px]">
-                                            <span class="line-clamp-2">{{ $sp->sanksi }}</span>
-                                        </td>
-                                        <td class="px-4 py-3 whitespace-nowrap text-gray-600">
-                                            {{ $sp->penandatangan ?? ($sp->creator->name ?? 'Institusi') }}
-                                        </td>
-                                        <td class="px-4 py-3 text-right whitespace-nowrap space-x-2">
-                                            <a href="{{ route('sp.saya.show', $sp) }}" class="inline-flex items-center gap-1 px-3 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-semibold rounded-lg text-xs transition">
-                                                <span>Detail</span> &rarr;
-                                            </a>
-                                            <a href="{{ route('sp.saya.pdf', $sp) }}" class="inline-flex items-center gap-1 px-2.5 py-1.5 bg-gray-50 hover:bg-gray-100 text-gray-700 font-semibold border border-gray-200 rounded-lg text-xs transition" title="Unduh PDF Resmi">
-                                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
-                                                <span>PDF</span>
-                                            </a>
-                                        </td>
-                                    </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
-                        </div>
-                        <div class="mt-4">
-                            {{ $spList->links() }}
-                        </div>
-                    @endif
+            <div class="bg-white overflow-hidden shadow-sm rounded-2xl border border-slate-200 p-6">
+                <div class="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border-b border-slate-100 pb-4">
+                    <div>
+                        <h3 class="text-base font-bold text-slate-900">Riwayat Surat Peringatan Organisasi</h3>
+                        <p class="text-xs text-slate-500 mt-0.5">Daftar sanksi dan ketetapan disiplin yang tercatat pada lembaga Anda</p>
+                    </div>
+                    <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-700 border border-slate-200">
+                        Total: {{ $spList->total() }} Dokumen
+                    </span>
                 </div>
+
+                @if($spList->isEmpty())
+                    <div class="py-12 px-4 text-center">
+                        <div class="w-14 h-14 bg-emerald-50 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-3">
+                            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                        </div>
+                        <h4 class="text-base font-bold text-slate-800">Status Organisasi Baik</h4>
+                        <p class="text-xs text-slate-500 max-w-md mx-auto mt-1">
+                            Organisasi Anda tidak memiliki catatan surat peringatan aktif. Pertahankan kepatuhan pelaporan LPJ dan regulasi kegiatan kemahasiswaan!
+                        </p>
+                    </div>
+                @else
+                    <x-table>
+                        <x-table.thead>
+                            <tr>
+                                <x-table.th align="center">Tingkat</x-table.th>
+                                <x-table.th>Nomor Surat</x-table.th>
+                                <x-table.th>Tanggal Terbit</x-table.th>
+                                <x-table.th>Perihal &amp; Alasan</x-table.th>
+                                <x-table.th>Sanksi</x-table.th>
+                                <x-table.th>Penerbit</x-table.th>
+                                <x-table.th align="right">Aksi</x-table.th>
+                            </tr>
+                        </x-table.thead>
+                        <tbody class="divide-y divide-slate-100">
+                            @foreach($spList as $sp)
+                            <x-table.tr>
+                                <x-table.td align="center">
+                                    @php
+                                        $spClass = match($sp->tingkat) {
+                                            'SP-3' => 'bg-rose-50 text-rose-700 border-rose-200',
+                                            'SP-2' => 'bg-amber-50 text-amber-700 border-amber-200',
+                                            default => 'bg-amber-50 text-amber-800 border-amber-200'
+                                        };
+                                    @endphp
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold border {{ $spClass }}">
+                                        {{ $sp->tingkat }}
+                                    </span>
+                                </x-table.td>
+                                <x-table.td>
+                                    <span class="font-mono text-xs font-semibold text-slate-900">{{ $sp->nomor_surat }}</span>
+                                </x-table.td>
+                                <x-table.td>
+                                    <span class="text-xs text-slate-600">{{ $sp->tanggal_surat ? $sp->tanggal_surat->format('d M Y') : '-' }}</span>
+                                </x-table.td>
+                                <x-table.td>
+                                    <p class="font-semibold text-slate-900 line-clamp-1">{{ $sp->perihal }}</p>
+                                    <p class="text-slate-500 text-xs line-clamp-1 mt-0.5">{{ $sp->alasan_singkat }}</p>
+                                </x-table.td>
+                                <x-table.td>
+                                    <span class="text-xs text-rose-700 font-medium line-clamp-2">{{ $sp->sanksi }}</span>
+                                </x-table.td>
+                                <x-table.td>
+                                    <span class="text-xs text-slate-700 font-medium">{{ $sp->penandatangan ?? ($sp->creator->name ?? 'Institusi') }}</span>
+                                </x-table.td>
+                                <x-table.td align="right">
+                                    <div class="flex items-center justify-end gap-1.5">
+                                        <a href="{{ route('sp.saya.show', $sp) }}" class="inline-flex items-center px-2.5 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-semibold rounded-lg text-xs transition">
+                                            Detail &rarr;
+                                        </a>
+                                        <a href="{{ route('sp.saya.pdf', $sp) }}" class="inline-flex items-center gap-1 px-2.5 py-1.5 bg-slate-50 hover:bg-slate-100 text-slate-700 font-semibold border border-slate-200 rounded-lg text-xs transition" title="Unduh PDF Resmi">
+                                            <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                                            PDF
+                                        </a>
+                                    </div>
+                                </x-table.td>
+                            </x-table.tr>
+                            @endforeach
+                        </tbody>
+                    </x-table>
+                    <div class="mt-4">
+                        {{ $spList->links() }}
+                    </div>
+                @endif
             </div>
 
         </div>

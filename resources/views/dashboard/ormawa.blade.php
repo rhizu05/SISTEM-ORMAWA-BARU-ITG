@@ -43,7 +43,7 @@
                         </div>
                         <div class="ml-3">
                             <h4 class="text-sm font-bold text-red-950 flex items-center gap-2">
-                                <span>⚠️ Perhatian: Organisasi Anda Menerima {{ $spAktif->count() }} Surat Peringatan (SP) Resmi</span>
+                                <span>Perhatian: Organisasi Anda Menerima {{ $spAktif->count() }} Surat Peringatan (SP) Resmi</span>
                             </h4>
                             <p class="text-xs text-red-800 mt-1">
                                 Pimpinan institusi kampus telah menerbitkan surat peringatan resmi terkait kedisiplinan organisasi Anda. Harap perhatikan sanksi dan lakukan tindak lanjut segera.
@@ -88,9 +88,9 @@
                 <div class="col-span-2 sm:col-span-1 group bg-white rounded-2xl border border-slate-200/80 shadow-[0_4px_16px_rgba(0,0,0,0.03)] hover:shadow-md hover:border-emerald-300 transition-all duration-200 p-4 flex flex-col justify-between min-h-[136px]">
                     <div class="flex items-center justify-between gap-1.5 mb-2">
                         <div class="w-8 h-8 rounded-xl bg-emerald-50 border border-emerald-100 flex items-center justify-center text-sm shadow-2xs group-hover:scale-105 transition-transform">
-                            <span>💰</span>
+                            <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                         </div>
-                        <span class="px-2 py-0.5 rounded-full bg-slate-100 text-slate-500 font-bold text-[10px]">
+                        <span class="px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 font-bold text-[10px]">
                             Kas Ormawa
                         </span>
                     </div>
@@ -100,7 +100,7 @@
                         </div>
                         <div class="text-xs font-bold text-slate-900 mt-1 line-clamp-1">Sisa Saldo Tersedia</div>
                     </div>
-                    <a href="{{ route('pengajuan.index') }}" class="pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] font-bold text-blue-600 group-hover:text-blue-800 transition-colors">
+                    <a href="{{ route('pengajuan.index') }}" class="pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] font-bold text-blue-600 group-hover:text-blue-800 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded">
                         <span>Cek Mutasi</span>
                         <span class="group-hover:translate-x-0.5 transition-transform">&rarr;</span>
                     </a>
@@ -110,9 +110,9 @@
                 <div class="group bg-white rounded-2xl border border-slate-200/80 shadow-[0_4px_16px_rgba(0,0,0,0.03)] hover:shadow-md hover:border-blue-300 transition-all duration-200 p-4 flex flex-col justify-between min-h-[136px]">
                     <div class="flex items-center justify-between gap-1.5 mb-2">
                         <div class="w-8 h-8 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-center text-sm shadow-2xs group-hover:scale-105 transition-transform">
-                            <span>🏛️</span>
+                            <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
                         </div>
-                        <span class="px-2 py-0.5 rounded-full bg-slate-100 text-slate-500 font-bold text-[10px]">
+                        <span class="px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 font-bold text-[10px]">
                             Pagu Anggaran
                         </span>
                     </div>
@@ -122,7 +122,7 @@
                         </div>
                         <div class="text-xs font-bold text-slate-900 mt-1 line-clamp-1">Total Dana Diberikan</div>
                     </div>
-                    <a href="{{ route('pengajuan.index') }}" class="pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] font-bold text-blue-600 group-hover:text-blue-800 transition-colors">
+                    <a href="{{ route('pengajuan.index') }}" class="pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] font-bold text-blue-600 group-hover:text-blue-800 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded">
                         <span>Rincian Pagu</span>
                         <span class="group-hover:translate-x-0.5 transition-transform">&rarr;</span>
                     </a>
@@ -132,9 +132,9 @@
                 <div class="group bg-white rounded-2xl border border-slate-200/80 shadow-[0_4px_16px_rgba(0,0,0,0.03)] hover:shadow-md hover:border-amber-300 transition-all duration-200 p-4 flex flex-col justify-between min-h-[136px]">
                     <div class="flex items-center justify-between gap-1.5 mb-2">
                         <div class="w-8 h-8 rounded-xl bg-amber-50 border border-amber-200 flex items-center justify-center text-sm shadow-2xs group-hover:scale-105 transition-transform">
-                            <span>⏳</span>
+                            <svg class="w-4 h-4 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                         </div>
-                        <span class="px-2 py-0.5 rounded-full bg-slate-100 text-slate-500 font-bold text-[10px]">
+                        <span class="px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 font-bold text-[10px]">
                             Realisasi
                         </span>
                     </div>
@@ -144,7 +144,7 @@
                         </div>
                         <div class="text-xs font-bold text-slate-900 mt-1 line-clamp-1">Dana Terpakai & Diproses</div>
                     </div>
-                    <a href="{{ route('pengajuan.index') }}" class="pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] font-bold text-blue-600 group-hover:text-blue-800 transition-colors">
+                    <a href="{{ route('pengajuan.index') }}" class="pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] font-bold text-blue-600 group-hover:text-blue-800 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded">
                         <span>Tracking Dana</span>
                         <span class="group-hover:translate-x-0.5 transition-transform">&rarr;</span>
                     </a>
@@ -154,9 +154,9 @@
                 <div class="group bg-white rounded-2xl border border-slate-200/80 shadow-[0_4px_16px_rgba(0,0,0,0.03)] hover:shadow-md hover:border-indigo-300 transition-all duration-200 p-4 flex flex-col justify-between min-h-[136px]">
                     <div class="flex items-center justify-between gap-1.5 mb-2">
                         <div class="w-8 h-8 rounded-xl bg-indigo-50 border border-indigo-100 flex items-center justify-center text-sm shadow-2xs group-hover:scale-105 transition-transform">
-                            <span>📑</span>
+                            <svg class="w-4 h-4 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
                         </div>
-                        <span class="px-2 py-0.5 rounded-full bg-slate-100 text-slate-500 font-bold text-[10px]">
+                        <span class="px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 font-bold text-[10px]">
                             Total Usulan
                         </span>
                     </div>
@@ -166,7 +166,7 @@
                         </div>
                         <div class="text-xs font-bold text-slate-900 mt-1 line-clamp-1">Total Proposal Diajukan</div>
                     </div>
-                    <a href="{{ route('pengajuan.index') }}" class="pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] font-bold text-blue-600 group-hover:text-blue-800 transition-colors">
+                    <a href="{{ route('pengajuan.index') }}" class="pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] font-bold text-blue-600 group-hover:text-blue-800 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded">
                         <span>Lihat Semua</span>
                         <span class="group-hover:translate-x-0.5 transition-transform">&rarr;</span>
                     </a>
@@ -176,9 +176,9 @@
                 <div class="group bg-white rounded-2xl border border-slate-200/80 shadow-[0_4px_16px_rgba(0,0,0,0.03)] hover:shadow-md hover:border-purple-300 transition-all duration-200 p-4 flex flex-col justify-between min-h-[136px]">
                     <div class="flex items-center justify-between gap-1.5 mb-2">
                         <div class="w-8 h-8 rounded-xl bg-purple-50 border border-purple-100 flex items-center justify-center text-sm shadow-2xs group-hover:scale-105 transition-transform">
-                            <span>⚡</span>
+                            <svg class="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
                         </div>
-                        <span class="px-2 py-0.5 rounded-full @if($stats['sedang_proses'] > 0) bg-purple-100 text-purple-700 @else bg-slate-100 text-slate-500 @endif font-bold text-[10px]">
+                        <span class="px-2 py-0.5 rounded-full @if($stats['sedang_proses'] > 0) bg-purple-100 text-purple-700 @else bg-slate-100 text-slate-600 @endif font-bold text-[10px]">
                             Review Aktif
                         </span>
                     </div>
@@ -188,7 +188,7 @@
                         </div>
                         <div class="text-xs font-bold text-slate-900 mt-1 line-clamp-1">Proposal Dalam Proses</div>
                     </div>
-                    <a href="{{ route('pengajuan.index') }}" class="pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] font-bold text-blue-600 group-hover:text-blue-800 transition-colors">
+                    <a href="{{ route('pengajuan.index') }}" class="pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] font-bold text-blue-600 group-hover:text-blue-800 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded">
                         <span>Pantau Progres</span>
                         <span class="group-hover:translate-x-0.5 transition-transform">&rarr;</span>
                     </a>
@@ -292,11 +292,11 @@
 
                     <!-- Footer Tip & CTA -->
                     <div class="pt-4 border-t border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
-                        <div class="flex items-center gap-2 text-slate-500 min-w-0">
-                            <span class="shrink-0 text-sm">💡</span>
+                        <div class="flex items-center gap-2 text-slate-600 min-w-0">
+                            <svg class="w-4 h-4 text-amber-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
                             <span class="leading-normal">Ajukan proposal minimal H-14 kegiatan agar verifikasi tepat waktu.</span>
                         </div>
-                        <a href="{{ route('pengajuan.create') }}" class="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 bg-[#0B1528] hover:bg-[#1E3A8A] text-white rounded-xl font-bold shadow-xs hover:shadow transition-all shrink-0 whitespace-nowrap">
+                        <a href="{{ route('pengajuan.create') }}" class="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 min-h-[44px] bg-[#0B1528] hover:bg-[#1E3A8A] text-white rounded-xl font-bold shadow-xs hover:shadow transition-all shrink-0 whitespace-nowrap focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2">
                             <span>+ Buat Pengajuan Baru</span>
                         </a>
                     </div>
@@ -315,8 +315,9 @@
                         <div class="p-5">
                             <div class="flex items-center space-x-3.5 mb-4">
                                 <div class="relative">
-                                    <img src="{{ Auth::user()->foto_profil ? asset('storage/'.Auth::user()->foto_profil) : 'https://ui-avatars.com/api/?name='.urlencode(Auth::user()->name).'&background=EFF6FF&color=1E40AF&bold=true' }}" 
-                                         class="w-14 h-14 rounded-2xl object-cover ring-2 ring-slate-100 shadow-xs">
+                                    <img src="{{ Auth::user()->avatar_url }}" 
+                                         alt="Logo {{ Auth::user()->name }}"
+                                         class="w-14 h-14 rounded-2xl object-cover bg-white p-0.5 ring-2 ring-slate-100 shadow-xs">
                                     <span class="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-emerald-500 border-2 border-white" title="Akun Terverifikasi"></span>
                                 </div>
                                 <div class="min-w-0">
@@ -327,11 +328,13 @@
 
                             <!-- Badges -->
                             <div class="flex flex-wrap gap-2 mb-4">
-                                <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-800 border border-emerald-200">
-                                    ● {{ Auth::user()->status_akun ?? 'Aktif' }}
+                                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-800 border border-emerald-200">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                                    <span>{{ Auth::user()->status_akun ?? 'Aktif' }}</span>
                                 </span>
-                                <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-blue-50 text-blue-800 border border-blue-200">
-                                    🏛️ Ormawa Kampus
+                                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold bg-blue-50 text-blue-800 border border-blue-200">
+                                    <svg class="w-3 h-3 text-blue-700" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+                                    <span>Ormawa Kampus</span>
                                 </span>
                             </div>
 

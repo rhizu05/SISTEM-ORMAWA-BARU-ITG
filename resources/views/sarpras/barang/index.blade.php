@@ -9,72 +9,71 @@
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             
 
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6 text-gray-900">
-                    <div class="flex justify-between items-center mb-6">
-                        <h3 class="text-lg font-bold">Daftar Barang Inventaris</h3>
-                        <button @click="showAddModal = true" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded">
-                            + Tambah Barang
-                        </button>
-                    </div>
-
-                    <div class="overflow-x-auto">
-                        <table class="min-w-full bg-white border border-gray-200">
-                            <thead>
-                                <tr class="bg-gray-50">
-                                    <th class="py-3 px-4 border-b text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Nama Barang</th>
-                                    <th class="py-3 px-4 border-b text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">Stok Tersedia</th>
-                                    <th class="py-3 px-4 border-b text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">Status</th>
-                                    <th class="py-3 px-4 border-b text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">Boleh Dibawa Keluar</th>
-                                    <th class="py-3 px-4 border-b text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">Aksi</th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-gray-200">
-                                @forelse ($barangs as $barang)
-                                <tr>
-                                    <td class="py-3 px-4 font-semibold">{{ $barang->nama_barang }}</td>
-                                    <td class="py-3 px-4 text-center">
-                                        <span class="text-lg {{ $barang->stok_tersedia > 0 ? 'text-green-600' : 'text-red-600 font-bold' }}">
-                                            {{ $barang->stok_tersedia }}
-                                        </span>
-                                    </td>
-                                    <td class="py-3 px-4 text-center">
-                                        @if($barang->status_aktif)
-                                            <span class="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs">Aktif</span>
-                                        @else
-                                            <span class="px-2 py-1 bg-gray-100 text-gray-800 rounded-full text-xs">Nonaktif</span>
-                                        @endif
-                                    </td>
-                                    <td class="py-3 px-4 text-center">
-                                        @if($barang->boleh_dibawa_keluar)
-                                            <span class="px-2 py-1 bg-indigo-100 text-indigo-800 rounded-full text-xs">Ya</span>
-                                        @else
-                                            <span class="px-2 py-1 bg-red-100 text-red-800 rounded-full text-xs">Tidak</span>
-                                        @endif
-                                    </td>
-                                    <td class="py-3 px-4 text-center space-x-2">
-                                        <button @click="showEditModal = true; editBarang = {{ json_encode($barang) }}" class="text-indigo-600 hover:text-indigo-900 text-sm">Edit</button>
-                                        
-                                        <form action="{{ route('sarpras.barang.destroy', $barang) }}" method="POST" class="inline">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="text-red-600 hover:text-red-900 text-sm" onclick="return confirm('Yakin ingin menghapus barang ini?')">Hapus</button>
-                                        </form>
-                                    </td>
-                                </tr>
-                                @empty
-                                <tr>
-                                    <td colspan="4" class="py-6 text-center text-gray-500">Belum ada barang inventaris.</td>
-                                </tr>
-                                @endforelse
-                            </tbody>
-                        </table>
-                    </div>
-                    
-                    <div class="mt-4">
-                        {{ $barangs->links() }}
-                    </div>
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+                <div>
+                    <h3 class="text-lg font-bold text-slate-900">Daftar Barang Inventaris</h3>
+                    <p class="text-sm text-slate-500">Kelola stok ketersediaan aset logistik & peralatan yang dapat dipinjam</p>
                 </div>
+                <button @click="showAddModal = true" class="inline-flex items-center px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded-xl shadow-sm transition-all focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                    + Tambah Barang
+                </button>
+            </div>
+
+            <x-table>
+                <x-table.thead>
+                    <tr>
+                        <x-table.th>Nama Barang</x-table.th>
+                        <x-table.th align="center">Stok Tersedia</x-table.th>
+                        <x-table.th align="center">Status</x-table.th>
+                        <x-table.th align="center">Boleh Dibawa Keluar</x-table.th>
+                        <x-table.th align="center">Aksi</x-table.th>
+                    </tr>
+                </x-table.thead>
+                <tbody class="divide-y divide-slate-100">
+                    @forelse ($barangs as $barang)
+                    <x-table.tr>
+                        <x-table.td>
+                            <span class="font-semibold text-slate-900">{{ $barang->nama_barang }}</span>
+                        </x-table.td>
+                        <x-table.td align="center">
+                            <span class="inline-flex items-center justify-center font-mono font-bold text-sm px-2.5 py-0.5 rounded-md {{ $barang->stok_tersedia > 0 ? 'bg-emerald-50 text-emerald-700' : 'bg-rose-50 text-rose-700' }}">
+                                {{ $barang->stok_tersedia }}
+                            </span>
+                        </x-table.td>
+                        <x-table.td align="center">
+                            @if($barang->status_aktif)
+                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-emerald-50 text-emerald-700 border border-emerald-200">Aktif</span>
+                            @else
+                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-600 border border-slate-200">Nonaktif</span>
+                            @endif
+                        </x-table.td>
+                        <x-table.td align="center">
+                            @if($barang->boleh_dibawa_keluar)
+                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-indigo-50 text-indigo-700 border border-indigo-200">Boleh</span>
+                            @else
+                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-amber-50 text-amber-700 border border-amber-200">Di Tempat</span>
+                            @endif
+                        </x-table.td>
+                        <x-table.td align="center">
+                            <div class="flex items-center justify-center gap-2">
+                                <button @click="showEditModal = true; editBarang = {{ json_encode($barang) }}" class="inline-flex items-center px-2.5 py-1.5 text-xs font-semibold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 rounded-lg transition-colors">Edit</button>
+                                
+                                <form action="{{ route('sarpras.barang.destroy', $barang) }}" method="POST" class="inline">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="inline-flex items-center px-2.5 py-1.5 text-xs font-semibold text-rose-700 bg-rose-50 hover:bg-rose-100 rounded-lg transition-colors" onclick="return confirm('Yakin ingin menghapus barang ini?')">Hapus</button>
+                                </form>
+                            </div>
+                        </x-table.td>
+                    </x-table.tr>
+                    @empty
+                    <x-table.empty colspan="5" message="Belum ada barang inventaris." />
+                    @endforelse
+                </tbody>
+            </x-table>
+            
+            <div class="mt-4">
+                {{ $barangs->links() }}
             </div>
         </div>
 

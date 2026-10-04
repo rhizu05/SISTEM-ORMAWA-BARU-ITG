@@ -14,11 +14,22 @@
 
                     <div class="flex justify-between items-center mb-4 border-b pb-2">
                         <h3 class="text-lg font-bold">Informasi Pengajuan</h3>
-                        @if(in_array($pengajuan->state->name, ['draft', 'rejected']))
-                            <a href="{{ route('pengajuan.edit', $pengajuan) }}" class="text-sm bg-yellow-100 text-yellow-800 hover:bg-yellow-200 px-3 py-1 rounded font-semibold border border-yellow-300">
-                                Edit / Revisi
-                            </a>
-                        @endif
+                        <div class="flex items-center gap-2">
+                            @if(in_array($pengajuan->state->name, ['draft', 'rejected']) && $pengajuan->user_id === Auth::id())
+                                <a href="{{ route('pengajuan.edit', $pengajuan) }}" class="text-sm bg-yellow-100 text-yellow-800 hover:bg-yellow-200 px-3 py-1 rounded font-semibold border border-yellow-300">
+                                    Edit / Revisi
+                                </a>
+                            @endif
+                            @if($pengajuan->state->name === 'draft' && $pengajuan->user_id === Auth::id())
+                                <form action="{{ route('pengajuan.destroy', $pengajuan) }}" method="POST" class="inline" onsubmit="return confirm('Apakah Anda yakin ingin menghapus draft proposal ini?')">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="text-sm bg-rose-50 text-rose-700 hover:bg-rose-100 px-3 py-1 rounded font-semibold border border-rose-300">
+                                        Hapus Draft
+                                    </button>
+                                </form>
+                            @endif
+                        </div>
                     </div>
                     
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
@@ -90,27 +101,45 @@
 
                     <div class="mb-4">
                         <p class="text-sm text-gray-500 mb-1">File Proposal</p>
-                        <a href="{{ route('dokumen.proposal', $pengajuan) }}" target="_blank" class="inline-flex items-center px-4 py-2 bg-gray-200 border border-transparent rounded-md font-semibold text-xs text-gray-800 uppercase tracking-widest hover:bg-gray-300 focus:bg-gray-300 active:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150">
-                            Lihat Dokumen PDF
-                        </a>
+                        @php
+                            $proposalFileExists = !empty($pengajuan->file_proposal) && (
+                                \Illuminate\Support\Facades\Storage::disk('local')->exists($pengajuan->file_proposal) ||
+                                \Illuminate\Support\Facades\Storage::disk('public')->exists($pengajuan->file_proposal)
+                            );
+                        @endphp
+                        @if($proposalFileExists)
+                            <a href="{{ route('dokumen.proposal', $pengajuan) }}" target="_blank" class="inline-flex items-center px-4 py-2 bg-indigo-50 border border-indigo-200 rounded-lg font-semibold text-xs text-indigo-700 hover:bg-indigo-100 transition shadow-2xs">
+                                <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                                Lihat Dokumen PDF Proposal
+                            </a>
+                        @else
+                            <span class="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-medium text-slate-500 bg-slate-100 border border-slate-200">
+                                Berkas fisik proposal belum diunggah
+                            </span>
+                        @endif
                     </div>
 
-                    @if($pengajuan->tandaTanganDigitals && $pengajuan->tandaTanganDigitals->isNotEmpty())
-                    <div class="mt-6 mb-6 p-4 rounded-xl bg-slate-50 border border-slate-200">
+                    @php
+                        $sigProposal = $pengajuan->tandaTanganProposal();
+                        $sigLpj = $pengajuan->tandaTanganLpj();
+                    @endphp
+
+                    @if($sigProposal->isNotEmpty())
+                    <div class="mt-6 mb-4 p-4 rounded-xl bg-slate-50 border border-slate-200">
                         <div class="flex items-center justify-between mb-3">
                             <h4 class="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
-                                <span class="text-emerald-600 font-bold">🔒</span> Pengesahan &amp; Tanda Tangan Digital Resmi ({{ $pengajuan->tandaTanganDigitals->count() }})
+                                <span class="text-emerald-600 font-bold">🔒</span> Pengesahan Proposal Kegiatan ({{ $sigProposal->count() }})
                             </h4>
                             <span class="text-[10px] bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full font-bold">
                                 Terverifikasi Kriptografis
                             </span>
                         </div>
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                            @foreach($pengajuan->tandaTanganDigitals as $sig)
+                            @foreach($sigProposal as $sig)
                             <div class="p-3 bg-white rounded-lg border border-slate-200 shadow-sm flex flex-col justify-between">
                                 <div>
                                     <div class="flex items-center justify-between text-xs mb-1">
-                                        <span class="font-bold text-indigo-700 uppercase tracking-wide">{{ strtoupper($sig->role) }}</span>
+                                        <span class="font-bold text-indigo-700 uppercase tracking-wide">{{ $sig->role_badge_label }}</span>
                                         <span class="text-[10px] text-slate-400">{{ $sig->signed_at ? $sig->signed_at->format('d/m/Y H:i') : '-' }} WIB</span>
                                     </div>
                                     <div class="font-semibold text-sm text-slate-900 leading-snug">{{ $sig->nama_penandatangan }}</div>
@@ -129,6 +158,54 @@
                     </div>
                     @endif
 
+                    @if($sigLpj->isNotEmpty())
+                    <div class="mt-4 mb-6 p-4 rounded-xl bg-purple-50/70 border border-purple-200">
+                        <div class="flex items-center justify-between mb-3">
+                            <h4 class="text-xs font-bold uppercase tracking-wider text-purple-900 flex items-center gap-1.5">
+                                <span class="text-purple-600 font-bold">📑</span> Legalisir TTD Digital LPJ Kegiatan ({{ $sigLpj->count() }}/3)
+                            </h4>
+                            <span class="text-[10px] bg-purple-100 text-purple-800 px-2 py-0.5 rounded-full font-bold">
+                                {{ $sigLpj->count() === 3 ? 'Legalisir Penuh (Ormawa, BKHM, WR3)' : 'Proses Legalisir' }}
+                            </span>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                            @foreach($sigLpj as $sig)
+                            <div class="p-3 bg-white rounded-lg border border-purple-200 shadow-sm flex flex-col justify-between">
+                                <div>
+                                    <div class="flex items-center justify-between text-xs mb-1">
+                                        <span class="font-bold text-purple-700 uppercase tracking-wide text-[11px]">{{ $sig->role_badge_label }}</span>
+                                        <span class="text-[10px] text-slate-400">{{ $sig->signed_at ? $sig->signed_at->format('d/m/Y H:i') : '-' }} WIB</span>
+                                    </div>
+                                    <div class="font-semibold text-sm text-slate-900 leading-snug">{{ $sig->nama_penandatangan }}</div>
+                                    <div class="text-[11px] text-slate-500 leading-tight mt-0.5">{{ $sig->jabatan_penandatangan }}</div>
+                                </div>
+                                <div class="mt-2 pt-2 border-t border-slate-100 flex items-center justify-between">
+                                    <span class="font-mono text-[9px] text-slate-400">ID: {{ substr($sig->token_verifikasi, 0, 14) }}...</span>
+                                    <a href="{{ $sig->verification_url }}" target="_blank" class="inline-flex items-center gap-1 text-[11px] font-semibold text-purple-700 hover:text-purple-900 hover:underline">
+                                        <span>Cek Keaslian</span>
+                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                                    </a>
+                                </div>
+                            </div>
+                            @endforeach
+                        </div>
+                    </div>
+                    @endif
+
+                    @if($pengajuan->state->name === 'cancelled')
+                    <div class="mt-6 mb-4 p-4 bg-rose-50 border border-rose-200 rounded-xl">
+                        <div class="flex items-center gap-2">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-rose-100 text-rose-800">
+                                🚫 Proposal Dibatalkan
+                            </span>
+                        </div>
+                        <h4 class="font-bold text-rose-950 text-sm mt-1.5">Pengajuan Ini Telah Dibatalkan oleh Pengaju</h4>
+                        <p class="text-xs text-rose-800 mt-1">
+                            Pengajuan proposal ini telah dibatalkan resmi sehingga tidak diproses lebih lanjut dan tidak memotong alokasi anggaran Anda. Anda dapat mengajukan proposal baru kapan saja.
+                        </p>
+                    </div>
+                    @endif
+
                     @if($pengajuan->state->name === 'draft')
                     @php
                         $submitTarget = auth()->user()->hasRole('bpm') ? 'BKHM' : (auth()->user()->hasRole('bem') ? 'BPM' : 'BEM');
@@ -140,6 +217,58 @@
                                 Ajukan ke {{ $submitTarget }}
                             </x-primary-button>
                         </form>
+                    </div>
+                    @endif
+
+                    @php
+                        $canCancelInVerification = in_array($pengajuan->state->name, ['submitted', 'bem_approved', 'bpm_approved', 'bkhm_approved', 'wr3_approved', 'to_treasurer']) && $pengajuan->user_id === Auth::id();
+                    @endphp
+                    @if($canCancelInVerification)
+                    <div class="mt-8 pt-4 border-t flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-50 p-4 rounded-xl border border-slate-200" x-data="{ showCancelModal: false }">
+                        <div>
+                            <div class="text-xs font-bold text-slate-800">Opsi Pengaju</div>
+                            <p class="text-xs text-slate-500 mt-0.5">Jika kegiatan batal dilaksanakan atau terdapat kesalahan fatal pada berkas/anggaran, Anda dapat membatalkan pengajuan ini.</p>
+                        </div>
+                        <button type="button" @click="showCancelModal = true" class="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 rounded-xl text-xs font-bold transition shadow-2xs shrink-0">
+                            <svg class="w-4 h-4 text-rose-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                            <span>Batalkan Pengajuan</span>
+                        </button>
+
+                        <!-- Modal Konfirmasi Pembatalan -->
+                        <div x-show="showCancelModal" class="fixed inset-0 z-50 overflow-y-auto" style="display: none;" x-cloak>
+                            <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:p-0">
+                                <div class="fixed inset-0 transition-opacity bg-slate-900/60" @click="showCancelModal = false"></div>
+                                <div class="relative inline-block w-full max-w-lg p-6 overflow-hidden text-left align-middle transition-all transform bg-white shadow-xl rounded-2xl border border-slate-200">
+                                    <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+                                        <h3 class="text-base font-bold text-slate-900 flex items-center gap-2">
+                                            <span class="text-rose-600">⚠️</span> Konfirmasi Pembatalan Pengajuan
+                                        </h3>
+                                        <button type="button" @click="showCancelModal = false" class="text-slate-400 hover:text-slate-600 text-sm">✕</button>
+                                    </div>
+                                    <form action="{{ route('pengajuan.batalkan', $pengajuan) }}" method="POST" class="mt-4 space-y-4">
+                                        @csrf
+                                        <p class="text-xs text-slate-600 leading-relaxed">
+                                            Apakah Anda yakin ingin membatalkan pengajuan <strong>{{ $pengajuan->nama_kegiatan }}</strong>? Proposal akan ditarik dari antrean verifikator dan dicatat pembatalan resmi.
+                                        </p>
+                                        <div>
+                                            <label for="alasan" class="block text-xs font-bold text-slate-700 mb-1">
+                                                Alasan Pembatalan <span class="text-rose-500">*</span>
+                                            </label>
+                                            <textarea id="alasan" name="alasan" rows="3" required minlength="5" maxlength="500" placeholder="Contoh: Kegiatan dibatalkan panitia / Salah mengunggah berkas rancangan anggaran..." class="w-full text-xs rounded-xl border border-slate-200 focus:border-rose-500 focus:ring-1 focus:ring-rose-500 p-2.5"></textarea>
+                                            <p class="text-[11px] text-slate-400 mt-1">Alasan pembatalan akan disimpan di catatan riwayat alur pengajuan.</p>
+                                        </div>
+                                        <div class="flex justify-end gap-2 pt-2 border-t border-slate-100">
+                                            <button type="button" @click="showCancelModal = false" class="px-4 py-2 border border-slate-200 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-50 transition">
+                                                Kembali
+                                            </button>
+                                            <button type="submit" class="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-bold transition shadow-xs">
+                                                Ya, Batalkan Proposal Ini
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     @endif
 
@@ -192,9 +321,16 @@
                                 </p>
                             </div>
                             @if($pengajuan->file_lpj)
-                            <a href="{{ route('dokumen.lpj', $pengajuan) }}" target="_blank" class="inline-flex items-center px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg text-xs shadow transition shrink-0">
-                                Pratinjau Berkas LPJ
-                            </a>
+                            <div class="flex items-center gap-2 flex-wrap shrink-0">
+                                <a href="{{ route('dokumen.lpj', ['pengajuan' => $pengajuan, 'mode' => 'pengesahan']) }}" target="_blank" class="inline-flex items-center px-3 py-2 bg-purple-50 border border-purple-200 hover:bg-purple-100 text-purple-700 font-semibold rounded-lg text-xs shadow-2xs transition">
+                                    <svg class="w-3.5 h-3.5 mr-1 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                    Lembar Pengesahan (PDF)
+                                </a>
+                                <a href="{{ route('dokumen.lpj', $pengajuan) }}" target="_blank" class="inline-flex items-center px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg text-xs shadow transition">
+                                    <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                                    Dokumen LPJ Terlegalisir
+                                </a>
+                            </div>
                             @endif
                         </div>
                     </div>

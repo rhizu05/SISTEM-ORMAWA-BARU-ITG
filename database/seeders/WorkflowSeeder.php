@@ -25,6 +25,7 @@ class WorkflowSeeder extends Seeder
             ['name' => 'lpj_submitted', 'label' => 'LPJ Diajukan', 'order_num' => 9, 'pic_role' => 'BKHM', 'pic_contact' => 'Bapak Encep (BKHM)'],
             ['name' => 'lpj_wr3_review', 'label' => 'Verifikasi LPJ WR3', 'order_num' => 10, 'pic_role' => 'Wakil Rektor III', 'pic_contact' => 'Kantor WR III'],
             ['name' => 'completed', 'label' => 'Selesai', 'order_num' => 11, 'pic_role' => 'Sistem / Arsip', 'pic_contact' => 'Arsip Digital SKIN'],
+            ['name' => 'cancelled', 'label' => 'Dibatalkan Pengaju', 'order_num' => 98, 'pic_role' => 'Ormawa Pengaju', 'pic_contact' => 'Dibatalkan oleh Pengaju'],
             ['name' => 'rejected', 'label' => 'Ditolak', 'order_num' => 99, 'pic_role' => 'Ormawa Pengaju', 'pic_contact' => 'Lihat Catatan Kendala'],
         ];
 

@@ -31,12 +31,12 @@
     <!-- Notification Bell -->
     <a href="{{ route('notifikasi.index') }}" 
        title="Pusat Notifikasi Sistem ({{ $unreadNotifCount }} belum dibaca)"
-       class="relative p-2 sm:p-2.5 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200/90 text-slate-600 hover:text-slate-900 transition shadow-xs shrink-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500">
+       class="relative min-h-[44px] min-w-[44px] flex items-center justify-center p-2.5 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200/90 text-slate-600 hover:text-slate-900 transition shadow-xs shrink-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
             <path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
         </svg>
         @if ($unreadNotifCount > 0)
-            <span class="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-rose-500 text-white text-[9px] font-extrabold flex items-center justify-center ring-2 ring-white shadow-xs">
+            <span class="absolute top-1 right-1 w-4 h-4 rounded-full bg-rose-500 text-white text-[9px] font-extrabold flex items-center justify-center ring-2 ring-white shadow-xs">
                 {{ $unreadNotifCount > 9 ? '9+' : $unreadNotifCount }}
             </span>
         @endif
@@ -45,7 +45,7 @@
     <!-- Tombol Pintas Universal: Lapor Bug / Kendala Sistem -->
     <a href="{{ route('bug.create', ['url' => url()->current()]) }}" 
        title="Laporkan kendala, bug, atau error sistem ke BKHM" 
-       class="inline-flex items-center gap-1.5 p-2 sm:px-3 sm:py-2 text-xs font-bold text-rose-700 bg-rose-50 hover:bg-rose-100 border border-rose-200/90 rounded-xl transition shadow-xs shrink-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-rose-500">
+       class="inline-flex items-center justify-center gap-1.5 min-h-[44px] min-w-[44px] sm:min-w-0 p-2 sm:px-3 sm:py-2 text-xs font-bold text-rose-700 bg-rose-50 hover:bg-rose-100 border border-rose-200/90 rounded-xl transition shadow-xs shrink-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-rose-500">
         <svg class="w-4 h-4 text-rose-500 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
             <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
         </svg>
@@ -59,11 +59,11 @@
     <div class="relative">
         <x-dropdown align="right" width="w-64">
             <x-slot name="trigger">
-                <button class="flex items-center gap-1.5 sm:gap-2 p-1 pl-1 sm:pl-1.5 pr-1.5 sm:pr-2.5 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200/90 text-left transition focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 shadow-xs group" aria-label="Menu pengguna">
-                    @if ($avatarUser->foto_profil)
-                        <img class="h-8 w-8 rounded-lg object-cover border border-slate-200 shrink-0" src="{{ asset('storage/'.$avatarUser->foto_profil) }}" alt="Foto profil {{ $avatarUser->name ?? 'User' }}">
+                <button class="flex items-center gap-1.5 sm:gap-2 min-h-[44px] p-1.5 pl-1.5 sm:pl-2 pr-2 sm:pr-2.5 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200/90 text-left transition focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 shadow-xs group" aria-label="Menu pengguna">
+                    @if ($avatarUser->hasCustomAvatar())
+                        <img class="w-8 h-8 rounded-full object-cover border border-slate-200 shrink-0 bg-white shadow-2xs" src="{{ $avatarUser->avatar_url }}" alt="Logo / Foto profil {{ $avatarUser->name ?? 'User' }}">
                     @else
-                        <span class="h-8 w-8 rounded-lg bg-[#1E40AF] text-white text-xs font-extrabold flex items-center justify-center shadow-xs shrink-0">{{ $avatarInitial }}</span>
+                        <span class="w-8 h-8 rounded-full bg-[#1E40AF] text-white text-xs font-extrabold flex items-center justify-center shadow-2xs shrink-0">{{ $avatarInitial }}</span>
                     @endif
                     <div class="hidden lg:block min-w-0 pr-1 text-left">
                         <span class="block text-xs font-extrabold text-slate-900 leading-tight truncate max-w-[130px]">{{ $avatarUser->name ?? $avatarUser->username ?? 'User' }}</span>
@@ -93,10 +93,6 @@
                         @if ($unreadNotifCount > 0)
                             <span class="ml-auto px-1.5 py-0.5 rounded-full bg-rose-100 text-rose-700 text-[10px] font-bold">{{ $unreadNotifCount }}</span>
                         @endif
-                    </x-dropdown-link>
-                    <x-dropdown-link :href="route('bug.create', ['url' => url()->current()])" class="flex items-center gap-2 text-xs text-rose-600 hover:text-rose-700">
-                        <svg class="w-4 h-4 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
-                        <span>Laporkan Kendala / Bug</span>
                     </x-dropdown-link>
                 </div>
 

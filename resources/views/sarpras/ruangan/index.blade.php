@@ -7,67 +7,63 @@
 
     <div class="py-12" x-data="{ showAddModal: false, showEditModal: false, editRuangan: { id: null, nama_ruangan: '', kapasitas: 0, status_aktif: 1 } }">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6 text-gray-900">
-                    <div class="flex justify-between items-center mb-6">
-                        <div>
-                            <h3 class="text-lg font-bold">Daftar Ruangan Kampus</h3>
-                            <p class="text-sm text-gray-500">Kelola daftar ruangan, aula, dan laboratorium yang dapat dipinjam oleh Ormawa.</p>
-                        </div>
-                        <button @click="showAddModal = true" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded shadow-sm">
-                            + Tambah Ruangan
-                        </button>
-                    </div>
-
-                    <div class="overflow-x-auto">
-                        <table class="min-w-full bg-white border border-gray-200">
-                            <thead>
-                                <tr class="bg-gray-50">
-                                    <th class="py-3 px-4 border-b text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Nama Ruangan</th>
-                                    <th class="py-3 px-4 border-b text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">Kapasitas (Orang)</th>
-                                    <th class="py-3 px-4 border-b text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">Status</th>
-                                    <th class="py-3 px-4 border-b text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">Aksi</th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-gray-200">
-                                @forelse ($ruangans as $ruangan)
-                                <tr>
-                                    <td class="py-3 px-4 font-semibold text-gray-900">{{ $ruangan->nama_ruangan }}</td>
-                                    <td class="py-3 px-4 text-center">
-                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-50 text-indigo-700">
-                                            {{ $ruangan->kapasitas }} Mahasiswa
-                                        </span>
-                                    </td>
-                                    <td class="py-3 px-4 text-center">
-                                        @if($ruangan->status_aktif)
-                                            <span class="px-2.5 py-1 bg-green-100 text-green-800 rounded-full text-xs font-semibold">Tersedia</span>
-                                        @else
-                                            <span class="px-2.5 py-1 bg-rose-100 text-rose-800 rounded-full text-xs font-semibold">Nonaktif / Renovasi</span>
-                                        @endif
-                                    </td>
-                                    <td class="py-3 px-4 text-center space-x-2">
-                                        <button @click="showEditModal = true; editRuangan = {{ json_encode($ruangan) }}" class="text-indigo-600 hover:text-indigo-900 text-sm font-semibold">Edit</button>
-                                        
-                                        <form action="{{ route('sarpras.ruangan.destroy', $ruangan) }}" method="POST" class="inline">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="text-rose-600 hover:text-rose-900 text-sm font-semibold" onclick="return confirm('Yakin ingin menghapus ruangan ini?')">Hapus</button>
-                                        </form>
-                                    </td>
-                                </tr>
-                                @empty
-                                <tr>
-                                    <td colspan="4" class="py-6 text-center text-gray-500">Belum ada data ruangan terdaftar.</td>
-                                </tr>
-                                @endforelse
-                            </tbody>
-                        </table>
-                    </div>
-                    
-                    <div class="mt-4">
-                        {{ $ruangans->links() }}
-                    </div>
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+                <div>
+                    <h3 class="text-lg font-bold text-slate-900">Daftar Ruangan Kampus</h3>
+                    <p class="text-sm text-slate-500">Kelola master ruangan, aula, dan laboratorium yang dapat dipinjam oleh Ormawa</p>
                 </div>
+                <button @click="showAddModal = true" class="inline-flex items-center px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded-xl shadow-sm transition-all focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                    + Tambah Ruangan
+                </button>
+            </div>
+
+            <x-table>
+                <x-table.thead>
+                    <tr>
+                        <x-table.th>Nama Ruangan</x-table.th>
+                        <x-table.th align="center">Kapasitas (Orang)</x-table.th>
+                        <x-table.th align="center">Status</x-table.th>
+                        <x-table.th align="center">Aksi</x-table.th>
+                    </tr>
+                </x-table.thead>
+                <tbody class="divide-y divide-slate-100">
+                    @forelse ($ruangans as $ruangan)
+                    <x-table.tr>
+                        <x-table.td>
+                            <span class="font-semibold text-slate-900">{{ $ruangan->nama_ruangan }}</span>
+                        </x-table.td>
+                        <x-table.td align="center">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-700 border border-slate-200">
+                                {{ $ruangan->kapasitas }} Mahasiswa
+                            </span>
+                        </x-table.td>
+                        <x-table.td align="center">
+                            @if($ruangan->status_aktif)
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-50 text-emerald-700 border border-emerald-200">Tersedia</span>
+                            @else
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-rose-50 text-rose-700 border border-rose-200">Nonaktif / Renovasi</span>
+                            @endif
+                        </x-table.td>
+                        <x-table.td align="center">
+                            <div class="flex items-center justify-center gap-2">
+                                <button @click="showEditModal = true; editRuangan = {{ json_encode($ruangan) }}" class="inline-flex items-center px-2.5 py-1.5 text-xs font-semibold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 rounded-lg transition-colors">Edit</button>
+                                
+                                <form action="{{ route('sarpras.ruangan.destroy', $ruangan) }}" method="POST" class="inline">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="inline-flex items-center px-2.5 py-1.5 text-xs font-semibold text-rose-700 bg-rose-50 hover:bg-rose-100 rounded-lg transition-colors" onclick="return confirm('Yakin ingin menghapus ruangan ini?')">Hapus</button>
+                                </form>
+                            </div>
+                        </x-table.td>
+                    </x-table.tr>
+                    @empty
+                    <x-table.empty colspan="4" message="Belum ada data ruangan terdaftar." />
+                    @endforelse
+                </tbody>
+            </x-table>
+            
+            <div class="mt-4">
+                {{ $ruangans->links() }}
             </div>
         </div>
 

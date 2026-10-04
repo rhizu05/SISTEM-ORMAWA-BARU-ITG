@@ -81,106 +81,104 @@
                     </span>
                 </div>
 
-                <div class="overflow-x-auto rounded-xl border border-slate-200">
-                    <table class="min-w-full text-xs text-left divide-y divide-slate-200">
-                        <thead class="bg-slate-50 font-semibold text-slate-700">
-                            <tr>
-                                <th class="px-3 py-3 text-center w-12">No</th>
-                                <th class="px-4 py-3 text-center">Tingkat</th>
-                                <th class="px-4 py-3">Nomor Surat</th>
-                                <th class="px-4 py-3">Penerima / Target</th>
-                                <th class="px-4 py-3">Perihal &amp; Alasan</th>
-                                <th class="px-4 py-3 text-center">Jalur Penerbitan</th>
-                                <th class="px-4 py-3 text-center">Status</th>
-                                <th class="px-4 py-3 text-right">Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-slate-200 bg-white">
-                            @forelse($suratPeringatans as $i => $sp)
-                            <tr class="hover:bg-slate-50/80 transition">
-                                <td class="px-3 py-3 text-center font-medium text-slate-500">
-                                    {{ $suratPeringatans->firstItem() + $i }}
-                                </td>
-                                <td class="px-4 py-3 text-center whitespace-nowrap">
-                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold
-                                        @if($sp->tingkat === 'SP-3') bg-rose-50 text-rose-700 border border-rose-200
-                                        @elseif($sp->tingkat === 'SP-2') bg-amber-50 text-amber-800 border border-amber-200
-                                        @else bg-slate-50 text-slate-700 border border-slate-200
-                                        @endif">
-                                        {{ $sp->tingkat }}
+                <x-table>
+                    <x-table.thead>
+                        <x-table.tr>
+                            <x-table.th align="center" class="w-12">No</x-table.th>
+                            <x-table.th align="center">Tingkat</x-table.th>
+                            <x-table.th>Nomor Surat</x-table.th>
+                            <x-table.th>Penerima / Target</x-table.th>
+                            <x-table.th>Perihal &amp; Alasan</x-table.th>
+                            <x-table.th align="center">Jalur Penerbitan</x-table.th>
+                            <x-table.th align="center">Status</x-table.th>
+                            <x-table.th align="right">Aksi</x-table.th>
+                        </x-table.tr>
+                    </x-table.thead>
+                    <tbody class="divide-y divide-slate-100 bg-white">
+                        @forelse($suratPeringatans as $i => $sp)
+                        <x-table.tr>
+                            <x-table.td align="center" class="text-xs font-medium text-slate-500">
+                                {{ $suratPeringatans->firstItem() + $i }}
+                            </x-table.td>
+                            <x-table.td align="center" class="whitespace-nowrap">
+                                <span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold
+                                    @if($sp->tingkat === 'SP-3') bg-rose-50 text-rose-700 border border-rose-200
+                                    @elseif($sp->tingkat === 'SP-2') bg-amber-50 text-amber-800 border border-amber-200
+                                    @else bg-slate-50 text-slate-700 border border-slate-200
+                                    @endif">
+                                    {{ $sp->tingkat }}
+                                </span>
+                            </x-table.td>
+                            <x-table.td class="font-mono font-semibold text-slate-900 whitespace-nowrap">
+                                {{ $sp->nomor_surat }}
+                            </x-table.td>
+                            <x-table.td class="whitespace-nowrap">
+                                @if($sp->isMahasiswa())
+                                    <div class="font-bold text-slate-900">{{ $sp->nama_penerima }}</div>
+                                    <div class="text-[11px] text-slate-500 font-mono">{{ $sp->identitas_penerima }}</div>
+                                    <span class="inline-block mt-0.5 px-2 py-0.2 rounded text-[10px] bg-slate-100 text-slate-700 font-semibold">Mahasiswa</span>
+                                @else
+                                    <div class="font-bold text-slate-900">{{ $sp->target->name ?? '-' }}</div>
+                                    <div class="text-[11px] text-slate-500">{{ $sp->target->username ?? '-' }}</div>
+                                    <span class="inline-block mt-0.5 px-2 py-0.2 rounded text-[10px] bg-indigo-50 text-indigo-700 font-semibold border border-indigo-100">Ormawa</span>
+                                @endif
+                            </x-table.td>
+                            <x-table.td>
+                                <div class="font-semibold text-slate-900">{{ $sp->perihal }}</div>
+                                <div class="text-[11px] text-slate-500 mt-0.5">{{ Str::limit($sp->alasan_singkat, 65) }}</div>
+                            </x-table.td>
+                            <x-table.td align="center" class="whitespace-nowrap">
+                                @if($sp->is_internal_bpm)
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-200">
+                                        Internal BPM (Langsung Sah)
                                     </span>
-                                </td>
-                                <td class="px-4 py-3 font-mono font-semibold text-slate-900 whitespace-nowrap">
-                                    {{ $sp->nomor_surat }}
-                                </td>
-                                <td class="px-4 py-3 whitespace-nowrap">
-                                    @if($sp->isMahasiswa())
-                                        <div class="font-bold text-slate-900">{{ $sp->nama_penerima }}</div>
-                                        <div class="text-[11px] text-slate-500 font-mono">{{ $sp->identitas_penerima }}</div>
-                                        <span class="inline-block mt-0.5 px-2 py-0.2 rounded text-[10px] bg-slate-100 text-slate-700 font-semibold">Mahasiswa</span>
-                                    @else
-                                        <div class="font-bold text-slate-900">{{ $sp->target->name ?? '-' }}</div>
-                                        <div class="text-[11px] text-slate-500">{{ $sp->target->username ?? '-' }}</div>
-                                        <span class="inline-block mt-0.5 px-2 py-0.2 rounded text-[10px] bg-indigo-50 text-indigo-700 font-semibold border border-indigo-100">Ormawa</span>
-                                    @endif
-                                </td>
-                                <td class="px-4 py-3">
-                                    <div class="font-semibold text-slate-900">{{ $sp->perihal }}</div>
-                                    <div class="text-[11px] text-slate-500 mt-0.5">{{ Str::limit($sp->alasan_singkat, 65) }}</div>
-                                </td>
-                                <td class="px-4 py-3 text-center whitespace-nowrap">
-                                    @if($sp->is_internal_bpm)
-                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-200">
-                                            Internal BPM (Langsung Sah)
-                                        </span>
-                                    @else
-                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-700 border border-slate-200">
-                                            Reguler (BKHM &rarr; WR3)
-                                        </span>
-                                    @endif
-                                </td>
-                                <td class="px-4 py-3 text-center whitespace-nowrap">
+                                @else
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-700 border border-slate-200">
+                                        Reguler (BKHM &rarr; WR3)
+                                    </span>
+                                @endif
+                            </x-table.td>
+                            <x-table.td align="center" class="whitespace-nowrap">
+                                @if($sp->isDisetujui())
+                                    <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-800 border border-emerald-300">
+                                        <svg class="w-3 h-3 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                                        <span>Sah &amp; Berlaku</span>
+                                    </span>
+                                @elseif($sp->isDitolak())
+                                    <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-rose-50 text-rose-800 border border-rose-300">
+                                        <svg class="w-3 h-3 text-rose-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>
+                                        <span>Dikembalikan</span>
+                                    </span>
+                                @elseif($sp->isMenungguBkhm())
+                                    <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-800 border border-amber-300">
+                                        <svg class="w-3 h-3 text-amber-600 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                        <span>Tinjauan BKHM</span>
+                                    </span>
+                                @else
+                                    <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-800 border border-amber-300">
+                                        <svg class="w-3 h-3 text-amber-600 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                        <span>Validasi WR3</span>
+                                    </span>
+                                @endif
+                            </x-table.td>
+                            <x-table.td align="right" class="whitespace-nowrap">
+                                <div class="flex items-center justify-end gap-1.5">
+                                    <a href="{{ route('bpm.sp.show', $sp) }}" class="inline-flex items-center justify-center px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-semibold shadow-sm transition min-h-[32px]">
+                                        Tinjau Naskah
+                                    </a>
                                     @if($sp->isDisetujui())
-                                        <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-800 border border-emerald-300">
-                                            <span>✔</span> Sah &amp; Berlaku
-                                        </span>
-                                    @elseif($sp->isDitolak())
-                                        <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-rose-50 text-rose-800 border border-rose-300">
-                                            <span>✖</span> Dikembalikan
-                                        </span>
-                                    @elseif($sp->isMenungguBkhm())
-                                        <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-800 border border-amber-300">
-                                            <span>⏳</span> Tinjauan BKHM
-                                        </span>
-                                    @else
-                                        <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-800 border border-amber-300">
-                                            <span>⏳</span> Validasi WR3
-                                        </span>
-                                    @endif
-                                </td>
-                                <td class="px-4 py-3 text-right whitespace-nowrap">
-                                    <div class="flex items-center justify-end gap-1.5">
-                                        <a href="{{ route('bpm.sp.show', $sp) }}" class="inline-flex items-center justify-center px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-semibold shadow-sm transition min-h-[32px]">
-                                            Tinjau Naskah
+                                        <a href="{{ route('bkhm.sp.pdf', $sp) }}" target="_blank" class="inline-flex items-center justify-center px-3 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 rounded-lg text-xs font-semibold shadow-sm transition min-h-[32px]">
+                                            PDF
                                         </a>
-                                        @if($sp->isDisetujui())
-                                            <a href="{{ route('bkhm.sp.pdf', $sp) }}" target="_blank" class="inline-flex items-center justify-center px-3 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 rounded-lg text-xs font-semibold shadow-sm transition min-h-[32px]">
-                                                PDF
-                                            </a>
-                                        @endif
-                                    </div>
-                                </td>
-                            </tr>
-                            @empty
-                            <tr>
-                                <td colspan="8" class="px-4 py-8 text-center text-slate-500 text-xs italic">
-                                    Belum ada catatan riwayat surat peringatan yang diterbitkan oleh BPM.
-                                </td>
-                            </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
-                </div>
+                                    @endif
+                                </div>
+                            </x-table.td>
+                        </x-table.tr>
+                        @empty
+                        <x-table.empty colspan="8" message="Belum ada catatan riwayat surat peringatan yang diterbitkan oleh BPM." />
+                        @endforelse
+                    </tbody>
+                </x-table>
 
                 @if($suratPeringatans->hasPages())
                     <div class="pt-2">

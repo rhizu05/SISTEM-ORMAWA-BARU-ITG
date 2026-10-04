@@ -132,20 +132,6 @@
         @else
         {{-- ==================== NON-ADMIN ROLES ==================== --}}
 
-        <!-- Notifikasi -->
-        <div class="pb-1">
-            <a href="{{ route('notifikasi.index') }}" @if(request()->routeIs('notifikasi.*')) aria-current="page" @endif :title="!sidebarOpen ? 'Notifikasi' : null"
-               class="flex items-center justify-between p-2 rounded-xl transition-all {{ request()->routeIs('notifikasi.*') ? 'bg-[#132342] text-white font-semibold border-l-[3.5px] border-amber-500 shadow-sm' : 'text-slate-300 hover:text-white hover:bg-[#132342]/70' }}">
-                <div class="flex items-center">
-                    <svg class="w-5 h-5 min-w-[20px] {{ request()->routeIs('notifikasi.*') ? 'text-amber-400' : 'text-slate-400' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" /></svg>
-                    <span x-show="sidebarOpen" class="ml-3 text-sm truncate">Notifikasi</span>
-                </div>
-                @if(($unreadNotifikasi ?? 0) > 0)
-                    <span x-show="sidebarOpen" class="ml-2 bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full" aria-label="{{ $unreadNotifikasi }} notifikasi belum dibaca">{{ $unreadNotifikasi }}</span>
-                @endif
-            </a>
-        </div>
-
         <!-- Dashboard -->
         <div class="pb-1">
             <a href="{{ route('dashboard') }}" @if(request()->routeIs('dashboard')) aria-current="page" @endif :title="!sidebarOpen ? 'Dashboard' : null"
@@ -158,7 +144,7 @@
         <!-- Verifikasi Proposal (Pemeriksa: BEM, BPM, BKHM, WR3, Bendahara) -->
         @hasanyrole('bem|bpm|bkhm|wr3|bendahara')
         <div class="pb-1">
-            <a href="{{ route('verifikasi.index') }}" @if(request()->routeIs('verifikasi.*')) aria-current="page" @endif :title="!sidebarOpen ? 'Verifikasi Proposal' : null"
+            <a href="{{ route('verifikasi.index') }}" @if(request()->routeIs('verifikasi.*')) aria-current="page" @endif :title="!sidebarOpen ? (auth()->user()->hasRole('bendahara') ? 'Pencairan Dana' : 'Verifikasi Proposal') : null"
                class="flex items-center p-2 rounded-xl transition-all {{ request()->routeIs('verifikasi.*') ? 'bg-[#132342] text-white font-semibold border-l-[3.5px] border-amber-500 shadow-sm' : 'text-slate-300 hover:text-white hover:bg-[#132342]/70' }}">
                 <svg class="w-5 h-5 min-w-[20px] {{ request()->routeIs('verifikasi.*') ? 'text-amber-400' : 'text-slate-400' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                 <span x-show="sidebarOpen" class="ml-3 text-sm truncate">
@@ -172,22 +158,14 @@
         </div>
         @endhasanyrole
 
-        <!-- BEM Special Group -->
+        <!-- Program Kerja (BEM) -->
         @hasrole('bem')
-        <div class="space-y-1 pb-1">
-            <div x-data="{ open: false }" class="group">
-                <button @click="!sidebarOpen ? (sidebarOpen = true, localStorage.setItem('skin.sidebarOpen','1'), open = true) : (open = !open)"
-                        class="w-full flex items-center p-2 rounded-xl transition-all {{ request()->routeIs('bem.*') ? 'bg-[#132342] text-white font-semibold' : 'text-slate-300 hover:text-white hover:bg-[#132342]/70' }}"
-                        :title="!sidebarOpen ? 'Kelola BEM' : null">
-                    <svg class="w-5 h-5 min-w-[20px] {{ request()->routeIs('bem.*') ? 'text-amber-400' : 'text-slate-400' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v17M4 5h12l-2.5 3.5L16 12H4" /></svg>
-                    <span x-show="sidebarOpen" class="ml-3 text-sm truncate">Kelola BEM</span>
-                    <svg x-show="sidebarOpen" :class="open ? 'rotate-180' : ''" class="ml-auto w-4 h-4 transition-transform text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
-                </button>
-                <div x-show="open && sidebarOpen" class="pl-9 space-y-1 mt-1 border-l border-[#1E2D4A] ml-4">
-                    <a href="{{ route('verifikasi.index') }}" class="block p-1.5 text-xs rounded-lg transition-colors {{ request()->routeIs('verifikasi.*') ? 'text-amber-400 font-bold bg-[#1E3A8A]/50' : 'text-slate-400 hover:text-white hover:bg-[#132342]' }}">Verifikasi Proposal</a>
-                    <a href="{{ route('proker.index') }}" class="block p-1.5 text-xs rounded-lg transition-colors {{ request()->routeIs('proker.*') ? 'text-amber-400 font-bold bg-[#1E3A8A]/50' : 'text-slate-400 hover:text-white hover:bg-[#132342]' }}">Program Kerja</a>
-                </div>
-            </div>
+        <div class="pb-1">
+            <a href="{{ route('proker.index') }}" @if(request()->routeIs('proker.*')) aria-current="page" @endif :title="!sidebarOpen ? 'Program Kerja Ormawa' : null"
+               class="flex items-center p-2 rounded-xl transition-all {{ request()->routeIs('proker.*') ? 'bg-[#132342] text-white font-semibold border-l-[3.5px] border-amber-500 shadow-sm' : 'text-slate-300 hover:text-white hover:bg-[#132342]/70' }}">
+                <svg class="w-5 h-5 min-w-[20px] {{ request()->routeIs('proker.*') ? 'text-amber-400' : 'text-slate-400' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" /></svg>
+                <span x-show="sidebarOpen" class="ml-3 text-sm truncate">Program Kerja Ormawa</span>
+            </a>
         </div>
         @endhasrole
 
@@ -203,8 +181,6 @@
                     <svg x-show="sidebarOpen" :class="open ? 'rotate-180' : ''" class="ml-auto w-4 h-4 transition-transform text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
                 </button>
                 <div x-show="open && sidebarOpen" class="pl-9 space-y-1 mt-1 border-l border-[#1E2D4A] ml-4">
-                    <a href="{{ route('bpm.dashboard') }}" class="block p-1.5 text-xs rounded-lg transition-colors {{ request()->routeIs('bpm.dashboard') ? 'text-amber-400 font-bold bg-[#1E3A8A]/50' : 'text-slate-400 hover:text-white hover:bg-[#132342]' }}">Dashboard BPM</a>
-                    <a href="{{ route('verifikasi.index') }}" class="block p-1.5 text-xs rounded-lg transition-colors {{ request()->routeIs('verifikasi.*') ? 'text-amber-400 font-bold bg-[#1E3A8A]/50' : 'text-slate-400 hover:text-white hover:bg-[#132342]' }}">Verifikasi Proposal</a>
                     <a href="{{ route('bpm.sp.create') }}" class="block p-1.5 text-xs rounded-lg transition-colors {{ request()->routeIs('bpm.sp.create') ? 'text-amber-400 font-bold bg-[#1E3A8A]/50' : 'text-slate-400 hover:text-white hover:bg-[#132342]' }}">Buat Surat Peringatan</a>
                     <a href="{{ route('bpm.sp.index') }}" class="block p-1.5 text-xs rounded-lg transition-colors {{ request()->routeIs('bpm.sp.index') ? 'text-amber-400 font-bold bg-[#1E3A8A]/50' : 'text-slate-400 hover:text-white hover:bg-[#132342]' }}">Riwayat Surat Peringatan</a>
                     <a href="{{ route('bpm.aspirasi.index') }}" class="block p-1.5 text-xs rounded-lg transition-colors">Kelola Aspirasi</a>
@@ -227,7 +203,6 @@
                     <svg x-show="sidebarOpen" :class="open ? 'rotate-180' : ''" class="ml-auto w-4 h-4 transition-transform text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
                 </button>
                 <div x-show="open && sidebarOpen" class="pl-9 space-y-1 mt-1 border-l border-[#1E2D4A] ml-4">
-                    <a href="{{ route('dashboard') }}" class="block p-1.5 text-xs rounded-lg transition-colors {{ request()->routeIs('dashboard') ? 'text-amber-400 font-bold bg-[#1E3A8A]/50' : 'text-slate-400 hover:text-white hover:bg-[#132342]' }}">Dashboard WR3</a>
                     <a href="{{ route('wr3.sp.index') }}" class="block p-1.5 text-xs rounded-lg transition-colors {{ request()->routeIs('wr3.sp.*') ? 'text-amber-400 font-bold bg-[#1E3A8A]/50' : 'text-slate-400 hover:text-white hover:bg-[#132342]' }}">
                         <div class="flex items-center justify-between">
                             <span>Validasi SP</span>
@@ -239,7 +214,6 @@
                             @endif
                         </div>
                     </a>
-                    <a href="{{ route('verifikasi.index') }}" class="block p-1.5 text-xs rounded-lg transition-colors {{ request()->routeIs('verifikasi.*') ? 'text-amber-400 font-bold bg-[#1E3A8A]/50' : 'text-slate-400 hover:text-white hover:bg-[#132342]' }}">Verifikasi Proposal</a>
                     <a href="{{ route('lpj.index') }}" class="block p-1.5 text-xs rounded-lg transition-colors {{ request()->routeIs('lpj.*') ? 'text-amber-400 font-bold bg-[#1E3A8A]/50' : 'text-slate-400 hover:text-white hover:bg-[#132342]' }}">Monitoring LPJ</a>
                     <a href="{{ route('archive.index') }}" class="block p-1.5 text-xs rounded-lg transition-colors {{ request()->routeIs('archive.*') ? 'text-amber-400 font-bold bg-[#1E3A8A]/50' : 'text-slate-400 hover:text-white hover:bg-[#132342]' }}">Arsip Digital Dokumen</a>
                     <a href="{{ route('prestasi.index') }}" class="block p-1.5 text-xs rounded-lg transition-colors {{ request()->routeIs('prestasi.*') ? 'text-amber-400 font-bold bg-[#1E3A8A]/50' : 'text-slate-400 hover:text-white hover:bg-[#132342]' }}">Verifikasi Prestasi</a>
@@ -262,7 +236,6 @@
                     <svg x-show="sidebarOpen" :class="open ? 'rotate-180' : ''" class="ml-auto w-4 h-4 transition-transform text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
                 </button>
                 <div x-show="open && sidebarOpen" class="pl-9 space-y-1 mt-1 border-l border-[#1E2D4A] ml-4">
-                    <a href="{{ route('verifikasi.index') }}" class="block p-1.5 text-xs rounded-lg transition-colors {{ request()->routeIs('verifikasi.*') ? 'text-amber-400 font-bold bg-[#1E3A8A]/50' : 'text-slate-400 hover:text-white hover:bg-[#132342]' }}">Antrean Pencairan Dana</a>
                     <a href="{{ route('bendahara.export.excel') }}" class="block p-1.5 text-xs rounded-lg transition-colors text-slate-400 hover:text-white hover:bg-[#132342]">Unduh Rekap Excel</a>
                     <a href="{{ route('bendahara.export.pdf') }}" class="block p-1.5 text-xs rounded-lg transition-colors text-slate-400 hover:text-white hover:bg-[#132342]">Unduh Rekap PDF</a>
                     <a href="{{ route('bendahara.export') }}" class="block p-1.5 text-xs rounded-lg transition-colors text-slate-400 hover:text-white hover:bg-[#132342]">Unduh Rekap CSV</a>
@@ -305,7 +278,6 @@
                 </button>
                 <div x-show="open && sidebarOpen" class="pl-4 space-y-1 mt-2">
                     <div class="text-[10px] font-bold text-amber-400 uppercase tracking-widest px-2">Verifikasi &amp; Anggaran</div>
-                    <a href="{{ route('verifikasi.index') }}" class="block ml-2 p-1.5 text-xs rounded-lg transition-colors {{ request()->routeIs('verifikasi.*') ? 'text-amber-400 font-bold bg-[#1E3A8A]/50' : 'text-slate-400 hover:text-white hover:bg-[#132342]' }}">Verifikasi Proposal</a>
                     <a href="{{ route('lpj.index') }}" class="block ml-2 p-1.5 text-xs rounded-lg transition-colors {{ request()->routeIs('lpj.*') ? 'text-amber-400 font-bold bg-[#1E3A8A]/50' : 'text-slate-400 hover:text-white hover:bg-[#132342]' }}">Monitoring &amp; Arsip LPJ</a>
                     <a href="{{ route('archive.index') }}" class="block ml-2 p-1.5 text-xs rounded-lg transition-colors {{ request()->routeIs('archive.*') ? 'text-amber-400 font-bold bg-[#1E3A8A]/50' : 'text-slate-400 hover:text-white hover:bg-[#132342]' }}">Arsip Digital Dokumen</a>
                     <a href="{{ route('peminjaman.verifikasi.index') }}" class="block ml-2 p-1.5 text-xs rounded-lg transition-colors {{ request()->routeIs('peminjaman.verifikasi.*') ? 'text-amber-400 font-bold bg-[#1E3A8A]/50' : 'text-slate-400 hover:text-white hover:bg-[#132342]' }}">Verifikasi Peminjaman</a>
@@ -426,20 +398,13 @@
             </div>
         </div>
 
-        <!-- Laporan Group -->
-        <div class="space-y-1 pb-1">
-            <div x-data="{ open: false }" class="group">
-                <button @click="!sidebarOpen ? (sidebarOpen = true, localStorage.setItem('skin.sidebarOpen','1'), open = true) : (open = !open)"
-                        class="w-full flex items-center p-2 rounded-xl transition-all {{ request()->routeIs('lpj.*') ? 'bg-[#132342] text-white font-semibold' : 'text-slate-300 hover:text-white hover:bg-[#132342]/70' }}"
-                        :title="!sidebarOpen ? 'Laporan' : null">
-                    <svg class="w-5 h-5 min-w-[20px] {{ request()->routeIs('lpj.*') ? 'text-amber-400' : 'text-slate-400' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 2v-6m-9-4h12a2 2 0 012 2v11a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2z" /></svg>
-                    <span x-show="sidebarOpen" class="ml-3 text-sm truncate">Laporan</span>
-                    <svg x-show="sidebarOpen" :class="open ? 'rotate-180' : ''" class="ml-auto w-4 h-4 transition-transform text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
-                </button>
-                <div x-show="open && sidebarOpen" class="pl-9 space-y-1 mt-1 border-l border-[#1E2D4A] ml-4">
-                    <a href="{{ route('lpj.index') }}" class="block p-1.5 text-xs rounded-lg transition-colors text-slate-400 hover:text-white hover:bg-[#132342]">Arsip LPJ</a>
-                </div>
-            </div>
+        <!-- Monitoring & Arsip LPJ -->
+        <div class="pb-1">
+            <a href="{{ route('lpj.index') }}" @if(request()->routeIs('lpj.*')) aria-current="page" @endif :title="!sidebarOpen ? 'Monitoring LPJ' : null"
+               class="flex items-center p-2 rounded-xl transition-all {{ request()->routeIs('lpj.*') ? 'bg-[#132342] text-white font-semibold border-l-[3.5px] border-amber-500 shadow-sm' : 'text-slate-300 hover:text-white hover:bg-[#132342]/70' }}">
+                <svg class="w-5 h-5 min-w-[20px] {{ request()->routeIs('lpj.*') ? 'text-amber-400' : 'text-slate-400' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 2v-6m-9-4h12a2 2 0 012 2v11a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2z" /></svg>
+                <span x-show="sidebarOpen" class="ml-3 text-sm truncate">Monitoring LPJ</span>
+            </a>
         </div>
 
         <!-- Prestasi & Aspirasi Group -->
@@ -500,13 +465,14 @@
                         <p class="text-[11px] text-slate-400 leading-tight truncate">Ada kendala alur proposal?</p>
                     </div>
                 </div>
-                <a href="{{ route('informasi.index') }}"
-                   class="w-full py-2 px-3 rounded-xl bg-[#1E3A8A] hover:bg-blue-800 text-white font-bold text-xs flex items-center justify-center gap-2 transition shadow-sm">
+                <button type="button"
+                   @click="$dispatch('open-panduan-modal')"
+                   class="w-full py-2 px-3 rounded-xl bg-[#1E3A8A] hover:bg-blue-800 text-white font-bold text-xs flex items-center justify-center gap-2 transition shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 cursor-pointer">
                     <svg class="w-3.5 h-3.5 text-amber-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
                     </svg>
-                    <span>Baca Panduan &rarr;</span>
-                </a>
+                    <span>Buka Panduan &rarr;</span>
+                </button>
             </div>
         </div>
     </div>
@@ -521,9 +487,10 @@
          class="shrink-0 relative z-30 p-2 border-t border-[#1E2D4A]/70 flex flex-col items-center justify-center bg-[#0B1528]">
         
         {{-- Tombol Circular Si Ujang --}}
-        <a href="{{ route('informasi.index') }}"
-           class="group/ujang relative flex flex-col items-center justify-center p-1 rounded-2xl transition-all duration-200 hover:bg-[#132342] focus:outline-none focus:ring-2 focus:ring-amber-400"
-           title="Si Ujang ITG - Baca Panduan & Regulasi Ormawa">
+        <button type="button"
+           @click="$dispatch('open-panduan-modal')"
+           class="group/ujang relative flex flex-col items-center justify-center p-1 rounded-2xl transition-all duration-200 hover:bg-[#132342] focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 cursor-pointer"
+           title="Si Ujang ITG - Buka Panduan & Regulasi Ormawa">
             
             <div class="relative w-11 h-11 rounded-full bg-[#1E3A8A] border-2 border-amber-400 p-0.5 flex items-center justify-center shadow-lg shadow-amber-500/20 group-hover/ujang:border-amber-300 group-hover/ujang:shadow-amber-400/40 group-hover/ujang:scale-105 transition-all">
                 <img src="{{ asset('images/maskot-itg-head.png') }}" class="w-full h-full object-contain rounded-full" alt="Si Ujang">
@@ -535,7 +502,7 @@
             </div>
             
             <span class="text-[9px] font-bold text-amber-400 mt-1 tracking-wider uppercase group-hover/ujang:text-amber-300">Panduan</span>
-        </a>
+        </button>
 
         {{-- Floating Popover Card (Flyout ke samping kanan saat di-hover) --}}
         <div x-show="openFlyout"
@@ -574,13 +541,14 @@
 
             {{-- CTA Button & Quick Links --}}
             <div class="relative space-y-2">
-                <a href="{{ route('informasi.index') }}"
-                   class="w-full py-2 px-3 rounded-xl bg-[#1E3A8A] hover:bg-blue-700 text-white font-bold text-xs flex items-center justify-center gap-2 transition shadow-sm border border-blue-500/40">
+                <button type="button"
+                   @click="$dispatch('open-panduan-modal'); openFlyout = false"
+                   class="w-full py-2 px-3 rounded-xl bg-[#1E3A8A] hover:bg-blue-700 text-white font-bold text-xs flex items-center justify-center gap-2 transition shadow-sm border border-blue-500/40 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 cursor-pointer">
                     <svg class="w-3.5 h-3.5 text-amber-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
                     </svg>
-                    <span>Baca Panduan Ormawa &rarr;</span>
-                </a>
+                    <span>Buka Panduan Ormawa &rarr;</span>
+                </button>
 
                 <div class="flex items-center justify-between text-[10px] text-slate-400 pt-1">
                     <a href="{{ route('informasi.index') }}" class="hover:text-amber-400 transition">&bull; Regulasi SOP</a>
@@ -594,12 +562,18 @@
     {{-- Footer Profil Pengguna --}}
     <div class="shrink-0 p-3 border-t border-[#1E2D4A] relative z-10 bg-[#0B1528]">
         <div class="flex items-center justify-between p-1.5 rounded-xl hover:bg-[#132342] transition">
-            <a href="{{ route('profile.edit') }}" class="flex items-center min-w-0 gap-2.5">
-                <div class="w-8 h-8 rounded-full bg-[#1E40AF] border border-blue-400/40 text-white font-bold text-xs flex items-center justify-center shrink-0">
-                    {{ strtoupper(substr(auth()->user()->name ?? 'U', 0, 2)) }}
-                </div>
+            <a href="{{ route('profile.edit') }}" class="flex items-center min-w-0 gap-2.5 group" :title="!sidebarOpen ? 'Pengaturan Profil ({{ auth()->user()->name ?? 'User' }})' : null">
+                @if (auth()->user()->hasCustomAvatar())
+                    <img class="w-8 h-8 rounded-full object-cover border border-blue-400/40 shrink-0 bg-white shadow-2xs group-hover:border-amber-400 transition" 
+                         src="{{ auth()->user()->avatar_url }}" 
+                         alt="Logo / Foto profil {{ auth()->user()->name ?? 'User' }}">
+                @else
+                    <div class="w-8 h-8 rounded-full bg-[#1E40AF] border border-blue-400/40 text-white font-extrabold text-xs flex items-center justify-center shrink-0 shadow-2xs group-hover:border-amber-400 transition">
+                        {{ strtoupper(substr(auth()->user()->name ?? auth()->user()->username ?? 'U', 0, 1)) }}
+                    </div>
+                @endif
                 <div x-show="sidebarOpen" class="min-w-0">
-                    <span class="block text-xs font-bold text-white truncate">{{ auth()->user()->name ?? 'User' }}</span>
+                    <span class="block text-xs font-bold text-white truncate group-hover:text-amber-300 transition">{{ auth()->user()->name ?? 'User' }}</span>
                     <div class="flex items-center gap-1.5">
                         <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 shrink-0"></span>
                         <span class="text-[10px] text-slate-400 capitalize truncate">{{ auth()->user()->role ?? 'Pengurus' }}</span>

@@ -1,2 +1,21 @@
 User-agent: *
-Disallow:
+Allow: /
+Allow: /layanan
+Allow: /informasi
+Allow: /prestasi
+Allow: /verifikasi-dokumen
+Disallow: /dashboard
+Disallow: /pengajuan
+Disallow: /peminjaman
+Disallow: /generator
+Disallow: /profile
+Disallow: /admin
+Disallow: /bkhm
+Disallow: /bem
+Disallow: /bpm
+Disallow: /wr3
+Disallow: /bendahara
+Disallow: /sarpras
+Disallow: /notifikasi
+Disallow: /bug
+Disallow: /login

@@ -18,7 +18,7 @@ class LpjController extends Controller
         // Menampilkan daftar pengajuan yang sudah cair dan siap upload LPJ, atau sedang proses LPJ
         $query = Pengajuan::whereHas('state', function ($q) {
             $q->whereIn('name', ['funds_disbursed', 'lpj_submitted', 'lpj_wr3_review', 'completed']);
-        })->with(['user', 'state', 'dana']);
+        })->with(['user', 'state', 'dana', 'tandaTanganDigitals']);
 
         // Verifikator (bkhm, wr3, admin, bpm) dapat memonitor seluruh LPJ; ormawa hanya milik sendiri
         if (! $user->hasAnyRole(['admin', 'bkhm', 'wr3', 'bpm'])) {
@@ -78,6 +78,21 @@ class LpjController extends Controller
                 'workflow_state_id' => $stateLpjSubmitted->id,
                 'catatan' => 'Ormawa telah mengupload Laporan Pertanggungjawaban (LPJ).'
             ]);
+
+            // Legalisir Tanda Tangan Digital pihak yang melampirkan (Ormawa)
+            \App\Services\DigitalSignatureService::sign(
+                $pengajuan->fresh(),
+                Auth::user(),
+                'ormawa_lpj',
+                [
+                    'nama' => Auth::user()->nama_ketua ?: Auth::user()->name,
+                    'jabatan' => 'Ketua ' . Auth::user()->name,
+                    'nidn' => Auth::user()->nim_ketua ?: '-',
+                ]
+            );
+
+            // Bersihkan cache dokumen agar cover TTD terupdate seketika
+            \App\Services\LpjDocumentService::clearCache($pengajuan);
 
             // FR-022: beri tahu BKHM bahwa LPJ telah diunggah dan siap diverifikasi
             \App\Services\NotifikasiService::kirimKeRole(

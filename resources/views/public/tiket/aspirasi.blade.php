@@ -1,17 +1,20 @@
 <x-public-layout title="Aspirasi Mahasiswa" brand-label="Portal Layanan Mahasiswa" accent="indigo">
     <x-slot name="nav">
-        <a href="{{ route('layanan.cek-status') }}" class="inline-flex items-center gap-2 min-h-[44px] px-4 py-2 rounded-xl text-sm font-semibold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 border border-indigo-100 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2">
+        <a href="{{ route('layanan.index') }}" class="inline-flex items-center gap-1.5 min-h-[44px] px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold text-slate-700 hover:bg-slate-100 border border-slate-200 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18"/></svg>
+            <span>Portal</span>
+        </a>
+        <a href="{{ route('layanan.cek-status') }}" class="inline-flex items-center gap-1.5 min-h-[44px] px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-            <span class="hidden sm:inline">Cek Status</span>
-            <span class="sm:hidden">Cek</span>
+            <span>Cek Tiket</span>
         </a>
     </x-slot>
 
-    <div class="max-w-3xl mx-auto px-4 sm:px-6 py-10">
-        <nav class="flex items-center gap-2 text-xs text-slate-600 mb-2">
+    <div class="max-w-3xl mx-auto px-4 sm:px-6 py-8 sm:py-10">
+        <nav class="flex items-center gap-2 text-xs text-slate-600 mb-3">
             <a href="{{ route('layanan.index') }}" class="hover:text-indigo-700 transition">Portal Layanan</a>
-            <span class="text-slate-500">/</span>
-            <span class="text-slate-800 font-medium">Aspirasi Mahasiswa</span>
+            <span class="text-slate-400">/</span>
+            <span class="text-slate-800 font-semibold">Aspirasi Mahasiswa</span>
         </nav>
         <h1 class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">Formulir Aspirasi &amp; Masukan Mahasiswa</h1>
         <p class="text-sm text-slate-600 mt-1">Sampaikan aspirasi, keluhan fasilitas, atau masukan akademik secara konstruktif langsung ke Badan Perwakilan Mahasiswa (BPM).</p>
@@ -107,13 +110,13 @@
                     <span class="text-[11px] text-slate-600 mt-1 block">Format: PDF, JPG, PNG. Maksimal 5 MB.</span>
                 </div>
 
-                <div class="pt-4 flex items-center justify-between border-t border-slate-100">
-                    <a href="{{ route('layanan.index') }}" class="inline-flex items-center min-h-[44px] px-5 rounded-xl text-sm font-semibold text-slate-700 hover:bg-slate-100 transition">
-                        Batal
+                <div class="pt-6 flex flex-col-reverse sm:flex-row sm:items-center sm:justify-between gap-3 border-t border-slate-100">
+                    <a href="{{ route('layanan.index') }}" class="inline-flex items-center justify-center min-h-[48px] px-5 rounded-xl text-sm font-semibold text-slate-700 hover:bg-slate-100 border border-slate-200 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400">
+                        Batal &amp; Kembali
                     </a>
-                    <button type="submit" :disabled="submitting" class="inline-flex items-center justify-center gap-2 min-h-[44px] px-6 rounded-xl text-sm font-bold text-white bg-indigo-600 hover:bg-indigo-700 disabled:opacity-70 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2">
+                    <button type="submit" :disabled="submitting" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 min-h-[48px] px-6 rounded-xl text-sm font-bold text-white bg-indigo-600 hover:bg-indigo-700 disabled:opacity-70 transition shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
-                        <span x-text="submitting ? 'Memproses...' : 'Kirim Aspirasi'">Kirim Aspirasi</span>
+                        <span x-text="submitting ? 'Mengirim Data...' : 'Kirim Aspirasi Sekarang'">Kirim Aspirasi Sekarang</span>
                     </button>
                 </div>
             </form>

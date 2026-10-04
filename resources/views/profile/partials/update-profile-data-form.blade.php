@@ -47,69 +47,83 @@
 
         <hr class="my-4">
 
-        <!-- Ketua -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div>
-                <x-input-label for="nama_ketua" :value="__('Nama Ketua')" />
-                <x-text-input id="nama_ketua" name="nama_ketua" type="text" class="mt-1 block w-full" :value="old('nama_ketua', $user->nama_ketua)" />
-                <x-input-error class="mt-2" :messages="$errors->get('nama_ketua')" />
-            </div>
-            <div>
-                <x-input-label for="nim_ketua" :value="__('NIM Ketua')" />
-                <x-text-input id="nim_ketua" name="nim_ketua" type="text" class="mt-1 block w-full font-mono" :value="old('nim_ketua', $user->nim_ketua)" placeholder="Contoh: 2106001" />
-                <x-input-error class="mt-2" :messages="$errors->get('nim_ketua')" />
-            </div>
-            <div>
-                <x-input-label for="ttd_ketua" :value="__('TTD Ketua (PNG Transparan)')" />
-                @if($user->ttd_ketua)
-                    <img src="{{ asset('storage/' . $user->ttd_ketua) }}" alt="TTD" class="h-10 mb-1 border bg-gray-50">
-                @endif
-                <input id="ttd_ketua" name="ttd_ketua" type="file" class="mt-1 block w-full border rounded p-1 text-sm" accept=".png" />
-                <x-input-error class="mt-2" :messages="$errors->get('ttd_ketua')" />
+        <div class="p-4 rounded-xl bg-blue-50/60 border border-blue-200">
+            <div class="flex items-start gap-3">
+                <svg class="w-5 h-5 text-blue-600 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+                <div class="text-xs text-slate-700 leading-relaxed">
+                    <strong class="font-semibold text-slate-900">Sistem Tanda Tangan Digital Resmi Aktif</strong><br>
+                    Pengesahan proposal, surat, dan LPJ kini menggunakan tanda tangan digital berbasis token kriptografis dan QR Code. Data Nama dan NIM pejabat kepengurusan berikut digunakan sebagai identitas penandatangan otomatis pada dokumen resmi.
+                </div>
             </div>
         </div>
 
-        <!-- Sekretaris -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div>
-                <x-input-label for="nama_sekretaris" :value="__('Nama Sekretaris')" />
-                <x-text-input id="nama_sekretaris" name="nama_sekretaris" type="text" class="mt-1 block w-full" :value="old('nama_sekretaris', $user->nama_sekretaris)" />
-                <x-input-error class="mt-2" :messages="$errors->get('nama_sekretaris')" />
+        <!-- Pejabat Kepengurusan -->
+        <div class="space-y-5">
+            <!-- Ketua -->
+            <div class="p-4 bg-slate-50/80 rounded-xl border border-slate-200">
+                <h3 class="text-xs font-bold uppercase tracking-wider text-slate-700 mb-3 flex items-center gap-1.5">
+                    <span class="w-2 h-2 rounded-full bg-blue-600"></span> Ketua Ormawa
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <x-input-label for="nama_ketua" :value="__('Nama Lengkap Ketua')" />
+                        <x-text-input id="nama_ketua" name="nama_ketua" type="text" class="mt-1 block w-full" :value="old('nama_ketua', $user->nama_ketua)" placeholder="Nama lengkap beserta gelar jika ada" />
+                        <x-input-error class="mt-2" :messages="$errors->get('nama_ketua')" />
+                    </div>
+                    <div>
+                        <x-input-label for="nim_ketua" :value="__('NIM Ketua')" />
+                        <x-text-input id="nim_ketua" name="nim_ketua" type="text" class="mt-1 block w-full font-mono" :value="old('nim_ketua', $user->nim_ketua)" placeholder="Contoh: 2206001" />
+                        <x-input-error class="mt-2" :messages="$errors->get('nim_ketua')" />
+                    </div>
+                </div>
             </div>
-            <div>
-                <x-input-label for="nim_sekretaris" :value="__('NIM Sekretaris')" />
-                <x-text-input id="nim_sekretaris" name="nim_sekretaris" type="text" class="mt-1 block w-full font-mono" :value="old('nim_sekretaris', $user->nim_sekretaris)" placeholder="Contoh: 2106002" />
-                <x-input-error class="mt-2" :messages="$errors->get('nim_sekretaris')" />
-            </div>
-            <div>
-                <x-input-label for="ttd_sekretaris" :value="__('TTD Sekretaris (PNG)')" />
-                @if($user->ttd_sekretaris)
-                    <img src="{{ asset('storage/' . $user->ttd_sekretaris) }}" alt="TTD" class="h-10 mb-1 border bg-gray-50">
-                @endif
-                <input id="ttd_sekretaris" name="ttd_sekretaris" type="file" class="mt-1 block w-full border rounded p-1 text-sm" accept=".png" />
-                <x-input-error class="mt-2" :messages="$errors->get('ttd_sekretaris')" />
-            </div>
-        </div>
 
-        <!-- Bendahara -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div>
-                <x-input-label for="nama_bendahara" :value="__('Nama Bendahara')" />
-                <x-text-input id="nama_bendahara" name="nama_bendahara" type="text" class="mt-1 block w-full" :value="old('nama_bendahara', $user->nama_bendahara)" />
-                <x-input-error class="mt-2" :messages="$errors->get('nama_bendahara')" />
+            <!-- Sekretaris -->
+            <div class="p-4 bg-slate-50/80 rounded-xl border border-slate-200">
+                <h3 class="text-xs font-bold uppercase tracking-wider text-slate-700 mb-3 flex items-center gap-1.5">
+                    <span class="w-2 h-2 rounded-full bg-indigo-600"></span> Sekretaris Ormawa
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <x-input-label for="nama_sekretaris" :value="__('Nama Lengkap Sekretaris')" />
+                        <x-text-input id="nama_sekretaris" name="nama_sekretaris" type="text" class="mt-1 block w-full" :value="old('nama_sekretaris', $user->nama_sekretaris)" placeholder="Nama lengkap sekretaris" />
+                        <x-input-error class="mt-2" :messages="$errors->get('nama_sekretaris')" />
+                    </div>
+                    <div>
+                        <x-input-label for="nim_sekretaris" :value="__('NIM Sekretaris')" />
+                        <x-text-input id="nim_sekretaris" name="nim_sekretaris" type="text" class="mt-1 block w-full font-mono" :value="old('nim_sekretaris', $user->nim_sekretaris)" placeholder="Contoh: 2206002" />
+                        <x-input-error class="mt-2" :messages="$errors->get('nim_sekretaris')" />
+                    </div>
+                </div>
             </div>
-            <div>
-                <x-input-label for="nim_bendahara" :value="__('NIM Bendahara')" />
-                <x-text-input id="nim_bendahara" name="nim_bendahara" type="text" class="mt-1 block w-full font-mono" :value="old('nim_bendahara', $user->nim_bendahara)" placeholder="Contoh: 2106003" />
-                <x-input-error class="mt-2" :messages="$errors->get('nim_bendahara')" />
+
+            <!-- Bendahara -->
+            <div class="p-4 bg-slate-50/80 rounded-xl border border-slate-200">
+                <h3 class="text-xs font-bold uppercase tracking-wider text-slate-700 mb-3 flex items-center gap-1.5">
+                    <span class="w-2 h-2 rounded-full bg-emerald-600"></span> Bendahara Ormawa
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <x-input-label for="nama_bendahara" :value="__('Nama Lengkap Bendahara')" />
+                        <x-text-input id="nama_bendahara" name="nama_bendahara" type="text" class="mt-1 block w-full" :value="old('nama_bendahara', $user->nama_bendahara)" placeholder="Nama lengkap bendahara" />
+                        <x-input-error class="mt-2" :messages="$errors->get('nama_bendahara')" />
+                    </div>
+                    <div>
+                        <x-input-label for="nim_bendahara" :value="__('NIM Bendahara')" />
+                        <x-text-input id="nim_bendahara" name="nim_bendahara" type="text" class="mt-1 block w-full font-mono" :value="old('nim_bendahara', $user->nim_bendahara)" placeholder="Contoh: 2206003" />
+                        <x-input-error class="mt-2" :messages="$errors->get('nim_bendahara')" />
+                    </div>
+                </div>
             </div>
-            <div>
-                <x-input-label for="ttd_bendahara" :value="__('TTD Bendahara (PNG)')" />
-                @if($user->ttd_bendahara)
-                    <img src="{{ asset('storage/' . $user->ttd_bendahara) }}" alt="TTD" class="h-10 mb-1 border bg-gray-50">
-                @endif
-                <input id="ttd_bendahara" name="ttd_bendahara" type="file" class="mt-1 block w-full border rounded p-1 text-sm" accept=".png" />
-                <x-input-error class="mt-2" :messages="$errors->get('ttd_bendahara')" />
+
+            <!-- Catatan Penggunaan di Dokumen -->
+            <div class="flex items-start gap-2.5 p-3 rounded-xl bg-slate-100/90 border border-slate-200 text-xs text-slate-600">
+                <svg class="w-4 h-4 text-blue-600 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <p class="leading-relaxed">
+                    <strong class="text-slate-800">Catatan Dokumen:</strong> Nama Lengkap dan NIM Ketua, Sekretaris, serta Bendahara di atas akan otomatis tercantum pada <strong>Lembar Pengesahan Proposal Kegiatan</strong>, <strong>Laporan Pertanggungjawaban (LPJ)</strong>, dan <strong>Surat Keluar</strong>, serta terikat pada <strong>QR Code Tanda Tangan Digital</strong> resmi kampus.
+                </p>
             </div>
         </div>
         @endif

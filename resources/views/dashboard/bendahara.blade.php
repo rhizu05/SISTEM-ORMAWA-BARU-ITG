@@ -50,7 +50,7 @@
                         </p>
                     </div>
                     <div class="flex items-center gap-2">
-                        <a href="{{ route('verifikasi.index') }}" class="inline-flex items-center gap-2 px-4 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-semibold shadow-sm transition min-h-[40px] focus:outline-none focus-visible:ring-2 focus-visible:ring-white">
+                        <a href="{{ route('verifikasi.index') }}" class="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-semibold shadow-sm transition min-h-[44px] focus:outline-none focus-visible:ring-2 focus-visible:ring-white">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
                             <span>Antrean Verifikasi Proposal</span>
                         </a>
@@ -74,7 +74,7 @@
                 <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 flex items-center justify-between">
                     <div>
                         <p class="text-xs font-medium text-slate-500 uppercase tracking-wider">Total Dana Telah Dicairkan</p>
-                        <h4 class="text-2xl font-extrabold text-emerald-700 mt-1">Rp {{ number_format($stats['total_dicairkan'], 0, ',', '.') }}</h4>
+                        <h4 class="text-2xl font-extrabold text-emerald-700 mt-1 font-mono">Rp {{ number_format($stats['total_dicairkan'], 0, ',', '.') }}</h4>
                         <p class="text-[11px] text-slate-500 mt-0.5">Akumulasi realisasi pencairan kas ormawa</p>
                     </div>
                     <div class="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold text-lg flex-shrink-0 border border-emerald-200">
@@ -91,62 +91,56 @@
                         <p class="text-xs text-slate-500 mt-0.5">Proposal kegiatan yang telah berstatus resmi siap transfer dana.</p>
                     </div>
                     <div class="flex flex-wrap items-center gap-2">
-                        <a href="{{ route('bendahara.export.excel') }}" class="bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-semibold px-3.5 py-2 rounded-xl flex items-center gap-1.5 shadow-sm transition min-h-[38px] focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600">
+                        <a href="{{ route('bendahara.export.excel') }}" class="bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-semibold px-3.5 py-2 rounded-xl inline-flex items-center gap-1.5 shadow-sm transition min-h-[44px] focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                             <span>Unduh Excel (.xlsx)</span>
                         </a>
-                        <a href="{{ route('bendahara.export.pdf') }}" class="bg-rose-700 hover:bg-rose-800 text-white text-xs font-semibold px-3.5 py-2 rounded-xl flex items-center gap-1.5 shadow-sm transition min-h-[38px] focus:outline-none focus-visible:ring-2 focus-visible:ring-rose-600">
+                        <a href="{{ route('bendahara.export.pdf') }}" class="bg-rose-700 hover:bg-rose-800 text-white text-xs font-semibold px-3.5 py-2 rounded-xl inline-flex items-center gap-1.5 shadow-sm transition min-h-[44px] focus:outline-none focus-visible:ring-2 focus-visible:ring-rose-600">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
                             <span>Unduh PDF Rekap</span>
                         </a>
-                        <a href="{{ route('bendahara.export') }}" class="bg-slate-700 hover:bg-slate-800 text-white text-xs font-semibold px-3 py-2 rounded-xl flex items-center gap-1 transition min-h-[38px] focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-600">
+                        <a href="{{ route('bendahara.export') }}" class="bg-slate-700 hover:bg-slate-800 text-white text-xs font-semibold px-3.5 py-2 rounded-xl inline-flex items-center gap-1 transition min-h-[44px] focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-600">
                             <span>CSV</span>
                         </a>
                     </div>
                 </div>
 
-                <div class="overflow-x-auto rounded-xl border border-slate-200">
-                    <table class="min-w-full text-xs text-left divide-y divide-slate-200">
-                        <thead class="bg-slate-50 font-semibold text-slate-700">
-                            <tr>
-                                <th class="px-3 py-3 text-center w-12">No</th>
-                                <th class="px-4 py-3">Nama Kegiatan</th>
-                                <th class="px-4 py-3">Organisasi Pengaju</th>
-                                <th class="px-4 py-3">Tanggal Pengajuan</th>
-                                <th class="px-4 py-3 text-right">Dana Disetujui</th>
-                                <th class="px-4 py-3 text-center">Tahapan Termin</th>
-                                <th class="px-4 py-3 text-center">Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-slate-200 bg-white">
-                            @forelse($siapCairQueue as $i => $p)
-                            <tr class="hover:bg-slate-50/80 transition">
-                                <td class="px-3 py-3 text-center font-medium text-slate-500">{{ $i + 1 }}</td>
-                                <td class="px-4 py-3 font-semibold text-slate-900">{{ $p->nama_kegiatan }}</td>
-                                <td class="px-4 py-3 text-slate-700">{{ $p->user->name }}</td>
-                                <td class="px-4 py-3 text-slate-600">{{ $p->tanggal_pengajuan ?? $p->created_at->format('d/m/Y') }}</td>
-                                <td class="px-4 py-3 text-right font-bold text-slate-900">Rp {{ number_format($p->dana_diajukan, 0, ',', '.') }}</td>
-                                <td class="px-4 py-3 text-center">
-                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-indigo-50 text-indigo-700 border border-indigo-200">
-                                        Termin ke-{{ $p->terminBerikutnya() }}
-                                    </span>
-                                </td>
-                                <td class="px-4 py-3 text-center">
-                                    <a href="{{ route('verifikasi.show', $p) }}" class="inline-flex items-center justify-center px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-semibold shadow-sm transition min-h-[36px] focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500">
-                                        Proses Pencairan
-                                    </a>
-                                </td>
-                            </tr>
-                            @empty
-                            <tr>
-                                <td colspan="7" class="px-4 py-8 text-center text-slate-500 text-xs italic">
-                                    Tidak ada proposal yang berada dalam antrean siap dicairkan saat ini.
-                                </td>
-                            </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
-                </div>
+                <x-table>
+                    <x-table.thead>
+                        <x-table.tr>
+                            <x-table.th align="center" class="w-12">No</x-table.th>
+                            <x-table.th>Nama Kegiatan</x-table.th>
+                            <x-table.th>Organisasi Pengaju</x-table.th>
+                            <x-table.th>Tanggal Pengajuan</x-table.th>
+                            <x-table.th align="right">Dana Disetujui</x-table.th>
+                            <x-table.th align="center">Tahapan Termin</x-table.th>
+                            <x-table.th align="center">Aksi</x-table.th>
+                        </x-table.tr>
+                    </x-table.thead>
+                    <tbody class="divide-y divide-slate-100 bg-white">
+                        @forelse($siapCairQueue as $i => $p)
+                        <x-table.tr>
+                            <x-table.td align="center" class="text-xs font-medium text-slate-500">{{ $i + 1 }}</x-table.td>
+                            <x-table.td class="font-semibold text-slate-900">{{ $p->nama_kegiatan }}</x-table.td>
+                            <x-table.td class="text-slate-700">{{ $p->user->name }}</x-table.td>
+                            <x-table.td class="text-slate-600 text-xs whitespace-nowrap">{{ $p->tanggal_pengajuan ?? $p->created_at->format('d/m/Y') }}</x-table.td>
+                            <x-table.td align="right" class="font-mono font-bold text-slate-900 whitespace-nowrap">Rp {{ number_format($p->dana_diajukan, 0, ',', '.') }}</x-table.td>
+                            <x-table.td align="center">
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-indigo-50 text-indigo-700 border border-indigo-200">
+                                    Termin ke-{{ $p->terminBerikutnya() }}
+                                </span>
+                            </x-table.td>
+                            <x-table.td align="center">
+                                <a href="{{ route('verifikasi.show', $p) }}" class="inline-flex items-center justify-center px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-semibold shadow-sm transition min-h-[36px] focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500">
+                                    Proses Pencairan
+                                </a>
+                            </x-table.td>
+                        </x-table.tr>
+                        @empty
+                        <x-table.empty colspan="7" message="Tidak ada proposal yang berada dalam antrean siap dicairkan saat ini." />
+                        @endforelse
+                    </tbody>
+                </x-table>
             </div>
 
             <!-- Tabel Riwayat Pencairan Yang Telah Selesai -->
@@ -158,53 +152,47 @@
                     </div>
                 </div>
 
-                <div class="overflow-x-auto rounded-xl border border-slate-200">
-                    <table class="min-w-full text-xs text-left divide-y divide-slate-200">
-                        <thead class="bg-slate-50 font-semibold text-slate-700">
-                            <tr>
-                                <th class="px-3 py-3 text-center w-12">No</th>
-                                <th class="px-4 py-3 text-center">Tanggal Cair</th>
-                                <th class="px-4 py-3">Nama Kegiatan</th>
-                                <th class="px-4 py-3">Ormawa</th>
-                                <th class="px-4 py-3 text-center">Termin</th>
-                                <th class="px-4 py-3 text-right">Nominal Dicairkan</th>
-                                <th class="px-4 py-3">Catatan / Bukti</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-slate-200 bg-white">
-                            @forelse($riwayatPencairan ?? [] as $i => $dana)
-                            <tr class="hover:bg-slate-50/80 transition">
-                                <td class="px-3 py-3 text-center font-medium text-slate-500">{{ $i + 1 }}</td>
-                                <td class="px-4 py-3 text-center text-slate-600 whitespace-nowrap">{{ \Carbon\Carbon::parse($dana->tanggal_cair)->format('d/m/Y') }}</td>
-                                <td class="px-4 py-3 font-semibold text-slate-900">{{ $dana->pengajuan->nama_kegiatan ?? '-' }}</td>
-                                <td class="px-4 py-3 text-slate-700">{{ $dana->pengajuan->user->name ?? '-' }}</td>
-                                <td class="px-4 py-3 text-center">
-                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] bg-indigo-50 text-indigo-700 font-semibold border border-indigo-200">
-                                        Termin {{ $dana->termin_ke }}
-                                    </span>
-                                </td>
-                                <td class="px-4 py-3 text-right font-extrabold text-emerald-700">Rp {{ number_format($dana->nominal_cair, 0, ',', '.') }}</td>
-                                <td class="px-4 py-3 text-slate-600">
-                                    <div class="flex items-center justify-between gap-2">
-                                        <span class="truncate max-w-xs">{{ $dana->catatan ?? '-' }}</span>
-                                        @if($dana->bukti_transfer)
-                                            <a href="{{ route('dokumen.bukti-transfer', $dana) }}" target="_blank" class="text-indigo-600 hover:text-indigo-800 font-semibold text-[11px] underline flex-shrink-0">
-                                                Lihat Bukti &nearr;
-                                            </a>
-                                        @endif
-                                    </div>
-                                </td>
-                            </tr>
-                            @empty
-                            <tr>
-                                <td colspan="7" class="px-4 py-8 text-center text-slate-500 text-xs italic">
-                                    Belum ada riwayat transaksi pencairan dana tercatat.
-                                </td>
-                            </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
-                </div>
+                <x-table>
+                    <x-table.thead>
+                        <x-table.tr>
+                            <x-table.th align="center" class="w-12">No</x-table.th>
+                            <x-table.th align="center">Tanggal Cair</x-table.th>
+                            <x-table.th>Nama Kegiatan</x-table.th>
+                            <x-table.th>Ormawa</x-table.th>
+                            <x-table.th align="center">Termin</x-table.th>
+                            <x-table.th align="right">Nominal Dicairkan</x-table.th>
+                            <x-table.th>Catatan / Bukti</x-table.th>
+                        </x-table.tr>
+                    </x-table.thead>
+                    <tbody class="divide-y divide-slate-100 bg-white">
+                        @forelse($riwayatPencairan ?? [] as $i => $dana)
+                        <x-table.tr>
+                            <x-table.td align="center" class="text-xs font-medium text-slate-500">{{ $i + 1 }}</x-table.td>
+                            <x-table.td align="center" class="text-slate-600 text-xs whitespace-nowrap">{{ \Carbon\Carbon::parse($dana->tanggal_cair)->format('d/m/Y') }}</x-table.td>
+                            <x-table.td class="font-semibold text-slate-900">{{ $dana->pengajuan->nama_kegiatan ?? '-' }}</x-table.td>
+                            <x-table.td class="text-slate-700">{{ $dana->pengajuan->user->name ?? '-' }}</x-table.td>
+                            <x-table.td align="center">
+                                <span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] bg-indigo-50 text-indigo-700 font-semibold border border-indigo-200">
+                                    Termin {{ $dana->termin_ke }}
+                                </span>
+                            </x-table.td>
+                            <x-table.td align="right" class="font-mono font-extrabold text-emerald-700 whitespace-nowrap">Rp {{ number_format($dana->nominal_cair, 0, ',', '.') }}</x-table.td>
+                            <x-table.td class="text-slate-600">
+                                <div class="flex items-center justify-between gap-2">
+                                    <span class="truncate max-w-xs">{{ $dana->catatan ?? '-' }}</span>
+                                    @if($dana->bukti_transfer)
+                                        <a href="{{ route('dokumen.bukti-transfer', $dana) }}" target="_blank" class="text-indigo-600 hover:text-indigo-800 font-semibold text-[11px] underline flex-shrink-0">
+                                            Lihat Bukti &nearr;
+                                        </a>
+                                    @endif
+                                </div>
+                            </x-table.td>
+                        </x-table.tr>
+                        @empty
+                        <x-table.empty colspan="7" message="Belum ada riwayat transaksi pencairan dana tercatat." />
+                        @endforelse
+                    </tbody>
+                </x-table>
             </div>
 
         </div>

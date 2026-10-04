@@ -6,6 +6,10 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <title>Login Pengurus &amp; Ormawa - SKIN Institut Teknologi Garut</title>
+    <link rel="icon" type="image/png" href="{{ asset('images/logo-skin-torch.png') }}">
+    <link rel="apple-touch-icon" href="{{ asset('images/logo-skin-torch.png') }}">
+    <link rel="manifest" href="{{ asset('manifest.json') }}">
+    <meta name="theme-color" content="#0B1528">
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">
@@ -20,7 +24,7 @@
         {{-- ========================================================
              KOLOM KIRI: STAGE BRANDING, WATERMARK & MASKOT SI UJANG
              ======================================================== --}}
-        <div class="lg:w-1/2 relative bg-[#0B1528] text-white p-8 sm:p-12 lg:p-16 flex flex-col justify-between overflow-hidden min-h-[520px] lg:min-h-screen">
+        <div class="hidden lg:flex lg:w-1/2 relative bg-[#0B1528] text-white p-8 sm:p-12 lg:p-16 flex-col justify-between overflow-hidden min-h-screen">
             
             {{-- Watermark Ornamen Logo Obor Berwarna --}}
             <div class="absolute inset-0 pointer-events-none overflow-hidden select-none" aria-hidden="true">
@@ -39,7 +43,7 @@
                 <img src="{{ asset('images/logo-skin-torch.png') }}" alt="Logo Obor Kemahasiswaan" class="h-9 w-auto object-contain shrink-0">
                 <div class="border-l border-slate-700/80 pl-3">
                     <span class="block text-[11px] font-bold text-amber-400 tracking-wider uppercase">Institut Teknologi Garut</span>
-                    <span class="block text-sm font-extrabold text-white leading-tight">SKIN ITG — Sistem Ormawa</span>
+                    <span class="block text-sm font-extrabold text-white leading-tight">SKIN ITG : Sistem Ormawa</span>
                 </div>
             </div>
 
@@ -57,7 +61,7 @@
                         Institut Teknologi Garut
                     </h3>
                     <span class="inline-flex items-center px-2.5 py-0.5 rounded-full bg-blue-50 border border-blue-200 text-blue-800 text-[9px] font-bold tracking-wide">
-                        BKKH · ORMAWA · WR3
+                        BKHM · ORMAWA · WR3
                     </span>
                 </div>
 
@@ -120,9 +124,21 @@
         {{-- ========================================================
              KOLOM KANAN: FORMULIR OTENTIKASI & CALLOUT UX
              ======================================================== --}}
-        <div class="lg:w-1/2 bg-white p-8 sm:p-12 lg:p-16 flex flex-col justify-center items-center relative overflow-y-auto">
+        <div class="w-full lg:w-1/2 bg-white p-6 sm:p-10 lg:p-16 flex flex-col justify-center items-center relative overflow-y-auto min-h-screen">
             
             <div class="w-full max-w-md my-auto">
+                {{-- Header Brand Khusus Mobile --}}
+                <div class="block lg:hidden mb-6 text-center">
+                    <div class="inline-flex items-center justify-center gap-3 mb-2">
+                        <div class="w-10 h-10 rounded-xl bg-slate-900 p-1 flex items-center justify-center shadow-md shrink-0">
+                            <img src="{{ asset('images/logo-skin.png') }}" alt="Logo SKIN ITG" class="w-full h-full object-contain">
+                        </div>
+                        <img src="{{ asset('images/logo-skin-torch.png') }}" alt="Logo Obor Kemahasiswaan" class="h-9 w-auto object-contain shrink-0">
+                    </div>
+                    <span class="block text-[11px] font-bold text-amber-600 tracking-wider uppercase">Institut Teknologi Garut</span>
+                    <span class="block text-base font-extrabold text-slate-900 leading-tight">SKIN ITG : Sistem Ormawa</span>
+                </div>
+
                 {{-- Header Formulir --}}
                 <div class="mb-6">
                     <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 border border-blue-200 text-blue-800 text-[11px] font-bold tracking-wide uppercase mb-3">

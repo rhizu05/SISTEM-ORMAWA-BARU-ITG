@@ -31,10 +31,21 @@ class PublicTicketingTest extends TestCase
         $response = $this->get(route('layanan.index'));
         $response->assertStatus(200);
         $response->assertSee('Portal Layanan Mahasiswa');
+        $response->assertSee('images/logo-skin-torch.png');
+        $response->assertDontSee('Login Pengurus');
+        $response->assertDontSee(route('login'));
 
         $showcase = $this->get(route('prestasi.showcase'));
         $showcase->assertStatus(200);
         $showcase->assertSee('Showcase Prestasi');
+        $showcase->assertSee('images/logo-skin-torch.png');
+        $showcase->assertDontSee('Login Pengurus');
+
+        $user = User::factory()->create();
+        $authResponse = $this->actingAs($user)->get(route('layanan.index'));
+        $authResponse->assertStatus(200);
+        $authResponse->assertSee('Dashboard');
+        $authResponse->assertDontSee('Login Pengurus');
     }
 
     public function test_public_can_submit_aspirasi_and_generates_uniform_ticket_code(): void

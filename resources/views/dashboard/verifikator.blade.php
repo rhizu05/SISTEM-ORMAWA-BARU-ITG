@@ -1,25 +1,31 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+        <h2 class="font-bold text-xl text-slate-900 leading-tight">
             {{ __('Dashboard Verifikator') }} ({{ strtoupper(Auth::user()->roles->first()?->name) }})
         </h2>
     </x-slot>
 
-    <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div class="py-6">
+        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-2 gap-4">
             
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg border-2 border-indigo-200">
-                <div class="p-6 text-gray-900 text-center">
-                    <h3 class="text-sm font-medium text-gray-500 uppercase">Antrian Verifikasi Anda</h3>
-                    <p class="text-4xl font-bold text-indigo-600 mt-2">{{ $stats['antrian_verifikasi'] }}</p>
-                    <a href="{{ route('verifikasi.index') }}" class="mt-4 inline-block text-sm text-indigo-600 hover:underline">Lihat Antrian &rarr;</a>
+            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between">
+                <div>
+                    <h3 class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Antrean Verifikasi Anda</h3>
+                    <p class="text-3xl font-extrabold text-[#0B1528] mt-2">{{ $stats['antrian_verifikasi'] }}</p>
+                    <p class="text-xs text-slate-500 mt-1">Proposal masuk yang memerlukan telaah dan tindak lanjut</p>
+                </div>
+                <div class="mt-4">
+                    <a href="{{ route('verifikasi.index') }}" class="inline-flex items-center min-h-[44px] text-xs font-bold text-blue-700 hover:text-blue-900 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 rounded">
+                        Lihat Antrean &rarr;
+                    </a>
                 </div>
             </div>
 
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6 text-gray-900 text-center">
-                    <h3 class="text-sm font-medium text-gray-500 uppercase">Telah Disetujui (Bulan Ini)</h3>
-                    <p class="text-4xl font-bold text-green-600 mt-2">{{ $stats['total_disetujui'] }}</p>
+            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between">
+                <div>
+                    <h3 class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Telah Disetujui (Bulan Ini)</h3>
+                    <p class="text-3xl font-extrabold text-emerald-600 mt-2">{{ $stats['total_disetujui'] }}</p>
+                    <p class="text-xs text-slate-500 mt-1">Proposal yang telah berhasil Anda rekomendasikan / setujui</p>
                 </div>
             </div>
 

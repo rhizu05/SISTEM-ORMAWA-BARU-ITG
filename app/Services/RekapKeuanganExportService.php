@@ -58,7 +58,7 @@ class RekapKeuanganExportService
         // Jika belum ada pencairan tapi ada pengajuan yang disetujui
         if (empty($rows)) {
             $pengajuans = Pengajuan::with(['user', 'state'])
-                ->whereHas('state', fn($q) => $q->whereNotIn('name', ['draft', 'rejected']))
+                ->whereHas('state', fn($q) => $q->whereNotIn('name', ['draft', 'rejected', 'cancelled']))
                 ->latest()
                 ->get();
 

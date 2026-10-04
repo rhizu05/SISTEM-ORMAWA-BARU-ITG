@@ -10,76 +10,74 @@
             @endif
 
             <!-- Aspirasi Bertiket Mahasiswa (Portal Layanan) -->
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6 border border-slate-200">
-                <div class="flex justify-between items-center mb-4">
+            <div class="bg-white overflow-hidden shadow-sm rounded-2xl p-6 border border-slate-200">
+                <div class="flex justify-between items-center mb-6 border-b border-slate-100 pb-4">
                     <div>
-                        <h3 class="text-lg font-bold text-slate-900">Aspirasi Mahasiswa Bertiket (Portal Terpadu)</h3>
-                        <p class="text-xs text-slate-500">Aspirasi publik mahasiswa melalui sistem kode tiket. BPM dapat menindaklanjuti atau meneruskan ke BKHM.</p>
+                        <h3 class="text-base font-bold text-slate-900">Aspirasi Mahasiswa Bertiket (Portal Terpadu)</h3>
+                        <p class="text-xs text-slate-500 mt-0.5">Aspirasi publik mahasiswa melalui sistem kode tiket. BPM dapat menindaklanjuti atau meneruskan ke BKHM</p>
                     </div>
                 </div>
 
-                <div class="overflow-x-auto">
-                    <table class="min-w-full text-sm border">
-                        <thead class="bg-slate-50">
-                            <tr>
-                                <th class="p-3 text-left border">Kode Tiket</th>
-                                <th class="p-3 text-left border">Mahasiswa</th>
-                                <th class="p-3 text-left border">Judul & Aspirasi</th>
-                                <th class="p-3 text-center border">Status</th>
-                                <th class="p-3 text-center border">Aksi BPM</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @forelse($tiketAspirasis as $t)
-                                <tr class="border-b hover:bg-slate-50/60 transition">
-                                    <td class="p-3 border font-mono font-bold text-xs text-indigo-700">
-                                        {{ $t->kode_tiket }}
-                                    </td>
-                                    <td class="p-3 border">
-                                        <div class="font-bold text-xs text-slate-800">{{ $t->nama_mahasiswa }}</div>
-                                        <div class="text-[11px] text-slate-500">{{ $t->nim }} &bull; {{ $t->prodi ?? 'ITG' }}</div>
-                                    </td>
-                                    <td class="p-3 border">
-                                        <div class="font-bold text-slate-900 text-xs">{{ $t->judul }}</div>
-                                        <div class="text-xs text-slate-600 mt-0.5">{{ Str::limit($t->isi, 90) }}</div>
-                                        @if($t->catatan_bpm)
-                                            <div class="mt-1 text-[11px] text-indigo-700 bg-indigo-50 p-1.5 rounded">
-                                                <strong>Catatan BPM:</strong> {{ $t->catatan_bpm }}
-                                            </div>
-                                        @endif
-                                    </td>
-                                    <td class="p-3 border text-center">
-                                        <span class="px-2 py-0.5 rounded-full text-xs font-bold border {{ $t->status_color }}">
-                                            {{ $t->status_label }}
-                                        </span>
-                                    </td>
-                                    <td class="p-3 border text-center space-y-1">
-                                        @if($t->status !== 'diteruskan_ke_bkhm' && $t->status !== 'selesai')
-                                            <button type="button" onclick="openTeruskanModal('{{ $t->id }}', '{{ $t->kode_tiket }}')"
-                                                class="inline-flex items-center justify-center min-h-[44px] px-3 text-xs font-bold rounded-lg text-indigo-700 bg-indigo-50 border border-indigo-200 hover:bg-indigo-100 transition">
-                                                Teruskan ke BKHM &rarr;
-                                            </button>
-                                        @else
-                                            <span class="text-xs text-slate-400 italic">Sudah diteruskan</span>
-                                        @endif
-                                        @if($t->lampiran)
-                                            <div>
-                                                <a href="{{ route('layanan.lampiran', $t) }}" target="_blank" class="text-[11px] text-indigo-600 hover:underline">
-                                                    Lampiran
-                                                </a>
-                                            </div>
-                                        @endif
-                                    </td>
-                                </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="5" class="p-6 text-center text-slate-400 italic">Belum ada aspirasi bertiket yang masuk.</td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
-                </div>
-                <div class="mt-3">
+                <x-table>
+                    <x-table.thead>
+                        <tr>
+                            <x-table.th>Kode Tiket</x-table.th>
+                            <x-table.th>Mahasiswa</x-table.th>
+                            <x-table.th>Judul &amp; Aspirasi</x-table.th>
+                            <x-table.th align="center">Status</x-table.th>
+                            <x-table.th align="center">Aksi BPM</x-table.th>
+                        </tr>
+                    </x-table.thead>
+                    <tbody class="divide-y divide-slate-100">
+                        @forelse($tiketAspirasis as $t)
+                        <x-table.tr>
+                            <x-table.td>
+                                <span class="font-mono font-bold text-xs text-indigo-700 bg-indigo-50 px-2.5 py-1 rounded-md border border-indigo-100">
+                                    {{ $t->kode_tiket }}
+                                </span>
+                            </x-table.td>
+                            <x-table.td>
+                                <div class="font-semibold text-slate-900">{{ $t->nama_mahasiswa }}</div>
+                                <div class="text-[11px] text-slate-500 font-mono mt-0.5">{{ $t->nim }} &bull; {{ $t->prodi ?? 'ITG' }}</div>
+                            </x-table.td>
+                            <x-table.td>
+                                <div class="font-semibold text-slate-900 text-xs">{{ $t->judul }}</div>
+                                <div class="text-xs text-slate-600 mt-0.5 line-clamp-2">{{ Str::limit($t->isi, 90) }}</div>
+                                @if($t->catatan_bpm)
+                                    <div class="mt-1 text-[11px] text-indigo-700 bg-indigo-50/80 p-1.5 rounded-lg border border-indigo-100">
+                                        <strong>Catatan BPM:</strong> {{ $t->catatan_bpm }}
+                                    </div>
+                                @endif
+                            </x-table.td>
+                            <x-table.td align="center">
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold border {{ $t->status_color }}">
+                                    {{ $t->status_label }}
+                                </span>
+                            </x-table.td>
+                            <x-table.td align="center">
+                                <div class="flex flex-col items-center gap-1.5">
+                                    @if($t->status !== 'diteruskan_ke_bkhm' && $t->status !== 'selesai')
+                                        <button type="button" onclick="openTeruskanModal('{{ $t->id }}', '{{ $t->kode_tiket }}')"
+                                            class="inline-flex items-center px-3 py-1.5 text-xs font-semibold rounded-lg text-indigo-700 bg-indigo-50 hover:bg-indigo-100 transition-colors">
+                                            Teruskan ke BKHM &rarr;
+                                        </button>
+                                    @else
+                                        <span class="text-xs text-slate-400 italic">Sudah diteruskan</span>
+                                    @endif
+                                    @if($t->lampiran)
+                                        <a href="{{ route('layanan.lampiran', $t) }}" target="_blank" class="inline-flex items-center text-xs font-medium text-indigo-600 hover:underline">
+                                            Lihat Lampiran &nearr;
+                                        </a>
+                                    @endif
+                                </div>
+                            </x-table.td>
+                        </x-table.tr>
+                        @empty
+                        <x-table.empty colspan="5" message="Belum ada aspirasi bertiket yang masuk." />
+                        @endforelse
+                    </tbody>
+                </x-table>
+                <div class="mt-4">
                     {{ $tiketAspirasis->links() }}
                 </div>
             </div>

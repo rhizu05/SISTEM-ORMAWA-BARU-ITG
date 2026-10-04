@@ -23,6 +23,10 @@ class AppServiceProvider extends ServiceProvider
     {
         \Carbon\Carbon::setLocale('id');
 
+        if ($this->app->environment('production')) {
+            \Illuminate\Support\Facades\URL::forceScheme('https');
+        }
+
         // Rate Limiter anti-spam untuk formulir tiket layanan publik mahasiswa
         \Illuminate\Support\Facades\RateLimiter::for('layanan-publik', function (\Illuminate\Http\Request $request) {
             return \Illuminate\Cache\RateLimiting\Limit::perMinute(10)->by($request->ip());

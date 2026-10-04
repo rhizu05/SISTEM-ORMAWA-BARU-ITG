@@ -1,8 +1,72 @@
 <x-app-layout>
     <x-slot name="header"><h2 class="font-semibold text-xl text-gray-800 leading-tight">{{ __('Preview Surat') }}</h2></x-slot>
+
+    <style>
+        @media print {
+            nav, header, aside, #main-sidebar, .no-print, [role="navigation"], button, a, #modal-panduan {
+                display: none !important;
+            }
+
+            html, body {
+                background: #ffffff !important;
+                background-color: #ffffff !important;
+                color: #000000 !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                height: auto !important;
+                min-height: auto !important;
+                overflow: visible !important;
+            }
+
+            div, main, section {
+                overflow: visible !important;
+            }
+
+            .min-h-screen, .h-screen, .flex-1, main#main-content, .py-12 {
+                height: auto !important;
+                min-height: auto !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                background: #ffffff !important;
+            }
+
+            .max-w-4xl, .max-w-7xl, .container, .mx-auto, .sm\:px-6, .lg\:px-8 {
+                max-width: 100% !important;
+                width: 100% !important;
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+
+            .letter-sheet {
+                width: 100% !important;
+                max-width: 100% !important;
+                min-height: auto !important;
+                box-shadow: none !important;
+                border: none !important;
+                border-radius: 0 !important;
+                padding: 0 !important;
+                margin: 0 !important;
+            }
+
+            @page {
+                size: A4 portrait;
+                margin: 15mm 20mm 20mm 20mm;
+            }
+        }
+    </style>
+
     <div class="py-12">
         <div class="max-w-4xl mx-auto sm:px-6 lg:px-8">
-            <div class="flex justify-between mb-4">
+            @if($letter->type === 'lpj')
+                <div class="mb-6 p-4 bg-purple-50 border border-purple-200 rounded-xl text-center">
+                    <p class="text-sm text-purple-800 font-semibold mb-2">Dokumen ini adalah Laporan Pertanggungjawaban (LPJ) resmi.</p>
+                    <a href="{{ route('generator.lpj.show', $letter) }}" class="inline-flex items-center gap-2 px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg text-xs font-bold transition">
+                        Buka Tampilan Resmi LPJ &rarr;
+                    </a>
+                </div>
+            @endif
+
+            <div class="flex justify-between mb-4 no-print">
                 <a href="{{ route('generator.letters.create') }}" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">Kembali</a>
                 <div class="flex gap-2">
                     <a href="{{ route('generator.letters.pdf', $letter) }}" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">Unduh PDF</a>
@@ -14,7 +78,7 @@
                 $m = $letter->metadata ?? [];
             @endphp
 
-            <div class="bg-white p-10 shadow-lg mx-auto" style="width: 210mm; min-height: 297mm; font-family: 'Times New Roman';">
+            <div class="letter-sheet bg-white p-10 shadow-lg mx-auto" style="width: 210mm; min-height: 297mm; font-family: 'Times New Roman';">
                 <div style="display: flex; align-items: center; border-bottom: 3px double black; padding-bottom: 10px; margin-bottom: 30px;">
                     <div style="width: 80px; text-align: left;">
                         <img src="{{ asset('images/logo_itg.png') }}" style="width: 70px; height: 70px; object-fit: contain;" alt="Logo ITG">

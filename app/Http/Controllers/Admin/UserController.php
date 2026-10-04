@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Mail\PasswordChangedMail;
+use App\Models\Letter;
 use App\Models\PeriodeAnggaran;
 use App\Models\PasswordResetLog;
 use App\Models\SaldoHistori;
@@ -11,6 +12,8 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rules;
 use Illuminate\Support\Facades\DB;
 use Spatie\Permission\Models\Role;
@@ -28,14 +31,28 @@ class UserController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate([
+        $isOrmawaRole = in_array($request->role, ['ormawa', 'bem', 'bpm']);
+
+        $rules = [
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
             'username' => ['required', 'string', 'max:50', 'unique:'.User::class],
             'role' => ['required', 'exists:roles,name'],
             'password' => ['required', Rules\Password::defaults()],
             'saldo' => ['nullable', 'numeric', 'min:0'],
-        ]);
+            'file_sk' => [$isOrmawaRole ? 'required' : 'nullable', 'file', 'mimes:pdf', 'max:10240'],
+            'nomor_sk' => [$isOrmawaRole ? 'required' : 'nullable', 'string', 'max:255'],
+            'tanggal_sk' => ['nullable', 'date'],
+        ];
+
+        $request->validate($rules);
+
+        $skPath = null;
+        if ($request->hasFile('file_sk')) {
+            $file = $request->file('file_sk');
+            $filename = time() . '_' . Str::random(6) . '_SK_' . Str::slug($request->username) . '.pdf';
+            $skPath = $file->storeAs('sk_ormawa', $filename, 'local');
+        }
 
         $user = User::create([
             'name' => $request->name,
@@ -43,11 +60,35 @@ class UserController extends Controller
             'username' => $request->username,
             'password' => Hash::make($request->password),
             'saldo' => $request->saldo ?? 0,
+            'saldo_awal' => $request->saldo ?? 0,
+            'file_sk' => $skPath,
+            'nomor_sk' => $request->nomor_sk,
+            'tanggal_sk' => $request->tanggal_sk ?? now()->toDateString(),
         ]);
 
         $user->assignRole($request->role);
 
-        return redirect()->route('admin.users.index')->with('success', 'User berhasil ditambahkan.');
+        // Otomatis arsipkan Surat Keputusan (SK) ke tabel letters
+        if ($skPath) {
+            Letter::create([
+                'user_id' => $user->id,
+                'type' => 'sk_kepengurusan',
+                'nomor_surat' => $request->nomor_sk ?: ('SK/' . date('Y') . '/' . strtoupper($user->username)),
+                'perihal' => 'Surat Keputusan (SK) Pengesahan Kepengurusan ' . $user->name,
+                'content' => 'Dokumen resmi Surat Keputusan (SK) Pengesahan Kepengurusan ' . $user->name . ' yang diverifikasi dan diarsipkan oleh BKHM Institut Teknologi Garut.',
+                'metadata' => [
+                    'file_path' => $skPath,
+                    'original_name' => $request->file('file_sk')->getClientOriginalName(),
+                    'file_size' => $request->file('file_sk')->getSize(),
+                    'tanggal_sk' => $request->tanggal_sk ?? now()->toDateString(),
+                    'uploaded_by' => auth()->id(),
+                    'uploaded_by_name' => auth()->user()?->name ?? 'BKHM ITG',
+                    'is_sk' => true,
+                ],
+            ]);
+        }
+
+        return redirect()->route('admin.users.index')->with('success', 'User ' . $user->name . ' berhasil ditambahkan.');
     }
 
     public function update(Request $request, User $user)
@@ -59,12 +100,53 @@ class UserController extends Controller
             'role' => ['required', 'exists:roles,name'],
             'status_akun' => ['required', 'in:aktif,nonaktif'],
             'password' => ['nullable', Rules\Password::defaults()],
+            'file_sk' => ['nullable', 'file', 'mimes:pdf', 'max:10240'],
+            'nomor_sk' => ['nullable', 'string', 'max:255'],
+            'tanggal_sk' => ['nullable', 'date'],
         ]);
 
         $user->name = $request->name;
         $user->email = $request->email;
         $user->username = $request->username;
         $user->status_akun = $request->status_akun;
+
+        if ($request->filled('nomor_sk')) {
+            $user->nomor_sk = $request->nomor_sk;
+        }
+        if ($request->filled('tanggal_sk')) {
+            $user->tanggal_sk = $request->tanggal_sk;
+        }
+
+        if ($request->hasFile('file_sk')) {
+            if ($user->file_sk && Storage::disk('local')->exists($user->file_sk)) {
+                Storage::disk('local')->delete($user->file_sk);
+            }
+            $file = $request->file('file_sk');
+            $filename = time() . '_' . Str::random(6) . '_SK_' . Str::slug($request->username) . '.pdf';
+            $user->file_sk = $file->storeAs('sk_ormawa', $filename, 'local');
+
+            // Update atau buat Letter record
+            Letter::updateOrCreate(
+                [
+                    'user_id' => $user->id,
+                    'type' => 'sk_kepengurusan',
+                ],
+                [
+                    'nomor_surat' => $user->nomor_sk ?: ('SK/' . date('Y') . '/' . strtoupper($user->username)),
+                    'perihal' => 'Surat Keputusan (SK) Pengesahan Kepengurusan ' . $user->name,
+                    'content' => 'Dokumen resmi Surat Keputusan (SK) Pengesahan Kepengurusan ' . $user->name . ' yang diverifikasi dan diarsipkan oleh BKHM Institut Teknologi Garut.',
+                    'metadata' => [
+                        'file_path' => $user->file_sk,
+                        'original_name' => $file->getClientOriginalName(),
+                        'file_size' => $file->getSize(),
+                        'tanggal_sk' => $user->tanggal_sk ?? now()->toDateString(),
+                        'uploaded_by' => auth()->id(),
+                        'uploaded_by_name' => auth()->user()?->name ?? 'BKHM ITG',
+                        'is_sk' => true,
+                    ],
+                ]
+            );
+        }
         
         $passwordChanged = (bool) $request->password;
 

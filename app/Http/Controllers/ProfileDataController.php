@@ -23,13 +23,6 @@ class ProfileDataController extends Controller
             'nim_bendahara' => 'nullable|string|max:50',
             'foto_profil' => 'nullable|image|max:2048',
             'logo_ormawa' => 'nullable|image|max:2048',
-            'ttd_ketua' => 'nullable|image|mimes:png|max:1024',
-            'ttd_sekretaris' => 'nullable|image|mimes:png|max:1024',
-            'ttd_bendahara' => 'nullable|image|mimes:png|max:1024',
-        ], [
-            'ttd_ketua.mimes' => 'Tanda tangan harus berupa file PNG (disarankan transparan).',
-            'ttd_sekretaris.mimes' => 'Tanda tangan harus berupa file PNG (disarankan transparan).',
-            'ttd_bendahara.mimes' => 'Tanda tangan harus berupa file PNG (disarankan transparan).',
         ]);
 
         $data = $request->only([
@@ -40,7 +33,7 @@ class ProfileDataController extends Controller
         ]);
 
         // Handle file uploads
-        $files = ['foto_profil', 'logo_ormawa', 'ttd_ketua', 'ttd_sekretaris', 'ttd_bendahara'];
+        $files = ['foto_profil', 'logo_ormawa'];
         
         foreach ($files as $file) {
             if ($request->hasFile($file)) {
@@ -51,6 +44,11 @@ class ProfileDataController extends Controller
                 
                 $data[$file] = $request->file($file)->store('profil', 'public');
             }
+        }
+
+        // Jika upload logo_ormawa tetapi belum punya foto_profil, sinkronkan demi kompatibilitas
+        if (isset($data['logo_ormawa']) && empty($user->foto_profil) && !isset($data['foto_profil'])) {
+            $data['foto_profil'] = $data['logo_ormawa'];
         }
 
         $user->update($data);

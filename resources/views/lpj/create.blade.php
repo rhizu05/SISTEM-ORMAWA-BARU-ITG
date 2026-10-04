@@ -46,7 +46,7 @@
                         </div>
                     </div>
 
-                    <form method="POST" action="{{ route('lpj.store', $pengajuan) }}" enctype="multipart/form-data">
+                    <form method="POST" action="{{ route('lpj.store', $pengajuan) }}" enctype="multipart/form-data" x-data="{ submitting: false }" @submit="submitting = true">
                         @csrf
 
                         <!-- Informasi Readonly -->
@@ -72,8 +72,15 @@
                             <a class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 mr-4" href="{{ route('lpj.index') }}">
                                 Batal
                             </a>
-                            <x-primary-button>
-                                {{ __('Upload & Ajukan Verifikasi LPJ') }}
+                            <x-primary-button x-bind:disabled="submitting">
+                                <span x-show="!submitting">{{ __('Upload & Ajukan Verifikasi LPJ') }}</span>
+                                <span x-show="submitting" class="inline-flex items-center gap-2" style="display: none;" x-cloak>
+                                    <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                    </svg>
+                                    <span>Mengunggah Berkas LPJ...</span>
+                                </span>
                             </x-primary-button>
                         </div>
                     </form>

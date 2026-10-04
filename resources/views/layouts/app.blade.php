@@ -6,6 +6,10 @@
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
         <title>{{ isset($title) ? $title . ' - ' : '' }}SKIN - Sistem Ormawa Institut Teknologi Garut</title>
+        <link rel="icon" type="image/png" href="{{ asset('images/logo-skin-torch.png') }}">
+        <link rel="apple-touch-icon" href="{{ asset('images/logo-skin-torch.png') }}">
+        <link rel="manifest" href="{{ asset('manifest.json') }}">
+        <meta name="theme-color" content="#0B1528">
 
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">
@@ -48,10 +52,10 @@
                 <div class="relative flex flex-col flex-1 overflow-y-auto overflow-x-hidden">
                     
                     <!-- Top Header / Top Bar (Opsi 1: Clean Academic Light) -->
-                    <header class="min-h-[72px] flex items-center justify-between px-4 sm:px-6 lg:px-8 py-3 bg-white border-b border-slate-200/90 sticky top-0 z-40 transition-all select-none">
+                    <header class="min-h-[72px] flex items-center justify-between px-4 sm:px-6 lg:px-8 py-3 bg-white border-b border-slate-200/90 sticky top-0 z-30 transition-all select-none">
                         
                         {{-- Kiri: Tombol Toggle Sidebar, Breadcrumb & Header Title --}}
-                        <div class="flex items-center min-w-0 mr-4">
+                        <div class="flex items-center min-w-0 mr-3 sm:mr-4 flex-1">
                             <button @click="toggleSidebar()" 
                                     aria-label="Buka atau tutup menu navigasi" 
                                     :aria-expanded="sidebarOpen" 
@@ -132,66 +136,14 @@
                                 </nav>
 
                                 {{-- Page Title & Academic Year Badge (Flex-nowrap agar satu baris) --}}
-                                <div class="flex items-center gap-2.5 flex-nowrap min-w-0">
-                                    <h1 class="text-sm sm:text-base lg:text-lg font-extrabold text-slate-900 tracking-tight leading-tight truncate max-w-[160px] sm:max-w-xs xl:max-w-md" title="{{ $displayTitle }}">
+                                <div class="flex items-center gap-2.5 flex-nowrap min-w-0 flex-1">
+                                    <h1 class="text-sm sm:text-base lg:text-lg font-extrabold text-slate-900 tracking-tight leading-tight truncate" title="{{ $displayTitle }}">
                                         {{ $displayTitle }}
                                     </h1>
                                     <span class="hidden md:inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-blue-50 border border-blue-200 text-blue-700 text-[10px] sm:text-[11px] font-bold tracking-wide shadow-xs shrink-0 select-none whitespace-nowrap">
-                                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
                                         T.A. 2026/2027 Ganjil
                                     </span>
-                                </div>
-                            </div>
-                        </div>
-
-                        {{-- Tengah: Quick Search Bar Global dengan Pintasan Keyboard (Ctrl + K) --}}
-                        <div class="hidden xl:flex items-center mx-4 flex-1 max-w-sm 2xl:max-w-md" 
-                             x-data="{ searchModalOpen: false }" 
-                             @keydown.window.prevent.ctrl.k="searchModalOpen = true; $nextTick(() => $refs.searchInput?.focus())">
-                            <div class="relative w-full group">
-                                <div class="w-full flex items-center gap-2.5 px-3.5 py-2 rounded-2xl bg-slate-50/80 border border-slate-200/90 hover:border-slate-300 focus-within:border-blue-500 focus-within:bg-white focus-within:ring-2 focus-within:ring-blue-100 transition shadow-xs cursor-pointer"
-                                     @click="searchModalOpen = true">
-                                    <svg class="w-4 h-4 text-slate-400 group-hover:text-slate-600 transition shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                                    </svg>
-                                    <input type="text" 
-                                           x-ref="searchInput"
-                                           placeholder="Cari proposal, nomor surat, tiket..." 
-                                           class="w-full bg-transparent text-xs text-slate-700 placeholder-slate-400 border-none p-0 focus:outline-none focus:ring-0 cursor-pointer"
-                                           @focus="searchModalOpen = true"
-                                           aria-label="Pencarian Cepat">
-                                    <kbd class="hidden sm:inline-flex items-center px-1.5 py-0.5 rounded-md bg-white border border-slate-200 text-[10px] font-bold text-slate-400 shadow-xs select-none whitespace-nowrap shrink-0">
-                                        Ctrl + K
-                                    </kbd>
-                                </div>
-                                
-                                {{-- Quick Search Dropdown / Command Palette --}}
-                                <div x-show="searchModalOpen" 
-                                     x-cloak
-                                     @click.away="searchModalOpen = false"
-                                     @keydown.escape.window="searchModalOpen = false"
-                                     x-transition:enter="transition ease-out duration-150"
-                                     x-transition:enter-start="opacity-0 translate-y-1 scale-98"
-                                     x-transition:enter-end="opacity-100 translate-y-0 scale-100"
-                                     x-transition:leave="transition ease-in duration-100"
-                                     x-transition:leave-start="opacity-100 translate-y-0 scale-100"
-                                     x-transition:leave-end="opacity-0 translate-y-1 scale-98"
-                                     class="absolute left-0 right-0 top-full mt-2 bg-white rounded-2xl border border-slate-200 shadow-2xl p-3 z-50">
-                                    <p class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider px-2 mb-2">Pintasan Navigasi &amp; Pencarian</p>
-                                    <div class="space-y-1 text-xs">
-                                        <a href="{{ route('pengajuan.index') }}" class="flex items-center justify-between p-2 rounded-xl hover:bg-blue-50/70 text-slate-700 hover:text-blue-700 font-medium transition">
-                                            <span class="flex items-center gap-2">📄 Daftar Semua Proposal Ormawa</span>
-                                            <span class="text-[10px] px-2 py-0.5 rounded-md bg-slate-100 text-slate-500 font-semibold">Modul Pengajuan</span>
-                                        </a>
-                                        <a href="{{ route('generator.letters.create') }}" class="flex items-center justify-between p-2 rounded-xl hover:bg-blue-50/70 text-slate-700 hover:text-blue-700 font-medium transition">
-                                            <span class="flex items-center gap-2">✉️ Buat Surat Tugas &amp; Pengantar</span>
-                                            <span class="text-[10px] px-2 py-0.5 rounded-md bg-slate-100 text-slate-500 font-semibold">Modul Surat</span>
-                                        </a>
-                                        <a href="{{ route('layanan.tracking') }}" target="_blank" class="flex items-center justify-between p-2 rounded-xl hover:bg-blue-50/70 text-slate-700 hover:text-blue-700 font-medium transition">
-                                            <span class="flex items-center gap-2">🎫 Lacak Tiket Layanan Mahasiswa</span>
-                                            <span class="text-[10px] px-2 py-0.5 rounded-md bg-blue-100 text-blue-700 font-bold">Portal Publik ↗</span>
-                                        </a>
-                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -221,5 +173,8 @@
                 </div>
             </div>
         </div>
+
+        {{-- Modal Asisten Si Ujang & Panduan Interaktif --}}
+        <x-panduan-modal />
     </body>
 </html>

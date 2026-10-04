@@ -1,20 +1,20 @@
 <x-public-layout :title="$pengumuman->judul" brand-label="Pusat Informasi" accent="indigo">
     <x-slot name="nav">
-        <a href="{{ route('informasi.index') }}" class="inline-flex items-center min-h-[44px] px-4 py-2 rounded-xl text-sm font-semibold text-slate-700 hover:bg-slate-100 border border-slate-200 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2">
-            Semua Informasi
+        <a href="{{ route('informasi.index') }}" class="inline-flex items-center gap-1.5 min-h-[44px] px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold text-slate-700 hover:bg-slate-100 border border-slate-200 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18"/></svg>
+            <span>Semua Informasi</span>
         </a>
     </x-slot>
 
-    <div class="py-8 px-4 sm:px-6 lg:px-8" x-data="{ imageModal: false, copied: false }">
-        <div class="max-w-4xl mx-auto space-y-8">
+    <div class="py-6 sm:py-8 px-4 sm:px-6 lg:px-8" x-data="{ imageModal: false, copied: false }">
+        <div class="max-w-4xl mx-auto space-y-6 sm:space-y-8">
 
-            <nav class="flex items-center gap-2 text-sm text-slate-600">
-                <a href="{{ route('informasi.index') }}" class="inline-flex items-center gap-1 hover:text-indigo-700 transition font-medium">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
-                    <span>Pusat Informasi</span>
-                </a>
-                <span class="text-slate-500">/</span>
-                <span class="text-slate-800 font-semibold truncate max-w-xs sm:max-w-sm">{{ $pengumuman->judul }}</span>
+            <nav class="flex items-center gap-2 text-xs text-slate-600 flex-wrap">
+                <a href="{{ route('layanan.index') }}" class="hover:text-indigo-700 transition">Portal Layanan</a>
+                <span class="text-slate-400">/</span>
+                <a href="{{ route('informasi.index') }}" class="hover:text-indigo-700 transition font-medium">Pusat Informasi</a>
+                <span class="text-slate-400">/</span>
+                <span class="text-slate-800 font-semibold truncate max-w-[180px] sm:max-w-sm">{{ $pengumuman->judul }}</span>
             </nav>
 
             @if($pengumuman->status !== 'published')

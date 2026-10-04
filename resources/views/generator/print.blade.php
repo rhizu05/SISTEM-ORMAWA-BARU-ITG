@@ -8,7 +8,7 @@
         * { box-sizing: border-box; }
         @page {
             size: A4;
-            margin: 0;
+            margin: 20mm;
         }
         body {
             font-family: 'Times New Roman', Times, serif;
@@ -17,16 +17,16 @@
             color: #000;
             background: #f0f0f0;
             padding: 20px;
+            margin: 0;
         }
         .paper {
             background: #fff;
             width: 210mm;
             min-height: 297mm;
             padding: 20mm;
-            margin: auto;
+            margin: 0 auto;
             box-shadow: 0 0 10px rgba(0,0,0,0.1);
             position: relative;
-            overflow: hidden;
         }
         .header {
             display: flex;
@@ -55,15 +55,16 @@
             font-weight: bold;
             text-decoration: underline;
             text-transform: uppercase;
-            margin: 30px 0;
+            margin: 25px 0 20px 0;
             font-size: 14pt;
             line-height: 1.4;
         }
         .section-title {
             font-weight: bold;
-            margin-top: 20px;
+            margin-top: 18px;
             display: block;
             text-decoration: underline;
+            page-break-after: avoid;
         }
         .content {
             text-align: justify;
@@ -74,12 +75,20 @@
             border-collapse: collapse;
             margin-top: 10px;
             margin-bottom: 15px;
+            page-break-inside: auto;
+        }
+        thead {
+            display: table-header-group;
+        }
+        tr {
+            page-break-inside: avoid;
+            page-break-after: auto;
         }
         table, th, td {
             border: 1px solid black;
         }
         th, td {
-            padding: 8px;
+            padding: 7px 8px;
             text-align: left;
         }
         th {
@@ -89,14 +98,61 @@
         .no-border, .no-border tr, .no-border td { border: none !important; }
         .text-center { text-align: center; }
         .text-right { text-align: right; }
+        .avoid-break {
+            page-break-inside: avoid;
+        }
         
         /* Print styles */
         @media print {
-            body { background: none; padding: 0; margin: 0; }
-            .paper { box-shadow: none; margin: 0; width: 210mm !important; padding: 20mm !important; }
+            body {
+                background: none !important;
+                padding: 0 !important;
+                margin: 0 !important;
+            }
+            .paper {
+                box-shadow: none !important;
+                margin: 0 !important;
+                width: 100% !important;
+                min-height: auto !important;
+                padding: 0 !important;
+            }
             .no-print { display: none !important; }
-            @page { margin: 0; size: A4; }
+            @page {
+                size: A4;
+                margin: 20mm;
+            }
         }
+
+        /* DomPDF Specific Styles */
+        @if($pdf ?? false)
+            body {
+                background: #fff !important;
+                padding: 0 !important;
+                margin: 0 !important;
+            }
+            .paper {
+                box-shadow: none !important;
+                margin: 0 !important;
+                width: 100% !important;
+                min-height: auto !important;
+                padding: 0 !important;
+            }
+            .header {
+                display: table;
+                width: 100%;
+            }
+            .header-logo-cell {
+                display: table-cell;
+                width: 80px;
+                vertical-align: middle;
+                text-align: center;
+            }
+            .header-text-cell {
+                display: table-cell;
+                vertical-align: middle;
+                text-align: center;
+            }
+        @endif
     </style>
 </head>
 <body>
@@ -112,9 +168,57 @@
 
     <div class="paper">
         <!-- KOP SURAT -->
+        @if($pdf ?? false)
+        <table style="width: 100%; border-collapse: collapse; border: none; margin-bottom: 0;">
+            <tr style="border: none;">
+                <td style="width: 80px; vertical-align: middle; text-align: center; border: none; padding: 0;">
+                    @php
+                        $itgLogoPath = null;
+                        if (!empty($konfig['kop_logo']) && file_exists(public_path('storage/' . $konfig['kop_logo']))) {
+                            $itgLogoPath = public_path('storage/' . $konfig['kop_logo']);
+                        } elseif (file_exists(public_path('images/logos/logo_itg.png'))) {
+                            $itgLogoPath = public_path('images/logos/logo_itg.png');
+                        } elseif (file_exists(public_path('images/logo_itg.png'))) {
+                            $itgLogoPath = public_path('images/logo_itg.png');
+                        }
+                    @endphp
+                    @if($itgLogoPath)
+                        <img src="{{ $itgLogoPath }}" style="width: 75px; height: 75px;" alt="Logo ITG">
+                    @else
+                        <div style="width: 75px;"></div>
+                    @endif
+                </td>
+                <td style="text-align: center; vertical-align: middle; border: none; padding: 0 10px;">
+                    <div style="font-size: 10pt;">{{ $konfig['kop_baris1'] ?? 'KEMENTERIAN PENDIDIKAN, KEBUDAYAAN, RISET, DAN TEKNOLOGI' }}</div>
+                    <div style="font-size: 12pt; font-weight: bold; text-transform: uppercase;">{{ $konfig['kop_baris2'] ?? 'INSTITUT TEKNOLOGI GARUT' }}</div>
+                    <div style="font-size: 9.5pt; font-style: italic; line-height: 1.3;">{{ $konfig['kop_baris3'] ?? 'Jalan Mayor Syamsu No. 1 Jayaraga Garut 44151 Telepon/Fax. (0262) 232773' }}</div>
+                    <div style="font-size: 9.5pt; line-height: 1.3;">{{ $konfig['kop_baris4'] ?? 'Website : www.itg.ac.id | Email : info@itg.ac.id' }}</div>
+                </td>
+                <td style="width: 80px; vertical-align: middle; text-align: center; border: none; padding: 0;">
+                    @php
+                        $ormawaLogoPath = null;
+                        if ($proposal->user->logo_ormawa && file_exists(public_path('storage/' . $proposal->user->logo_ormawa))) {
+                            $ormawaLogoPath = public_path('storage/' . $proposal->user->logo_ormawa);
+                        } elseif ($proposal->user->logo_ormawa && file_exists(storage_path('app/public/' . $proposal->user->logo_ormawa))) {
+                            $ormawaLogoPath = storage_path('app/public/' . $proposal->user->logo_ormawa);
+                        }
+                    @endphp
+                    @if($ormawaLogoPath)
+                        <img src="{{ $ormawaLogoPath }}" style="width: 75px; height: 75px;" alt="Logo Ormawa">
+                    @else
+                        <div style="width: 75px;"></div>
+                    @endif
+                </td>
+            </tr>
+        </table>
+        <!-- Garis Pembatas Ganda Khas Surat Resmi -->
+        <div style="border-bottom: 3px double #000; margin-top: 8px; margin-bottom: 20px;"></div>
+        @else
         <div class="header">
             @if(isset($konfig['kop_logo']) && $konfig['kop_logo'])
                 <img src="{{ asset('storage/' . $konfig['kop_logo']) }}" class="header-logo" alt="Logo">
+            @elseif(file_exists(public_path('images/logos/logo_itg.png')))
+                <img src="{{ asset('images/logos/logo_itg.png') }}" class="header-logo" alt="Logo ITG">
             @elseif(file_exists(public_path('images/logo_itg.png')))
                 <img src="{{ asset('images/logo_itg.png') }}" class="header-logo" alt="Logo ITG">
             @else
@@ -134,6 +238,7 @@
                 <div style="width: 80px;"></div>
             @endif
         </div>
+        @endif
 
         <!-- JUDUL -->
         <div class="title">PROPOSAL KEGIATAN<br>{{ strtoupper($proposal->nama_kegiatan) }}</div>
@@ -181,7 +286,7 @@
                             <td class="text-right">Rp {{ number_format($r['total_harga'], 0, ',', '.') }}</td>
                         </tr>
                     @endforeach
-                    <tr style="font-weight: bold; background: #eee;">
+                    <tr style="font-weight: bold; background: #eee; page-break-inside: avoid;">
                         <td colspan="5" style="text-align: right;">TOTAL ANGGARAN</td>
                         <td class="text-right">Rp {{ number_format($total_rab, 0, ',', '.') }}</td>
                     </tr>
@@ -213,13 +318,15 @@
         </div>
 
         <!-- TANDA TANGAN -->
-        <div style="margin-top: 40px; text-align: right;">
-            Garut, {{ \Carbon\Carbon::now()->translatedFormat('d F Y') }}
+        <div class="avoid-break" style="page-break-inside: avoid; margin-top: 30px;">
+            <div style="text-align: right;">
+                Garut, {{ \Carbon\Carbon::now()->translatedFormat('d F Y') }}
+            </div>
+            @include('generator.partials.penandatangan', [
+                'penandatanganList' => $proposal->penandatangan_list,
+                'signatures' => $proposal->signatures_by_index,
+            ])
         </div>
-        @include('generator.partials.penandatangan', [
-            'penandatanganList' => $proposal->penandatangan_list,
-            'signatures' => $proposal->signatures_by_index,
-        ])
     </div>
 
 </body>

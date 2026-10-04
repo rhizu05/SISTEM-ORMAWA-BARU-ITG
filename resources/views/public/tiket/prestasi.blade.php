@@ -1,20 +1,23 @@
 <x-public-layout title="Prestasi & Delegasi" brand-label="Portal Layanan Mahasiswa" accent="amber">
     <x-slot name="nav">
-        <a href="{{ route('prestasi.showcase') }}" class="hidden sm:inline-flex items-center min-h-[44px] px-4 py-2 rounded-xl text-sm font-semibold text-amber-800 bg-amber-50 hover:bg-amber-100 border border-amber-100 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-600 focus-visible:ring-offset-2">
-            Showcase Prestasi
+        <a href="{{ route('layanan.index') }}" class="inline-flex items-center gap-1.5 min-h-[44px] px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold text-slate-700 hover:bg-slate-100 border border-slate-200 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-600 focus-visible:ring-offset-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18"/></svg>
+            <span>Portal</span>
         </a>
-        <a href="{{ route('layanan.cek-status') }}" class="inline-flex items-center gap-2 min-h-[44px] px-4 py-2 rounded-xl text-sm font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 border border-slate-200 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-600 focus-visible:ring-offset-2">
+        <a href="{{ route('prestasi.showcase') }}" class="inline-flex items-center min-h-[44px] px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold text-amber-800 bg-amber-50 hover:bg-amber-100 border border-amber-200 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-600 focus-visible:ring-offset-2">
+            <span>Showcase</span>
+        </a>
+        <a href="{{ route('layanan.cek-status') }}" class="inline-flex items-center gap-1.5 min-h-[44px] px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 border border-slate-200 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-600 focus-visible:ring-offset-2">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-            <span class="hidden sm:inline">Cek Status</span>
-            <span class="sm:hidden">Cek</span>
+            <span class="hidden sm:inline">Cek Tiket</span>
         </a>
     </x-slot>
 
-    <div class="max-w-3xl mx-auto px-4 sm:px-6 py-10">
-        <nav class="flex items-center gap-2 text-xs text-slate-600 mb-2">
+    <div class="max-w-3xl mx-auto px-4 sm:px-6 py-8 sm:py-10">
+        <nav class="flex items-center gap-2 text-xs text-slate-600 mb-3">
             <a href="{{ route('layanan.index') }}" class="hover:text-amber-700 transition">Portal Layanan</a>
-            <span class="text-slate-500">/</span>
-            <span class="text-slate-800 font-medium">Prestasi &amp; Delegasi</span>
+            <span class="text-slate-400">/</span>
+            <span class="text-slate-800 font-semibold">Prestasi &amp; Delegasi Lomba</span>
         </nav>
         <h1 class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">Pelaporan Prestasi &amp; Bantuan Dana Lomba</h1>
         <p class="text-sm text-slate-600 mt-1">Daftarkan capaian prestasi lomba yang telah Anda raih atau ajukan permohonan bantuan dana delegasi kompetisi ke BKHM ITG.</p>
@@ -179,13 +182,13 @@
                     </div>
                 </div>
 
-                <div class="pt-4 flex items-center justify-between border-t border-slate-100">
-                    <a href="{{ route('layanan.index') }}" class="inline-flex items-center min-h-[44px] px-5 rounded-xl text-sm font-semibold text-slate-700 hover:bg-slate-100 transition">
-                        Batal
+                <div class="pt-6 flex flex-col-reverse sm:flex-row sm:items-center sm:justify-between gap-3 border-t border-slate-100">
+                    <a href="{{ route('layanan.index') }}" class="inline-flex items-center justify-center min-h-[48px] px-5 rounded-xl text-sm font-semibold text-slate-700 hover:bg-slate-100 border border-slate-200 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400">
+                        Batal &amp; Kembali
                     </a>
-                    <button type="submit" id="btn_submit" :disabled="submitting" class="inline-flex items-center justify-center gap-2 min-h-[44px] px-6 rounded-xl text-sm font-bold text-white bg-amber-700 hover:bg-amber-800 disabled:opacity-70 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-600 focus-visible:ring-offset-2">
+                    <button type="submit" id="btn_submit" :disabled="submitting" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 min-h-[48px] px-6 rounded-xl text-sm font-bold text-white bg-amber-700 hover:bg-amber-800 disabled:opacity-70 transition shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-600 focus-visible:ring-offset-2">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
-                        <span x-text="submitting ? 'Memproses...' : 'Kirim Pengajuan'">Kirim Pengajuan</span>
+                        <span x-text="submitting ? 'Mengirim Data...' : 'Kirim Pengajuan Prestasi'">Kirim Pengajuan Prestasi</span>
                     </button>
                 </div>
             </form>

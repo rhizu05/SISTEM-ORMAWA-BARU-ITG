@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Auth;
 
 class VerifikasiController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         $userRole = Auth::user()->roles->first()->name;
 
@@ -35,10 +35,25 @@ class VerifikasiController extends Controller
         }
 
         // Get all pengajuan that are currently in a state that this user can action
-        $pengajuans = Pengajuan::whereIn('workflow_state_id', $allowedStateIds)
-            ->with(['user', 'state', 'programKerja'])
-            ->latest()
-            ->paginate(10);
+        $query = Pengajuan::whereIn('workflow_state_id', $allowedStateIds)
+            ->with(['user', 'state', 'programKerja']);
+
+        if ($request->filled('status')) {
+            $status = $request->status;
+            if ($status === 'siap_bendahara') {
+                $query->whereHas('state', fn($q) => $q->where('name', WorkflowState::WR3_APPROVED));
+            } elseif ($status === 'proposal') {
+                $query->whereHas('state', fn($q) => $q->whereIn('name', [WorkflowState::SUBMITTED, WorkflowState::BEM_APPROVED, WorkflowState::BPM_APPROVED]));
+            } elseif ($status === 'lpj') {
+                $query->whereHas('state', fn($q) => $q->whereIn('name', [WorkflowState::LPJ_SUBMITTED, WorkflowState::LPJ_WR3_REVIEW]));
+            } else {
+                $query->whereHas('state', fn($q) => $q->where('name', $status));
+            }
+        }
+
+        $pengajuans = $query->latest()
+            ->paginate(10)
+            ->withQueryString();
             
         return view('verifikasi.index', compact('pengajuans'));
     }
@@ -154,8 +169,18 @@ class VerifikasiController extends Controller
 
         // FR-022: beri tahu verifikator tahap berikutnya bahwa pengajuan masuk ke antrean mereka
         if (! $isRejecting) {
+            // Tentukan role tanda tangan digital: jika LPJ, bedakan agar tanda tangan proposal tidak tertimpa
+            $sigRole = match (true) {
+                $transition->fromState?->name === 'lpj_submitted' && $userRole === 'bkhm' => 'bkhm_lpj',
+                $transition->fromState?->name === 'lpj_wr3_review' && $userRole === 'wr3' => 'wr3_lpj',
+                default => $userRole,
+            };
+
             // Bubuhkan tanda tangan digital otentik pejabat verifikator
-            \App\Services\DigitalSignatureService::sign($pengajuan->fresh(), Auth::user(), $userRole);
+            \App\Services\DigitalSignatureService::sign($pengajuan->fresh(), Auth::user(), $sigRole);
+
+            // Bersihkan cache dokumen gabungan agar Lembar Pengesahan langsung memuat TTD terbaru
+            \App\Services\LpjDocumentService::clearCache($pengajuan);
 
             $nextRole = match ($transition->toState->name) {
                 'bem_approved' => 'bpm',
@@ -178,9 +203,15 @@ class VerifikasiController extends Controller
                     default => strtoupper($nextRole),
                 };
 
+                $pesanNotifikasi = match ($transition->toState->name) {
+                    'lpj_wr3_review' => 'Laporan Pertanggungjawaban (LPJ) untuk kegiatan "' . $pengajuan->nama_kegiatan . '" telah disetujui & dilegalisir oleh BKHM dan kini menunggu verifikasi akhir dari Wakil Rektor III.',
+                    'completed' => 'Laporan Pertanggungjawaban (LPJ) untuk kegiatan "' . $pengajuan->nama_kegiatan . '" telah diverifikasi & dilegalisir lengkap oleh Wakil Rektor III. Seluruh rangkaian kegiatan telah resmi selesai.',
+                    default => 'Pengajuan "' . $pengajuan->nama_kegiatan . '" telah diproses oleh ' . strtoupper($userRole) . ' dan kini masuk ke antrean ' . $nextRoleLabel . '.',
+                };
+
                 \App\Services\NotifikasiService::kirimKeRole(
                     $nextRole,
-                    'Pengajuan "' . $pengajuan->nama_kegiatan . '" telah diproses oleh ' . strtoupper($userRole) . ' dan kini masuk ke antrean ' . $nextRoleLabel . '.'
+                    $pesanNotifikasi
                 );
             }
         }

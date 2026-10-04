@@ -1,12 +1,14 @@
 <x-app-layout>
-    <x-slot name="header"><h2 class="font-semibold text-xl text-gray-800">Dashboard BEM</h2></x-slot>
+    <x-slot name="header"><h2 class="font-bold text-xl text-slate-900 leading-tight">Dashboard BEM</h2></x-slot>
     <div class="py-6">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
-            <div class="bg-white p-4 rounded shadow">Selamat Datang kembali, {{ Auth::user()->name }}!</div>
+            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm text-sm font-semibold text-slate-800">
+                Selamat Datang kembali, {{ Auth::user()->name }}!
+            </div>
 
             {{-- Widget Agenda Rapat & Koordinasi --}}
-            <div class="bg-white border border-slate-200/80 rounded-2xl shadow-[0_4px_20px_rgba(0,0,0,0.02)] overflow-hidden">
-                <div class="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
+            <div class="bg-white border border-slate-200/80 rounded-2xl shadow-[0_4px_20px_rgba(0,0,0,0.02)] p-6 space-y-4">
+                <div class="flex items-center justify-between border-b border-slate-100 pb-3">
                     <div>
                         <h3 class="font-bold text-slate-900 text-sm sm:text-base">Agenda Rapat &amp; Koordinasi BEM</h3>
                         <p class="text-xs text-slate-500 mt-0.5">Jadwal pertemuan resmi, evaluasi proker, dan koordinasi pimpinan ormawa.</p>
@@ -17,57 +19,53 @@
                         </span>
                     @endif
                 </div>
-                <div class="overflow-x-auto skin-scrollbar">
-                    <table class="min-w-full divide-y divide-slate-100 text-left border-collapse">
-                        <thead>
-                            <tr class="bg-slate-50/80 text-[11px] font-bold text-slate-600 uppercase tracking-wider select-none">
-                                <th scope="col" class="py-3 px-5">Waktu Pelaksanaan</th>
-                                <th scope="col" class="py-3 px-5">Agenda &amp; Topik</th>
-                                <th scope="col" class="py-3 px-5">Lokasi / Ruang</th>
-                                <th scope="col" class="py-3 px-5">Penyelenggara</th>
-                                <th scope="col" class="py-3 px-5 text-center">Tautan</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-slate-100 text-sm">
-                            @forelse($rapats as $r)
-                                <tr class="hover:bg-slate-50/70 transition">
-                                    <td class="py-3.5 px-5 whitespace-nowrap">
-                                        <div class="font-bold text-slate-800 text-xs">{{ \Carbon\Carbon::parse($r->tanggal_rapat)->isoFormat('D MMM Y') }}</div>
-                                        <div class="text-[11px] text-slate-400 mt-0.5">{{ $r->jam_rapat ?? '' }} WIB</div>
-                                    </td>
-                                    <td class="py-3.5 px-5">
-                                        <div class="font-bold text-slate-900 text-sm">{{ $r->judul_rapat }}</div>
-                                    </td>
-                                    <td class="py-3.5 px-5 text-xs text-slate-600">
-                                        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-100/80 text-slate-700 font-medium">
-                                            🏢 {{ $r->lokasi }}
-                                        </span>
-                                    </td>
-                                    <td class="py-3.5 px-5 text-xs font-semibold text-slate-700">
-                                        {{ $r->penyelenggara->name ?? '-' }}
-                                    </td>
-                                    <td class="py-3.5 px-5 text-center whitespace-nowrap">
-                                        @if($r->link_meeting)
-                                            <a href="{{ $r->link_meeting }}" target="_blank" 
-                                               class="inline-flex items-center gap-1 px-2.5 py-1 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-lg text-xs font-bold transition">
-                                                <span>Meeting</span>
-                                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
-                                            </a>
-                                        @else
-                                            <span class="text-xs text-slate-400 italic">Offline</span>
-                                        @endif
-                                    </td>
-                                </tr>
-                            @empty 
-                                <tr>
-                                    <td colspan="5" class="py-8 text-center text-slate-400 text-xs italic">
-                                        Belum ada agenda rapat terdaftar saat ini.
-                                    </td>
-                                </tr> 
-                            @endforelse
-                        </tbody>
-                    </table>
-                </div>
+
+                <x-table>
+                    <x-table.thead>
+                        <x-table.tr>
+                            <x-table.th>Waktu Pelaksanaan</x-table.th>
+                            <x-table.th>Agenda &amp; Topik</x-table.th>
+                            <x-table.th>Lokasi / Ruang</x-table.th>
+                            <x-table.th>Penyelenggara</x-table.th>
+                            <x-table.th align="center">Tautan</x-table.th>
+                        </x-table.tr>
+                    </x-table.thead>
+                    <tbody class="divide-y divide-slate-100 bg-white text-sm">
+                        @forelse($rapats as $r)
+                            <x-table.tr>
+                                <x-table.td class="whitespace-nowrap">
+                                    <div class="font-bold text-slate-800 text-xs">{{ \Carbon\Carbon::parse($r->tanggal_rapat)->isoFormat('D MMM Y') }}</div>
+                                    <div class="text-[11px] text-slate-500 mt-0.5">{{ $r->jam_rapat ?? '' }} WIB</div>
+                                </x-table.td>
+                                <x-table.td>
+                                    <div class="font-bold text-slate-900 text-sm">{{ $r->judul_rapat }}</div>
+                                </x-table.td>
+                                <x-table.td class="text-xs text-slate-600">
+                                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-100 text-slate-700 font-medium">
+                                        <svg class="w-3.5 h-3.5 text-slate-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+                                        <span>{{ $r->lokasi }}</span>
+                                    </span>
+                                </x-table.td>
+                                <x-table.td class="text-xs font-semibold text-slate-700">
+                                    {{ $r->penyelenggara->name ?? '-' }}
+                                </x-table.td>
+                                <x-table.td align="center" class="whitespace-nowrap">
+                                    @if($r->link_meeting)
+                                        <a href="{{ $r->link_meeting }}" target="_blank" 
+                                           class="inline-flex items-center gap-1 px-3 py-1.5 min-h-[32px] bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-lg text-xs font-bold transition focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500">
+                                            <span>Meeting</span>
+                                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                                        </a>
+                                    @else
+                                        <span class="text-xs text-slate-500 italic">Offline</span>
+                                    @endif
+                                </x-table.td>
+                            </x-table.tr>
+                        @empty 
+                            <x-table.empty colspan="5" message="Belum ada agenda rapat terdaftar saat ini." />
+                        @endforelse
+                    </tbody>
+                </x-table>
             </div>
 
             <div class="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-[0_4px_20px_rgba(0,0,0,0.02)]">
@@ -89,15 +87,15 @@
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <a href="{{ route('verifikasi.index') }}" class="bg-white border border-slate-200/80 p-6 rounded-2xl shadow-[0_4px_20px_rgba(0,0,0,0.02)] hover:border-blue-300 hover:shadow-md transition block group">
+                <a href="{{ route('verifikasi.index') }}" class="bg-white border border-slate-200/80 p-6 rounded-2xl shadow-[0_4px_20px_rgba(0,0,0,0.02)] hover:border-blue-300 hover:shadow-md transition block group focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500">
                     <div class="flex items-center justify-between">
                         <div>
-                            <div class="text-xs font-bold uppercase tracking-wider text-slate-400">Tahap 1 Verifikasi</div>
-                            <div class="text-3xl font-extrabold text-[#1E40AF] mt-1">{{ $counts['verifikasi_proposal'] }}</div>
+                            <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Tahap 1 Verifikasi</div>
+                            <div class="text-3xl font-extrabold text-[#1E40AF] mt-1 font-mono">{{ $counts['verifikasi_proposal'] }}</div>
                             <div class="text-sm font-bold text-slate-800 mt-0.5">Antrean Proposal Ormawa</div>
                         </div>
-                        <div class="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold text-xl group-hover:scale-110 transition">
-                            📑
+                        <div class="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold group-hover:scale-110 transition shadow-2xs">
+                            <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
                         </div>
                     </div>
                     <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs font-bold text-blue-700">
@@ -105,15 +103,15 @@
                         <span>&rarr;</span>
                     </div>
                 </a>
-                <a href="{{ route('proker.index') }}" class="bg-white border border-slate-200/80 p-6 rounded-2xl shadow-[0_4px_20px_rgba(0,0,0,0.02)] hover:border-blue-300 hover:shadow-md transition block group">
+                <a href="{{ route('proker.index') }}" class="bg-white border border-slate-200/80 p-6 rounded-2xl shadow-[0_4px_20px_rgba(0,0,0,0.02)] hover:border-blue-300 hover:shadow-md transition block group focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500">
                     <div class="flex items-center justify-between">
                         <div>
-                            <div class="text-xs font-bold uppercase tracking-wider text-slate-400">Rencana Kegiatan</div>
-                            <div class="text-3xl font-extrabold text-emerald-600 mt-1">📋</div>
+                            <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Rencana Kegiatan</div>
+                            <div class="text-3xl font-extrabold text-emerald-600 mt-1 font-mono">{{ \App\Models\ProgramKerja::count() }}</div>
                             <div class="text-sm font-bold text-slate-800 mt-0.5">Program Kerja Ormawa</div>
                         </div>
-                        <div class="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold text-xl group-hover:scale-110 transition">
-                            🎯
+                        <div class="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold group-hover:scale-110 transition shadow-2xs">
+                            <svg class="w-6 h-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
                         </div>
                     </div>
                     <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs font-bold text-emerald-700">
@@ -124,71 +122,67 @@
             </div>
 
             {{-- Widget Tabel Verifikasi Proposal --}}
-            <div class="bg-white border border-slate-200/80 rounded-2xl shadow-[0_4px_20px_rgba(0,0,0,0.02)] overflow-hidden">
-                <div class="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
+            <div class="bg-white border border-slate-200/80 rounded-2xl shadow-[0_4px_20px_rgba(0,0,0,0.02)] p-6 space-y-4">
+                <div class="flex items-center justify-between border-b border-slate-100 pb-3">
                     <div>
                         <h3 class="font-bold text-slate-900 text-sm sm:text-base">Antrean Verifikasi Proposal (BEM)</h3>
                         <p class="text-xs text-slate-500 mt-0.5">Proposal kegiatan yang diajukan ormawa dan membutuhkan telaah awal BEM.</p>
                     </div>
-                    <a href="{{ route('verifikasi.index') }}" class="text-xs font-bold text-blue-700 hover:text-blue-900 transition">
+                    <a href="{{ route('verifikasi.index') }}" class="text-xs font-bold text-blue-700 hover:text-blue-900 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded">
                         Buka Semua &rarr;
                     </a>
                 </div>
-                <div class="overflow-x-auto skin-scrollbar">
-                    <table class="min-w-full divide-y divide-slate-100 text-left border-collapse">
-                        <thead>
-                            <tr class="bg-slate-50/80 text-[11px] font-bold text-slate-600 uppercase tracking-wider select-none">
-                                <th scope="col" class="py-3 px-5 text-center w-12">No</th>
-                                <th scope="col" class="py-3 px-5">Nama Kegiatan</th>
-                                <th scope="col" class="py-3 px-5">Ormawa Pengusul</th>
-                                <th scope="col" class="py-3 px-5">Jadwal Acara</th>
-                                <th scope="col" class="py-3 px-5">Dana Diajukan</th>
-                                <th scope="col" class="py-3 px-5 text-center">Tindakan</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-slate-100 text-sm">
-                            @forelse($proposalQueue as $i=>$p)
-                                <tr class="hover:bg-slate-50/70 transition">
-                                    <td class="py-3.5 px-5 text-center text-xs font-bold text-slate-400">{{ $i+1 }}</td>
-                                    <td class="py-3.5 px-5">
-                                        <div class="font-bold text-slate-900 text-sm">{{ $p->nama_kegiatan }}</div>
-                                    </td>
-                                    <td class="py-3.5 px-5">
-                                        <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-blue-50 text-blue-700 text-xs font-bold">
-                                            🏛️ {{ $p->user->name }}
-                                        </span>
-                                    </td>
-                                    <td class="py-3.5 px-5 text-xs text-slate-600 whitespace-nowrap">
-                                        {{ $p->tanggal_pengajuan ?? $p->created_at->format('d/m/Y') }}
-                                    </td>
-                                    <td class="py-3.5 px-5 font-mono font-extrabold text-slate-900 text-xs whitespace-nowrap">
-                                        Rp {{ number_format($p->dana_diajukan,0,',','.') }}
-                                    </td>
-                                    <td class="py-3.5 px-5 text-center whitespace-nowrap">
-                                        <a href="{{ route('verifikasi.show',$p) }}" 
-                                           class="inline-flex items-center gap-1 px-3 py-1.5 bg-[#0B1528] hover:bg-[#1E3A8A] text-white rounded-xl text-xs font-bold shadow-2xs transition active:scale-95">
-                                            <span>Telaah</span>
-                                            <svg class="w-3 h-3 text-blue-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-                                        </a>
-                                    </td>
-                                </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="6" class="py-8 text-center text-slate-400 text-xs italic">
-                                        Tidak ada proposal untuk diverifikasi saat ini.
-                                    </td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
-                </div>
+
+                <x-table>
+                    <x-table.thead>
+                        <x-table.tr>
+                            <x-table.th align="center" class="w-12">No</x-table.th>
+                            <x-table.th>Nama Kegiatan</x-table.th>
+                            <x-table.th>Ormawa Pengusul</x-table.th>
+                            <x-table.th>Jadwal Acara</x-table.th>
+                            <x-table.th>Dana Diajukan</x-table.th>
+                            <x-table.th align="center">Tindakan</x-table.th>
+                        </x-table.tr>
+                    </x-table.thead>
+                    <tbody class="divide-y divide-slate-100 bg-white text-sm">
+                        @forelse($proposalQueue as $i=>$p)
+                            <x-table.tr>
+                                <x-table.td align="center" class="text-xs font-bold text-slate-500">{{ $i+1 }}</x-table.td>
+                                <x-table.td>
+                                    <div class="font-bold text-slate-900 text-sm">{{ $p->nama_kegiatan }}</div>
+                                </x-table.td>
+                                <x-table.td>
+                                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-blue-50 text-blue-700 text-xs font-bold">
+                                        <svg class="w-3.5 h-3.5 text-blue-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+                                        <span>{{ $p->user->name }}</span>
+                                    </span>
+                                </x-table.td>
+                                <x-table.td class="text-xs text-slate-600 whitespace-nowrap">
+                                    {{ $p->tanggal_pengajuan ?? $p->created_at->format('d/m/Y') }}
+                                </x-table.td>
+                                <x-table.td class="font-mono font-extrabold text-slate-900 text-xs whitespace-nowrap">
+                                    Rp {{ number_format($p->dana_diajukan,0,',','.') }}
+                                </x-table.td>
+                                <x-table.td align="center" class="whitespace-nowrap">
+                                    <a href="{{ route('verifikasi.show',$p) }}" 
+                                       class="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 min-h-[36px] bg-[#0B1528] hover:bg-[#1E3A8A] text-white rounded-xl text-xs font-bold shadow-2xs transition active:scale-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2">
+                                        <span>Telaah</span>
+                                        <svg class="w-3.5 h-3.5 text-blue-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                                    </a>
+                                </x-table.td>
+                            </x-table.tr>
+                        @empty
+                            <x-table.empty colspan="6" message="Tidak ada proposal untuk diverifikasi saat ini." />
+                        @endforelse
+                    </tbody>
+                </x-table>
             </div>
 
-            <div class="bg-white p-4 rounded shadow">
-                <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-4 border-b pb-3">
+            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-100 pb-3">
                     <div>
-                        <h3 class="font-bold text-slate-900">Jadwal Terpadu Fasilitas & Barang</h3>
-                        <p class="text-xs text-slate-500 mt-1">Klik pada agenda untuk melihat detail kegiatan</p>
+                        <h3 class="font-bold text-slate-900 text-base">Jadwal Terpadu Fasilitas &amp; Barang</h3>
+                        <p class="text-xs text-slate-500 mt-0.5">Pemantauan agenda dan ketersediaan sarana prasarana kampus</p>
                     </div>
                     <div class="flex flex-wrap items-center gap-4 text-xs mt-2 sm:mt-0">
                         <span class="inline-flex items-center gap-1.5 font-medium text-slate-600">
@@ -200,7 +194,7 @@
                             Barang
                         </span>
                     </div>
-                </div>>
+                </div>
                 <x-calendar-style />
                 <div class="skin-calendar-wrapper">
                     <div id="calendar"></div>

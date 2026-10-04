@@ -3,12 +3,18 @@
         <span class="hidden sm:inline-flex items-center px-3 py-1.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200">
             Sistem Validasi Resmi ITG
         </span>
-        <a href="{{ route('layanan.index') }}" class="inline-flex items-center min-h-[44px] px-4 py-2 rounded-xl text-sm font-semibold text-slate-700 hover:bg-slate-100 border border-slate-200 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2">
-            Portal Layanan
+        <a href="{{ route('layanan.index') }}" class="inline-flex items-center gap-1.5 min-h-[44px] px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold text-slate-700 hover:bg-slate-100 border border-slate-200 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18"/></svg>
+            <span>Portal Layanan</span>
         </a>
     </x-slot>
 
-    <div class="max-w-3xl mx-auto px-4 sm:px-6 py-8">
+    <div class="max-w-3xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
+        <nav class="flex items-center gap-2 text-xs text-slate-600 mb-4">
+            <a href="{{ route('layanan.index') }}" class="hover:text-indigo-700 transition">Portal Layanan</a>
+            <span class="text-slate-400">/</span>
+            <span class="text-slate-800 font-semibold">Verifikasi Dokumen Resmi</span>
+        </nav>
 
         @if ($mode === 'result')
             @if ($isValid)
@@ -96,13 +102,19 @@
                             </dl>
                         </div>
 
-                        <div class="border-t border-slate-200 pt-5">
-                            <h2 class="text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">Integritas Kriptografis (SHA-256 Digest)</h2>
+                        <div class="border-t border-slate-200 pt-5" x-data="{ tokenCopied: false }">
+                            <div class="flex items-center justify-between mb-2">
+                                <h2 class="text-xs font-bold uppercase tracking-wider text-slate-600">Integritas Kriptografis (SHA-256 Digest)</h2>
+                                <button type="button" @click="navigator.clipboard.writeText('{{ $data['token'] }}'); tokenCopied = true; setTimeout(() => tokenCopied = false, 2500)"
+                                    class="text-[11px] font-bold text-indigo-600 hover:text-indigo-800 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 rounded px-1.5 py-0.5">
+                                    <span x-text="tokenCopied ? '✓ Token Tersalin' : 'Salin Token'">Salin Token</span>
+                                </button>
+                            </div>
                             <div class="bg-slate-900 text-slate-200 p-4 rounded-xl text-[11px] font-mono space-y-1 overflow-x-auto">
                                 <div class="text-slate-400 text-[10px]">ID VALIDASI DIGITAL:</div>
-                                <div class="text-amber-400 font-bold">{{ $data['token'] }}</div>
+                                <div class="text-amber-400 font-bold select-all">{{ $data['token'] }}</div>
                                 <div class="text-slate-400 text-[10px] pt-1">FINGERPRINT CRYPTOGRAPHIC HASH (HMAC-SHA256):</div>
-                                <div class="break-all text-emerald-400">{{ $data['hash'] }}</div>
+                                <div class="break-all text-emerald-400 select-all">{{ $data['hash'] }}</div>
                             </div>
                             <p class="text-[11px] text-slate-600 mt-2">
                                 Sidik jari digital ini mengunci seluruh konten dokumen secara matematis. Jika ada perubahan satu karakter pada naskah surat, maka hash tidak akan cocok dan dokumen dinyatakan tidak sah.
@@ -110,7 +122,7 @@
                         </div>
 
                         <div class="pt-2 text-center">
-                            <a href="{{ route('dokumen.verifikasi.index') }}" class="inline-flex items-center min-h-[44px] text-xs font-semibold text-slate-600 hover:text-slate-900 transition">
+                            <a href="{{ route('dokumen.verifikasi.index') }}" class="inline-flex items-center min-h-[44px] px-4 rounded-xl text-xs font-semibold text-slate-700 hover:bg-slate-100 border border-slate-200 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500">
                                 Periksa Dokumen Lain
                             </a>
                         </div>

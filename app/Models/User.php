@@ -11,7 +11,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Spatie\Permission\Traits\HasRoles;
 
-#[Fillable(['name', 'email', 'password', 'username', 'status_akun', 'saldo', 'saldo_awal', 'foto_profil', 'logo_ormawa', 'nama_ketua', 'nim_ketua', 'nama_sekretaris', 'nim_sekretaris', 'nama_bendahara', 'nim_bendahara', 'ttd_ketua', 'ttd_sekretaris', 'ttd_bendahara', 'alamat', 'telepon'])]
+#[Fillable(['name', 'email', 'password', 'username', 'status_akun', 'saldo', 'saldo_awal', 'file_sk', 'nomor_sk', 'tanggal_sk', 'foto_profil', 'logo_ormawa', 'nama_ketua', 'nim_ketua', 'nama_sekretaris', 'nim_sekretaris', 'nama_bendahara', 'nim_bendahara', 'ttd_ketua', 'ttd_sekretaris', 'ttd_bendahara', 'alamat', 'telepon'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
@@ -28,6 +28,7 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'tanggal_sk' => 'date',
         ];
     }
 
@@ -57,11 +58,46 @@ class User extends Authenticatable
      */
     public function isHima(): bool
     {
-        return $this->hasRole('ormawa') && str_contains(strtoupper($this->name ?? ''), 'HIMA');
+        return $this->hasRole('ormawa') && preg_match('/\bHIMA/i', $this->name ?? '') === 1;
     }
 
     public function suratPeringatans()
     {
         return $this->hasMany(SuratPeringatan::class, 'target_user_id');
+    }
+
+    public function letters()
+    {
+        return $this->hasMany(Letter::class, 'user_id');
+    }
+
+    public function skLetter()
+    {
+        return $this->hasOne(Letter::class, 'user_id')->where('type', 'sk_kepengurusan')->latestOfMany();
+    }
+
+    /**
+     * Memeriksa apakah user memiliki avatar kustom (logo ormawa atau foto profil).
+     */
+    public function hasCustomAvatar(): bool
+    {
+        $path = $this->logo_ormawa ?: $this->foto_profil;
+        return !empty($path);
+    }
+
+    /**
+     * Mendapatkan URL avatar / logo user, memprioritaskan logo_ormawa lalu foto_profil.
+     */
+    public function getAvatarUrlAttribute(): string
+    {
+        $path = $this->logo_ormawa ?: $this->foto_profil;
+
+        if ($path) {
+            if (\Illuminate\Support\Facades\Storage::disk('public')->exists($path) || file_exists(public_path('storage/' . $path))) {
+                return asset('storage/' . $path);
+            }
+        }
+
+        return 'https://ui-avatars.com/api/?name=' . urlencode($this->name ?? 'User') . '&background=EFF6FF&color=1E40AF&bold=true';
     }
 }

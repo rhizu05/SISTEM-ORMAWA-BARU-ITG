@@ -139,7 +139,9 @@ Route::middleware('auth')->group(function () {
         Route::get('/pengajuan/{pengajuan}', [PengajuanController::class, 'show'])->name('pengajuan.show');
         Route::get('/pengajuan/{pengajuan}/edit', [PengajuanController::class, 'edit'])->name('pengajuan.edit');
         Route::put('/pengajuan/{pengajuan}', [PengajuanController::class, 'update'])->name('pengajuan.update');
+        Route::delete('/pengajuan/{pengajuan}', [PengajuanController::class, 'destroy'])->name('pengajuan.destroy');
         Route::post('/pengajuan/{pengajuan}/ajukan', [PengajuanController::class, 'ajukan'])->name('pengajuan.ajukan');
+        Route::post('/pengajuan/{pengajuan}/batalkan', [PengajuanController::class, 'batalkan'])->name('pengajuan.batalkan');
         
         // Form upload LPJ khusus pengaju (Ormawa, BEM, BPM)
         Route::get('/lpj/create/{pengajuan}', [LpjController::class, 'create'])->name('lpj.create');
@@ -207,6 +209,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/dokumen/dana/{dana}/bukti-transfer', [DocumentController::class, 'buktiTransfer'])->name('dokumen.bukti-transfer');
     Route::get('/dokumen/peminjaman-tempat/{peminjaman}/prodi', [DocumentController::class, 'persetujuanProdiTempat'])->name('dokumen.peminjaman-tempat.prodi');
     Route::get('/dokumen/peminjaman-barang/{peminjaman}/prodi', [DocumentController::class, 'persetujuanProdiBarang'])->name('dokumen.peminjaman-barang.prodi');
+    Route::get('/dokumen/sk-ormawa/{user}', [DocumentController::class, 'skOrmawa'])->name('dokumen.sk-ormawa');
 
     // Verifikator Roles: Modul Verifikasi (BEM, BPM, BKHM, WR3, Bendahara)
     Route::middleware(['role:bem|bpm|bkhm|wr3|bendahara|admin', 'admin.readonly'])->group(function () {

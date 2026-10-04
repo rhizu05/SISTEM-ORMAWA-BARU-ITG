@@ -5,12 +5,12 @@
         </h2>
     </x-slot>
 
-    <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6 text-gray-900 max-w-3xl mx-auto" x-data="slotChecker()">
+    <div class="py-6 sm:py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="bg-white overflow-hidden shadow-sm rounded-2xl border border-slate-200/90">
+                <div class="p-4 sm:p-6 lg:p-8 text-gray-900 max-w-3xl mx-auto" x-data="slotChecker()">
                     
-                    <form method="POST" action="{{ route('peminjaman.tempat.store') }}" enctype="multipart/form-data">
+                    <form method="POST" action="{{ route('peminjaman.tempat.store') }}" enctype="multipart/form-data" @submit="submitting = true">
                         @csrf
 
                         <!-- Ruangan -->
@@ -34,7 +34,7 @@
                             <x-input-error :messages="$errors->get('nama_kegiatan')" class="mt-2" />
                         </div>
 
-                        <div class="grid grid-cols-2 gap-4 mb-4">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
                             <!-- Tanggal Mulai -->
                             <div>
                                 <x-input-label for="tgl_mulai" :value="__('Tanggal Mulai')" />
@@ -98,17 +98,27 @@
                             <x-input-error :messages="$errors->get('deskripsi_kegiatan')" class="mt-2" />
                         </div>
 
-                        <!-- Q-SAR-04: Dokumen Persetujuan Prodi (wajib untuk HIMA) -->
-                        <div class="mb-6">
-                            <x-input-label for="file_persetujuan_prodi" :value="Auth::user()->isHima() ? __('Dokumen Persetujuan Prodi (PDF, wajib untuk HIMA)') : __('Dokumen Persetujuan Prodi (PDF, opsional)')" />
-                            <input id="file_persetujuan_prodi" type="file" name="file_persetujuan_prodi" accept=".pdf" class="block mt-1 w-full border border-gray-300 rounded p-2" @if(Auth::user()->isHima()) required @endif />
-                            <p class="text-xs text-gray-500 mt-1">Persetujuan Prodi dilakukan di luar sistem; unggah dokumen buktinya di sini.</p>
-                            <x-input-error :messages="$errors->get('file_persetujuan_prodi')" class="mt-2" />
+                        <!-- Alur Persetujuan Terpadu BKHM & Sarpras -->
+                        <div class="mb-6 p-4 bg-indigo-50 border border-indigo-200 rounded-xl text-xs text-indigo-900 leading-relaxed flex items-start gap-3">
+                            <svg class="w-5 h-5 text-indigo-600 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                            <div>
+                                <p class="font-bold text-indigo-950 mb-0.5">Alur Konfirmasi Peminjaman Terpadu:</p>
+                                <p class="text-indigo-800">Pengajuan peminjaman ruangan ini akan masuk ke <strong>Biro Kemahasiswaan (BKHM)</strong> terlebih dahulu untuk konfirmasi kegiatan. Setelah disetujui BKHM, pengajuan diteruskan otomatis ke <strong>Bagian Sarana &amp; Prasarana (Sarpras)</strong> untuk verifikasi ketersediaan dan penerbitan izin penggunaan ruangan.</p>
+                            </div>
                         </div>
 
-                        <div class="flex items-center justify-end mt-4">
-                            <a class="underline text-sm text-gray-600 hover:text-gray-900 mr-4" href="{{ route('peminjaman.index') }}">Batal</a>
-                            <x-primary-button>Ajukan Peminjaman</x-primary-button>
+                        <div class="flex items-center justify-end mt-4 gap-3">
+                            <a class="min-h-[44px] inline-flex items-center justify-center underline text-sm text-gray-600 hover:text-gray-900 px-3" href="{{ route('peminjaman.index') }}">Batal</a>
+                            <x-primary-button class="min-h-[44px]" x-bind:disabled="submitting">
+                                <span x-show="!submitting">Ajukan Peminjaman</span>
+                                <span x-show="submitting" class="inline-flex items-center gap-2" style="display: none;" x-cloak>
+                                    <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                    </svg>
+                                    <span>Memproses...</span>
+                                </span>
+                            </x-primary-button>
                         </div>
                     </form>
 
@@ -150,6 +160,7 @@
                 hariNama: '',
                 slots: [],
                 loading: false,
+                submitting: false,
                 get totalSlots() {
                     return this.slots.length;
                 },
@@ -204,11 +215,14 @@
                 @endforeach
             ];
 
+            const isSmallScreen = window.innerWidth < 640;
             const cal = new FullCalendar.Calendar(el, {
                 locale: 'id',
-                initialView: 'dayGridMonth',
-                headerToolbar: { left: 'prev,next today', center: 'title', right: 'dayGridMonth,timeGridWeek' },
-                height: 520,
+                initialView: isSmallScreen ? 'listMonth' : 'dayGridMonth',
+                headerToolbar: isSmallScreen
+                    ? { left: 'prev,next', center: 'title', right: 'listMonth,dayGridMonth' }
+                    : { left: 'prev,next today', center: 'title', right: 'dayGridMonth,timeGridWeek' },
+                height: isSmallScreen ? 420 : 520,
                 events: events
             });
             cal.render();

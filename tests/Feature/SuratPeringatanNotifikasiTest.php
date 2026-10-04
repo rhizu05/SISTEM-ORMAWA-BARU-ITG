@@ -251,7 +251,7 @@ class SuratPeringatanNotifikasiTest extends TestCase
 
     public function test_bkhm_can_create_sp_for_individual_student_and_generate_official_itg_pdf()
     {
-        $bkhm = $this->makeUserWithRole('bkhm', 'Staf BKKH ITG');
+        $bkhm = $this->makeUserWithRole('bkhm', 'BKHM ITG');
         $this->actingAs($bkhm);
 
         $spPayload = [

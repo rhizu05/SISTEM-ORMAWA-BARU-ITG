@@ -14,7 +14,7 @@
         </div>
     </x-slot>
 
-    <div class="py-8" x-data="{ tab: 'pengajuan' }">
+    <div class="py-8" x-data="{ tab: '{{ request('tab', 'pengajuan') }}' }">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
 
             <!-- Navigasi Tab -->
@@ -26,6 +26,12 @@
                     <span>Surat Peringatan Resmi ({{ $arsipSp->total() }})</span>
                     @if($arsipSp->total() > 0)
                         <span class="bg-red-100 text-red-700 text-[10px] font-bold px-1.5 py-0.5 rounded-full">{{ $arsipSp->total() }}</span>
+                    @endif
+                </button>
+                <button @click="tab = 'sk'" :class="tab === 'sk' ? 'border-indigo-600 text-indigo-600 font-bold border-b-2' : 'text-gray-500 hover:text-gray-700 font-medium'" class="pb-3 text-sm px-2 transition flex items-center gap-1.5">
+                    <span>Surat Keputusan (SK) Ormawa ({{ $arsipSk->total() }})</span>
+                    @if($arsipSk->total() > 0)
+                        <span class="bg-indigo-100 text-indigo-700 text-[10px] font-bold px-1.5 py-0.5 rounded-full">{{ $arsipSk->total() }}</span>
                     @endif
                 </button>
             </div>
@@ -43,158 +49,259 @@
                     </form>
                 </div>
 
-                <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-gray-200 text-xs">
-                        <thead class="bg-gray-50 text-gray-500 font-semibold uppercase">
-                            <tr>
-                                <th class="p-3 text-center">No</th>
-                                <th class="p-3 text-left">Nama Kegiatan</th>
-                                <th class="p-3 text-left">Ormawa</th>
-                                <th class="p-3 text-left">Nomor Surat</th>
-                                <th class="p-3 text-left">Status Terakhir</th>
-                                <th class="p-3 text-right">Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-gray-100">
-                            @forelse($arsip as $i => $a)
-                            <tr class="hover:bg-gray-50 transition">
-                                <td class="p-3 text-center font-medium text-gray-500">{{ $arsip->firstItem() + $i }}</td>
-                                <td class="p-3 font-semibold text-gray-900">{{ $a->nama_kegiatan }}</td>
-                                <td class="p-3 text-gray-700">{{ $a->user->name }}</td>
-                                <td class="p-3 font-mono text-gray-900">{{ $a->nomor_surat }}</td>
-                                <td class="p-3">
-                                    <span class="px-2 py-0.5 rounded text-[11px] font-semibold bg-indigo-50 text-indigo-700 border border-indigo-200">
-                                        {{ $a->state->label ?? $a->status_akhir ?? '-' }}
-                                    </span>
-                                </td>
-                                <td class="p-3 text-right">
-                                    <a href="{{ route('verifikasi.show', $a) }}" class="inline-flex items-center px-2.5 py-1 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded font-semibold text-xs transition">
-                                        Detail &rarr;
-                                    </a>
-                                </td>
-                            </tr>
-                            @empty
-                            <tr><td colspan="6" class="p-8 text-center text-gray-400 italic">Belum ada arsip surat pengajuan.</td></tr>
-                            @endforelse
-                        </tbody>
-                    </table>
-                </div>
+                <x-table>
+                    <x-table.thead>
+                        <tr>
+                            <x-table.th align="center">No</x-table.th>
+                            <x-table.th>Nama Kegiatan</x-table.th>
+                            <x-table.th>Ormawa</x-table.th>
+                            <x-table.th>Nomor Surat</x-table.th>
+                            <x-table.th>Status Terakhir</x-table.th>
+                            <x-table.th align="right">Aksi</x-table.th>
+                        </tr>
+                    </x-table.thead>
+                    <tbody class="divide-y divide-slate-100">
+                        @forelse($arsip as $i => $a)
+                        <x-table.tr>
+                            <x-table.td align="center">
+                                <span class="font-medium text-slate-500 text-xs">{{ $arsip->firstItem() + $i }}</span>
+                            </x-table.td>
+                            <x-table.td>
+                                <span class="font-semibold text-slate-900">{{ $a->nama_kegiatan }}</span>
+                            </x-table.td>
+                            <x-table.td>
+                                <span class="text-xs text-slate-700 font-medium">{{ $a->user->name }}</span>
+                            </x-table.td>
+                            <x-table.td>
+                                <span class="font-mono text-xs font-semibold text-slate-900">{{ $a->nomor_surat }}</span>
+                            </x-table.td>
+                            <x-table.td>
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-indigo-50 text-indigo-700 border border-indigo-200">
+                                    {{ $a->state->label ?? $a->status_akhir ?? '-' }}
+                                </span>
+                            </x-table.td>
+                            <x-table.td align="right">
+                                <a href="{{ route('verifikasi.show', $a) }}" class="inline-flex items-center px-2.5 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-lg font-semibold text-xs transition">
+                                    Detail &rarr;
+                                </a>
+                            </x-table.td>
+                        </x-table.tr>
+                        @empty
+                        <x-table.empty colspan="6" message="Belum ada arsip surat pengajuan." />
+                        @endforelse
+                    </tbody>
+                </x-table>
                 <div class="mt-4">{{ $arsip->links() }}</div>
             </div>
 
             <!-- Tab 2: Surat Peringatan (SP) Resmi -->
-            <div x-show="tab === 'sp'" class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-                <div class="flex justify-between items-center mb-4">
+            <div x-show="tab === 'sp'" class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                <div class="flex justify-between items-center mb-6 border-b border-slate-100 pb-4">
                     <div>
-                        <h3 class="font-bold text-gray-900 text-base">Arsip Dokumen Surat Peringatan Resmi (SP)</h3>
-                        <p class="text-xs text-gray-500">Rekapitulasi surat peringatan yang diterbitkan untuk Ormawa maupun Mahasiswa perorangan</p>
+                        <h3 class="font-bold text-slate-900 text-base">Arsip Dokumen Surat Peringatan Resmi (SP)</h3>
+                        <p class="text-xs text-slate-500 mt-0.5">Rekapitulasi surat peringatan yang diterbitkan untuk Ormawa maupun Mahasiswa perorangan</p>
                     </div>
                 </div>
 
-                <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-gray-200 text-xs">
-                        <thead class="bg-gray-50 text-gray-500 font-semibold uppercase">
-                            <tr>
-                                <th class="p-3 text-center">Tingkat</th>
-                                <th class="p-3 text-center">Penerbit</th>
-                                <th class="p-3 text-center">Status Validasi</th>
-                                <th class="p-3 text-left">Nomor Surat</th>
-                                <th class="p-3 text-left">Sasaran / Penerima</th>
-                                <th class="p-3 text-left">Tanggal</th>
-                                <th class="p-3 text-left">Perihal & Alasan</th>
-                                <th class="p-3 text-left">Penandatangan (WR3)</th>
-                                <th class="p-3 text-right">Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-gray-100">
-                            @forelse($arsipSp as $sp)
-                            <tr class="hover:bg-gray-50 transition">
-                                <td class="p-3 text-center whitespace-nowrap">
-                                    <span class="px-2 py-0.5 rounded-full font-bold text-[10px]
-                                        @if($sp->tingkat === 'SP-3') bg-red-100 text-red-700 border border-red-300
-                                        @elseif($sp->tingkat === 'SP-2') bg-orange-100 text-orange-700 border border-orange-300
-                                        @else bg-amber-100 text-amber-800 border border-amber-300
-                                        @endif">
-                                        {{ $sp->tingkat }}
+                <x-table>
+                    <x-table.thead>
+                        <tr>
+                            <x-table.th align="center">Tingkat</x-table.th>
+                            <x-table.th align="center">Penerbit</x-table.th>
+                            <x-table.th align="center">Status Validasi</x-table.th>
+                            <x-table.th>Nomor Surat</x-table.th>
+                            <x-table.th>Sasaran / Penerima</x-table.th>
+                            <x-table.th>Tanggal</x-table.th>
+                            <x-table.th>Perihal &amp; Alasan</x-table.th>
+                            <x-table.th>Penandatangan (WR3)</x-table.th>
+                            <x-table.th align="right">Aksi</x-table.th>
+                        </tr>
+                    </x-table.thead>
+                    <tbody class="divide-y divide-slate-100">
+                        @forelse($arsipSp as $sp)
+                        <x-table.tr>
+                            <x-table.td align="center">
+                                @php
+                                    $tingkatClass = match($sp->tingkat) {
+                                        'SP-3' => 'bg-rose-50 text-rose-700 border-rose-200',
+                                        'SP-2' => 'bg-amber-50 text-amber-700 border-amber-200',
+                                        default => 'bg-amber-50 text-amber-800 border-amber-200'
+                                    };
+                                @endphp
+                                <span class="inline-flex items-center px-2 py-0.5 rounded-full font-bold text-xs border {{ $tingkatClass }}">
+                                    {{ $sp->tingkat }}
+                                </span>
+                            </x-table.td>
+                            <x-table.td align="center">
+                                <span class="inline-flex items-center px-2 py-0.5 rounded-full font-bold text-[10px] {{ $sp->penerbit_label === 'BPM' ? 'bg-indigo-50 text-indigo-800 border border-indigo-200' : 'bg-slate-100 text-slate-700 border border-slate-200' }}">
+                                    {{ $sp->penerbit_label }}
+                                </span>
+                            </x-table.td>
+                            <x-table.td align="center">
+                                @if($sp->isDisetujui())
+                                    <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full font-bold text-[10px] bg-emerald-50 text-emerald-700 border border-emerald-200">
+                                        <svg class="w-3 h-3 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                                        Disetujui
                                     </span>
-                                </td>
-                                <td class="p-3 text-center whitespace-nowrap">
-                                    <span class="px-2 py-0.5 rounded-full font-bold text-[10px] {{ $sp->penerbit_label === 'BPM' ? 'bg-indigo-100 text-indigo-800 border border-indigo-300' : 'bg-slate-100 text-slate-700 border border-slate-300' }}">
-                                        {{ $sp->penerbit_label }}
+                                @elseif($sp->isMenungguBkhm())
+                                    <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full font-bold text-[10px] bg-indigo-50 text-indigo-700 border border-indigo-200">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-indigo-500"></span> Menunggu BKHM
                                     </span>
-                                </td>
-                                <td class="p-3 text-center whitespace-nowrap">
-                                    @if($sp->isDisetujui())
-                                        <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full font-bold text-[10px] bg-emerald-100 text-emerald-800 border border-emerald-300">
-                                            <span>✔</span> Disetujui &amp; Terbit
-                                        </span>
-                                    @elseif($sp->isMenungguBkhm())
-                                        <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full font-bold text-[10px] bg-indigo-50 text-indigo-800 border border-indigo-300">
-                                            <span class="w-1.5 h-1.5 rounded-full bg-indigo-500"></span> Menunggu BKHM
-                                        </span>
-                                    @elseif($sp->isMenungguValidasi())
-                                        <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full font-bold text-[10px] bg-amber-50 text-amber-800 border border-amber-300">
-                                            <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span> Menunggu WR3
-                                        </span>
-                                    @elseif($sp->isDitolak())
-                                        <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full font-bold text-[10px] bg-rose-100 text-rose-800 border border-rose-300" title="{{ $sp->catatan_wr3 }}">
-                                            <span>✖</span> Dikembalikan WR3
-                                        </span>
-                                    @else
-                                        <span class="px-2 py-0.5 rounded text-[10px] bg-gray-100 text-gray-700">{{ $sp->status }}</span>
-                                    @endif
-                                </td>
-                                <td class="p-3 font-semibold text-gray-900 font-mono whitespace-nowrap">{{ $sp->nomor_surat }}</td>
-                                <td class="p-3 whitespace-nowrap">
-                                    @if($sp->isMahasiswa())
-                                        <div class="font-bold text-gray-900">{{ $sp->nama_penerima }}</div>
-                                        <div class="text-[11px] text-gray-500">{{ $sp->identitas_penerima }}</div>
-                                    @else
-                                        <div class="font-bold text-gray-900">{{ $sp->target?->name ?? 'Ormawa' }}</div>
-                                        <div class="text-[11px] text-gray-500">{{ $sp->target?->username }}</div>
-                                    @endif
-                                </td>
-                                <td class="p-3 text-gray-600 whitespace-nowrap">{{ $sp->tanggal_surat ? $sp->tanggal_surat->format('d/m/Y') : '-' }}</td>
-                                <td class="p-3 max-w-xs">
-                                    <div class="font-semibold text-gray-900 truncate">{{ $sp->perihal }}</div>
-                                    <div class="text-[11px] text-gray-500 truncate">{{ $sp->alasan_singkat }}</div>
-                                    @if($sp->isDitolak() && $sp->catatan_wr3)
-                                        <div class="text-[10px] text-rose-700 font-medium mt-0.5 bg-rose-50 p-1 rounded border border-rose-200">
-                                            <strong>Catatan WR3:</strong> {{ $sp->catatan_wr3 }}
-                                        </div>
-                                    @endif
-                                    @if($sp->isDitolak() && $sp->catatan_bkhm)
-                                        <div class="text-[10px] text-rose-700 font-medium mt-0.5 bg-rose-50 p-1 rounded border border-rose-200">
-                                            <strong>Catatan BKHM:</strong> {{ $sp->catatan_bkhm }}
-                                        </div>
-                                    @endif
-                                </td>
-                                <td class="p-3 text-gray-700 whitespace-nowrap">
-                                    <div class="font-medium text-gray-900">{{ $sp->pejabat_nama ?? 'Pejabat Berwenang' }}</div>
-                                    <div class="text-[10px] text-gray-500">{{ $sp->pejabat_jabatan ?? 'Wakil Rektor III' }}</div>
-                                </td>
-                                <td class="p-3 text-right whitespace-nowrap space-x-1.5">
-                                    <a href="{{ route('bkhm.sp.show', $sp) }}" class="inline-flex items-center px-2.5 py-1 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded font-semibold text-xs transition">
+                                @elseif($sp->isMenungguValidasi())
+                                    <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full font-bold text-[10px] bg-amber-50 text-amber-700 border border-amber-200">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span> Menunggu WR3
+                                    </span>
+                                @elseif($sp->isDitolak())
+                                    <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full font-bold text-[10px] bg-rose-50 text-rose-700 border border-rose-200" title="{{ $sp->catatan_wr3 }}">
+                                        <svg class="w-3 h-3 text-rose-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>
+                                        Dikembalikan
+                                    </span>
+                                @else
+                                    <span class="px-2 py-0.5 rounded text-[10px] bg-slate-100 text-slate-700">{{ $sp->status }}</span>
+                                @endif
+                            </x-table.td>
+                            <x-table.td>
+                                <span class="font-mono text-xs font-semibold text-slate-900">{{ $sp->nomor_surat }}</span>
+                            </x-table.td>
+                            <x-table.td>
+                                @if($sp->isMahasiswa())
+                                    <div class="font-semibold text-slate-900">{{ $sp->nama_penerima }}</div>
+                                    <div class="text-[11px] text-slate-500">{{ $sp->identitas_penerima }}</div>
+                                @else
+                                    <div class="font-semibold text-slate-900">{{ $sp->target?->name ?? 'Ormawa' }}</div>
+                                    <div class="text-[11px] text-slate-500">{{ $sp->target?->username }}</div>
+                                @endif
+                            </x-table.td>
+                            <x-table.td>
+                                <span class="text-xs text-slate-600">{{ $sp->tanggal_surat ? $sp->tanggal_surat->format('d/m/Y') : '-' }}</span>
+                            </x-table.td>
+                            <x-table.td>
+                                <div class="font-semibold text-slate-900 line-clamp-1">{{ $sp->perihal }}</div>
+                                <div class="text-xs text-slate-500 line-clamp-1 mt-0.5">{{ $sp->alasan_singkat }}</div>
+                                @if($sp->isDitolak() && $sp->catatan_wr3)
+                                    <div class="text-[10px] text-rose-700 font-medium mt-1 bg-rose-50 p-1.5 rounded-lg border border-rose-200">
+                                        <strong>Catatan WR3:</strong> {{ $sp->catatan_wr3 }}
+                                    </div>
+                                @endif
+                                @if($sp->isDitolak() && $sp->catatan_bkhm)
+                                    <div class="text-[10px] text-rose-700 font-medium mt-1 bg-rose-50 p-1.5 rounded-lg border border-rose-200">
+                                        <strong>Catatan BKHM:</strong> {{ $sp->catatan_bkhm }}
+                                    </div>
+                                @endif
+                            </x-table.td>
+                            <x-table.td>
+                                <div class="font-medium text-slate-900 text-xs">{{ $sp->pejabat_nama ?? 'Pejabat Berwenang' }}</div>
+                                <div class="text-[10px] text-slate-500">{{ $sp->pejabat_jabatan ?? 'Wakil Rektor III' }}</div>
+                            </x-table.td>
+                            <x-table.td align="right">
+                                <div class="flex items-center justify-end gap-1.5">
+                                    <a href="{{ route('bkhm.sp.show', $sp) }}" class="inline-flex items-center px-2.5 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-lg font-semibold text-xs transition">
                                         {{ $sp->isDisetujui() ? 'Pratinjau' : 'Tinjau Draf' }}
                                     </a>
                                     @if($sp->isMenungguBkhm())
-                                    <button type="button" onclick="openSpReviewModal({{ $sp->id }}, '{{ $sp->nomor_surat }}', 'teruskan')" class="inline-flex items-center min-h-[44px] px-3 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 rounded font-semibold text-xs border border-emerald-200 transition">Teruskan ke WR3</button>
-                                    <button type="button" onclick="openSpReviewModal({{ $sp->id }}, '{{ $sp->nomor_surat }}', 'kembalikan')" class="inline-flex items-center min-h-[44px] px-3 bg-rose-50 hover:bg-rose-100 text-rose-700 rounded font-semibold text-xs border border-rose-200 transition">Kembalikan</button>
+                                    <button type="button" onclick="openSpReviewModal({{ $sp->id }}, '{{ $sp->nomor_surat }}', 'teruskan')" class="inline-flex items-center px-2.5 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 rounded-lg font-semibold text-xs border border-emerald-200 transition">Teruskan</button>
+                                    <button type="button" onclick="openSpReviewModal({{ $sp->id }}, '{{ $sp->nomor_surat }}', 'kembalikan')" class="inline-flex items-center px-2.5 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-700 rounded-lg font-semibold text-xs border border-rose-200 transition">Kembalikan</button>
                                     @endif
                                     @if($sp->isDisetujui())
-                                    <a href="{{ route('bkhm.sp.pdf', $sp) }}" class="inline-flex items-center px-2 py-1 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded font-semibold text-xs border border-gray-200 transition" title="Unduh PDF Resmi">
+                                    <a href="{{ route('bkhm.sp.pdf', $sp) }}" class="inline-flex items-center px-2 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg font-semibold text-xs transition" title="Unduh PDF Resmi">
                                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
                                     </a>
                                     @endif
-                                </td>
-                            </tr>
-                            @empty
-                            <tr><td colspan="9" class="p-8 text-center text-gray-400 italic">Belum ada riwayat surat peringatan yang diterbitkan.</td></tr>
-                            @endforelse
-                        </tbody>
-                    </table>
-                </div>
+                                </div>
+                            </x-table.td>
+                        </x-table.tr>
+                        @empty
+                        <x-table.empty colspan="9" message="Belum ada riwayat surat peringatan yang diterbitkan." />
+                        @endforelse
+                    </tbody>
+                </x-table>
                 <div class="mt-4">{{ $arsipSp->links() }}</div>
+            </div>
+
+            <!-- Tab 3: Surat Keputusan (SK) Ormawa -->
+            <div x-show="tab === 'sk'" class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-6 border-b border-slate-100 pb-4">
+                    <div>
+                        <h3 class="font-bold text-slate-900 text-base">Arsip Surat Keputusan (SK) Ormawa</h3>
+                        <p class="text-xs text-slate-500 mt-0.5">Daftar Surat Keputusan legalitas kepengurusan seluruh Organisasi Mahasiswa ITG yang terdaftar</p>
+                    </div>
+                    <form method="GET" class="flex gap-2">
+                        <input type="hidden" name="tab" value="sk">
+                        <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari ormawa / nomor SK..." class="border-gray-300 rounded-lg px-3 py-1.5 text-xs w-64 focus:ring-indigo-500 focus:border-indigo-500">
+                        <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white px-3.5 py-1.5 rounded-lg text-xs font-semibold transition">Cari</button>
+                        @if(request('search'))
+                            <a href="{{ route('bkhm.arsip.index', ['tab' => 'sk']) }}" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg text-xs font-semibold transition">Reset</a>
+                        @endif
+                    </form>
+                </div>
+
+                <x-table>
+                    <x-table.thead>
+                        <tr>
+                            <x-table.th align="center">No</x-table.th>
+                            <x-table.th>Nama Organisasi</x-table.th>
+                            <x-table.th>Peran / Kategori</x-table.th>
+                            <x-table.th>Nomor SK</x-table.th>
+                            <x-table.th>Tanggal SK</x-table.th>
+                            <x-table.th>Dokumen SK</x-table.th>
+                            <x-table.th align="right">Aksi</x-table.th>
+                        </tr>
+                    </x-table.thead>
+                    <tbody class="divide-y divide-slate-100">
+                        @forelse($arsipSk as $i => $u)
+                        <x-table.tr>
+                            <x-table.td align="center">
+                                <span class="font-medium text-slate-500 text-xs">{{ $arsipSk->firstItem() + $i }}</span>
+                            </x-table.td>
+                            <x-table.td>
+                                <div class="font-semibold text-slate-900">{{ $u->name }}</div>
+                                <div class="text-[11px] text-slate-500 font-mono">{{ $u->email }}</div>
+                            </x-table.td>
+                            <x-table.td>
+                                @foreach($u->roles as $role)
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider {{ $role->name === 'bem' ? 'bg-amber-100 text-amber-800' : ($role->name === 'bpm' ? 'bg-purple-100 text-purple-800' : 'bg-blue-100 text-blue-800') }}">
+                                        {{ $role->name }}
+                                    </span>
+                                @endforeach
+                            </x-table.td>
+                            <x-table.td>
+                                <span class="font-mono text-xs font-bold text-slate-900">{{ $u->nomor_sk ?? '-' }}</span>
+                            </x-table.td>
+                            <x-table.td>
+                                <span class="text-xs text-slate-600">{{ $u->tanggal_sk ? $u->tanggal_sk->format('d/m/Y') : '-' }}</span>
+                            </x-table.td>
+                            <x-table.td>
+                                @if($u->file_sk)
+                                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                                        <svg class="w-3.5 h-3.5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                                        <span>PDF Terverifikasi</span>
+                                    </span>
+                                @else
+                                    <span class="text-xs text-slate-400 italic">Belum diunggah</span>
+                                @endif
+                            </x-table.td>
+                            <x-table.td align="right">
+                                @if($u->file_sk)
+                                <div class="flex items-center justify-end gap-1.5">
+                                    <a href="{{ route('dokumen.sk-ormawa', $u) }}" target="_blank" class="inline-flex items-center gap-1 px-3 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-lg font-semibold text-xs transition">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                                        <span>Buka SK</span>
+                                    </a>
+                                    <a href="{{ route('dokumen.sk-ormawa', ['user' => $u, 'download' => 1]) }}" class="inline-flex items-center p-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg transition" title="Unduh File SK">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                                    </a>
+                                </div>
+                                @else
+                                <span class="text-xs text-slate-400">-</span>
+                                @endif
+                            </x-table.td>
+                        </x-table.tr>
+                        @empty
+                        <x-table.empty colspan="7" message="Belum ada arsip Surat Keputusan (SK) Ormawa yang tersimpan." />
+                        @endforelse
+                    </tbody>
+                </x-table>
+                <div class="mt-4">{{ $arsipSk->appends(['tab' => 'sk'])->links() }}</div>
             </div>
 
         </div>

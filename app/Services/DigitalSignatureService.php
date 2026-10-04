@@ -33,11 +33,11 @@ class DigitalSignatureService
         $jabatan = $customPejabat['jabatan'] ?? null;
 
         if (! $nama) {
-            if ($role === 'wr3') {
+            if ($role === 'wr3' || $role === 'wr3_lpj') {
                 $nama = ($konfig['wr3_nama'] ?? null) ?: 'Pejabat Wakil Rektor III';
                 $nidn = ($konfig['wr3_nidn'] ?? null) ?: '-';
                 $jabatan = $konfig['wr3_jabatan'] ?? 'Wakil Rektor III Bidang Kemahasiswaan dan Kerjasama';
-            } elseif ($role === 'bkhm') {
+            } elseif ($role === 'bkhm' || $role === 'bkhm_lpj') {
                 $nama = ($konfig['bkhm_nama'] ?? null) ?: 'Pejabat Kepala BKHM';
                 $nidn = ($konfig['bkhm_nidn'] ?? null) ?: '-';
                 $jabatan = $konfig['bkhm_jabatan'] ?? 'Kepala Biro Kemahasiswaan dan Hubungan Masyarakat (BKHM)';
@@ -57,7 +57,7 @@ class DigitalSignatureService
                 $nama = ($user?->nama_ketua ?? null) ?: ($user?->name ?? 'Presiden Mahasiswa ITG');
                 $nidn = ($user?->nim_ketua ?? null) ?: '-';
                 $jabatan = 'Presiden Mahasiswa BEM ITG';
-            } elseif ($role === 'ormawa') {
+            } elseif ($role === 'ormawa' || $role === 'ormawa_lpj') {
                 $nama = ($user?->nama_ketua ?? null) ?: ($user?->name ?? 'Ketua Ormawa');
                 $nidn = ($user?->nim_ketua ?? null) ?: '-';
                 $jabatan = 'Ketua ' . ($user?->name ?? 'Ormawa');
@@ -199,8 +199,16 @@ class DigitalSignatureService
         }
 
         if ($model instanceof Pengajuan) {
-            $isLpj = !empty($model->file_lpj) && (in_array($model->state?->name, ['lpj_submitted', 'lpj_wr3_review', 'completed']) || str_contains($model->state?->name ?? '', 'lpj'));
+            $isLpj = in_array($role, ['ormawa_lpj', 'bkhm_lpj', 'wr3_lpj'])
+                || (!empty($model->file_lpj) && (in_array($model->state?->name, ['lpj_submitted', 'lpj_wr3_review', 'completed']) || str_contains($model->state?->name ?? '', 'lpj')));
             $docType = $isLpj ? 'Pengesahan Laporan Pertanggungjawaban (LPJ)' : 'Pengesahan Proposal Kegiatan';
+
+            $tahapLabel = match ($role) {
+                'ormawa_lpj' => 'Pelapor / Pengunggah LPJ (Ormawa)',
+                'bkhm_lpj'   => 'Verifikasi & Legalisir LPJ (BKHM)',
+                'wr3_lpj'    => 'Pengesahan Akhir LPJ (Wakil Rektor III)',
+                default      => strtoupper($role),
+            };
 
             return [
                 'document_type'   => $docType,
@@ -210,7 +218,7 @@ class DigitalSignatureService
                 'dana_diajukan'   => (float) $model->dana_diajukan,
                 'tanggal_mulai'   => $model->tanggal_mulai_kegiatan ? $model->tanggal_mulai_kegiatan->format('Y-m-d') : null,
                 'tanggal_selesai' => $model->tanggal_selesai_kegiatan ? $model->tanggal_selesai_kegiatan->format('Y-m-d') : null,
-                'tahap'           => strtoupper($role),
+                'tahap'           => $tahapLabel,
                 'penandatangan'   => $signerName,
             ];
         }

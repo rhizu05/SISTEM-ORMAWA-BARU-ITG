@@ -84,7 +84,18 @@ class BkhmController extends Controller
 
         $arsipSp = SuratPeringatan::with(['target','creator'])->latest()->paginate(10, ['*'], 'sp_page');
 
-        return view('bkhm.arsip', compact('arsip', 'arsipSp'));
+        $skQuery = User::role(['ormawa', 'bem', 'bpm'])->whereNotNull('file_sk')->with('roles');
+        if ($request->filled('search_sk')) {
+            $s = $request->search_sk;
+            $skQuery->where(function($q) use($s){
+                $q->where('name', 'like', "%$s%")
+                  ->orWhere('nomor_sk', 'like', "%$s%")
+                  ->orWhere('username', 'like', "%$s%");
+            });
+        }
+        $arsipSk = $skQuery->latest()->paginate(10, ['*'], 'sk_page')->withQueryString();
+
+        return view('bkhm.arsip', compact('arsip', 'arsipSp', 'arsipSk'));
     }
 
     public function spCreate()

@@ -15,14 +15,20 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        $this->call([
+        $seeders = [
             RolePermissionSeeder::class,
             UserSeeder::class,
             WorkflowSeeder::class,
             KonfigurasiSeeder::class,
             MasterDataSeeder::class,
             PeriodeAnggaranSeeder::class,
-            ContohLayananDanInformasiSeeder::class,
-        ]);
+        ];
+
+        // ContohLayananDanInformasiSeeder memuat data sampel demo dan hanya dijalankan pada lokal/staging
+        if (!app()->isProduction() && env('APP_ENV') !== 'production') {
+            $seeders[] = ContohLayananDanInformasiSeeder::class;
+        }
+
+        $this->call($seeders);
     }
 }

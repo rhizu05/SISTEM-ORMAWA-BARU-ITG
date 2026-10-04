@@ -70,16 +70,36 @@ class TandaTanganDigital extends Model
         $jabatan = strtolower($this->jabatan_penandatangan ?? '');
 
         // Kategori Dosen: WR3, BKHM, Bendahara
-        if (in_array($role, ['wr3', 'bkhm', 'bendahara']) || str_contains($jabatan, 'rektor') || str_contains($jabatan, 'bkhm') || str_contains($jabatan, 'bendahara kampus')) {
+        if (in_array($role, ['wr3', 'bkhm', 'bendahara', 'wr3_lpj', 'bkhm_lpj']) || str_contains($jabatan, 'rektor') || str_contains($jabatan, 'bkhm') || str_contains($jabatan, 'bendahara kampus')) {
             return 'NIDN';
         }
 
         // Kategori Mahasiswa: BEM, BPM, HIMA, UKM, Ormawa
-        if (in_array($role, ['bem', 'bpm', 'ormawa', 'hima', 'ukm', 'mahasiswa']) || str_contains($jabatan, 'mahasiswa') || str_contains($jabatan, 'ketua umum') || str_contains($jabatan, 'presiden')) {
+        if (in_array($role, ['bem', 'bpm', 'ormawa', 'hima', 'ukm', 'mahasiswa', 'ormawa_lpj']) || str_contains($jabatan, 'mahasiswa') || str_contains($jabatan, 'ketua umum') || str_contains($jabatan, 'presiden')) {
             return 'NIM';
         }
 
         return 'NIDN';
+    }
+
+    /**
+     * Label representasi peran penandatangan yang ramah pengguna.
+     */
+    public function getRoleBadgeLabelAttribute(): string
+    {
+        return match (strtolower($this->role ?? '')) {
+            'ormawa_lpj' => 'Pelapor LPJ (Ormawa)',
+            'bkhm_lpj'   => 'Verifikasi LPJ (BKHM)',
+            'wr3_lpj'    => 'Pengesahan LPJ (WR3)',
+            'wr3'        => 'Wakil Rektor III',
+            'bkhm'       => 'Kepala BKHM',
+            'bpm'        => 'BPM ITG',
+            'bem'        => 'BEM ITG',
+            'bendahara'  => 'Bendahara Kampus',
+            'sarpras'    => 'Sarpras ITG',
+            'ormawa'     => 'Ormawa Pengusul',
+            default      => strtoupper($this->role ?? 'Pejabat'),
+        };
     }
 
     /**
