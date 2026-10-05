@@ -159,7 +159,9 @@ class TiketPublicController extends Controller
      */
     public function prestasiStore(Request $request)
     {
-        $validated = $request->validate([
+        $subKategori = $request->input('sub_kategori');
+
+        $rules = [
             'nim' => 'required|string|max:30',
             'nama_mahasiswa' => 'required|string|max:255',
             'email' => 'required|email|max:255',
@@ -170,14 +172,20 @@ class TiketPublicController extends Controller
             'penyelenggara' => 'required|string|max:255',
             'url_penyelenggara' => 'nullable|url|max:500',
             'tingkat' => 'required|string|max:50',
-            'capaian' => 'nullable|string|max:100',
             'tanggal_kegiatan' => 'nullable|date',
             'tanggal_mulai' => 'nullable|date',
             'tanggal_selesai' => 'nullable|date|after_or_equal:tanggal_mulai',
-            'estimasi_biaya' => 'nullable|numeric|min:0',
             'lampiran_bukti' => 'required|file|mimes:pdf,jpg,jpeg,png|max:5120',
-            'foto_penyerahan' => 'nullable|file|mimes:jpg,jpeg,png|max:5120',
-        ]);
+        ];
+
+        if ($subKategori === 'lapor_prestasi') {
+            $rules['capaian'] = 'required|string|max:100';
+            $rules['foto_penyerahan'] = 'nullable|file|mimes:jpg,jpeg,png|max:5120';
+        } else {
+            $rules['estimasi_biaya'] = 'required|numeric|min:1';
+        }
+
+        $validated = $request->validate($rules);
 
         $tanggalMulai = $validated['tanggal_mulai'] ?? ($validated['tanggal_kegiatan'] ?? null);
         $tanggalSelesai = $validated['tanggal_selesai'] ?? $tanggalMulai;
@@ -185,7 +193,7 @@ class TiketPublicController extends Controller
 
         $lampiranPath = $request->file('lampiran_bukti')->store('tiket-prestasi', 'local');
         $fotoPenyerahanPath = null;
-        if ($request->hasFile('foto_penyerahan')) {
+        if ($subKategori === 'lapor_prestasi' && $request->hasFile('foto_penyerahan')) {
             $fotoPenyerahanPath = $request->file('foto_penyerahan')->store('tiket-prestasi-foto', 'public');
         }
 
@@ -204,11 +212,11 @@ class TiketPublicController extends Controller
             'penyelenggara' => $validated['penyelenggara'],
             'url_penyelenggara' => $validated['url_penyelenggara'] ?? null,
             'tingkat' => $validated['tingkat'],
-            'capaian' => $validated['capaian'] ?? null,
+            'capaian' => $subKategori === 'lapor_prestasi' ? ($validated['capaian'] ?? null) : null,
             'tanggal_kegiatan' => $tanggalKegiatan,
             'tanggal_mulai' => $tanggalMulai,
             'tanggal_selesai' => $tanggalSelesai,
-            'estimasi_biaya' => $validated['estimasi_biaya'] ?? null,
+            'estimasi_biaya' => $subKategori === 'pengajuan_dana_delegasi' ? ($validated['estimasi_biaya'] ?? null) : null,
             'lampiran_bukti' => $lampiranPath,
             'foto_penyerahan' => $fotoPenyerahanPath,
             'status' => 'pending',

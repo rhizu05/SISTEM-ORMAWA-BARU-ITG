@@ -30,13 +30,13 @@
 
                 <div class="divide-y divide-slate-100">
                     @forelse ($tikets as $tiket)
-                        <div class="p-6 space-y-4 hover:bg-slate-50/50 transition">
+                        <div class="p-6 space-y-4 hover:bg-slate-50/50 transition border-l-4 {{ $tiket->sub_kategori === 'lapor_prestasi' ? 'border-l-amber-500' : 'border-l-indigo-600' }}">
                             <div class="flex flex-wrap items-center justify-between gap-3">
                                 <div class="flex items-center gap-2.5">
                                     <span class="font-mono font-bold text-xs px-2.5 py-1 rounded-lg bg-slate-100 text-slate-700">
                                         {{ $tiket->kode_tiket }}
                                     </span>
-                                    <span class="px-2.5 py-0.5 rounded-full text-xs font-bold {{ $tiket->sub_kategori === 'lapor_prestasi' ? 'bg-amber-100 text-amber-800' : 'bg-indigo-100 text-indigo-800' }}">
+                                    <span class="px-2.5 py-0.5 rounded-full text-xs font-bold border {{ $tiket->sub_kategori === 'lapor_prestasi' ? 'bg-amber-100 text-amber-800 border-amber-300' : 'bg-indigo-100 text-indigo-800 border-indigo-300' }}">
                                         {{ $tiket->sub_kategori === 'lapor_prestasi' ? '🏆 Lapor Prestasi' : '💸 Pengajuan Delegasi' }}
                                     </span>
                                     @if ($tiket->tampil_ke_publik)
@@ -69,14 +69,17 @@
                                             <span class="text-slate-400 block mb-0.5">Tingkat</span>
                                             <span class="font-semibold text-slate-800">{{ $tiket->tingkat }}</span>
                                         </div>
-                                        <div>
-                                            <span class="text-slate-400 block mb-0.5">Capaian</span>
-                                            <span class="font-bold text-amber-700">{{ $tiket->capaian ?? '-' }}</span>
-                                        </div>
-                                        <div>
-                                            <span class="text-slate-400 block mb-0.5">Estimasi Biaya</span>
-                                            <span class="font-bold text-indigo-700">{{ $tiket->estimasi_biaya ? 'Rp ' . number_format($tiket->estimasi_biaya, 0, ',', '.') : '-' }}</span>
-                                        </div>
+                                        @if ($tiket->sub_kategori === 'lapor_prestasi')
+                                            <div>
+                                                <span class="text-slate-400 block mb-0.5">Capaian Juara</span>
+                                                <span class="font-bold text-amber-700">{{ $tiket->capaian ?? '-' }}</span>
+                                            </div>
+                                        @else
+                                            <div>
+                                                <span class="text-slate-400 block mb-0.5">Bantuan Dana</span>
+                                                <span class="font-bold text-indigo-700">{{ $tiket->estimasi_biaya ? 'Rp ' . number_format($tiket->estimasi_biaya, 0, ',', '.') : '-' }}</span>
+                                            </div>
+                                        @endif
                                     </div>
                                     <div class="text-xs text-slate-500 pt-1">
                                         Pengaju: <span class="font-semibold text-slate-700">{{ $tiket->nama_mahasiswa }}</span> ({{ $tiket->nim }} &bull; {{ $tiket->prodi ?? 'ITG' }})
@@ -92,9 +95,9 @@
                                     <div class="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
                                         @if ($tiket->lampiran_bukti)
                                             <a href="{{ route('layanan.lampiran', $tiket) }}" target="_blank"
-                                                class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold text-indigo-700 bg-indigo-50 border border-indigo-200 hover:bg-indigo-100 transition">
+                                                class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition border {{ $tiket->sub_kategori === 'lapor_prestasi' ? 'text-amber-800 bg-amber-50 border-amber-200 hover:bg-amber-100' : 'text-indigo-700 bg-indigo-50 border-indigo-200 hover:bg-indigo-100' }}">
                                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                                                Scan Sertifikat
+                                                {{ $tiket->sub_kategori === 'lapor_prestasi' ? 'Scan Sertifikat' : 'Proposal / Undangan' }}
                                             </a>
                                         @endif
                                         @if ($tiket->foto_penyerahan)

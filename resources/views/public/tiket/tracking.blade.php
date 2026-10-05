@@ -95,9 +95,15 @@
                                 Konseling (Rahasia)
                             </span>
                         @else
-                            <span class="px-3 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-800 border border-amber-200">
-                                {{ $tiket->sub_kategori === 'lapor_prestasi' ? 'Prestasi Mahasiswa' : 'Bantuan Lomba' }}
-                            </span>
+                            @if ($tiket->sub_kategori === 'lapor_prestasi')
+                                <span class="px-3 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-800 border border-amber-300">
+                                    Prestasi Mahasiswa
+                                </span>
+                            @else
+                                <span class="px-3 py-1 rounded-full text-xs font-bold bg-indigo-50 text-indigo-800 border border-indigo-300">
+                                    Pengajuan Dana Delegasi
+                                </span>
+                            @endif
                         @endif
 
                         <span class="px-3 py-1 rounded-full text-xs font-bold border {{ $tiket->status_color }}">
@@ -169,13 +175,20 @@
                                     <span class="text-slate-600 block mb-0.5">Tingkat</span>
                                     <span class="font-semibold text-slate-800">{{ $tiket->tingkat }}</span>
                                 </div>
+                                @if ($tiket->sub_kategori === 'lapor_prestasi')
+                                    <div>
+                                        <span class="text-slate-600 block mb-0.5">Capaian Juara</span>
+                                        <span class="font-bold text-amber-700">{{ $tiket->capaian ?? '-' }}</span>
+                                    </div>
+                                @else
+                                    <div>
+                                        <span class="text-slate-600 block mb-0.5">Bantuan Dana</span>
+                                        <span class="font-bold text-indigo-700">{{ $tiket->estimasi_biaya ? 'Rp ' . number_format($tiket->estimasi_biaya, 0, ',', '.') : '-' }}</span>
+                                    </div>
+                                @endif
                                 <div>
-                                    <span class="text-slate-600 block mb-0.5">Capaian</span>
-                                    <span class="font-semibold text-slate-800">{{ $tiket->capaian ?? '-' }}</span>
-                                </div>
-                                <div>
-                                    <span class="text-slate-600 block mb-0.5">Bantuan Dana</span>
-                                    <span class="font-semibold text-slate-800">{{ $tiket->estimasi_biaya ? 'Rp ' . number_format($tiket->estimasi_biaya, 0, ',', '.') : '-' }}</span>
+                                    <span class="text-slate-600 block mb-0.5">Waktu Kegiatan</span>
+                                    <span class="font-semibold text-slate-800">{{ $tiket->rentang_tanggal }}</span>
                                 </div>
                             </div>
 
@@ -191,11 +204,20 @@
                     @if ($tiket->lampiran || $tiket->lampiran_bukti)
                         <div class="pt-4 border-t border-slate-100">
                             <span class="text-xs font-semibold text-slate-600 block mb-2">Berkas Lampiran Pengaju</span>
-                            <a href="{{ route('layanan.lampiran', ['tiket' => $tiket->id, 'email' => $tiket->email]) }}" target="_blank" rel="noopener noreferrer"
-                                class="inline-flex items-center min-h-[44px] gap-2 px-3.5 rounded-xl text-xs font-semibold text-indigo-700 bg-indigo-50 border border-indigo-200 hover:bg-indigo-100 transition">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-                                Unduh Dokumen Pendukung
-                            </a>
+                            <div class="flex flex-wrap gap-2">
+                                <a href="{{ route('layanan.lampiran', ['tiket' => $tiket->id, 'email' => $tiket->email]) }}" target="_blank" rel="noopener noreferrer"
+                                    class="inline-flex items-center min-h-[44px] gap-2 px-3.5 rounded-xl text-xs font-semibold transition border {{ $tiket->sub_kategori === 'lapor_prestasi' ? 'text-amber-800 bg-amber-50 border-amber-200 hover:bg-amber-100' : 'text-indigo-700 bg-indigo-50 border-indigo-200 hover:bg-indigo-100' }}">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                                    {{ $tiket->sub_kategori === 'lapor_prestasi' ? 'Unduh Scan Sertifikat / Piagam' : ($tiket->sub_kategori === 'pengajuan_dana_delegasi' ? 'Unduh Proposal & Undangan Delegasi' : 'Unduh Dokumen Pendukung') }}
+                                </a>
+                                @if ($tiket->foto_penyerahan)
+                                    <a href="{{ route('layanan.lampiran', ['tiket' => $tiket->id, 'type' => 'foto', 'email' => $tiket->email]) }}" target="_blank" rel="noopener noreferrer"
+                                        class="inline-flex items-center min-h-[44px] gap-2 px-3.5 rounded-xl text-xs font-semibold text-amber-700 bg-amber-50 border border-amber-200 hover:bg-amber-100 transition">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                                        Unduh Foto Penyerahan
+                                    </a>
+                                @endif
+                            </div>
                         </div>
                     @endif
 

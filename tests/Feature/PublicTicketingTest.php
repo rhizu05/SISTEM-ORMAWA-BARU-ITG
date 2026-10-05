@@ -112,6 +112,7 @@ class PublicTicketingTest extends TestCase
             'penyelenggara' => 'Institut Teknologi Bandung',
             'tingkat' => 'Nasional',
             'capaian' => 'Juara 1',
+            'estimasi_biaya' => 500000, // Harus diabaikan/dinullkan untuk lapor_prestasi
             'lampiran_bukti' => UploadedFile::fake()->create('sertifikat.pdf', 300, 'application/pdf'),
         ];
 
@@ -122,6 +123,7 @@ class PublicTicketingTest extends TestCase
             'kategori' => 'prestasi',
             'sub_kategori' => 'lapor_prestasi',
             'capaian' => 'Juara 1',
+            'estimasi_biaya' => null,
             'tampil_ke_publik' => false,
         ]);
 
@@ -135,6 +137,7 @@ class PublicTicketingTest extends TestCase
             'nama_kegiatan' => 'Kompetisi Lean Manufacturing 2026',
             'penyelenggara' => 'UGM Yogyakarta',
             'tingkat' => 'Nasional',
+            'capaian' => 'Harus Kosong', // Karena belum tanding, harus diabaikan/dinullkan
             'estimasi_biaya' => 2500000,
             'lampiran_bukti' => UploadedFile::fake()->create('proposal.pdf', 800, 'application/pdf'),
         ];
@@ -144,8 +147,42 @@ class PublicTicketingTest extends TestCase
         $this->assertDatabaseHas('tiket_layanans', [
             'nim' => '2106004',
             'sub_kategori' => 'pengajuan_dana_delegasi',
+            'capaian' => null,
             'estimasi_biaya' => 2500000,
         ]);
+    }
+
+    public function test_prestasi_and_delegasi_conditional_validation(): void
+    {
+        // 1. Lapor prestasi tanpa capaian harus ditolak
+        $responseNoCapaian = $this->post(route('layanan.prestasi.store'), [
+            'nim' => '2106010',
+            'nama_mahasiswa' => 'Siti',
+            'email' => 'siti@itg.ac.id',
+            'no_hp' => '08123456789',
+            'prodi' => 'Informatika',
+            'sub_kategori' => 'lapor_prestasi',
+            'nama_kegiatan' => 'Lomba UI/UX',
+            'penyelenggara' => 'ITG',
+            'tingkat' => 'Nasional',
+            'lampiran_bukti' => UploadedFile::fake()->create('sertifikat.pdf', 100, 'application/pdf'),
+        ]);
+        $responseNoCapaian->assertSessionHasErrors(['capaian']);
+
+        // 2. Pengajuan dana delegasi tanpa estimasi biaya harus ditolak
+        $responseNoEstimasi = $this->post(route('layanan.prestasi.store'), [
+            'nim' => '2106011',
+            'nama_mahasiswa' => 'Budi',
+            'email' => 'budi@itg.ac.id',
+            'no_hp' => '08123456789',
+            'prodi' => 'Teknik Sipil',
+            'sub_kategori' => 'pengajuan_dana_delegasi',
+            'nama_kegiatan' => 'Lomba Beton',
+            'penyelenggara' => 'ITB',
+            'tingkat' => 'Nasional',
+            'lampiran_bukti' => UploadedFile::fake()->create('proposal.pdf', 100, 'application/pdf'),
+        ]);
+        $responseNoEstimasi->assertSessionHasErrors(['estimasi_biaya']);
     }
 
     public function test_ticket_tracking_requires_correct_code_and_email(): void
