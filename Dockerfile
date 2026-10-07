@@ -16,7 +16,7 @@ RUN npm run build
 # ==============================================================================
 # TAHAP 2: Image Aplikasi Utama (PHP-FPM Alpine)
 # ==============================================================================
-FROM php:8.3-fpm-alpine AS app
+FROM php:8.4-fpm-alpine AS app
 
 # Pasang dependensi sistem yang dibutuhkan untuk ekstensi PHP & DomPDF
 RUN apk update && apk add --no-cache \

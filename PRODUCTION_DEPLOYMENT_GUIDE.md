@@ -21,7 +21,7 @@ Aplikasi telah dikemas secara penuh menggunakan Docker dengan arsitektur multi-c
 ```mermaid
 flowchart TD
     Client(["Internet / Pengguna ITG"]) --> Nginx["Webserver Container<br/>(Nginx Alpine: Port 80/443)"]
-    Nginx -->|FastCGI| App["App Container<br/>(PHP 8.3-FPM Alpine)"]
+    Nginx -->|FastCGI| App["App Container<br/>(PHP 8.4-FPM Alpine)"]
     App -->|Query MySQL| DB[("Database Container<br/>(MySQL 8.0)")]
     App -->|Cache & Queue| Redis[("Redis Container<br/>(Redis 7.x Alpine)")]
     Queue["Queue Container<br/>(Background Worker)"] --> Redis
@@ -32,7 +32,7 @@ flowchart TD
 ### Komponen Kontainer dalam `docker-compose.yml`:
 | Service | Image / Base | Peran & Fungsi |
 | :--- | :--- | :--- |
-| **`app`** | `Dockerfile` (PHP 8.3 Alpine Multi-stage) | Menjalankan backend Laravel via PHP-FPM 9000 dengan ekstensi `gd`, `pdo_mysql`, `redis`, `opcache`. |
+| **`app`** | `Dockerfile` (PHP 8.4 Alpine Multi-stage) | Menjalankan backend Laravel via PHP-FPM 9000 dengan ekstensi `gd`, `pdo_mysql`, `redis`, `opcache`. |
 | **`webserver`** | `nginx:alpine` | Reverse proxy, kompresi HTTP/2, security headers, dan serving aset publik statis (`public/build`). |
 | **`db`** | `mysql:8.0` | Basis data utama dengan penyimpanan persisten pada volume Docker `skin_dbdata`. |
 | **`redis`** | `redis:7-alpine` | Broker antrean background worker, cache aplikasi, dan manajemen session. |
