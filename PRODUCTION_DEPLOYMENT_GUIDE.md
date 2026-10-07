@@ -59,9 +59,11 @@ cp .env.docker.example .env
 # Sesuaikan konfigurasi pada berkas .env:
 # 1. APP_KEY=base64:... (isi dengan output perintah generate kunci di atas)
 # 2. APP_URL=https://ormawa.itg.ac.id
-# 3. DB_PASSWORD dan DB_ROOT_PASSWORD (gunakan kata sandi kuat)
-# 4. SEED_USER_DOMAIN=itg.ac.id
-# 5. Konfigurasi kredensial SMTP Email ITG
+# 3. DB_PASSWORD dan DB_ROOT_PASSWORD (wajib diisi dengan kata sandi kuat, tanpa default)
+# 4. REDIS_PASSWORD (wajib diisi dengan kata sandi kuat)
+# 5. SESSION_ENCRYPT=true dan SESSION_SECURE_COOKIE=true (proteksi data privat konseling)
+# 6. SEED_USER_DOMAIN=itg.ac.id
+# 7. Konfigurasi kredensial SMTP Email ITG
 nano .env
 ```
 
@@ -336,8 +338,9 @@ Sebelum sistem diumumkan secara resmi ke publik kampus ITG, lakukan pengujian ve
 | 7 | **Tanda Tangan Digital QR Code** | Dokumen hasil generate memiliki QR Code, dan scan QR Code mengarah ke URL publik verifikasi yang sah. | [ ] |
 | 8 | **Kalender & Peminjaman Sarpras** | Peminjaman tempat/barang dapat diajukan dan terdeteksi di kalender tanpa tabrakan jadwal. | [ ] |
 | 9 | **Queue Worker & Notifikasi** | Perubahan status alur verifikasi memicu notifikasi sistem dan email terkirim. | [ ] |
-| 10 | **Backup Otomatis** | Eksekusi script backup menghasilkan arsip `.sql.gz` dan `.tar.gz` yang utuh. | [ ] |
+| 10 | **Pengujian SMTP Institusi** | Menjalankan `php artisan mail:test devops@itg.ac.id` berhasil mengirimkan email resmi tanpa galat. | [ ] |
+| 11 | **Backup Otomatis** | Eksekusi script backup menghasilkan arsip `.sql.gz` dan `.tar.gz` yang utuh. | [ ] |
 
 ---
 **Institut Teknologi Garut — Sistem Informasi & Keuangan Ormawa (SKIN ITG)**  
-Dokumen Terbit: Oktober 2026 | Versi 1.1 (Docker Ready)
+Dokumen Terbit: Oktober 2026 | Versi 1.2 (Security Hardened & Docker Production Ready)
