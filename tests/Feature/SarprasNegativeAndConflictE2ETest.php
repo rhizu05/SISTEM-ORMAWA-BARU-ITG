@@ -41,12 +41,13 @@ class SarprasNegativeAndConflictE2ETest extends TestCase
         $file = UploadedFile::fake()->create('persetujuan_prodi.pdf', 100, 'application/pdf');
 
         // Jadwal kuliah di Ruang Kelas A101 hari Senin (1) jam 08:00 - 10:30
-        // Coba pinjam tanggal 2026-10-05 (Senin) jam 09:00 - 11:00 (beririsan)
+        // Coba pinjam di hari Senin mendatang jam 09:00 - 11:00 (beririsan)
+        $seninDepan = now()->next(\Carbon\Carbon::MONDAY)->toDateString();
         $response = $this->actingAs($hima)->post(route('peminjaman.tempat.store'), [
             'ruangan_id' => $ruangan->id,
             'nama_kegiatan' => 'Kegiatan Bentrok Jadwal Kuliah',
-            'tgl_mulai' => '2026-10-05',
-            'tgl_selesai' => '2026-10-05',
+            'tgl_mulai' => $seninDepan,
+            'tgl_selesai' => $seninDepan,
             'jam_mulai' => '09:00',
             'jam_selesai' => '11:00',
             'file_persetujuan_prodi' => $file,
@@ -66,13 +67,14 @@ class SarprasNegativeAndConflictE2ETest extends TestCase
         $ruangan = MasterRuangan::where('nama_ruangan', 'Aula Gedung Rektorat')->first();
         $file = UploadedFile::fake()->create('persetujuan_prodi.pdf', 100, 'application/pdf');
 
+        $tglBooking = now()->addDays(5)->toDateString();
         // Buat booking awal oleh BEM
         PeminjamanTempat::create([
             'user_id' => $bem->id,
             'ruangan_id' => $ruangan->id,
             'nama_kegiatan' => 'Booking Awal BEM',
-            'tgl_mulai' => '2026-10-10',
-            'tgl_selesai' => '2026-10-10',
+            'tgl_mulai' => $tglBooking,
+            'tgl_selesai' => $tglBooking,
             'jam_mulai' => '13:00:00',
             'jam_selesai' => '16:00:00',
             'status_bkhm' => 'disetujui',
@@ -84,8 +86,8 @@ class SarprasNegativeAndConflictE2ETest extends TestCase
         $response = $this->actingAs($hima)->post(route('peminjaman.tempat.store'), [
             'ruangan_id' => $ruangan->id,
             'nama_kegiatan' => 'Booking Ganda HIMA',
-            'tgl_mulai' => '2026-10-10',
-            'tgl_selesai' => '2026-10-10',
+            'tgl_mulai' => $tglBooking,
+            'tgl_selesai' => $tglBooking,
             'jam_mulai' => '14:00',
             'jam_selesai' => '17:00',
             'file_persetujuan_prodi' => $file,
@@ -104,12 +106,13 @@ class SarprasNegativeAndConflictE2ETest extends TestCase
         $sarpras = $this->createUser('sarpras', 'Sarpras Kampus');
         $ruangan = MasterRuangan::first();
 
+        $tglTolak = now()->addDays(7)->toDateString();
         $peminjaman = PeminjamanTempat::create([
             'user_id' => $bem->id,
             'ruangan_id' => $ruangan->id,
             'nama_kegiatan' => 'Permohonan Ruangan Uji Tolak',
-            'tgl_mulai' => '2026-10-12',
-            'tgl_selesai' => '2026-10-12',
+            'tgl_mulai' => $tglTolak,
+            'tgl_selesai' => $tglTolak,
             'jam_mulai' => '08:00:00',
             'jam_selesai' => '12:00:00',
             'status_bkhm' => 'disetujui',
@@ -134,11 +137,12 @@ class SarprasNegativeAndConflictE2ETest extends TestCase
     {
         $bem = $this->createUser('bem', 'BEM ITG');
         $barang = MasterBarang::where('nama_barang', 'Proyektor EPSON')->first(); // Stok: 5, boleh_dibawa_keluar: true
+        $tglBarang = now()->addDays(10)->toDateString();
 
         $response = $this->actingAs($bem)->post(route('peminjaman.barang.store'), [
             'nama_kegiatan' => 'Kegiatan Pinjam Proyektor Berlebih',
-            'tgl_mulai' => '2026-10-15',
-            'tgl_selesai' => '2026-10-15',
+            'tgl_mulai' => $tglBarang,
+            'tgl_selesai' => $tglBarang,
             'barang_id' => [$barang->id],
             'qty' => [15], // Meminjam 15 padahal stok hanya 5
         ]);
@@ -155,11 +159,12 @@ class SarprasNegativeAndConflictE2ETest extends TestCase
         $bem = $this->createUser('bem', 'BEM ITG');
         // Kursi lipat memiliki boleh_dibawa_keluar = false
         $barang = MasterBarang::where('nama_barang', 'Kursi Lipat')->first();
+        $tglKursi = now()->addDays(10)->toDateString();
 
         $response = $this->actingAs($bem)->post(route('peminjaman.barang.store'), [
             'nama_kegiatan' => 'Kegiatan Bawa Kursi Keluar',
-            'tgl_mulai' => '2026-10-15',
-            'tgl_selesai' => '2026-10-15',
+            'tgl_mulai' => $tglKursi,
+            'tgl_selesai' => $tglKursi,
             'barang_id' => [$barang->id],
             'qty' => [5],
         ]);
@@ -177,12 +182,13 @@ class SarprasNegativeAndConflictE2ETest extends TestCase
         $sarpras = $this->createUser('sarpras', 'Sarpras Kampus');
         $barang = MasterBarang::where('nama_barang', 'Proyektor EPSON')->first();
         $stokAwal = $barang->stok_tersedia;
+        $tglPinjam = now()->addDays(12)->toDateString();
 
         $peminjaman = PeminjamanBarang::create([
             'user_id' => $bem->id,
             'nama_kegiatan' => 'Permohonan Proyektor Uji Tolak',
-            'tgl_mulai' => '2026-10-18',
-            'tgl_selesai' => '2026-10-18',
+            'tgl_mulai' => $tglPinjam,
+            'tgl_selesai' => $tglPinjam,
             'kebutuhan_barang' => [
                 ['id_barang' => $barang->id, 'nama_barang' => $barang->nama_barang, 'qty' => 2]
             ],

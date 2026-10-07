@@ -25,5 +25,8 @@ README.md
 *.log
 *.sql
 *.tar.gz
-*.pdf
-*.png
+# Jangan kecualikan *.png atau *.pdf secara global agar logo di public/images tidak hilang
+temp.php
+update.php
+test_balances*.php
+_archive/

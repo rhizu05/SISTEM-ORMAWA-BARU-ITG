@@ -32,7 +32,7 @@ flowchart TD
 ### Komponen Kontainer dalam `docker-compose.yml`:
 | Service | Image / Base | Peran & Fungsi |
 | :--- | :--- | :--- |
-| **`app`** | `Dockerfile` (PHP 8.2 Alpine Multi-stage) | Menjalankan backend Laravel via PHP-FPM 9000 dengan ekstensi `gd`, `pdo_mysql`, `redis`, `opcache`. |
+| **`app`** | `Dockerfile` (PHP 8.3 Alpine Multi-stage) | Menjalankan backend Laravel via PHP-FPM 9000 dengan ekstensi `gd`, `pdo_mysql`, `redis`, `opcache`. |
 | **`webserver`** | `nginx:alpine` | Reverse proxy, kompresi HTTP/2, security headers, dan serving aset publik statis (`public/build`). |
 | **`db`** | `mysql:8.0` | Basis data utama dengan penyimpanan persisten pada volume Docker `skin_dbdata`. |
 | **`redis`** | `redis:7-alpine` | Broker antrean background worker, cache aplikasi, dan manajemen session. |
@@ -122,9 +122,9 @@ Jika institusi memilih untuk tidak menggunakan Docker, ikuti panduan bare-metal 
 - **CPU:** 2–4 vCPU, **RAM:** 4–8 GB, **SSD:** 40 GB+
 - **Paket Wajib:**
 ```bash
-sudo apt update && sudo apt install -y php8.2-fpm php8.2-cli php8.2-mysql php8.2-curl \
-    php8.2-gd php8.2-mbstring php8.2-xml php8.2-zip php8.2-bcmath \
-    php8.2-intl php8.2-redis nginx mysql-server supervisor redis-server git unzip
+sudo apt update && sudo apt install -y php8.3-fpm php8.3-cli php8.3-mysql php8.3-curl \
+    php8.3-gd php8.3-mbstring php8.3-xml php8.3-zip php8.3-bcmath \
+    php8.3-intl php8.3-redis nginx mysql-server supervisor redis-server git unzip
 ```
 
 ### Langkah Instalasi Bare-Metal:
@@ -205,7 +205,7 @@ server {
     }
 
     location ~ \.php$ {
-        fastcgi_pass unix:/var/run/php/php8.2-fpm.sock;
+        fastcgi_pass unix:/var/run/php/php8.3-fpm.sock;
         fastcgi_param SCRIPT_FILENAME $realpath_root$fastcgi_script_name;
         include fastcgi_params;
         fastcgi_hide_header X-Powered-By;
@@ -213,6 +213,59 @@ server {
     }
 }
 ```
+
+---
+
+## 6. Konfigurasi Mail Server (SMTP) & Pengujian Diagnostik
+
+Sistem SKIN ITG telah mengimplementasikan seluruh template email notifikasi (pengajuan proposal, revisi, pencairan dana, tiket bkhm, aspirasi, akun baru) lengkap dengan proteksi *fail-safe* (aplikasi tidak akan crash/500 jika mail server offline).
+
+Tim infrastruktur / server kampus hanya perlu mengisi kredensial resmi pada berkas `.env`.
+
+### A. Contoh Konfigurasi `.env`
+
+**1. Opsi Google Workspace Institusi (`@itg.ac.id` via Gmail SMTP):**
+```dotenv
+MAIL_MAILER=smtp
+MAIL_HOST=smtp.gmail.com
+MAIL_PORT=587
+MAIL_ENCRYPTION=tls
+MAIL_USERNAME=kemahasiswaan@itg.ac.id
+# Wajib: Gunakan App Password (16 karakter tanpa spasi), bukan password email biasa
+MAIL_PASSWORD=xxxx-xxxx-xxxx-xxxx
+MAIL_FROM_ADDRESS=noreply@itg.ac.id
+MAIL_FROM_NAME="SKIN ITG"
+```
+
+**2. Opsi Server Kampus / cPanel Mail Server:**
+```dotenv
+MAIL_MAILER=smtp
+MAIL_HOST=mail.itg.ac.id
+MAIL_PORT=465
+MAIL_ENCRYPTION=ssl
+MAIL_USERNAME=bkhm@itg.ac.id
+MAIL_PASSWORD=KatasandiSmtpServerKampus2026!
+MAIL_FROM_ADDRESS=noreply@itg.ac.id
+MAIL_FROM_NAME="SKIN ITG"
+```
+
+### B. Perintah Uji Coba Diagnostik SMTP
+
+Setelah mengisi parameter SMTP pada `.env` dan me-refresh konfigurasi (`php artisan config:clear`), jalankan perintah diagnostik bawaan SKIN ITG:
+
+```bash
+# Docker Container:
+docker compose exec app php artisan mail:test devops@itg.ac.id
+
+# Server Bare-Metal / VM:
+php artisan mail:test devops@itg.ac.id
+```
+
+Perintah ini akan:
+1. Memvalidasi sintaks format email penerima.
+2. Menampilkan tabel ringkasan koneksi mail server (mailer, host, port, enkripsi, sensor pengirim).
+3. Mengirimkan email uji coba berformat HTML resmi SKIN ITG.
+4. Menampilkan pesan sukses `✓ BERHASIL!` jika email terkirim, atau rekomendasi pemecahan masalah (*firewall*, *bad credentials*, *TLS mismatch*) jika koneksi gagal.
 
 ---
 
