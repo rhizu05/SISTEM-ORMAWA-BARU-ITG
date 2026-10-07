@@ -450,8 +450,11 @@ test.describe('SEC-03 — Flash Session (bukan parameter URL)', () => {
     await page.fill('input[name="judul"]', uniqueName('Flash URL Aspirasi'));
     await page.selectOption('select[name="kategori"]', 'Lainnya');
     await page.fill('textarea[name="isi"]', 'Uji enumerasi URL SEC-03.');
-    await page.click('button:has-text("Kirim Aspirasi")');
-    await expect(page.locator('body')).toContainText(/berhasil dikirim/i);
+    await Promise.all([
+      page.waitForNavigation({ waitUntil: 'domcontentloaded' }),
+      page.click('button:has-text("Kirim Aspirasi")'),
+    ]);
+    await expect(page.locator('[data-testid="flash-success"], body')).toContainText(/berhasil dikirim/i);
     expect(page.url(), 'kirim aspirasi').not.toMatch(PESAN_DI_URL);
 
     // Aksi 3 — terbitkan regulasi (BPM)

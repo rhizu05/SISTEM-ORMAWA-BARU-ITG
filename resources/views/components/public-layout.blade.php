@@ -279,6 +279,9 @@
     </div>
 
     <main id="konten-utama" class="flex-grow">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 pt-4">
+            <x-flash />
+        </div>
         {{ $slot }}
     </main>
 

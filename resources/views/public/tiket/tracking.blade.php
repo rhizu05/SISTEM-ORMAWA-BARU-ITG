@@ -19,7 +19,7 @@
         </div>
 
         @if (session('success'))
-            <div class="bg-emerald-50 border border-emerald-200 text-emerald-950 rounded-2xl p-5 mb-6 text-sm flex flex-col sm:flex-row items-start gap-4">
+            <div data-testid="flash-success" class="bg-emerald-50 border border-emerald-200 text-emerald-950 rounded-2xl p-5 mb-6 text-sm flex flex-col sm:flex-row items-start gap-4">
                 <div class="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center shrink-0">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
                 </div>

@@ -407,6 +407,7 @@
                                             }
                                         @endphp
                                         <button type="submit" name="transition_id" value="{{ $transition->id }}" 
+                                                data-testid="transition-{{ \Illuminate\Support\Str::slug($transition->action_label) }}"
                                                 class="inline-flex items-center px-4 py-2.5 border border-transparent rounded-xl font-semibold text-xs uppercase tracking-wider focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 transition ease-in-out duration-150 min-h-[40px] {{ $btnClass }}"
                                                 onclick="return confirm('Anda yakin ingin melakukan aksi: {{ $transition->action_label }}?')">
                                             {{ $transition->action_label }}

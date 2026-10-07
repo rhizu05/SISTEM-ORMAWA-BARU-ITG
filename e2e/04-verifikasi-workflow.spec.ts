@@ -76,13 +76,15 @@ test.describe('FR-009 / FR-012 — Siklus penuh pengajuan → pencairan → LPJ'
 
     // BR-05: menolak tanpa catatan harus ditolak.
     page.once('dialog', (d) => d.accept());
-    await Promise.all([page.waitForNavigation(), page.locator('button:has-text("Tolak")').click()]);
+    const tolakBtn = page.locator('form[action*="/verifikasi/"][action$="/process"] button').filter({ hasText: /^Tolak$/ }).first();
+    await Promise.all([page.waitForNavigation(), tolakBtn.click()]);
     await expect(page.locator('text=Catatan wajib diisi')).toBeVisible();
 
     // Lanjut setujui.
     await page.fill('textarea[name="catatan"]', 'Disetujui oleh BEM. Lanjutkan.');
     page.once('dialog', (d) => d.accept());
-    await page.locator('button:has-text("Setujui")').first().click();
+    const setujuiBtn = page.locator('form[action*="/verifikasi/"][action$="/process"] button').filter({ hasText: /^Setujui$/ }).first();
+    await setujuiBtn.click();
     await expect(page.locator('body')).toContainText('Pengajuan berhasil diproses.');
   });
 

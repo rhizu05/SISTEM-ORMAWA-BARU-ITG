@@ -41,8 +41,8 @@
     </div>
 
     {{-- Header Brand Identitas Institusi --}}
-    <div class="relative z-10 p-4 flex items-center justify-between border-b border-[#1E2D4A] shrink-0">
-        <a href="{{ route('dashboard') }}" class="flex items-center gap-3 min-w-0">
+    <div :class="(!isMobile && !sidebarOpen) ? 'p-4 px-0 justify-center' : 'p-4 justify-between'" class="relative z-10 flex items-center border-b border-[#1E2D4A] shrink-0">
+        <a href="{{ route('dashboard') }}" :class="(!isMobile && !sidebarOpen) ? 'justify-center' : 'gap-3'" class="flex items-center min-w-0">
             <div class="w-10 h-10 rounded-xl bg-white p-1 flex items-center justify-center shadow-md shrink-0 border border-white/20">
                 <img src="{{ asset('images/logo-skin.png') }}" class="w-full h-full object-contain" alt="Logo SKIN ITG">
             </div>
