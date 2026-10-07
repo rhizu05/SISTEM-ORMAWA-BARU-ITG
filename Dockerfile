@@ -71,6 +71,9 @@ COPY . /var/www
 # Salin aset frontend hasil kompilasi dari tahap 1
 COPY --from=frontend-builder /app/public/build /var/www/public/build
 
+# Salin cetakan public_template untuk sinkronisasi otomatis saat startup container
+RUN cp -r /var/www/public /var/www/public_template
+
 # Pasang dependensi backend PHP (Production: tanpa dependensi dev)
 RUN composer install --no-dev --optimize-autoloader --no-interaction
 

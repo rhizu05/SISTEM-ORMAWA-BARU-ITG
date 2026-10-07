@@ -21,7 +21,7 @@ Aplikasi telah dikemas secara penuh menggunakan Docker dengan arsitektur multi-c
 ```mermaid
 flowchart TD
     Client(["Internet / Pengguna ITG"]) --> Nginx["Webserver Container<br/>(Nginx Alpine: Port 80/443)"]
-    Nginx -->|FastCGI| App["App Container<br/>(PHP 8.2-FPM Alpine)"]
+    Nginx -->|FastCGI| App["App Container<br/>(PHP 8.3-FPM Alpine)"]
     App -->|Query MySQL| DB[("Database Container<br/>(MySQL 8.0)")]
     App -->|Cache & Queue| Redis[("Redis Container<br/>(Redis 7.x Alpine)")]
     Queue["Queue Container<br/>(Background Worker)"] --> Redis
@@ -50,11 +50,18 @@ cd /var/www/skin-itg
 # Salin template environment khusus Docker
 cp .env.docker.example .env
 
+# Hasilkan APP_KEY acak aman (32 karakter base64) untuk .env
+# Opsi 1 (menggunakan PHP di server host):
+# php artisan key:generate --show
+# Opsi 2 (menggunakan openssl):
+# echo "base64:$(openssl rand -base64 32)"
+
 # Sesuaikan konfigurasi pada berkas .env:
-# 1. APP_URL=https://ormawa.itg.ac.id
-# 2. DB_PASSWORD dan DB_ROOT_PASSWORD (gunakan kata sandi kuat)
-# 3. SEED_USER_DOMAIN=itg.ac.id
-# 4. Konfigurasi kredensial SMTP Email ITG
+# 1. APP_KEY=base64:... (isi dengan output perintah generate kunci di atas)
+# 2. APP_URL=https://ormawa.itg.ac.id
+# 3. DB_PASSWORD dan DB_ROOT_PASSWORD (gunakan kata sandi kuat)
+# 4. SEED_USER_DOMAIN=itg.ac.id
+# 5. Konfigurasi kredensial SMTP Email ITG
 nano .env
 ```
 
@@ -66,10 +73,7 @@ docker compose up -d --build
 
 ### Langkah 3: Inisialisasi Database & Seeder Produksi
 ```bash
-# Buat kunci enkripsi aplikasi
-docker compose exec app php artisan key:generate --force
-
-# Buat symlink direktori storage publik
+# Buat symlink direktori storage publik (otomatis dijalankan entrypoint, atau jalankan manual)
 docker compose exec app php artisan storage:link
 
 # Jalankan migrasi tabel database

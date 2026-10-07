@@ -17,6 +17,11 @@ mkdir -p /var/www/storage/framework/cache/data \
 chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache
 chmod -R 775 /var/www/storage /var/www/bootstrap/cache
 
+# Sinkronkan aset public terbaru (build CSS/JS, logo, static files) ke volume public
+if [ -d /var/www/public_template ]; then
+    cp -ru /var/www/public_template/. /var/www/public/ || true
+fi
+
 # Jalankan storage:link jika belum ada
 if [ ! -L /var/www/public/storage ]; then
     php /var/www/artisan storage:link || true
