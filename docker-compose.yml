@@ -63,8 +63,8 @@ services:
     environment:
       MYSQL_DATABASE: ${DB_DATABASE:-skin_itg}
       MYSQL_USER: ${DB_USERNAME:-skin_user}
-      MYSQL_PASSWORD: ${DB_PASSWORD:-secret}
-      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-super_secret_root_password}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
     volumes:
       - skin_dbdata:/var/lib/mysql
     networks:
@@ -75,6 +75,14 @@ services:
     image: redis:7-alpine
     container_name: skin_redis
     restart: unless-stopped
+    command: >
+      sh -c 'if [ -n "$$REDIS_PASSWORD" ] && [ "$$REDIS_PASSWORD" != "null" ]; then
+               redis-server --requirepass "$$REDIS_PASSWORD";
+             else
+               redis-server;
+             fi'
+    environment:
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-}
     volumes:
       - skin_redisdata:/data
     networks:
