@@ -20,40 +20,47 @@
                    (penerbit || '').toLowerCase().includes(q);
         }
     }">
-        {{-- HERO SECTION BERKARAKTER ITG (Deep Academic Navy) --}}
-        <section class="relative bg-[#0B1528] text-white pt-10 pb-16 sm:pt-14 sm:pb-20 overflow-hidden border-b border-slate-800">
-            {{-- Watermark Ornamen Obor ITG --}}
-            <div class="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/4 w-[380px] sm:w-[500px] h-[380px] sm:h-[500px] pointer-events-none opacity-10 select-none">
-                <img src="{{ asset('images/logo-skin-torch.png') }}" alt="" class="w-full h-full object-contain filter invert brightness-200">
+        {{-- HERO SECTION: Deep Academic Navy Senada dengan Halaman Home & Prestasi --}}
+        <section class="relative bg-[#0B1528] text-white pt-8 pb-14 sm:pt-12 sm:pb-20 px-4 sm:px-6 overflow-hidden">
+            {{-- Watermark Ornamen Logo Obor Berwarna --}}
+            <div class="absolute inset-0 pointer-events-none overflow-hidden select-none" aria-hidden="true">
+                <img src="{{ asset('images/logo-skin-torch.png') }}" class="absolute -top-10 left-6 w-24 sm:w-28 opacity-[0.12] -rotate-12" alt="">
+                <img src="{{ asset('images/logo-skin-torch.png') }}" class="absolute top-20 right-8 w-24 sm:w-32 opacity-[0.14] rotate-12" alt="">
+                <img src="{{ asset('images/logo-skin-torch.png') }}" class="absolute -bottom-8 left-1/3 w-28 opacity-[0.10] -rotate-6" alt="">
             </div>
-
-            {{-- Efek Pencahayaan Halus (Glow) --}}
-            <div class="absolute -top-32 left-1/2 -translate-x-1/2 w-[700px] h-[320px] bg-gradient-to-b from-blue-600/20 via-amber-500/10 to-transparent blur-3xl pointer-events-none"></div>
 
             <div class="max-w-6xl mx-auto px-4 sm:px-6 relative z-10">
                 {{-- Breadcrumbs Bernuansa Emas Halus --}}
-                <nav class="flex items-center gap-2 text-xs text-slate-400 mb-4 sm:mb-6" aria-label="Breadcrumb">
+                <nav class="flex items-center gap-2 text-xs text-slate-300 mb-4 sm:mb-6" aria-label="Breadcrumb">
                     <a href="{{ route('layanan.index') }}" class="hover:text-amber-300 transition">Portal Layanan</a>
-                    <span class="text-slate-600">/</span>
+                    <span class="text-slate-500">/</span>
                     <span class="text-amber-400 font-semibold">Pusat Informasi &amp; Regulasi</span>
                 </nav>
+
+                {{-- Sapaan Maskot Si Ujang untuk Mobile (< lg) --}}
+                <div class="block lg:hidden mb-4">
+                    <div class="inline-flex items-center gap-2.5 p-1.5 pr-4 rounded-full bg-[#12203A] border border-[#263B66] shadow-lg max-w-full">
+                        <div class="relative w-8 h-8 rounded-full bg-[#1E3A8A] border-2 border-amber-400 p-0.5 flex items-center justify-center shrink-0 shadow-sm">
+                            <img src="{{ asset('images/maskot-itg-head.png') }}" class="w-full h-full object-contain rounded-full" alt="Si Ujang">
+                            <span class="absolute -top-0.5 -right-0.5 flex h-2.5 w-2.5">
+                                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+                                <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-amber-400 border border-[#0B1528]"></span>
+                            </span>
+                        </div>
+                        <div class="min-w-0">
+                            <span class="text-amber-400 font-extrabold text-[10px] sm:text-[11px] tracking-wider uppercase block leading-none">
+                                Si Ujang &bull; Pusat Informasi
+                            </span>
+                            <span class="text-slate-200 text-xs font-semibold truncate block mt-0.5">
+                                Sampurasun! Temukan warta kampus dan regulasi resmi ITG.
+                            </span>
+                        </div>
+                    </div>
+                </div>
 
                 <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
                     {{-- Kolom Kiri: Judul, Subtitle & Value Props --}}
                     <div class="lg:col-span-7 text-left">
-                        {{-- Mobile Pill Si Ujang Sapaan Hangat --}}
-                        <div class="lg:hidden mb-4 inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-full bg-slate-900/90 border border-amber-400/30 shadow-lg max-w-full">
-                            <div class="relative shrink-0">
-                                <img src="{{ asset('images/maskot-itg-head.png') }}" alt="Si Ujang" class="w-7 h-7 rounded-full bg-amber-400/20 object-contain p-0.5">
-                                <span class="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
-                                <span class="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-emerald-400"></span>
-                            </div>
-                            <div class="text-[11px] leading-tight text-slate-200 truncate font-medium">
-                                <span class="text-amber-300 font-bold">SI UJANG &bull; WARTA KAMPUS:</span>
-                                <span>Sampurasun! Temukan info terhangat ITG.</span>
-                            </div>
-                        </div>
-
                         {{-- Badge Header Institusi --}}
                         <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/15 border border-amber-400/40 text-amber-300 text-[10px] sm:text-xs font-bold tracking-wide uppercase mb-3">
                             <span class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></span>
@@ -103,13 +110,12 @@
                         <div class="relative flex items-center justify-center">
                             <img src="{{ asset('images/maskot-itg-full.png') }}"
                                  alt="Maskot Si Ujang - Duta Informasi ITG"
-                                 class="w-52 h-52 xl:w-60 xl:h-60 object-contain drop-shadow-[0_15px_25px_rgba(0,0,0,0.5)]">
+                                 class="h-64 sm:h-72 lg:h-80 object-contain drop-shadow-2xl">
                         </div>
 
-                        <div class="mt-2 text-center">
-                            <span class="inline-block px-3 py-1 rounded-full bg-slate-900/80 border border-slate-700/80 text-[11px] font-semibold text-amber-300">
-                                Si Ujang &bull; Duta Informasi Kampus ITG
-                            </span>
+                        {{-- Label Tag Maskot --}}
+                        <div class="mt-3 inline-flex items-center px-3.5 py-1 rounded-full bg-blue-950/80 border border-amber-400/30 text-amber-300 text-[11px] font-semibold tracking-wide shadow-md">
+                            <span>Si Ujang &bull; Duta Informasi Kampus ITG</span>
                         </div>
                     </div>
                 </div>
