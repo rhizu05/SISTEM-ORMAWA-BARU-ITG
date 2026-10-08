@@ -217,7 +217,7 @@
                         <div class="border border-slate-200 rounded-2xl p-4 bg-slate-50/50">
                             <h4 class="font-bold text-slate-900 flex items-center gap-2">
                                 <span class="w-6 h-6 rounded-lg bg-blue-100 text-blue-800 flex items-center justify-center text-xs font-bold">2</span>
-                                Peminjaman Tempat &amp; Fasilitas Sarpras
+                                Peminjaman Ruangan &amp; Sarana Sarpras
                             </h4>
                             <p class="text-xs text-slate-600 mt-1 leading-relaxed">
                                 Cek jadwal okupansi ruangan sebelum mengajukan kegiatan melalui menu <strong>Peminjaman Tempat &amp; Barang</strong>. Pengajuan ruangan akan diverifikasi secara paralel oleh BKHM dan Bagian Sarpras.

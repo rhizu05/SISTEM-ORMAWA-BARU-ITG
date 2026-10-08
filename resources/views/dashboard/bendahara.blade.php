@@ -1,20 +1,5 @@
 <x-app-layout>
-    <x-slot name="header">
-        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
-            <div>
-                <h2 class="font-bold text-xl text-slate-900 leading-tight">
-                    Dashboard Bendahara
-                </h2>
-                <p class="text-xs text-slate-500 mt-0.5">Otorisasi transfer pendanaan, pencairan termin kegiatan, dan pembukuan resmi kas ormawa</p>
-            </div>
-            <div class="flex items-center gap-2">
-                <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200">
-                    <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-                    Sistem Pencairan Aktif
-                </span>
-            </div>
-        </div>
-    </x-slot>
+    <x-slot name="header"><h2 class="font-bold text-xl text-slate-900 leading-tight">Dashboard Bendahara</h2></x-slot>
 
     <div class="py-6">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
@@ -62,7 +47,7 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 flex items-center justify-between">
                     <div>
-                        <p class="text-xs font-medium text-slate-500 uppercase tracking-wider">Antrean Siap Dicairkan</p>
+                        <p class="text-xs font-medium text-slate-500 uppercase tracking-wider">Proposal Siap Cair</p>
                         <h4 class="text-2xl font-extrabold text-slate-900 mt-1">{{ $stats['siap_cair'] }}</h4>
                         <p class="text-[11px] text-slate-500 mt-0.5">Proposal tervalidasi BKHM/WR3 menunggu transfer</p>
                     </div>
@@ -73,7 +58,7 @@
 
                 <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 flex items-center justify-between">
                     <div>
-                        <p class="text-xs font-medium text-slate-500 uppercase tracking-wider">Total Dana Telah Dicairkan</p>
+                        <p class="text-xs font-medium text-slate-500 uppercase tracking-wider">Total Dana Dicairkan</p>
                         <h4 class="text-2xl font-extrabold text-emerald-700 mt-1 font-mono">Rp {{ number_format($stats['total_dicairkan'], 0, ',', '.') }}</h4>
                         <p class="text-[11px] text-slate-500 mt-0.5">Akumulasi realisasi pencairan kas ormawa</p>
                     </div>
@@ -88,7 +73,7 @@
                 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-4">
                     <div>
                         <h3 class="font-bold text-slate-900 text-base">Daftar Proposal Siap Dicairkan</h3>
-                        <p class="text-xs text-slate-500 mt-0.5">Proposal kegiatan yang telah berstatus resmi siap transfer dana.</p>
+                        <p class="text-xs text-slate-500 mt-0.5">Berikut adalah daftar proposal final yang telah berstatus resmi siap transfer dana.</p>
                     </div>
                     <div class="flex flex-wrap items-center gap-2">
                         <a href="{{ route('bendahara.export.excel') }}" class="bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-semibold px-3.5 py-2 rounded-xl inline-flex items-center gap-1.5 shadow-sm transition min-h-[44px] focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600">
@@ -99,8 +84,9 @@
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
                             <span>Unduh PDF Rekap</span>
                         </a>
-                        <a href="{{ route('bendahara.export') }}" class="bg-slate-700 hover:bg-slate-800 text-white text-xs font-semibold px-3.5 py-2 rounded-xl inline-flex items-center gap-1 transition min-h-[44px] focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-600">
-                            <span>CSV</span>
+                        <a href="{{ route('bendahara.export') }}" class="bg-slate-700 hover:bg-slate-800 text-white text-xs font-semibold px-3.5 py-2 rounded-xl inline-flex items-center gap-1.5 transition min-h-[44px] focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-600">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                            <span>Ekspor Rekap Pencairan (CSV)</span>
                         </a>
                     </div>
                 </div>
@@ -110,10 +96,10 @@
                         <x-table.tr>
                             <x-table.th align="center" class="w-12">No</x-table.th>
                             <x-table.th>Nama Kegiatan</x-table.th>
-                            <x-table.th>Organisasi Pengaju</x-table.th>
+                            <x-table.th>Ormawa</x-table.th>
                             <x-table.th>Tanggal Pengajuan</x-table.th>
                             <x-table.th align="right">Dana Disetujui</x-table.th>
-                            <x-table.th align="center">Tahapan Termin</x-table.th>
+                            <x-table.th align="center">Termin</x-table.th>
                             <x-table.th align="center">Aksi</x-table.th>
                         </x-table.tr>
                     </x-table.thead>
@@ -137,7 +123,7 @@
                             </x-table.td>
                         </x-table.tr>
                         @empty
-                        <x-table.empty colspan="7" message="Tidak ada proposal yang berada dalam antrean siap dicairkan saat ini." />
+                        <x-table.empty colspan="7" message="Tidak ada proposal yang siap dicairkan saat ini." />
                         @endforelse
                     </tbody>
                 </x-table>
@@ -157,9 +143,9 @@
                         <x-table.tr>
                             <x-table.th align="center" class="w-12">No</x-table.th>
                             <x-table.th align="center">Tanggal Cair</x-table.th>
-                            <x-table.th>Nama Kegiatan</x-table.th>
-                            <x-table.th>Ormawa</x-table.th>
-                            <x-table.th align="center">Termin</x-table.th>
+                            <x-table.th>Kegiatan Terbayar</x-table.th>
+                            <x-table.th>Lembaga Pengusul</x-table.th>
+                            <x-table.th align="center">Periode Pencairan</x-table.th>
                             <x-table.th align="right">Nominal Dicairkan</x-table.th>
                             <x-table.th>Catatan / Bukti</x-table.th>
                         </x-table.tr>

@@ -109,10 +109,10 @@ test.describe('FR-021 — Pusat Informasi & Regulasi', () => {
   test('BPM dapat menerbitkan regulasi dengan kategori baku', async ({ page }) => {
     await loginAs(page, 'bpm');
     await gotoStable(page, '/bpm/regulasi');
-    await expect(page.locator('text=Pusat Regulasi')).toBeVisible();
+    await expect(page.getByRole('heading', { name: /Pusat Regulasi/i }).first()).toBeVisible();
 
     await gotoStable(page, '/bpm/regulasi/create');
-    await expect(page.locator('text=Terbitkan Regulasi')).toBeVisible();
+    await expect(page.getByRole('heading', { name: /Terbitkan Regulasi/i }).first()).toBeVisible();
     await expect(page.locator('select[name="kategori"] option[value="Undang-Undang"]')).toHaveCount(1);
     await expect(page.locator('select[name="kategori"] option[value="Pengumuman"]')).toHaveCount(1);
     await expect(page.locator('select[name="kategori"] option[value="Pedoman"]')).toHaveCount(1);

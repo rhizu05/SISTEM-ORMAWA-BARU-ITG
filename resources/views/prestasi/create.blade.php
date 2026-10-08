@@ -1,6 +1,9 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">{{ __('Laporkan Prestasi / Kompetisi') }}</h2>
+        <div>
+            <h2 class="font-semibold text-xl text-slate-900 leading-tight">{{ __('Laporkan Prestasi / Kompetisi') }}</h2>
+            <p class="text-xs sm:text-sm text-slate-500 mt-0.5">Catat prestasi dan capaian kompetisi mahasiswa untuk pendataan kemahasiswaan ITG.</p>
+        </div>
     </x-slot>
 
     <div class="py-12">

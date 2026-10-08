@@ -77,12 +77,16 @@ class User extends Authenticatable
     }
 
     /**
-     * Memeriksa apakah user memiliki avatar kustom (logo ormawa atau foto profil).
+     * Memeriksa apakah user memiliki avatar kustom (logo ormawa, foto profil, atau logo resmi institusi).
      */
     public function hasCustomAvatar(): bool
     {
         $path = $this->logo_ormawa ?: $this->foto_profil;
-        return !empty($path);
+        if (!empty($path)) {
+            return true;
+        }
+
+        return in_array($this->username, ['bkhm', 'admin', 'wr3', 'bendahara', 'sarpras']);
     }
 
     /**
@@ -96,6 +100,14 @@ class User extends Authenticatable
             if (\Illuminate\Support\Facades\Storage::disk('public')->exists($path) || file_exists(public_path('storage/' . $path))) {
                 return asset('storage/' . $path);
             }
+            if (file_exists(public_path('images/' . $path))) {
+                return asset('images/' . $path);
+            }
+        }
+
+        // Fallback institusi kampus resmi ke logo ITG
+        if (in_array($this->username, ['bkhm', 'admin', 'wr3', 'bendahara', 'sarpras']) && file_exists(public_path('images/logo_itg.png'))) {
+            return asset('images/logo_itg.png');
         }
 
         return 'https://ui-avatars.com/api/?name=' . urlencode($this->name ?? 'User') . '&background=EFF6FF&color=1E40AF&bold=true';

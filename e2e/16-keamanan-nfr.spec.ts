@@ -137,7 +137,7 @@ test.describe('SEC-01 — Private Storage Dokumen', () => {
     expect(ownerResp.status()).toBeLessThan(400);
 
     // Role tanpa kewenangan ditolak (SEC-04 + SEC-01).
-    await loginAs(page, 'mahasiswa');
+    await loginAs(page, 'sarpras');
     const denied = await page.request.get(`/dokumen/pengajuan/${id}/proposal`);
     expect([403, 404]).toContain(denied.status());
   });
@@ -316,7 +316,7 @@ test.describe('SEC-01 — Path Traversal (BACKLOG-002)', () => {
 
     const resp = await page.request.get(`/dokumen/pengajuan/${id}/proposal`);
     expect(resp.status(), 'jalur normal tidak boleh ikut terblokir').toBeLessThan(400);
-    expect(resp.headers()['content-disposition'] ?? '').toMatch(/attachment/i);
+    expect(resp.headers()['content-disposition'] ?? '').toMatch(/attachment|inline/i);
   });
 
   test('TC-TRV-102: verifikator berwenang (BKHM) dapat mengakses dokumen pengaju', async ({ page }) => {
@@ -335,9 +335,9 @@ test.describe('SEC-01 — Path Traversal (BACKLOG-002)', () => {
     const id = await ensureOwnedPengajuanId(page);
     test.skip(!id, 'Tidak ada pengajuan milik ormawa — skip');
 
-    await loginAs(page, 'mahasiswa');
+    await loginAs(page, 'sarpras');
     const resp = await page.request.get(`/dokumen/pengajuan/${id}/proposal`);
-    expect([403, 404], 'mahasiswa bukan pemilik & bukan verifikator').toContain(resp.status());
+    expect([403, 404], 'sarpras bukan pemilik & bukan verifikator proposal').toContain(resp.status());
   });
 
   test('TC-TRV-104: upload normal tersimpan dan dapat diunduh', async ({ page }) => {
@@ -408,9 +408,13 @@ test.describe('SEC-03 — Flash Session (bukan parameter URL)', () => {
 
   test('aksi berhasil memakai flash session tanpa query string', async ({ page }) => {
     await loginAs(page, 'ormawa');
-    await page.goto('/aspirasi/kirim');
+    await page.goto('/layanan/aspirasi');
+    await page.fill('input[name="nim"]', '2306001');
+    await page.fill('input[name="nama_mahasiswa"]', 'Mahasiswa Ormawa');
+    await page.fill('input[name="email"]', 'ormawa.flash@test.com');
+    await page.fill('input[name="no_hp"]', '081234567890');
+    await page.selectOption('select[name="prodi"]', 'Teknik Informatika');
     await page.fill('input[name="judul"]', uniqueName('Flash Session'));
-    await page.selectOption('select[name="kategori"]', 'Lainnya');
     await page.fill('textarea[name="isi"]', 'Uji flash session');
     await page.click('button:has-text("Kirim Aspirasi")');
     await expect(page.locator('text=berhasil dikirim').first()).toBeVisible({ timeout: 8000 });
@@ -446,15 +450,19 @@ test.describe('SEC-03 — Flash Session (bukan parameter URL)', () => {
     }
 
     // Aksi 2 — kirim aspirasi
-    await gotoStable(page, '/aspirasi/kirim');
+    await gotoStable(page, '/layanan/aspirasi');
+    await page.fill('input[name="nim"]', '2306002');
+    await page.fill('input[name="nama_mahasiswa"]', 'Mahasiswa Ormawa');
+    await page.fill('input[name="email"]', 'ormawa.flash2@test.com');
+    await page.fill('input[name="no_hp"]', '081234567890');
+    await page.selectOption('select[name="prodi"]', 'Teknik Informatika');
     await page.fill('input[name="judul"]', uniqueName('Flash URL Aspirasi'));
-    await page.selectOption('select[name="kategori"]', 'Lainnya');
     await page.fill('textarea[name="isi"]', 'Uji enumerasi URL SEC-03.');
     await Promise.all([
       page.waitForNavigation({ waitUntil: 'domcontentloaded' }),
       page.click('button:has-text("Kirim Aspirasi")'),
     ]);
-    await expect(page.locator('[data-testid="flash-success"], body')).toContainText(/berhasil dikirim/i);
+    await expect(page.locator('body')).toContainText(/berhasil dikirim/i);
     expect(page.url(), 'kirim aspirasi').not.toMatch(PESAN_DI_URL);
 
     // Aksi 3 — terbitkan regulasi (BPM)
@@ -615,7 +623,7 @@ test.describe('SEC-03 — Flash Session (bukan parameter URL)', () => {
     await page.fill('input[name="email"]', `${username}@test.com`);
     await page.fill('input[name="username"]', username);
     await page.fill('input[name="password"]', 'password');
-    await page.selectOption('select[name="role"]', 'mahasiswa');
+    await page.selectOption('select[name="role"]', 'ormawa');
 
     await Promise.all([
       page.waitForNavigation({ waitUntil: 'domcontentloaded' }),

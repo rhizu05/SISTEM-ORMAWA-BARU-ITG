@@ -98,13 +98,17 @@
                         </x-table.td>
                         <x-table.td align="center">
                             <div class="flex items-center justify-center gap-2">
-                                <button @click="showEditModal = true; editUser = {{ json_encode(['id' => $user->id, 'name' => $user->name, 'email' => $user->email, 'username' => $user->username, 'status_akun' => $user->status_akun, 'role' => $user->roles->first()?->name, 'nomor_sk' => $user->nomor_sk]) }}" class="inline-flex items-center px-2.5 py-1.5 text-xs font-semibold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 rounded-lg transition-colors">Edit</button>
-                                
-                                <form action="{{ route('admin.users.destroy', $user) }}" method="POST" class="inline">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="inline-flex items-center px-2.5 py-1.5 text-xs font-semibold text-rose-700 bg-rose-50 hover:bg-rose-100 rounded-lg transition-colors" onclick="return confirm('Yakin ingin menghapus user ini?')">Hapus</button>
-                                </form>
+                                @if(auth()->user()?->hasRole('admin') || !$user->hasRole('admin'))
+                                    <button @click="showEditModal = true; editUser = {{ json_encode(['id' => $user->id, 'name' => $user->name, 'email' => $user->email, 'username' => $user->username, 'status_akun' => $user->status_akun, 'role' => $user->roles->first()?->name, 'nomor_sk' => $user->nomor_sk]) }}" class="inline-flex items-center px-2.5 py-1.5 text-xs font-semibold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 rounded-lg transition-colors">Edit</button>
+                                    
+                                    <form action="{{ route('admin.users.destroy', $user) }}" method="POST" class="inline">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="inline-flex items-center px-2.5 py-1.5 text-xs font-semibold text-rose-700 bg-rose-50 hover:bg-rose-100 rounded-lg transition-colors" onclick="return confirm('Yakin ingin menghapus user ini?')">Hapus</button>
+                                    </form>
+                                @else
+                                    <span class="inline-flex items-center px-2 py-1 text-xs font-medium text-slate-400 bg-slate-100 rounded-lg" title="Hanya Super Admin yang dapat mengelola akun Administrator">Terkunci</span>
+                                @endif
                             </div>
                         </x-table.td>
                     </x-table.tr>
@@ -146,9 +150,21 @@
                             </div>
                             <div>
                                 <x-input-label for="role" value="Role Akses" />
-                                <select id="role" name="role" class="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm block mt-1 w-full" x-model="selectedRole" required>
+                                <select id="role" name="role" class="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm block mt-1 w-full text-xs font-semibold" x-model="selectedRole" required>
                                     @foreach($roles as $role)
-                                        <option value="{{ $role->name }}">{{ strtoupper($role->name) }}</option>
+                                        <option value="{{ $role->name }}">
+                                            {{ match($role->name) {
+                                                'ormawa' => 'ORMAWA (HIMA / UKM)',
+                                                'bem' => 'BEM (BADAN EKSEKUTIF MAHASISWA)',
+                                                'bpm' => 'BPM (BADAN PERWAKILAN MAHASISWA)',
+                                                'wr3' => 'WAKIL REKTOR 3 (WR3)',
+                                                'bendahara' => 'BAGIAN KEUANGAN / BENDAHARA',
+                                                'sarpras' => 'SARANA & PRASARANA (SARPRAS)',
+                                                'bkhm' => 'BKHM',
+                                                'admin' => 'ADMINISTRATOR SISTEM',
+                                                default => strtoupper($role->name)
+                                            } }}
+                                        </option>
                                     @endforeach
                                 </select>
                             </div>
@@ -161,8 +177,8 @@
                                 </div>
 
                                 <div>
-                                    <x-input-label for="nomor_sk" value="Nomor SK Pengesahan Kepengurusan *" />
-                                    <x-text-input id="nomor_sk" name="nomor_sk" type="text" class="mt-1 block w-full text-xs font-mono" placeholder="Contoh: 015/SK/ITG-BKHM/2026" x-bind:required="['ormawa', 'bem', 'bpm'].includes(selectedRole)" />
+                                    <x-input-label for="nomor_sk" value="Nomor SK Pengesahan Kepengurusan (Opsional)" />
+                                    <x-text-input id="nomor_sk" name="nomor_sk" type="text" class="mt-1 block w-full text-xs font-mono" placeholder="Contoh: 015/SK/ITG-BKHM/2026" />
                                     <x-input-error :messages="$errors->get('nomor_sk')" class="mt-1" />
                                 </div>
 
@@ -173,9 +189,9 @@
                                 </div>
 
                                 <div>
-                                    <x-input-label for="file_sk" value="Berkas Dokumen SK Resmi (PDF, Maks 10MB) *" />
-                                    <input id="file_sk" name="file_sk" type="file" accept=".pdf" class="mt-1 block w-full text-xs text-slate-700 border border-slate-300 rounded-lg p-2 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-indigo-500" x-bind:required="['ormawa', 'bem', 'bpm'].includes(selectedRole)" />
-                                    <p class="text-[11px] text-slate-500 mt-1">Format wajib PDF. Diperoleh dari ormawa untuk diverifikasi BKHM.</p>
+                                    <x-input-label for="file_sk" value="Berkas Dokumen SK Resmi (PDF, Maks 10MB, Opsional)" />
+                                    <input id="file_sk" name="file_sk" type="file" accept=".pdf" class="mt-1 block w-full text-xs text-slate-700 border border-slate-300 rounded-lg p-2 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+                                    <p class="text-[11px] text-slate-500 mt-1">Format PDF jika sudah tersedia. Dapat dilengkapi kemudian saat verifikasi.</p>
                                     <x-input-error :messages="$errors->get('file_sk')" class="mt-1" />
                                 </div>
                             </div>
@@ -217,9 +233,21 @@
                             </div>
                             <div>
                                 <x-input-label for="edit_role" value="Role Akses" />
-                                <select id="edit_role" name="role" class="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm block mt-1 w-full" x-model="editUser.role" required>
+                                <select id="edit_role" name="role" class="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm block mt-1 w-full text-xs font-semibold" x-model="editUser.role" required>
                                     @foreach($roles as $role)
-                                        <option value="{{ $role->name }}">{{ strtoupper($role->name) }}</option>
+                                        <option value="{{ $role->name }}">
+                                            {{ match($role->name) {
+                                                'ormawa' => 'ORMAWA (HIMA / UKM)',
+                                                'bem' => 'BEM (BADAN EKSEKUTIF MAHASISWA)',
+                                                'bpm' => 'BPM (BADAN PERWAKILAN MAHASISWA)',
+                                                'wr3' => 'WAKIL REKTOR 3 (WR3)',
+                                                'bendahara' => 'BAGIAN KEUANGAN / BENDAHARA',
+                                                'sarpras' => 'SARANA & PRASARANA (SARPRAS)',
+                                                'bkhm' => 'BKHM',
+                                                'admin' => 'ADMINISTRATOR SISTEM',
+                                                default => strtoupper($role->name)
+                                            } }}
+                                        </option>
                                     @endforeach
                                 </select>
                             </div>

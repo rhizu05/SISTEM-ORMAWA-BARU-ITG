@@ -9,12 +9,12 @@
     <style>
         @page { size: A4; margin: 18mm; }
         body { font-family: 'Times New Roman', Times, serif; font-size: 12pt; line-height: 1.5; color: #000; }
-        .kop { display: flex; align-items: center; border-bottom: 3px double #000; padding-bottom: 10px; margin-bottom: 24px; }
-        .kop-logo { width: 80px; height: 80px; object-fit: contain; }
-        .kop-text { text-align: center; flex-grow: 1; padding: 0 8px; }
+        .kop-table { width: 100%; border-collapse: collapse; margin-bottom: 4px; }
+        .kop-logo { width: 75px; height: 75px; object-fit: contain; }
+        .kop-text { text-align: center; padding: 0 8px; }
         .kop-1 { font-size: 10pt; }
-        .kop-2 { font-size: 12pt; font-weight: bold; text-transform: uppercase; }
-        .kop-3, .kop-4 { font-size: 9.5pt; font-style: italic; line-height: 1.3; }
+        .kop-2 { font-size: 13pt; font-weight: bold; text-transform: uppercase; }
+        .kop-3, .kop-4 { font-size: 9pt; font-style: italic; line-height: 1.3; }
         .judul { text-align: center; font-weight: bold; text-decoration: underline; margin: 26px 0; }
         table.meta { line-height: 1.8; }
         table.meta td { padding: 0 8px 0 0; vertical-align: top; }

@@ -113,12 +113,12 @@
                                     };
 
                                     $isDashboardRoute = request()->routeIs('dashboard');
-                                    $displayTitle = $isDashboardRoute ? $panelTitle : $extractedTitle;
+                                    $displayTitle = !empty($extractedTitle) ? $extractedTitle : ($isDashboardRoute ? $panelTitle : 'Dashboard');
                                     
                                     // Breadcrumb title: ringkas (maks 26 karakter) agar tidak mentok
-                                    $displayBreadcrumb = $isDashboardRoute 
-                                        ? 'Dashboard Utama' 
-                                        : \Illuminate\Support\Str::limit($extractedTitle, 26, '…');
+                                    $displayBreadcrumb = !empty($extractedTitle) 
+                                        ? \Illuminate\Support\Str::limit($extractedTitle, 26, '…') 
+                                        : ($isDashboardRoute ? 'Dashboard Utama' : 'Dashboard');
 
                                     // Cek apakah header memiliki action button atau deskripsi tambahan dari sub-view
                                     $hasActionLink = (bool) preg_match('/<a\b[^>]*>/i', $rawHeader);

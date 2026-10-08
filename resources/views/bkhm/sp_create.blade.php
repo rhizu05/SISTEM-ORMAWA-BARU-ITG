@@ -3,7 +3,7 @@
         <div class="flex justify-between items-center">
             <div>
                 <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-                    {{ __('Penerbitan Surat Peringatan (SP) Resmi ITG') }}
+                    {{ __('Buat Surat Peringatan (SP) Resmi ITG') }}
                 </h2>
                 <p class="text-xs text-gray-500 mt-0.5">Format standar persuratan Institut Teknologi Garut untuk Ormawa & Mahasiswa</p>
             </div>

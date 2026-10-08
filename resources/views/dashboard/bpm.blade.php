@@ -1,20 +1,5 @@
 <x-app-layout>
-    <x-slot name="header">
-        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
-            <div>
-                <h2 class="font-bold text-xl text-slate-900 leading-tight">
-                    Dashboard Badan Perwakilan Mahasiswa (BPM)
-                </h2>
-                <p class="text-xs text-slate-500 mt-0.5">Parlemen mahasiswa: fungsi legislasi, pengawasan anggaran proposal, serta penyaluran aspirasi</p>
-            </div>
-            <div class="flex items-center gap-2">
-                <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-indigo-50 text-indigo-800 border border-indigo-200">
-                    <span class="w-2 h-2 rounded-full bg-indigo-600"></span>
-                    Sesi Parlemen Aktif
-                </span>
-            </div>
-        </div>
-    </x-slot>
+    <x-slot name="header"><h2 class="font-bold text-xl text-slate-900 leading-tight">Dashboard BPM (Badan Perwakilan Mahasiswa)</h2></x-slot>
 
     <div class="py-6">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
@@ -67,7 +52,7 @@
             </div>
 
             <!-- Kartu Metrik Ringkasan Legislatif & Saldo -->
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <a href="{{ route('verifikasi.index') }}" class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 hover:border-indigo-300 transition flex items-center justify-between group">
                     <div>
                         <p class="text-xs font-medium text-slate-500 uppercase tracking-wider">Antrean Verifikasi Proposal</p>
@@ -89,26 +74,23 @@
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/></svg>
                     </div>
                 </a>
+            </div>
 
-                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 flex items-center justify-between">
-                    <div>
-                        <p class="text-xs font-medium text-slate-500 uppercase tracking-wider">Plafon Saldo Awal</p>
-                        <h4 class="text-xl font-extrabold text-slate-900 mt-1 font-mono">Rp {{ number_format($saldoAwal, 0, ',', '.') }}</h4>
-                        <p class="text-[11px] text-slate-500 mt-0.5">Alokasi anggaran tahun aktif</p>
+            <!-- Widget Status Dana BPM (3 Cards) -->
+            <div class="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-[0_4px_20px_rgba(0,0,0,0.02)]">
+                <h3 class="font-bold text-slate-900 text-sm sm:text-base mb-3">Status Dana Anda</h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="border border-slate-200/80 p-4 rounded-xl text-center bg-slate-50/50">
+                        <div class="text-xs text-slate-500 font-medium">Total Saldo Diberikan</div>
+                        <div class="text-xl font-extrabold text-slate-900 mt-1 font-mono">Rp {{ number_format($saldoAwal, 0, ',', '.') }}</div>
                     </div>
-                    <div class="w-12 h-12 rounded-xl bg-slate-50 text-slate-700 flex items-center justify-center font-bold text-lg flex-shrink-0 border border-slate-200">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3"/></svg>
+                    <div class="border border-slate-200/80 p-4 rounded-xl text-center bg-slate-50/50">
+                        <div class="text-xs text-slate-500 font-medium">Saldo Terpakai &amp; Diproses</div>
+                        <div class="text-xl font-extrabold text-amber-600 mt-1 font-mono">Rp {{ number_format($terpakai, 0, ',', '.') }}</div>
                     </div>
-                </div>
-
-                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 flex items-center justify-between">
-                    <div>
-                        <p class="text-xs font-medium text-slate-500 uppercase tracking-wider">Sisa Saldo Kas BPM</p>
-                        <h4 class="text-xl font-extrabold text-emerald-700 mt-1 font-mono">Rp {{ number_format(Auth::user()->saldo, 0, ',', '.') }}</h4>
-                        <p class="text-[11px] text-slate-500 mt-0.5">Sisa kas yang dapat diajukan</p>
-                    </div>
-                    <div class="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold text-lg flex-shrink-0 border border-emerald-200">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    <div class="border border-slate-200/80 p-4 rounded-xl text-center bg-slate-50/50">
+                        <div class="text-xs text-slate-500 font-medium">Sisa Saldo Tersedia</div>
+                        <div class="text-xl font-extrabold text-emerald-600 mt-1 font-mono">Rp {{ number_format(Auth::user()->saldo, 0, ',', '.') }}</div>
                     </div>
                 </div>
             </div>

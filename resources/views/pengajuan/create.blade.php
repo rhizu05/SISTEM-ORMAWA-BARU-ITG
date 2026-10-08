@@ -50,12 +50,17 @@
                                     <div class="font-bold text-gray-900 text-sm mt-0.5">{{ $blocking->nama_kegiatan }}</div>
                                     <div class="text-xs text-gray-600 mt-0.5">Status Saat Ini: <span class="font-bold {{ $isDanaCair ? 'text-amber-700' : 'text-indigo-700' }}">{{ $blocking->state->label ?? $blocking->state->name }}</span></div>
                                 </div>
-                                @if($isDanaCair)
-                                    <a href="{{ route('lpj.create', $blocking) }}" class="inline-flex items-center px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-lg text-xs shadow transition shrink-0">
-                                        <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
-                                        Unggah LPJ Sekarang
+                                <div class="flex items-center gap-2 shrink-0">
+                                    <a href="{{ route('pengajuan.show', $blocking) }}" class="inline-flex items-center px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-lg text-xs transition">
+                                        Lihat Pengajuan
                                     </a>
-                                @endif
+                                    @if($isDanaCair)
+                                        <a href="{{ route('lpj.create', $blocking) }}" class="inline-flex items-center px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-lg text-xs shadow transition">
+                                            <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+                                            Unggah LPJ Sekarang
+                                        </a>
+                                    @endif
+                                </div>
                             </div>
 
                             <div class="mt-4 flex items-center gap-3">

@@ -167,7 +167,7 @@
                     </div>
                     <div class="my-auto py-1">
                         <div class="text-2xl font-extrabold font-mono text-emerald-700 tracking-tight leading-none">{{ $counts['verifikasi_tempat'] }}</div>
-                        <div class="text-xs font-bold text-slate-900 mt-1 line-clamp-1">Verifikasi Tempat</div>
+                        <div class="text-xs font-bold text-slate-900 mt-1 line-clamp-1">Antrean Verifikasi Tempat</div>
                     </div>
                     <div class="pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] font-bold text-blue-600 group-hover:text-blue-800 transition-colors">
                         <span>Kelola Slot</span>
@@ -187,7 +187,7 @@
                     </div>
                     <div class="my-auto py-1">
                         <div class="text-2xl font-extrabold font-mono text-slate-700 tracking-tight leading-none">{{ $counts['verifikasi_barang'] }}</div>
-                        <div class="text-xs font-bold text-slate-900 mt-1 line-clamp-1">Verifikasi Barang</div>
+                        <div class="text-xs font-bold text-slate-900 mt-1 line-clamp-1">Antrean Verifikasi Barang</div>
                     </div>
                     <div class="pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] font-bold text-blue-600 group-hover:text-blue-800 transition-colors">
                         <span>Kelola Alat</span>
@@ -204,7 +204,7 @@
                         <div>
                             <h3 class="font-bold text-slate-900 text-sm flex items-center gap-1.5">
                                 <span class="w-2 h-2 rounded-full bg-blue-600"></span>
-                                Antrean Verifikasi Proposal (BKHM)
+                                Tabel Verifikasi Proposal (BKHM)
                             </h3>
                             <p class="text-xs text-slate-500 mt-0.5">Proposal kegiatan ormawa menunggu persetujuan institusi</p>
                         </div>

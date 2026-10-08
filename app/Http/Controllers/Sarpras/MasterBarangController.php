@@ -10,7 +10,7 @@ class MasterBarangController extends Controller
 {
     public function index()
     {
-        $barangs = MasterBarang::orderBy('nama_barang', 'asc')->paginate(10);
+        $barangs = MasterBarang::orderBy('id', 'desc')->paginate(10);
         return view('sarpras.barang.index', compact('barangs'));
     }
 

@@ -1,18 +1,18 @@
-<x-public-layout :title="$pengumuman->judul" brand-label="Pusat Informasi" accent="indigo">
+<x-public-layout :title="$pengumuman->judul" brand-label="Pusat Informasi & Regulasi" accent="amber">
     <x-slot name="nav">
-        <a href="{{ route('informasi.index') }}" class="inline-flex items-center gap-1.5 min-h-[44px] px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold text-slate-700 hover:bg-slate-100 border border-slate-200 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2">
+        <a href="{{ route('informasi.index') }}" class="inline-flex items-center gap-1.5 min-h-[44px] px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold text-slate-700 hover:bg-slate-100 border border-slate-200 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18"/></svg>
-            <span>Semua Informasi</span>
+            <span>Kembali ke Informasi</span>
         </a>
     </x-slot>
 
     <div class="py-6 sm:py-8 px-4 sm:px-6 lg:px-8" x-data="{ imageModal: false, copied: false }">
         <div class="max-w-4xl mx-auto space-y-6 sm:space-y-8">
 
-            <nav class="flex items-center gap-2 text-xs text-slate-600 flex-wrap">
-                <a href="{{ route('layanan.index') }}" class="hover:text-indigo-700 transition">Portal Layanan</a>
+            <nav class="flex items-center gap-2 text-xs text-slate-600 flex-wrap" aria-label="Breadcrumb">
+                <a href="{{ route('layanan.index') }}" class="hover:text-amber-700 transition">Portal Layanan</a>
                 <span class="text-slate-400">/</span>
-                <a href="{{ route('informasi.index') }}" class="hover:text-indigo-700 transition font-medium">Pusat Informasi</a>
+                <a href="{{ route('informasi.index') }}" class="hover:text-amber-700 transition font-medium">Pusat Informasi</a>
                 <span class="text-slate-400">/</span>
                 <span class="text-slate-800 font-semibold truncate max-w-[180px] sm:max-w-sm">{{ $pengumuman->judul }}</span>
             </nav>
@@ -49,12 +49,18 @@
 
                     <div class="flex items-center justify-between pt-2">
                         <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 rounded-full bg-indigo-700 text-white font-bold flex items-center justify-center text-sm">
-                                {{ strtoupper(substr($pengumuman->user->name ?? 'K', 0, 2)) }}
-                            </div>
+                            @if($pengumuman->user?->hasCustomAvatar())
+                                <img src="{{ $pengumuman->user->avatar_url }}"
+                                     alt="{{ $pengumuman->user->name }}"
+                                     class="w-11 h-11 rounded-full object-contain border-2 border-slate-200 shrink-0 bg-white shadow-sm p-1">
+                            @else
+                                <div class="w-11 h-11 rounded-full bg-[#1E3A8A] text-amber-300 font-bold flex items-center justify-center text-sm border-2 border-blue-400/30 shrink-0 shadow-sm">
+                                    {{ strtoupper(substr($pengumuman->user->name ?? 'K', 0, 2)) }}
+                                </div>
+                            @endif
                             <div>
                                 <span class="text-xs text-slate-500 block">Diterbitkan oleh</span>
-                                <span class="text-sm font-bold text-slate-800">{{ $pengumuman->user->name ?? 'Biro Kemahasiswaan' }}</span>
+                                <span class="text-sm font-bold text-slate-900">{{ $pengumuman->user->name ?? 'Biro Kemahasiswaan' }}</span>
                             </div>
                         </div>
 

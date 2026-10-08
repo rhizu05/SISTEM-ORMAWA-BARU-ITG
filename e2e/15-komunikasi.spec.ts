@@ -52,7 +52,7 @@ test.describe('FR-011 — Diskusi & Follow-up Pengajuan', () => {
     await page.fill('textarea[name="pesan"]', pesan);
     await Promise.all([
       page.waitForNavigation(),
-      page.click('button:has-text("Kirim")'),
+      page.click('#btn-kirim-komunikasi'),
     ]);
 
     await expect(page.locator('text=Pesan follow-up terkirim.')).toBeVisible();
@@ -77,16 +77,24 @@ test.describe('FR-011 — Diskusi & Follow-up Pengajuan', () => {
       await openAnyPengajuan(page);
     }
 
+    const bodyText = await page.locator('body').innerText();
+    let targetVerif = 'bkhm';
+    if (bodyText.includes('Diajukan ke BEM') || bodyText.includes('Pengurus BEM')) {
+      targetVerif = 'bem';
+    } else if (bodyText.includes('Diajukan ke BPM') || bodyText.includes('Pengurus BPM')) {
+      targetVerif = 'bpm';
+    }
+
     const pesanFollowup = uniqueName('Follow-up Notifikasi E2E');
     await page.fill('textarea[name="pesan"]', pesanFollowup);
     await Promise.all([
       page.waitForNavigation(),
-      page.click('button:has-text("Kirim")'),
+      page.click('#btn-kirim-komunikasi'),
     ]);
     await expect(page.locator('text=Pesan follow-up terkirim.')).toBeVisible();
 
-    // 2. Verifikator (BKHM / target role) login dan mengecek halaman notifikasi
-    await loginAs(page, 'bkhm');
+    // 2. Verifikator (target role pengajuan) login dan mengecek halaman notifikasi
+    await loginAs(page, targetVerif);
     await gotoStable(page, '/notifikasi');
 
     // Verifikasi pesan notifikasi follow up tampil

@@ -14,8 +14,8 @@ test.describe('FR-004 / FR-006 / FR-015 / FR-021 — Modul BPM (dashboard, SP, a
   test('Buat Surat Peringatan – tipe sasaran ormawa/mahasiswa + opsi internal BPM', async ({ page }) => {
     await loginAs(page, 'bpm');
     await page.goto('/bpm/sp/create');
-    await expect(page.getByRole('heading', { name: /Buat Surat Peringatan/ })).toBeVisible();
-    await expect(page.locator('text=Target Organisasi')).toBeVisible();
+    await expect(page.getByRole('heading', { name: /Buat Surat Peringatan/ }).first()).toBeVisible();
+    await expect(page.locator('text=Target Organisasi').first()).toBeVisible();
     const target = page.locator('select[name="target_user_id"]');
     await expect(target).toBeVisible();
     // should contain both ormawa and BEM options (populated from DB)
@@ -46,9 +46,9 @@ test.describe('FR-004 / FR-006 / FR-015 / FR-021 — Modul BPM (dashboard, SP, a
   test('Kelola Regulasi – kategori Undang-Undang/Pengumuman/Pedoman + PDF upload', async ({ page }) => {
     await loginAs(page, 'bpm');
     await page.goto('/bpm/regulasi');
-    await expect(page.locator('text=Pusat Regulasi')).toBeVisible();
+    await expect(page.getByRole('heading', { name: /Pusat Regulasi/i }).first()).toBeVisible();
     await page.goto('/bpm/regulasi/create');
-    await expect(page.locator('text=Terbitkan Regulasi')).toBeVisible();
+    await expect(page.getByRole('heading', { name: /Terbitkan Regulasi/i }).first()).toBeVisible();
     await expect(page.locator('select#kategori, select[name="kategori"]')).toBeVisible();
     await expect(page.locator('select[name="kategori"] option[value="Undang-Undang"]')).toHaveCount(1);
     await expect(page.locator('select[name="kategori"] option[value="Pengumuman"]')).toHaveCount(1);

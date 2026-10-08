@@ -51,7 +51,7 @@
                             @if($barang->boleh_dibawa_keluar)
                                 <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-indigo-50 text-indigo-700 border border-indigo-200">Boleh</span>
                             @else
-                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-amber-50 text-amber-700 border border-amber-200">Di Tempat</span>
+                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-amber-50 text-amber-700 border border-amber-200">Tidak Boleh (Di Tempat)</span>
                             @endif
                         </x-table.td>
                         <x-table.td align="center">

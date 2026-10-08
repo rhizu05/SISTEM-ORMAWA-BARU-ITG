@@ -14,16 +14,37 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules;
 use Illuminate\Support\Facades\DB;
 use Spatie\Permission\Models\Role;
 
 class UserController extends Controller
 {
+    /**
+     * Mendapatkan daftar role yang boleh dikelola oleh pengguna yang sedang login.
+     */
+    protected function getAllowedRoleNames(): array
+    {
+        $currentUser = auth()->user();
+        if ($currentUser && $currentUser->hasRole('admin')) {
+            return ['admin', 'bkhm', 'wr3', 'bendahara', 'sarpras', 'ormawa', 'bem', 'bpm'];
+        }
+
+        // BKHM hanya mengelola role ormawa dan pejabat kemahasiswaan (tanpa admin, bkhm, dan mahasiswa)
+        return ['ormawa', 'bem', 'bpm', 'wr3', 'bendahara', 'sarpras'];
+    }
+
     public function index()
     {
         $users = User::with('roles')->where('id', '!=', auth()->id())->latest()->paginate(10);
-        $roles = Role::all();
+        $allowedRoleNames = $this->getAllowedRoleNames();
+        $roles = Role::whereIn('name', $allowedRoleNames)
+            ->get()
+            ->sortBy(function ($role) use ($allowedRoleNames) {
+                return array_search($role->name, $allowedRoleNames);
+            })
+            ->values();
         $saldoHistori = SaldoHistori::with(['user', 'actor'])->latest()->take(20)->get();
 
         return view('admin.users.index', compact('users', 'roles', 'saldoHistori'));
@@ -31,17 +52,18 @@ class UserController extends Controller
 
     public function store(Request $request)
     {
+        $allowedRoles = $this->getAllowedRoleNames();
         $isOrmawaRole = in_array($request->role, ['ormawa', 'bem', 'bpm']);
 
         $rules = [
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
             'username' => ['required', 'string', 'max:50', 'unique:'.User::class],
-            'role' => ['required', 'exists:roles,name'],
+            'role' => ['required', 'string', Rule::in($allowedRoles)],
             'password' => ['required', Rules\Password::defaults()],
             'saldo' => ['nullable', 'numeric', 'min:0'],
-            'file_sk' => [$isOrmawaRole ? 'required' : 'nullable', 'file', 'mimes:pdf', 'max:10240'],
-            'nomor_sk' => [$isOrmawaRole ? 'required' : 'nullable', 'string', 'max:255'],
+            'file_sk' => ['nullable', 'file', 'mimes:pdf', 'max:10240'],
+            'nomor_sk' => ['nullable', 'string', 'max:255'],
             'tanggal_sk' => ['nullable', 'date'],
         ];
 
@@ -88,16 +110,22 @@ class UserController extends Controller
             ]);
         }
 
-        return redirect()->route('admin.users.index')->with('success', 'User ' . $user->name . ' berhasil ditambahkan.');
+        return redirect()->route('admin.users.index')->with('success', 'User berhasil ditambahkan.');
     }
 
     public function update(Request $request, User $user)
     {
+        if (!auth()->user()?->hasRole('admin') && $user->hasRole('admin')) {
+            abort(403, 'Anda tidak memiliki hak akses untuk mengubah akun administrator.');
+        }
+
+        $allowedRoles = $this->getAllowedRoleNames();
+
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class.',email,'.$user->id],
             'username' => ['required', 'string', 'max:50', 'unique:'.User::class.',username,'.$user->id],
-            'role' => ['required', 'exists:roles,name'],
+            'role' => ['required', 'string', Rule::in($allowedRoles)],
             'status_akun' => ['required', 'in:aktif,nonaktif'],
             'password' => ['nullable', Rules\Password::defaults()],
             'file_sk' => ['nullable', 'file', 'mimes:pdf', 'max:10240'],
@@ -206,6 +234,10 @@ class UserController extends Controller
     {
         if ($user->id === auth()->id()) {
             return back()->with('error', 'Tidak dapat menghapus diri sendiri.');
+        }
+
+        if (!auth()->user()?->hasRole('admin') && $user->hasRole('admin')) {
+            return back()->with('error', 'Anda tidak memiliki hak akses untuk menghapus akun administrator.');
         }
         
         $user->delete();

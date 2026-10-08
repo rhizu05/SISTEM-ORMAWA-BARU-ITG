@@ -31,7 +31,7 @@ test.describe('FR-004 / UI-020 — BKHM sebagai administrator pusat', () => {
     await expect(page.locator('body')).toContainText(/Arsip/i);
 
     await gotoStable(page, '/bkhm/surat-peringatan/create');
-    await expect(page.getByRole('heading', { name: /Buat Surat Peringatan/ })).toBeVisible();
+    await expect(page.getByRole('heading', { name: /Buat Surat Peringatan/ }).first()).toBeVisible();
     await expect(page.locator('select[name="target_user_id"]')).toBeVisible();
 
     await gotoStable(page, '/bkhm/verifikasi-tempat');

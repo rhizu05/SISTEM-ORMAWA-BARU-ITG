@@ -6,14 +6,14 @@ test.describe('FR-020 — Pelaporan Prestasi & Kompetisi (individu & organisasi)
     await loginAs(page, 'ormawa');
     
     await page.goto('/prestasi/create', { waitUntil: 'domcontentloaded' });
-    await expect(page.locator('h2')).toContainText(/Laporkan Prestasi/i);
+    await expect(page.getByRole('heading', { name: /Laporkan Prestasi/i }).first()).toBeVisible();
     
     const uniqueId = Date.now();
     await page.fill('input[name="nama_kegiatan"]', `Lomba Hackathon Nasional ${uniqueId}`);
     await page.fill('input[name="penyelenggara"]', 'Kemdikbudristek');
     await page.selectOption('select[name="tingkat"]', 'Nasional');
     await page.fill('input[name="juara"]', 'Juara 1');
-    await page.fill('input[name="tanggal"]', '2026-09-01');
+    await page.locator('input[name="tanggal_mulai"], input[name="tanggal"]').first().fill('2026-09-01');
     await page.selectOption('select[name="afiliasi"]', 'ormawa');
     await page.fill('input[name="unit_terkait"]', 'HIMAIF');
     await page.fill('textarea[name="deskripsi"]', `Deskripsi capaian prestasi ${uniqueId}`);
@@ -27,24 +27,29 @@ test.describe('FR-020 — Pelaporan Prestasi & Kompetisi (individu & organisasi)
     await expect(page.locator('table')).toContainText(/Pending/i);
   });
 
-  test('Mahasiswa dapat melaporkan prestasi individual (non-afiliasi)', async ({ page }) => {
-    await loginAs(page, 'mahasiswa');
-    await page.goto('/prestasi/create', { waitUntil: 'domcontentloaded' });
-    await expect(page.locator('h2')).toContainText(/Laporkan Prestasi/i);
+  test('Mahasiswa sebagai guest dapat melaporkan prestasi via portal publik dan mendapatkan kode tiket', async ({ page }) => {
+    await page.goto('/layanan/prestasi');
+    await expect(page.locator('h1')).toContainText(/Pelaporan Prestasi/i);
 
     const uniqueId = Date.now();
+    const emailMhs = `mahasiswa.${uniqueId}@itg.ac.id`;
+    await page.fill('input[name="nim"]', '2106001');
+    await page.fill('input[name="nama_mahasiswa"]', 'Mahasiswa Berprestasi ITG');
+    await page.fill('input[name="email"]', emailMhs);
+    await page.fill('input[name="no_hp"]', '081234567890');
+    await page.selectOption('select[name="prodi"]', 'Teknik Informatika');
+
     await page.fill('input[name="nama_kegiatan"]', `Lomba Debat Individu ${uniqueId}`);
     await page.fill('input[name="penyelenggara"]', 'Universitas Swasta');
     await page.selectOption('select[name="tingkat"]', 'Nasional');
-    await page.fill('input[name="juara"]', 'Juara 3');
-    await page.fill('input[name="tanggal"]', '2026-09-10');
-    await page.selectOption('select[name="afiliasi"]', 'individu');
-    await page.fill('textarea[name="deskripsi"]', `Prestasi individual ${uniqueId}`);
-    await page.setInputFiles('input[name="file_bukti"]', 'e2e/fixtures/dummy.pdf');
-    await page.click('button:has-text("Kirim Laporan")');
+    await page.fill('input[name="capaian"]', 'Juara 3');
+    await page.fill('input[name="tanggal_mulai"]', '2026-09-10');
+    await page.setInputFiles('input[name="lampiran_bukti"]', 'e2e/fixtures/dummy.pdf');
+    await page.click('button[type="submit"]');
 
-    await expect(page.locator('body')).toContainText(/berhasil dilaporkan/i);
-    await expect(page.locator('table')).toContainText(`Lomba Debat Individu ${uniqueId}`);
+    await expect(page).toHaveURL(/.*cek-status.*/);
+    await expect(page.locator('body')).toContainText(/berhasil dikirim/i);
+    await expect(page.locator('body')).toContainText(`Lomba Debat Individu ${uniqueId}`);
   });
 
   test('BKHM dapat memverifikasi laporan prestasi', async ({ page }) => {
@@ -56,7 +61,7 @@ test.describe('FR-020 — Pelaporan Prestasi & Kompetisi (individu & organisasi)
     await page.fill('input[name="penyelenggara"]', 'ITG Tech');
     await page.selectOption('select[name="tingkat"]', 'Regional');
     await page.fill('input[name="juara"]', 'Juara 2');
-    await page.fill('input[name="tanggal"]', '2026-09-05');
+    await page.locator('input[name="tanggal_mulai"], input[name="tanggal"]').first().fill('2026-09-05');
     await page.selectOption('select[name="afiliasi"]', 'individu');
     await page.setInputFiles('input[name="file_bukti"]', 'e2e/fixtures/dummy.pdf');
     await page.click('button:has-text("Kirim Laporan")');
@@ -86,5 +91,36 @@ test.describe('FR-020 — Pelaporan Prestasi & Kompetisi (individu & organisasi)
     if (await buktiLink.count() > 0) {
       await expect(buktiLink).toBeVisible();
     }
+  });
+
+  test('Publik dapat melihat showcase prestasi dengan filter tingkat dan pencarian tanpa counter angka', async ({ page }) => {
+    await page.goto('/prestasi/showcase');
+    await expect(page.getByRole('heading', { name: /Jejak Juara/i })).toBeVisible();
+
+    // Verifikasi tombol filter jenis tingkat tersedia
+    await expect(page.getByRole('button', { name: 'Semua Tingkat', exact: true })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Nasional', exact: true })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Internasional', exact: true })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Provinsi / Wilayah', exact: true })).toBeVisible();
+
+    // Verifikasi counter angka lama TIDAK ADA
+    await expect(page.locator('text="Total Prestasi"')).toHaveCount(0);
+    await expect(page.locator('text="Tingkat Global"')).toHaveCount(0);
+
+    // Verifikasi search input
+    const searchInput = page.locator('#search-showcase');
+    await expect(searchInput).toBeVisible();
+    await searchInput.fill('Informatika');
+    await expect(searchInput).toHaveValue('Informatika');
+
+    // Tombol clear pencarian berfungsi
+    const clearBtn = page.locator('button[title="Bersihkan pencarian"]');
+    await expect(clearBtn).toBeVisible();
+    await clearBtn.click();
+    await expect(searchInput).toHaveValue('');
+
+    // Verifikasi bahwa kode tiket tidak ditampilkan di kartu prestasi
+    const ticketCodesInArticles = page.locator('article').locator('text=/TK-[A-Z0-9]+/i');
+    await expect(ticketCodesInArticles).toHaveCount(0);
   });
 });

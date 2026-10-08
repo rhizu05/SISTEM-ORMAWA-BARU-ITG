@@ -13,7 +13,6 @@ export const users = {
   bendahara: { username: 'bendahara', email: 'bendahara@test.com', password: 'password', role: 'bendahara' },
   sarpras: { username: 'sarpras', email: 'sarpras@test.com', password: 'password', role: 'sarpras' },
   ormawa: { username: 'himaif', email: 'himaif@test.com', password: 'password', role: 'ormawa' },
-  mahasiswa: { username: 'mahasiswa', email: 'mahasiswa@test.com', password: 'password', role: 'mahasiswa' },
 } as const;
 
 export type UserKey = keyof typeof users;

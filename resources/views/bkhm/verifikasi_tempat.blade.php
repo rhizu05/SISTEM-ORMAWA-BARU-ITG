@@ -3,7 +3,7 @@
         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
             <div>
                 <h2 class="font-bold text-xl text-slate-900 leading-tight">
-                    Verifikasi Peminjaman Tempat (BKHM) - Tahap 1
+                    Verifikasi Tempat (BKHM) - Tahap 1
                 </h2>
                 <p class="text-xs text-slate-500 mt-0.5">Peninjauan izin penggunaan gedung dan ruangan kegiatan ormawa.</p>
             </div>

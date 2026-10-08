@@ -44,6 +44,8 @@ class UserSeeder extends Seeder
                 'username' => 'admin',
                 'email' => env('ADMIN_EMAIL', 'admin@' . $domain),
                 'password' => Hash::make(env('ADMIN_PASSWORD', $defaultPassword)),
+                'foto_profil' => 'profil/logo_itg.png',
+                'logo_ormawa' => 'profil/logo_itg.png',
                 'alamat' => $defaultAlamat,
                 'role' => 'admin'
             ],
@@ -52,6 +54,8 @@ class UserSeeder extends Seeder
                 'username' => 'bkhm',
                 'email' => env('BKHM_EMAIL', 'bkhm@' . $domain),
                 'password' => Hash::make(env('BKHM_PASSWORD', $defaultPassword)),
+                'foto_profil' => 'profil/logo_itg.png',
+                'logo_ormawa' => 'profil/logo_itg.png',
                 'alamat' => $defaultAlamat,
                 'role' => 'bkhm'
             ],

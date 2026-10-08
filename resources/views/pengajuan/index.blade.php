@@ -184,7 +184,7 @@
                     @empty
                         <div class="p-8 text-center bg-slate-50 border border-dashed border-slate-200 rounded-2xl">
                             <svg class="w-10 h-10 text-slate-300 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-                            <p class="text-sm font-semibold text-slate-700">{{ request('q') || request('status') ? 'Tidak ada pengajuan yang cocok dengan filter.' : 'Belum ada proposal diajukan.' }}</p>
+                            <p class="text-sm font-semibold text-slate-700">{{ request('q') || request('status') ? 'Tidak ada pengajuan yang sesuai dengan kriteria filter.' : 'Belum ada proposal diajukan.' }}</p>
                             @if(!request('q') && !request('status'))
                                 <a href="{{ route('pengajuan.create') }}" class="mt-3 inline-flex items-center gap-1.5 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-xl shadow-xs transition">
                                     + Ajukan Proposal Baru
@@ -342,7 +342,7 @@
                                     </td>
                                 </tr>
                             @empty
-                                <x-table.empty colspan="5" :message="request('q') || request('status') ? 'Tidak ada pengajuan yang cocok dengan filter.' : 'Belum ada proposal diajukan.'" />
+                                <x-table.empty colspan="5" :message="request('q') || request('status') ? 'Tidak ada pengajuan yang sesuai dengan kriteria filter.' : 'Belum ada proposal diajukan.'" />
                             @endforelse
                         </tbody>
                     </x-table>

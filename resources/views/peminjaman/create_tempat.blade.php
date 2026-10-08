@@ -98,6 +98,14 @@
                             <x-input-error :messages="$errors->get('deskripsi_kegiatan')" class="mt-2" />
                         </div>
 
+                        <!-- Dokumen Persetujuan Prodi (Opsional) -->
+                        <div class="mb-6">
+                            <x-input-label for="file_persetujuan_prodi" :value="__('Dokumen Persetujuan Prodi (PDF, Opsional)')" />
+                            <input id="file_persetujuan_prodi" name="file_persetujuan_prodi" type="file" accept=".pdf" class="block mt-1 w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 border border-slate-300 rounded-lg p-1.5" />
+                            <p class="text-[11px] text-slate-500 mt-1">Jika dilampirkan, pengajuan dapat langsung diteruskan untuk verifikasi sarpras.</p>
+                            <x-input-error :messages="$errors->get('file_persetujuan_prodi')" class="mt-2" />
+                        </div>
+
                         <!-- Alur Persetujuan Terpadu BKHM & Sarpras -->
                         <div class="mb-6 p-4 bg-indigo-50 border border-indigo-200 rounded-xl text-xs text-indigo-900 leading-relaxed flex items-start gap-3">
                             <svg class="w-5 h-5 text-indigo-600 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
@@ -126,7 +134,7 @@
                     <div class="mt-10 pt-6 border-t border-slate-200">
                         <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-4 border-b pb-3 gap-2">
                             <div>
-                                <h3 class="text-lg font-bold text-slate-900">Kalender Ketersediaan Fasilitas</h3>
+                                <h3 class="text-lg font-bold text-slate-900">Kalender Ketersediaan Ruangan &amp; Fasilitas</h3>
                                 <p class="text-xs text-slate-500 mt-1">Jadwal resmi perkuliahan dan peminjaman kegiatan ormawa.</p>
                             </div>
                             <div class="flex flex-wrap items-center gap-4 text-xs mt-2 sm:mt-0">

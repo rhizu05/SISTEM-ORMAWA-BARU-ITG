@@ -192,12 +192,14 @@ test.describe('UI-020 — Sidebar navigasi (default terbuka, simetri ikon, ingat
       const navCenter = nr.left + nr.width / 2;
       const logo = (nav.querySelector('.w-10.h-10') as HTMLElement).getBoundingClientRect();
       const items = Array.from(nav.querySelectorAll('a,button')).filter(
-        (el) => typeof (el as HTMLElement).className === 'string' && (el as HTMLElement).className.includes('flex')
+        (el) => typeof (el as HTMLElement).className === 'string' &&
+                (el as HTMLElement).className.includes('flex') &&
+                (el as HTMLElement).offsetParent !== null
       );
       const deltas = items
         .map((el) => {
           const s = el.querySelector('svg');
-          if (!s) return null;
+          if (!s || (s as SVGElement).getBoundingClientRect().width === 0) return null;
           const r = s.getBoundingClientRect();
           return Math.round(r.left + r.width / 2 - navCenter);
         })

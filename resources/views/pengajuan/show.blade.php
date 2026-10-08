@@ -378,7 +378,7 @@
                     @endif
 
                     <div class="relative border-l border-gray-200 ml-3 space-y-4">
-                        @foreach($pengajuan->histori as $history)
+                        @forelse($pengajuan->histori as $history)
                         <div class="mb-4 ml-4">
                             <div class="absolute w-3 h-3 bg-indigo-500 rounded-full -left-1.5 border border-white mt-1.5"></div>
                             <time class="mb-1 text-xs font-normal text-gray-400">{{ $history->created_at->format('d/m/Y H:i') }}</time>
@@ -394,7 +394,14 @@
                             <p class="text-sm text-red-700 bg-red-50 p-2 rounded border border-red-200 mt-1"><strong>Kendala / Catatan Revisi:</strong> {{ $history->catatan_kendala }}</p>
                             @endif
                         </div>
-                        @endforeach
+                        @empty
+                        <div class="mb-4 ml-4">
+                            <div class="absolute w-3 h-3 bg-indigo-500 rounded-full -left-1.5 border border-white mt-1.5"></div>
+                            <time class="mb-1 text-xs font-normal text-gray-400">{{ $pengajuan->created_at->format('d/m/Y H:i') }}</time>
+                            <h4 class="text-sm font-semibold text-gray-900">{{ $pengajuan->state->label ?? 'Draft / Inisiasi' }}</h4>
+                            <p class="text-xs text-gray-500 mb-1">Oleh: {{ $pengajuan->user->name ?? 'Pengusul' }}</p>
+                        </div>
+                        @endforelse
                     </div>
                 </div>
             </div>
@@ -419,11 +426,11 @@
                         @endforelse
                     </div>
 
-                    <form action="{{ route('pengajuan.komunikasi.store', $pengajuan) }}" method="POST">
+                    <form id="form-komunikasi" action="{{ route('pengajuan.komunikasi.store', $pengajuan) }}" method="POST">
                         @csrf
                         <textarea name="pesan" rows="2" class="w-full border-gray-300 rounded-md shadow-sm text-sm" placeholder="Tulis pesan follow-up..." required></textarea>
                         <div class="flex justify-end mt-2">
-                            <x-primary-button class="text-xs">Kirim</x-primary-button>
+                            <x-primary-button id="btn-kirim-komunikasi" class="text-xs">Kirim</x-primary-button>
                         </div>
                     </form>
                 </div>

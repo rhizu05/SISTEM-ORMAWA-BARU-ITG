@@ -6,7 +6,7 @@ test.describe('FR-005 / FR-006 / BR-15 — Program Kerja Tahunan & Monitoring (s
     await loginAs(page, 'ormawa');
     
     await page.goto('/proker/tambah', { waitUntil: 'domcontentloaded' });
-    await expect(page.locator('h2')).toContainText(/Tambah Program Kerja/i);
+    await expect(page.getByRole('heading', { name: /Tambah Program Kerja/i }).first()).toBeVisible();
     
     const uniqueId = Date.now();
     await page.fill('input[name="nama_proker"]', `Proker Ormawa ${uniqueId}`);
@@ -25,7 +25,7 @@ test.describe('FR-005 / FR-006 / BR-15 — Program Kerja Tahunan & Monitoring (s
     await loginAs(page, 'bem');
     
     await page.goto('/proker/tambah', { waitUntil: 'domcontentloaded' });
-    await expect(page.locator('h2')).toContainText(/Tambah Program Kerja/i);
+    await expect(page.getByRole('heading', { name: /Tambah Program Kerja/i }).first()).toBeVisible();
     
     const uniqueId = Date.now();
     await page.fill('input[name="nama_proker"]', `Proker BEM ${uniqueId}`);
@@ -53,7 +53,7 @@ test.describe('FR-005 / FR-006 / BR-15 — Program Kerja Tahunan & Monitoring (s
     // 2. Login as BPM and monitor/update
     await loginAs(page, 'bpm');
     await page.goto('/proker', { waitUntil: 'domcontentloaded' });
-    await expect(page.locator('h2')).toContainText(/Daftar Program Kerja/i);
+    await expect(page.getByRole('heading', { name: /Daftar Program Kerja/i }).first()).toBeVisible();
     
     // Find row
     const row = page.locator('tr', { hasText: `Proker Monitoring ${uniqueId}` }).first();

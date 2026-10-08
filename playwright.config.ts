@@ -46,7 +46,7 @@ export default defineConfig({
   webServer: {
     command: `php -S 127.0.0.1:${PORT} -t public`,
     url: BASE_URL,
-    reuseExistingServer: false,
+    reuseExistingServer: true,
     timeout: 30_000,
   },
 

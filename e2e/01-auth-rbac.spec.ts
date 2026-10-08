@@ -92,14 +92,13 @@ test.describe('FR-001 / SEC-04 — Autentikasi & Kontrol Akses', () => {
     expect(response?.status()).toBe(403);
   });
 
-  const nonAdminRoles: ('ormawa' | 'bem' | 'bpm' | 'wr3' | 'bendahara' | 'sarpras' | 'mahasiswa')[] = [
+  const nonAdminRoles: ('ormawa' | 'bem' | 'bpm' | 'wr3' | 'bendahara' | 'sarpras')[] = [
     'ormawa',
     'bem',
     'bpm',
     'wr3',
     'bendahara',
     'sarpras',
-    'mahasiswa',
   ];
 
   for (const role of nonAdminRoles) {
@@ -112,4 +111,9 @@ test.describe('FR-001 / SEC-04 — Autentikasi & Kontrol Akses', () => {
       expect(resKonfig?.status(), `Role ${role} harus 403 di /admin/konfigurasi`).toBe(403);
     });
   }
+
+  test('Guest Mahasiswa: area admin dilindungi dan dialihkan ke login', async ({ page }) => {
+    await page.goto('/admin/users');
+    await expect(page).toHaveURL(/.*login.*/);
+  });
 });

@@ -194,16 +194,20 @@ class InformasiController extends Controller
 
     public function storeRegulasi(Request $request)
     {
-        if (Auth::user()->roles->first()->name !== 'bpm') {
-            abort(403);
-        }
+        abort_unless(Auth::user()->hasRole('bpm'), 403);
 
         $request->validate([
             'judul' => 'required|string|max:255',
             'kategori' => 'required|string|max:100',
             'deskripsi' => 'nullable|string',
-            'file_path' => 'required|file|mimes:pdf|mimetypes:application/pdf|max:10240',
+            'file' => 'nullable|file|mimes:pdf|mimetypes:application/pdf|max:10240',
+            'file_path' => 'nullable|file|mimes:pdf|mimetypes:application/pdf|max:10240',
         ]);
+
+        $uploadedFile = $request->file('file_path') ?? $request->file('file');
+        if (!$uploadedFile) {
+            return redirect()->back()->withErrors(['file' => 'Dokumen PDF wajib diunggah.']);
+        }
 
         $data = [
             'user_id' => Auth::id(),
@@ -211,7 +215,7 @@ class InformasiController extends Controller
             'kategori' => $request->kategori,
             'deskripsi' => $request->deskripsi,
             // SEC-01: file disimpan di disk privat, disajikan lewat controller.
-            'file_path' => $request->file('file_path')->store('regulasi', 'local'),
+            'file_path' => $uploadedFile->store('regulasi', 'local'),
         ];
 
         Regulasi::create($data);
@@ -224,9 +228,7 @@ class InformasiController extends Controller
 
     public function destroyRegulasi(Regulasi $regulasi)
     {
-        if (Auth::user()->roles->first()->name !== 'bpm') {
-            abort(403);
-        }
+        abort_unless(Auth::user()->hasRole('bpm'), 403);
 
         if ($regulasi->file_path && Storage::disk('local')->exists($regulasi->file_path)) {
             Storage::disk('local')->delete($regulasi->file_path);
