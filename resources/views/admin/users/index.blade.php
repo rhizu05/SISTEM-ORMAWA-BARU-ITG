@@ -189,9 +189,9 @@
                                 </div>
 
                                 <div>
-                                    <x-input-label for="file_sk" value="Berkas Dokumen SK Resmi (PDF, Maks 10MB, Opsional)" />
-                                    <input id="file_sk" name="file_sk" type="file" accept=".pdf" class="mt-1 block w-full text-xs text-slate-700 border border-slate-300 rounded-lg p-2 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-indigo-500" />
-                                    <p class="text-[11px] text-slate-500 mt-1">Format PDF jika sudah tersedia. Dapat dilengkapi kemudian saat verifikasi.</p>
+                                    <x-input-label for="file_sk" value="Berkas Dokumen SK Resmi (PDF, Maks 10MB) *" />
+                                    <input id="file_sk" name="file_sk" type="file" accept=".pdf" class="mt-1 block w-full text-xs text-slate-700 border border-slate-300 rounded-lg p-2 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-indigo-500" x-bind:required="['ormawa', 'bem', 'bpm'].includes(selectedRole)" />
+                                    <p class="text-[11px] text-slate-500 mt-1">Format wajib PDF. Diperoleh dari ormawa untuk diverifikasi BKHM.</p>
                                     <x-input-error :messages="$errors->get('file_sk')" class="mt-1" />
                                 </div>
                             </div>

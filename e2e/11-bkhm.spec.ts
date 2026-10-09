@@ -61,6 +61,7 @@ test.describe('FR-002 — Manajemen User (BKHM)', () => {
     await page.fill('input[name="username"]', `ukmbasket${uniqueId}`);
     await page.fill('input[name="password"]', 'password');
     await page.selectOption('select[name="role"]', 'ormawa');
+    await page.setInputFiles('input[name="file_sk"]', 'e2e/fixtures/dummy.pdf');
 
     await Promise.all([
       page.waitForNavigation(),

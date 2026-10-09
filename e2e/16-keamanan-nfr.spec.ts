@@ -623,7 +623,7 @@ test.describe('SEC-03 — Flash Session (bukan parameter URL)', () => {
     await page.fill('input[name="email"]', `${username}@test.com`);
     await page.fill('input[name="username"]', username);
     await page.fill('input[name="password"]', 'password');
-    await page.selectOption('select[name="role"]', 'ormawa');
+    await page.selectOption('select[name="role"]', 'wr3');
 
     await Promise.all([
       page.waitForNavigation({ waitUntil: 'domcontentloaded' }),

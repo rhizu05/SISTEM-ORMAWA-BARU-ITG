@@ -62,7 +62,7 @@ class UserController extends Controller
             'role' => ['required', 'string', Rule::in($allowedRoles)],
             'password' => ['required', Rules\Password::defaults()],
             'saldo' => ['nullable', 'numeric', 'min:0'],
-            'file_sk' => ['nullable', 'file', 'mimes:pdf', 'max:10240'],
+            'file_sk' => [$isOrmawaRole ? 'required' : 'nullable', 'file', 'mimes:pdf', 'max:10240'],
             'nomor_sk' => ['nullable', 'string', 'max:255'],
             'tanggal_sk' => ['nullable', 'date'],
         ];
