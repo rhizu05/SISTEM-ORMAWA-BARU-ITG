@@ -25,7 +25,8 @@ services:
       - DB_PORT=3306
       - DB_DATABASE=${DB_DATABASE:-skin_itg}
       - DB_USERNAME=${DB_USERNAME:-skin_user}
-      - DB_PASSWORD=${DB_PASSWORD:-secret}
+      - DB_PASSWORD=${DB_PASSWORD:?Variabel DB_PASSWORD wajib ditentukan di .env}
+      - TRUSTED_PROXIES=${TRUSTED_PROXIES:-10.0.0.0/8,172.16.0.0/12,192.168.0.0/16,127.0.0.1}
       - QUEUE_CONNECTION=redis
       - CACHE_STORE=redis
       - SESSION_DRIVER=redis
@@ -63,8 +64,8 @@ services:
     environment:
       MYSQL_DATABASE: ${DB_DATABASE:-skin_itg}
       MYSQL_USER: ${DB_USERNAME:-skin_user}
-      MYSQL_PASSWORD: ${DB_PASSWORD}
-      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      MYSQL_PASSWORD: ${DB_PASSWORD:?Variabel DB_PASSWORD wajib ditentukan di .env}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:?Variabel DB_ROOT_PASSWORD wajib ditentukan di .env}
     volumes:
       - skin_dbdata:/var/lib/mysql
     networks:
@@ -108,7 +109,7 @@ services:
       - DB_PORT=3306
       - DB_DATABASE=${DB_DATABASE:-skin_itg}
       - DB_USERNAME=${DB_USERNAME:-skin_user}
-      - DB_PASSWORD=${DB_PASSWORD:-secret}
+      - DB_PASSWORD=${DB_PASSWORD:?Variabel DB_PASSWORD wajib ditentukan di .env}
       - QUEUE_CONNECTION=redis
       - CACHE_STORE=redis
       - SESSION_DRIVER=redis
@@ -141,7 +142,7 @@ services:
       - DB_PORT=3306
       - DB_DATABASE=${DB_DATABASE:-skin_itg}
       - DB_USERNAME=${DB_USERNAME:-skin_user}
-      - DB_PASSWORD=${DB_PASSWORD:-secret}
+      - DB_PASSWORD=${DB_PASSWORD:?Variabel DB_PASSWORD wajib ditentukan di .env}
       - QUEUE_CONNECTION=redis
       - CACHE_STORE=redis
       - SESSION_DRIVER=redis

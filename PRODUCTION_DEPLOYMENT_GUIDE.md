@@ -8,9 +8,10 @@
 
 Dokumen ini disusun sebagai panduan teknis resmi bagi **Tim DevOps / IT Infrastructure ITG** dalam mempersiapkan, memasang (*deploy*), mengonfigurasi, dan memelihara aplikasi **SKIN ITG** di lingkungan server produksi (*Production Environment*).
 
-Sistem mendukung 2 (dua) metode deployment resmi:
-1. **Metode A (Rekomendasi Utama): Containerized Docker Multi-Container** (Cepat, terisolasi, terstandarisasi, dan mudah di-scale).
-2. **Metode B: Bare-Metal / Virtual Machine Tradisional** (Nginx + PHP-FPM + MySQL di OS Host).
+Sistem mendukung 3 (tiga) metode deployment resmi:
+1. **Metode A (Rekomendasi Utama VPS): Containerized Docker Multi-Container** (Cepat, terisolasi, terstandarisasi, dan mudah di-scale).
+2. **Metode B: Bare-Metal / Virtual Machine Tradisional** (Nginx + PHP-FPM + MySQL di OS Host Ubuntu/Debian).
+3. **Metode C: cPanel Hosting Kampus** (Shared Hosting / Managed VPS cPanel dengan Apache/LiteSpeed & MySQL cPanel).
 
 ---
 
@@ -222,7 +223,109 @@ server {
 
 ---
 
-## 6. Konfigurasi Mail Server (SMTP) & Pengujian Diagnostik
+## 7. Panduan Deployment cPanel Kampus (Metode C)
+
+Jika server kampus ITG menggunakan hosting berbasis **cPanel**, ikuti tata cara terstruktur berikut:
+
+### A. Persiapan File & Kompilasi Frontend di Lokal
+Sebelum mengunggah kode ke cPanel:
+1. Pastikan aset frontend sudah di-build di komputer lokal:
+   ```bash
+   npm run build
+   ```
+2. Pastikan folder `public/build` terisi file `manifest.json` dan bundle CSS/JS.
+3. Compress seluruh folder proyek menjadi berkas `.zip` (abaikan folder `.git`, `node_modules`, dan berkas `.env` lokal).
+
+### B. Struktur Direktori di cPanel (Wajib Diperhatikan)
+> **PENTING UNTUK KEAMANAN:**  
+> Jangan letakkan seluruh file Laravel langsung di dalam `public_html`! Berkas konfigurasi (`.env`), kode sumber (`app/`), dan database bisa bocor jika ditaruh langsung di web root.
+
+1. Buka **cPanel File Manager**, unggah file `.zip` ke direktori home (di luar `public_html`), misalnya:
+   `/home/username/skin-itg/`
+2. Ekstrak file zip tersebut di direktori tersebut.
+3. Di menu **cPanel Domains / Subdomains**:
+   - Buat subdomain (misalnya `ormawa.itg.ac.id`).
+   - Ubah kolom **Document Root** agar mengarah ke folder publik Laravel:  
+     `/home/username/skin-itg/public`
+   - Dengan begitu, web server hanya dapat mengakses folder `public/`, sedangkan kode inti dan file `.env` terlindungi di luarnya.
+
+### C. Pembuatan Database & Pengaturan `.env` di cPanel
+1. Masuk ke menu **cPanel > MySQL® Database Wizard**:
+   - Buat database baru (misal: `itguser_skinitg`).
+   - Buat user database baru dan password yang kuat.
+   - Berikan hak akses **All Privileges** pada user tersebut ke database.
+2. Di folder `/home/username/skin-itg/`, salin `.env.example` menjadi `.env`.
+3. Buka dan edit `.env`:
+   ```dotenv
+   APP_NAME="SKIN ITG"
+   APP_ENV=production
+   APP_KEY=base64:... (buat via terminal / artisan)
+   APP_DEBUG=false
+   APP_URL=https://ormawa.itg.ac.id
+
+   DB_CONNECTION=mysql
+   DB_HOST=localhost
+   DB_PORT=3306
+   DB_DATABASE=itguser_skinitg
+   DB_USERNAME=itguser_dbuser
+   DB_PASSWORD=PasswordKuatDb123!
+
+   SESSION_DRIVER=database
+   QUEUE_CONNECTION=database
+   CACHE_STORE=database
+
+   # Kosongkan atau beri tanda komentar jika cPanel diakses langsung tanpa reverse proxy
+   # TRUSTED_PROXIES=
+   ```
+
+### D. Inisialisasi Melalui cPanel Terminal (atau SSH)
+Buka menu **cPanel > Terminal**:
+```bash
+cd /home/username/skin-itg
+
+# 1. Generate App Key jika belum ada
+php artisan key:generate --force
+
+# 2. Buat symlink storage publik
+php artisan storage:link
+
+# 3. Jalankan migrasi dan seeder resmi
+php artisan migrate --force
+php artisan db:seed --class=RolePermissionSeeder --force
+php artisan db:seed --class=WorkflowSeeder --force
+php artisan db:seed --class=KonfigurasiSeeder --force
+php artisan db:seed --class=MasterDataSeeder --force
+php artisan db:seed --class=PeriodeAnggaranSeeder --force
+php artisan db:seed --class=UserSeeder --force
+
+# 4. Optimasi cache produksi
+php artisan config:cache
+php artisan route:cache
+php artisan view:cache
+php artisan event:cache
+```
+
+> **Catatan jika cPanel tidak menyediakan Terminal:**  
+> Jika hosting kampus menonaktifkan fitur Terminal/SSH, tim IT dapat membuat satu file PHP sementara di `public/setup-link.php` yang menjalankan `symlink('../storage/app/public', 'storage')`, lalu **segera hapus file tersebut setelah dieksekusi sekali**.
+
+### E. Penjadwalan Cron Job di cPanel
+Buka menu **cPanel > Cron Jobs**:
+1. Pilih interval **Once Per Minute (`* * * * *`)**.
+2. Masukkan perintah berikut pada kolom Command:
+   ```bash
+   /usr/local/bin/php /home/username/skin-itg/artisan schedule:run >> /dev/null 2>&1
+   ```
+   *(Sesuaikan path PHP versi 8.3/8.4 jika menggunakan multi-PHP cPanel, misalnya `/usr/local/bin/ea-php83`)*.
+
+3. Jika menggunakan antrean email/notifikasi di background pada cPanel:
+   Tambahkan cron job kedua (setiap 5 atau 10 menit):
+   ```bash
+   /usr/local/bin/php /home/username/skin-itg/artisan queue:work --stop-when-empty --tries=3 >> /dev/null 2>&1
+   ```
+
+---
+
+## 8. Konfigurasi Mail Server (SMTP) & Pengujian Diagnostik
 
 Sistem SKIN ITG telah mengimplementasikan seluruh template email notifikasi (pengajuan proposal, revisi, pencairan dana, tiket bkhm, aspirasi, akun baru) lengkap dengan proteksi *fail-safe* (aplikasi tidak akan crash/500 jika mail server offline).
 
@@ -263,7 +366,7 @@ Setelah mengisi parameter SMTP pada `.env` dan me-refresh konfigurasi (`php arti
 # Docker Container:
 docker compose exec app php artisan mail:test devops@itg.ac.id
 
-# Server Bare-Metal / VM:
+# Server Bare-Metal / cPanel Terminal:
 php artisan mail:test devops@itg.ac.id
 ```
 
@@ -275,7 +378,7 @@ Perintah ini akan:
 
 ---
 
-## 7. Background Worker & Penjadwalan (Bare-Metal)
+## 9. Background Worker & Penjadwalan (Bare-Metal & VPS)
 
 ### Crontab Penjadwalan:
 ```cron
@@ -297,7 +400,7 @@ stdout_logfile=/var/www/skin-itg/storage/logs/worker.log
 
 ---
 
-## 8. Backup & Pemulihan Data (Disaster Recovery)
+## 10. Backup & Pemulihan Data (Disaster Recovery)
 
 Skrip backup harian otomatis (`/usr/local/bin/backup-skin.sh`):
 
@@ -323,7 +426,7 @@ find $BACKUP_DIR -type f -mtime +30 -delete
 
 ---
 
-## 9. Checklist Go-Live (Smoke Testing)
+## 11. Checklist Go-Live (Smoke Testing)
 
 Sebelum sistem diumumkan secara resmi ke publik kampus ITG, lakukan pengujian verifikasi berikut:
 
