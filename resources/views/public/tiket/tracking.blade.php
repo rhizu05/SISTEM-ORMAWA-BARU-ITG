@@ -192,6 +192,51 @@
                                 </div>
                             </div>
 
+                            @if ($tiket->isKelompok())
+                                <div class="p-4 rounded-xl bg-slate-50 border border-slate-200">
+                                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1 mb-2.5">
+                                        <span class="text-xs font-bold text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
+                                            <svg class="w-4 h-4 text-indigo-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.199l-.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z"/></svg>
+                                            <span>Susunan Regu / Tim Delegasi: {{ $tiket->nama_tim ?? 'Tim' }}</span>
+                                        </span>
+                                        @if ($tiket->dosen_pembimbing)
+                                            <span class="text-xs text-slate-600">Dosen Pembimbing: <strong class="text-slate-800">{{ $tiket->dosen_pembimbing }}</strong></span>
+                                        @endif
+                                    </div>
+                                    <div class="overflow-x-auto">
+                                        <table class="w-full text-left text-xs border-collapse">
+                                            <thead>
+                                                <tr class="border-b border-slate-200 text-slate-500 font-semibold">
+                                                    <th class="py-1.5 px-2">No</th>
+                                                    <th class="py-1.5 px-2">Nama Mahasiswa</th>
+                                                    <th class="py-1.5 px-2">NIM</th>
+                                                    <th class="py-1.5 px-2">Program Studi</th>
+                                                    <th class="py-1.5 px-2">Peran</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody class="divide-y divide-slate-100 text-slate-700">
+                                                <tr class="font-semibold bg-indigo-50/50">
+                                                    <td class="py-1.5 px-2">1</td>
+                                                    <td class="py-1.5 px-2">{{ $tiket->nama_mahasiswa }}</td>
+                                                    <td class="py-1.5 px-2 font-mono">{{ $tiket->nim }}</td>
+                                                    <td class="py-1.5 px-2">{{ $tiket->prodi }}</td>
+                                                    <td class="py-1.5 px-2"><span class="px-1.5 py-0.5 rounded bg-indigo-100 text-indigo-800 text-[10px] font-bold">Ketua Tim</span></td>
+                                                </tr>
+                                                @foreach ($tiket->daftar_anggota as $idx => $anggota)
+                                                    <tr>
+                                                        <td class="py-1.5 px-2">{{ $idx + 2 }}</td>
+                                                        <td class="py-1.5 px-2 font-medium">{{ $anggota['nama'] ?? '-' }}</td>
+                                                        <td class="py-1.5 px-2 font-mono">{{ $anggota['nim'] ?? '-' }}</td>
+                                                        <td class="py-1.5 px-2">{{ $anggota['prodi'] ?? '-' }}</td>
+                                                        <td class="py-1.5 px-2"><span class="px-1.5 py-0.5 rounded bg-slate-100 text-slate-700 text-[10px]">Anggota</span></td>
+                                                    </tr>
+                                                @endforeach
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            @endif
+
                             @if ($tiket->tampil_ke_publik)
                                 <div class="bg-amber-50 border border-amber-200 rounded-xl p-3 text-xs text-amber-900 flex items-center gap-2">
                                     <svg class="w-4 h-4 text-amber-700 shrink-0" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M7 4h10v5a5 5 0 0 1-10 0V4z"/><path stroke-linecap="round" stroke-linejoin="round" d="M7 5H4.5A2.5 2.5 0 0 0 7 10"/><path stroke-linecap="round" stroke-linejoin="round" d="M17 5h2.5A2.5 2.5 0 0 1 17 10"/><path stroke-linecap="round" stroke-linejoin="round" d="M12 14v3M9 20h6"/></svg>

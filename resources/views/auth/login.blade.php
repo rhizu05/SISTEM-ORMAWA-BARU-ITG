@@ -279,13 +279,20 @@
                     </div>
                 </div>
 
-                {{-- Footer Hak Cipta --}}
-                <div class="mt-8 text-center text-xs text-slate-400">
-                    &copy; {{ date('Y') }} Institut Teknologi Garut · Biro Kemahasiswaan &amp; Hubungan Masyarakat
+                {{-- Footer Hak Cipta & Kredit Pengembang --}}
+                <div class="mt-8 text-center text-xs text-slate-500">
+                    <div>&copy; {{ date('Y') }} Institut Teknologi Garut · Biro Kemahasiswaan &amp; Hubungan Masyarakat</div>
+                    <div class="mt-1.5">
+                        <button type="button" @click="$dispatch('open-about-modal')" class="font-semibold text-blue-700 hover:text-blue-900 transition hover:underline cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 rounded">
+                            Tentang Sistem &amp; Tim Pengembang
+                        </button>
+                    </div>
                 </div>
             </div>
 
         </div>
     </div>
+
+    <x-about-modal />
 </body>
 </html>

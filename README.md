@@ -36,20 +36,31 @@ Secara struktur repositori git, **versi ini sengaja dibangun dalam repositori ma
 - **Layanan Bertiket:**
   - **Aspirasi Mahasiswa:** Pengajuan suara mahasiswa (opsi anonim) yang langsung dikurasi oleh BPM dan dapat dieskalasi ke BKHM.
   - **Konseling Rahasia BKHM:** Konseling personal dengan enkripsi data *at-rest* AES-256-CBC, penentuan jadwal temu, serta konfirmasi kehadiran.
-  - **Lapor Capaian Prestasi & Pengajuan Dana Delegasi:** Portal mandiri pelaporan prestasi mahasiswa yang telah diraih serta pengajuan bantuan dana delegasi lomba sebelum bertanding.
+  - **Lapor Capaian Prestasi & Pengajuan Dana Delegasi (Individu & Tim):** 
+    - Mendukung pengajuan **Individu** maupun **Regu / Tim Delegasi**.
+    - Perekaman data ketua tim, dosen pembimbing, serta penambahan daftar anggota tim dinamis (NIM, Nama, Program Studi).
+    - Penyelarasan tema aksen interaktif: *Amber/Orange* untuk Lapor Capaian Prestasi dan *Indigo/Ungu* untuk Pengajuan Dana Delegasi.
+    - Etalase Showcase Prestasi publik dan verifikasi BKHM terintegrasi penuh menampilkan seluruh anggota delegasi.
   - **Pelacakan Status Real-Time:** Pelacakan progres tiket publik via halaman **Lacak Tiket** menggunakan kombinasi **Kode Tiket unik (`SKIN-TKT-YYYY-XXXX`) + Alamat Email**.
 
-### 3. Manajemen Sarana & Prasarana (Sarpras) Cerdas
+### 3. Generator Persuratan & LPJ Ormawa Modern
+- **Persuratan Digital Multi-Penerima:**
+  - **Surat Tugas / Mandat:** Mendukung penambahan petugas & NIM lebih dari 1 orang secara dinamis.
+  - **Surat Keterangan Mahasiswa:** Mendukung penambahan mahasiswa penerima keterangan, NIM, dan jabatan secara dinamis.
+- **Kustomisasi Kop Surat Mandiri HIMA & UKM:** Pengaturan kop surat organisasi dengan logo institusi/lembaga kiri-kanan, nama prodi/himpunan, kontak, serta garis pembatas ganda institusi ITG.
+- **Fleksibilitas Penandatanganan:** Penyesuaian penandatangan dokumen (Ketua HIMA/UKM, Sekretaris, Pembina, hingga Kaprodi) dengan tanda tangan digital ber-QR Code.
+
+### 4. Manajemen Sarana & Prasarana (Sarpras) Cerdas
 - **Slot Checker & Anti-Bentrok:** Pengecekan otomatis ketersediaan ruangan antara jadwal perkuliahan harian dengan jadwal kegiatan ormawa.
 - **Dual-Path Approval:**
   - *Jalur Mandiri HIMA/UKM:* Didukung surat pengantar/izin kegiatan prodi yang langsung mengarah ke Sarpras.
   - *Jalur BEM/BPM:* Melalui peninjauan awal oleh Biro Kemahasiswaan (BKHM).
 
-### 4. Pusat Kurasi Berita & Agenda Ormawa
+### 5. Pusat Kurasi Berita & Agenda Ormawa
 - Kurasi draf berita kegiatan ormawa oleh staf BEM sebelum dipublikasikan ke portal publik.
 - Detail publik interaktif dilengkapi lightbox poster pamflet gambar, tombol bagikan ke WhatsApp, dan tautan unduh petunjuk teknis (Juknis).
 
-### 5. Rekapitulasi Keuangan BKHM & Ekspor Instan
+### 6. Rekapitulasi Keuangan BKHM & Ekspor Instan
 - Monitoring saldo per ormawa dengan riwayat mutasi masuk/keluar yang transparan.
 - Fasilitas ekspor laporan berkas siap cetak dalam format **Excel (.xlsx)** dan **PDF Resmi**.
 
@@ -162,21 +173,33 @@ Proyek ini telah dikonfigurasikan dengan alur kerja **Continuous Integration (CI
 
 1. **Laravel CI (`.github/workflows/laravel-ci.yml`):**
    - Berjalan otomatis pada setiap aksi `push` dan `pull_request` ke cabang `develop`, `main`, dan `master`.
-   - Melakukan setup PHP 8.3, instalasi dependensi Composer, kompilasi aset frontend Vite (`npm run build`), dan menjalankan rangkaian automated tests PHPUnit.
+   - Melakukan setup PHP 8.3, instalasi dependensi Composer, kompilasi aset frontend Vite (`npm run build`), dan menjalankan rangkaian automated tests PHPUnit (**259 tests, 1.439 assertions, 100% passing**).
 2. **Playwright E2E Tests (`.github/workflows/playwright.yml`):**
    - Menjalankan pengujian fungsional *End-to-End* antarmuka pengguna berbasis browser headless Playwright.
 
 ### Menjalankan Pengujian di Lokal:
 ```bash
-# Menjalankan pengujian spesifik perintah email:
-php vendor/phpunit/phpunit/phpunit tests/Feature/TestMailCommandTest.php
+# Menjalankan pengujian spesifik tiket publik:
+php artisan test tests/Feature/PublicTicketingTest.php
 
-# Menjalankan seluruh pengujian unit & fitur:
+# Menjalankan seluruh pengujian unit & fitur (259 tests):
 php artisan test
 
 # Menjalankan pengujian browser E2E Playwright:
 npx playwright test
 ```
+
+---
+
+## 👥 Tim Pengembang & Inisiator Proyek
+
+Proyek ini diinisiasi dan dikembangkan oleh mahasiswa Institut Teknologi Garut:
+
+- **Pencetus & Arsitek Awal:**
+  - **Rd Moch Reikhan Ibnu** (NIM: 2407013) &mdash; [LinkedIn](https://www.linkedin.com/in/rdhanss) &bull; [GitHub](https://github.com/rdreikhan-commits)
+- **Tim Pengembang Sistem (v3.0):**
+  - **Muhamad Ar Rasyid Rizki Oktavian** (NIM: 2306045) &mdash; [GitHub: @rhizu05](https://github.com/rhizu05) &bull; [LinkedIn](https://www.linkedin.com/in/rasyidoktavian)
+  - **Sep Naufal Dzimar Sadli** (NIM: 2306078) &mdash; [GitHub: @SepNaufal](https://github.com/SepNaufal) &bull; [LinkedIn](https://www.linkedin.com/in/sep-naufal-dzimar-sadli-616035348)
 
 ---
 

@@ -9,6 +9,9 @@ use App\Services\DigitalSignatureService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
+use setasign\Fpdi\Fpdi;
 
 class ProposalGeneratorController extends Controller
 {
@@ -165,7 +168,8 @@ class ProposalGeneratorController extends Controller
                 if ($nama === '') {
                     $nama = $namaMap[$role] ?? $user->name;
                 }
-                $jabatan = trim($jabatans[$idx] ?? '') ?: ucfirst($role);
+                $formattedRole = ucwords(str_replace('_', ' ', $role));
+                $jabatan = trim($jabatans[$idx] ?? '') ?: ($formattedRole === 'Custom' ? 'Penandatangan' : $formattedRole);
                 $nim = $nimInput !== '' ? $nimInput : ($nimMap[$role] ?? null);
             } else {
                 $nama = $nama !== '' ? $nama : 'Pihak Luar';
@@ -198,17 +202,29 @@ class ProposalGeneratorController extends Controller
     public function storeLetter(Request $request)
     {
         $request->validate([
-            'type'       => 'required|in:undangan,tugas,permohonan,keterangan_aktif',
-            'nomor_surat'=> 'nullable|string|max:255',
-            'perihal'    => 'required|string|max:255',
-            'tujuan'     => 'required|string|max:255',
+            'type'              => 'required|in:undangan,tugas,permohonan,keterangan_aktif',
+            'nomor_surat'       => 'nullable|string|max:255',
+            'perihal'           => 'required|string|max:255',
+            'lampiran'          => 'nullable|string|max:255',
+            'tujuan'            => 'required|string|max:255',
+            'kalimat_pembuka'   => 'nullable|string',
+            'kalimat_penutup'   => 'nullable|string',
+            'file_lampiran_pdf' => 'nullable|file|mimes:pdf|max:10240',
         ]);
+
+        $lampiranPdfPath = null;
+        if ($request->hasFile('file_lampiran_pdf')) {
+            $lampiranPdfPath = $request->file('file_lampiran_pdf')->store('letters/lampiran', 'public');
+        }
 
         // Susun daftar penandatangan dari input dinamis (internal atau pihak luar)
         $penandatanganList = $this->buildPenandatanganList($request);
 
         $meta = [
             'tujuan'             => $request->tujuan,
+            'lampiran'           => $request->lampiran,
+            'kalimat_pembuka'    => $request->kalimat_pembuka,
+            'kalimat_penutup'    => $request->kalimat_penutup,
             'penandatangan'      => $penandatanganList[0]['role'] ?? 'internal',
             'penandatangan_list' => $penandatanganList,
         ];
@@ -222,43 +238,159 @@ class ProposalGeneratorController extends Controller
                 'waktu'          => 'required|string|max:255',
                 'tempat'         => 'required|string|max:255',
             ]);
-            $meta    = array_merge($meta, $request->only(['kalimat_pembuka', 'nama_acara', 'hari_tanggal', 'waktu', 'tempat']));
+            $meta    = array_merge($meta, $request->only(['kalimat_pembuka', 'kalimat_penutup', 'nama_acara', 'hari_tanggal', 'waktu', 'tempat']));
             $content = trim($request->kalimat_pembuka . "\n\nNama Acara: " . $request->nama_acara . "\nHari/Tanggal: " . $request->hari_tanggal . "\nWaktu: " . $request->waktu . "\nTempat: " . $request->tempat);
         } elseif ($request->type === 'tugas') {
             $request->validate([
-                'nama_petugas'        => 'required|string|max:255',
-                'nim'                 => 'required|string|max:100',
-                'uraian_tugas'        => 'required|string',
-                'tanggal_pelaksanaan' => 'required|string|max:255',
+                'nama_petugas'            => 'required|string|max:255',
+                'nim'                     => 'required|string|max:100',
+                'uraian_tugas'            => 'required|string',
+                'tanggal_pelaksanaan'     => 'required|string|max:255',
+                'petugas_tambahan_nama.*' => 'nullable|string|max:255',
+                'petugas_tambahan_nim.*'  => 'nullable|string|max:100',
             ]);
-            $meta    = array_merge($meta, $request->only(['nama_petugas', 'nim', 'uraian_tugas', 'tanggal_pelaksanaan']));
-            $content = "Menugaskan: " . $request->nama_petugas . " (NIM " . $request->nim . ")\nUraian: " . $request->uraian_tugas . "\nTanggal: " . $request->tanggal_pelaksanaan;
+
+            // Bangun daftar penerima tugas / mandat (minimal petugas utama)
+            $petugasList = [
+                [
+                    'nama' => trim((string) $request->nama_petugas),
+                    'nim'  => trim((string) $request->nim),
+                ]
+            ];
+
+            // Tambahkan petugas tambahan jika diinputkan
+            $extraNama = (array) $request->input('petugas_tambahan_nama', []);
+            $extraNim  = (array) $request->input('petugas_tambahan_nim', []);
+
+            foreach ($extraNama as $idx => $extraN) {
+                $namaClean = trim((string) $extraN);
+                $nimClean  = trim((string) ($extraNim[$idx] ?? ''));
+                if ($namaClean !== '' || $nimClean !== '') {
+                    if ($namaClean === '' || $nimClean === '') {
+                        return back()->withInput()->withErrors([
+                            'nama_petugas' => 'Seluruh penerima tugas / mandat tambahan harus memiliki Nama dan NIM yang lengkap.'
+                        ]);
+                    }
+                    $petugasList[] = [
+                        'nama' => $namaClean,
+                        'nim'  => $nimClean,
+                    ];
+                }
+            }
+
+            $primaryPetugas = $petugasList[0]['nama'];
+            $primaryNim     = $petugasList[0]['nim'];
+
+            $kalimatPembuka = $request->input('kalimat_pembuka_tugas', $request->input('kalimat_pembuka'));
+            $kalimatPenutup = $request->input('kalimat_penutup_tugas', $request->input('kalimat_penutup'));
+
+            $meta = array_merge($meta, [
+                'kalimat_pembuka'     => $kalimatPembuka,
+                'kalimat_penutup'     => $kalimatPenutup,
+                'nama_petugas'        => $primaryPetugas,
+                'nim'                 => $primaryNim,
+                'petugas_list'        => $petugasList,
+                'uraian_tugas'        => $request->uraian_tugas,
+                'tanggal_pelaksanaan' => $request->tanggal_pelaksanaan,
+            ]);
+
+            if (count($petugasList) === 1) {
+                $content = ($kalimatPembuka ? $kalimatPembuka . "\n\n" : '') . "Menugaskan: " . $primaryPetugas . " (NIM " . $primaryNim . ")\nUraian: " . $request->uraian_tugas . "\nTanggal: " . $request->tanggal_pelaksanaan;
+            } else {
+                $petugasText = "Menugaskan kepada:\n";
+                foreach ($petugasList as $idx => $p) {
+                    $petugasText .= ($idx + 1) . ". " . $p['nama'] . " (NIM: " . $p['nim'] . ")\n";
+                }
+                $content = ($kalimatPembuka ? $kalimatPembuka . "\n\n" : '') . $petugasText . "Uraian: " . $request->uraian_tugas . "\nTanggal: " . $request->tanggal_pelaksanaan;
+            }
         } elseif ($request->type === 'permohonan') {
             $request->validate([
                 'nama_alat_tempat'  => 'required|string|max:255',
                 'waktu_penggunaan'  => 'required|string|max:255',
                 'alasan_tujuan'     => 'required|string',
             ]);
-            $meta    = array_merge($meta, $request->only(['nama_alat_tempat', 'waktu_penggunaan', 'alasan_tujuan']));
-            $content = "Memohon peminjaman " . $request->nama_alat_tempat . " pada " . $request->waktu_penggunaan . "\nAlasan: " . $request->alasan_tujuan;
+            $meta    = array_merge($meta, $request->only(['kalimat_pembuka', 'kalimat_penutup', 'nama_alat_tempat', 'waktu_penggunaan', 'alasan_tujuan']));
+            $content = ($request->kalimat_pembuka ? $request->kalimat_pembuka . "\n\n" : '') . "Memohon peminjaman " . $request->nama_alat_tempat . " pada " . $request->waktu_penggunaan . "\nAlasan: " . $request->alasan_tujuan;
         } elseif ($request->type === 'keterangan_aktif') {
             $request->validate([
-                'nama_mahasiswa' => 'required|string|max:255',
-                'nim'            => 'required|string|max:100',
-                'jabatan'        => 'required|string|max:255',
-                'keperluan'      => 'required|string',
+                'nama_mahasiswa'               => 'required|string|max:255',
+                'nim'                          => 'required|string|max:100',
+                'jabatan'                      => 'required|string|max:255',
+                'keperluan'                    => 'required|string',
+                'mahasiswa_tambahan_nama.*'    => 'nullable|string|max:255',
+                'mahasiswa_tambahan_nim.*'     => 'nullable|string|max:100',
+                'mahasiswa_tambahan_jabatan.*' => 'nullable|string|max:255',
             ]);
-            $meta    = array_merge($meta, $request->only(['nama_mahasiswa', 'nim', 'jabatan', 'keperluan']));
-            $content = "Menerangkan bahwa " . $request->nama_mahasiswa . " (NIM " . $request->nim . ") jabatan " . $request->jabatan . " keperluan: " . $request->keperluan;
+
+            // Bangun daftar mahasiswa yang diterangkan (minimal mahasiswa utama)
+            $mahasiswaList = [
+                [
+                    'nama'    => trim((string) $request->nama_mahasiswa),
+                    'nim'     => trim((string) $request->nim),
+                    'jabatan' => trim((string) $request->jabatan),
+                ]
+            ];
+
+            // Tambahkan mahasiswa tambahan jika diinputkan
+            $extraNama    = (array) $request->input('mahasiswa_tambahan_nama', []);
+            $extraNim     = (array) $request->input('mahasiswa_tambahan_nim', []);
+            $extraJabatan = (array) $request->input('mahasiswa_tambahan_jabatan', []);
+
+            foreach ($extraNama as $idx => $extraN) {
+                $namaClean    = trim((string) $extraN);
+                $nimClean     = trim((string) ($extraNim[$idx] ?? ''));
+                $jabatanClean = trim((string) ($extraJabatan[$idx] ?? ''));
+                if ($namaClean !== '' || $nimClean !== '' || $jabatanClean !== '') {
+                    if ($namaClean === '' || $nimClean === '' || $jabatanClean === '') {
+                        return back()->withInput()->withErrors([
+                            'nama_mahasiswa' => 'Seluruh mahasiswa tambahan pada surat keterangan harus memiliki Nama, NIM, dan Jabatan yang lengkap.'
+                        ]);
+                    }
+                    $mahasiswaList[] = [
+                        'nama'    => $namaClean,
+                        'nim'     => $nimClean,
+                        'jabatan' => $jabatanClean,
+                    ];
+                }
+            }
+
+            $primaryNama    = $mahasiswaList[0]['nama'];
+            $primaryNim     = $mahasiswaList[0]['nim'];
+            $primaryJabatan = $mahasiswaList[0]['jabatan'];
+
+            $kalimatPembuka = $request->input('kalimat_pembuka_ket', $request->input('kalimat_pembuka'));
+            $kalimatPenutup = $request->input('kalimat_penutup_ket', $request->input('kalimat_penutup'));
+
+            $meta = array_merge($meta, [
+                'kalimat_pembuka' => $kalimatPembuka,
+                'kalimat_penutup' => $kalimatPenutup,
+                'nama_mahasiswa'  => $primaryNama,
+                'nim'             => $primaryNim,
+                'jabatan'         => $primaryJabatan,
+                'mahasiswa_list'  => $mahasiswaList,
+                'keperluan'       => $request->keperluan,
+            ]);
+
+            if (count($mahasiswaList) === 1) {
+                $content = ($kalimatPembuka ? $kalimatPembuka . "\n\n" : '') . "Menerangkan bahwa " . $primaryNama . " (NIM " . $primaryNim . ") jabatan " . $primaryJabatan . " keperluan: " . $request->keperluan;
+            } else {
+                $mhsText = "Menerangkan bahwa mahasiswa berikut:\n";
+                foreach ($mahasiswaList as $idx => $mhs) {
+                    $mhsText .= ($idx + 1) . ". " . $mhs['nama'] . " (NIM: " . $mhs['nim'] . ") - Jabatan: " . $mhs['jabatan'] . "\n";
+                }
+                $content = ($kalimatPembuka ? $kalimatPembuka . "\n\n" : '') . $mhsText . "Keperluan: " . $request->keperluan;
+            }
         }
 
         $letter = \App\Models\Letter::create([
-            'user_id'     => Auth::id(),
-            'type'        => $request->type,
-            'nomor_surat' => $request->nomor_surat,
-            'perihal'     => $request->perihal,
-            'content'     => $content ?: ($request->content ?? '-'),
-            'metadata'    => $meta,
+            'user_id'           => Auth::id(),
+            'type'              => $request->type,
+            'nomor_surat'       => $request->nomor_surat,
+            'perihal'           => $request->perihal,
+            'lampiran'          => $request->lampiran,
+            'file_lampiran_pdf' => $lampiranPdfPath,
+            'content'           => $content ?: ($request->content ?? '-'),
+            'metadata'          => $meta,
         ]);
 
         // Bubuhkan tanda tangan digital untuk setiap penandatangan internal
@@ -332,8 +464,9 @@ class ProposalGeneratorController extends Controller
             'hambatan' => 'nullable|string',
             'upaya_mengatasi' => 'nullable|string',
             'penutup' => 'nullable|string',
-            'foto_dokumentasi.*' => 'nullable|image|max:5120',
-            'bukti_pembayaran.*' => 'nullable|file|mimes:jpeg,png,jpg,pdf|max:5120',
+            'foto_dokumentasi.*' => 'nullable|image|max:10240',
+            'bukti_pembayaran.*' => 'nullable|file|mimes:jpeg,png,jpg,pdf|max:10240',
+            'file_lampiran_pdf'  => 'nullable|file|mimes:pdf|max:10240',
         ]);
 
         $penandatanganList = $this->buildPenandatanganList($request);
@@ -374,6 +507,12 @@ class ProposalGeneratorController extends Controller
             }
         }
 
+        // Handle upload file lampiran PDF opsional (akan di-merge saat cetak PDF)
+        $lampiranPdfPath = null;
+        if ($request->hasFile('file_lampiran_pdf')) {
+            $lampiranPdfPath = $request->file('file_lampiran_pdf')->store('lpj/lampiran', 'public');
+        }
+
         $daftarHadirItems = $request->daftar_hadir_items ?? [];
 
         $lpj = \App\Models\Letter::create([
@@ -381,6 +520,7 @@ class ProposalGeneratorController extends Controller
             'proposal_otomatis_id' => $request->proposal_id,
             'type' => 'lpj',
             'perihal' => 'Laporan Pertanggungjawaban (LPJ) - ' . $request->nama_kegiatan,
+            'file_lampiran_pdf' => $lampiranPdfPath,
             'content' => json_encode([
                 'tahun_akademik' => $request->tahun_akademik ?? '2024-2025',
                 'waktu_hari_tanggal' => $request->waktu_hari_tanggal,
@@ -414,6 +554,7 @@ class ProposalGeneratorController extends Controller
                 'daftar_hadir_items' => $daftarHadirItems,
                 'foto_dokumentasi' => $dokumentasiPaths,
                 'bukti_struk' => $strukPaths,
+                'file_lampiran_pdf' => $lampiranPdfPath,
                 'penandatangan' => $penandatanganList[0]['role'] ?? 'internal',
                 'penandatangan_list' => $penandatanganList,
                 'ttd_1' => $request->ttd_1,
@@ -475,7 +616,7 @@ class ProposalGeneratorController extends Controller
     }
 
     /**
-     * FR-008: unduh surat administrasi sebagai PDF (DomPDF).
+     * FR-008: unduh surat administrasi sebagai PDF (DomPDF) dengan auto merge lampiran PDF (jika ada).
      */
     public function pdfLetter(\App\Models\Letter $letter)
     {
@@ -496,15 +637,18 @@ class ProposalGeneratorController extends Controller
         $pdf = Pdf::loadView('generator.letters.pdf', [
             'letter' => $letter,
             'konfig' => $konfig,
+            'isPdf'  => true,
+            'pdf'    => true,
         ])->setPaper('a4');
 
         $nama = $letter->nomor_surat ? \Illuminate\Support\Str::slug($letter->nomor_surat) : $letter->id;
+        $fileName = 'surat-' . $nama . '.pdf';
 
-        return $pdf->download('surat-' . $nama . '.pdf');
+        return $this->mergeWithAttachmentPdf($pdf->output(), $letter->file_lampiran_pdf, $fileName);
     }
 
     /**
-     * FR-008 / FR-012: unduh LPJ sebagai PDF (DomPDF).
+     * FR-008 / FR-012: unduh LPJ sebagai PDF (DomPDF) dengan auto merge lampiran PDF (jika ada).
      */
     public function pdfLpj(\App\Models\Letter $lpj)
     {
@@ -516,11 +660,85 @@ class ProposalGeneratorController extends Controller
         $konfig = \App\Models\Konfigurasi::pluck('nilai_konfigurasi', 'nama_konfigurasi');
 
         $pdf = Pdf::loadView('generator.lpj.pdf', [
-            'lpj' => $lpj,
+            'lpj'      => $lpj,
             'proposal' => $proposal,
-            'konfig' => $konfig,
+            'konfig'   => $konfig,
+            'isPdf'    => true,
+            'pdf'      => true,
         ])->setPaper('a4');
 
-        return $pdf->download('lpj-' . $lpj->id . '.pdf');
+        $fileName = 'lpj-' . $lpj->id . '.pdf';
+        $attachmentPath = $lpj->file_lampiran_pdf ?? ($lpj->metadata['file_lampiran_pdf'] ?? null);
+
+        return $this->mergeWithAttachmentPdf($pdf->output(), $attachmentPath, $fileName);
+    }
+
+    /**
+     * Menggabungkan PDF utama dengan file lampiran PDF (opsional) menggunakan FPDI.
+     */
+    protected function mergeWithAttachmentPdf(string $mainPdfBinary, ?string $attachmentRelativePath, string $downloadName)
+    {
+        $attachmentFullPath = null;
+        if ($attachmentRelativePath) {
+            if (Storage::disk('public')->exists($attachmentRelativePath)) {
+                $attachmentFullPath = Storage::disk('public')->path($attachmentRelativePath);
+            } elseif (Storage::disk('local')->exists($attachmentRelativePath)) {
+                $attachmentFullPath = Storage::disk('local')->path($attachmentRelativePath);
+            } elseif (file_exists($attachmentRelativePath)) {
+                $attachmentFullPath = $attachmentRelativePath;
+            }
+        }
+
+        if (! $attachmentFullPath || ! file_exists($attachmentFullPath)) {
+            return response($mainPdfBinary, 200, [
+                'Content-Type'        => 'application/pdf',
+                'Content-Disposition' => 'attachment; filename="' . $downloadName . '"',
+            ]);
+        }
+
+        $tempMainPath = tempnam(sys_get_temp_dir(), 'main_pdf_') . '.pdf';
+        file_put_contents($tempMainPath, $mainPdfBinary);
+
+        try {
+            $fpdi = new Fpdi();
+
+            // 1. Import seluruh halaman main PDF
+            $mainPages = $fpdi->setSourceFile($tempMainPath);
+            for ($i = 1; $i <= $mainPages; $i++) {
+                $tpl = $fpdi->importPage($i);
+                $size = $fpdi->getTemplateSize($tpl);
+                $fpdi->AddPage($size['orientation'], [$size['width'], $size['height']]);
+                $fpdi->useTemplate($tpl);
+            }
+
+            // 2. Import seluruh halaman lampiran PDF
+            try {
+                $attachmentPages = $fpdi->setSourceFile($attachmentFullPath);
+                for ($j = 1; $j <= $attachmentPages; $j++) {
+                    $tpl = $fpdi->importPage($j);
+                    $size = $fpdi->getTemplateSize($tpl);
+                    $fpdi->AddPage($size['orientation'], [$size['width'], $size['height']]);
+                    $fpdi->useTemplate($tpl);
+                }
+            } catch (\Throwable $e) {
+                Log::warning("Gagal merge lampiran PDF: " . $e->getMessage());
+            }
+
+            $mergedBinary = $fpdi->Output('', 'S');
+            return response($mergedBinary, 200, [
+                'Content-Type'        => 'application/pdf',
+                'Content-Disposition' => 'attachment; filename="' . $downloadName . '"',
+            ]);
+        } catch (\Throwable $e) {
+            Log::error("FPDI Error merging attachment: " . $e->getMessage());
+            return response($mainPdfBinary, 200, [
+                'Content-Type'        => 'application/pdf',
+                'Content-Disposition' => 'attachment; filename="' . $downloadName . '"',
+            ]);
+        } finally {
+            if (file_exists($tempMainPath)) {
+                @unlink($tempMainPath);
+            }
+        }
     }
 }

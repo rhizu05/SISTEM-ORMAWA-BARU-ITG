@@ -306,7 +306,12 @@
         </div>
         <div class="border-t border-slate-100">
             <div class="max-w-5xl mx-auto px-4 sm:px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-600">
-                <p>&copy; {{ date('Y') }} Institut Teknologi Garut. Biro Kemahasiswaan &amp; Hubungan Masyarakat (BKHM).</p>
+                <p>&copy; {{ date('Y') }} Institut Teknologi Garut. Biro Kemahasiswaan &amp; Hubungan Masyarakat (BKHM).
+                    <span class="inline-block mx-1 text-slate-300">&middot;</span>
+                    <button type="button" @click="$dispatch('open-about-modal')" class="font-semibold text-indigo-700 hover:text-indigo-900 transition hover:underline cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 rounded">
+                        Tentang Sistem &amp; Pengembang
+                    </button>
+                </p>
                 <div class="flex items-center gap-4">
                     <a href="{{ route('bug.create', ['url' => url()->current()]) }}" class="inline-flex items-center gap-1.5 min-h-[44px] font-semibold text-rose-700 hover:text-rose-900 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-rose-500 rounded">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
@@ -320,5 +325,7 @@
             </div>
         </div>
     </footer>
+
+    <x-about-modal />
 </body>
 </html>

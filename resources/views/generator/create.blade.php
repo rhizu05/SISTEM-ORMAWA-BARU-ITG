@@ -16,6 +16,19 @@
                     <span class="text-gray-800 font-medium">Buat Proposal</span>
                 </div>
 
+                <!-- Informasi Konfigurasi KOP Profil -->
+                <div class="mb-6 p-4 rounded-2xl bg-indigo-50/70 border border-indigo-200/80 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+                    <div class="flex items-start gap-2.5">
+                        <svg class="w-5 h-5 text-indigo-600 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        <div class="text-slate-700 leading-relaxed">
+                            <span class="font-bold text-indigo-950">KOP Proposal Otomatis:</span> Dokumen ini akan otomatis mencantumkan KOP resmi organisasi Anda (Nama Ormawa, Logo, Alamat Kampus, Website, dan Email). Konfigurasi KOP dapat disesuaikan kapan saja di <strong class="text-indigo-900">Halaman Profil</strong>.
+                        </div>
+                    </div>
+                    <a href="{{ route('profile.edit') }}" target="_blank" class="shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 bg-white border border-indigo-300 hover:bg-indigo-50 text-indigo-700 font-semibold rounded-lg shadow-sm transition">
+                        <span>Atur KOP di Profil</span> &rarr;
+                    </a>
+                </div>
+
                 <form action="{{ route('generator.store') }}" method="POST">
                     @csrf
 
@@ -131,33 +144,75 @@
                     </div>
 
                     <!-- Section IV: Penandatangan -->
-                    <div class="mb-12 p-6 bg-gray-50 rounded-lg border border-dashed border-gray-300"
+                    <div class="mb-12 p-6 bg-slate-50 rounded-xl border border-slate-200"
                          x-data="{
-                            signers: [{ jenis: 'internal', role: 'ketua', nama: '{{ addslashes(Auth::user()->nama_ketua ?? Auth::user()->name) }}', jabatan: 'Ketua' }],
+                            signers: [{
+                                jenis: 'internal',
+                                role: 'ketua',
+                                nama: '{{ addslashes(Auth::user()->nama_ketua ?? Auth::user()->name) }}',
+                                nim: '{{ addslashes(Auth::user()->nim_ketua ?? '') }}',
+                                jabatan: 'Ketua'
+                            }],
                             namaMap: {
                                 ketua: '{{ addslashes(Auth::user()->nama_ketua ?? Auth::user()->name) }}',
                                 sekretaris: '{{ addslashes(Auth::user()->nama_sekretaris ?? Auth::user()->name) }}',
                                 bendahara: '{{ addslashes(Auth::user()->nama_bendahara ?? Auth::user()->name) }}'
                             },
-                            roleLabels: { ketua: 'Ketua', sekretaris: 'Sekretaris', bendahara: 'Bendahara' },
-                            updateNama(idx) {
+                            nimMap: {
+                                ketua: '{{ addslashes(Auth::user()->nim_ketua ?? '') }}',
+                                sekretaris: '{{ addslashes(Auth::user()->nim_sekretaris ?? '') }}',
+                                bendahara: '{{ addslashes(Auth::user()->nim_bendahara ?? '') }}'
+                            },
+                            roleLabels: {
+                                ketua: 'Ketua',
+                                sekretaris: 'Sekretaris',
+                                bendahara: 'Bendahara',
+                                ketua_pelaksana: 'Ketua Pelaksana',
+                                sekretaris_pelaksana: 'Sekretaris Pelaksana',
+                                bendahara_pelaksana: 'Bendahara Pelaksana',
+                                custom: ''
+                            },
+                            isProfileRole(role) {
+                                return ['ketua', 'sekretaris', 'bendahara'].includes(role);
+                            },
+                            updateRole(idx) {
                                 let s = this.signers[idx];
                                 if (s.jenis !== 'internal') return;
-                                s.nama = this.namaMap[s.role] || '';
-                                s.jabatan = this.roleLabels[s.role] || 'Penandatangan';
+                                if (this.isProfileRole(s.role)) {
+                                    s.nama = this.namaMap[s.role] || '';
+                                    s.nim = this.nimMap[s.role] || '';
+                                    s.jabatan = this.roleLabels[s.role] || 'Penandatangan';
+                                } else if (s.role === 'custom') {
+                                    s.nama = '';
+                                    s.nim = '';
+                                    s.jabatan = '';
+                                } else {
+                                    s.nama = '';
+                                    s.nim = '';
+                                    s.jabatan = this.roleLabels[s.role] || '';
+                                }
                             },
                             onJenisChange(idx) {
                                 let s = this.signers[idx];
                                 if (s.jenis === 'internal') {
-                                    s.nama = this.namaMap[s.role] || '';
-                                    s.jabatan = this.roleLabels[s.role] || 'Penandatangan';
+                                    s.role = 'ketua';
+                                    s.nama = this.namaMap['ketua'] || '';
+                                    s.nim = this.nimMap['ketua'] || '';
+                                    s.jabatan = 'Ketua';
                                 } else {
                                     s.nama = '';
+                                    s.nim = '';
                                     s.jabatan = '';
                                 }
                             },
                             addSigner() {
-                                this.signers.push({ jenis: 'internal', role: 'sekretaris', nama: this.namaMap['sekretaris'] || '', jabatan: 'Sekretaris' });
+                                this.signers.push({
+                                    jenis: 'internal',
+                                    role: 'sekretaris',
+                                    nama: this.namaMap['sekretaris'] || '',
+                                    nim: this.nimMap['sekretaris'] || '',
+                                    jabatan: 'Sekretaris'
+                                });
                             },
                             removeSigner(idx) {
                                 if (this.signers.length > 1) this.signers.splice(idx, 1);
@@ -165,74 +220,115 @@
                          }">
                         <div class="flex items-center justify-between mb-4">
                             <div class="flex items-center">
-                                <svg class="w-6 h-6 text-gray-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536M9 11l6-6 3 3-6 6H9v-3z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 20h16"/></svg>
-                                <h3 class="text-lg font-bold text-gray-800">Penandatangan</h3>
+                                <svg class="w-6 h-6 text-slate-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536M9 11l6-6 3 3-6 6H9v-3z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 20h16"/></svg>
+                                <div>
+                                    <h3 class="text-lg font-bold text-slate-800">Penandatangan Proposal</h3>
+                                    <p class="text-xs text-slate-500">Pilih jabatan pengurus ormawa, panitia pelaksana, atau masukkan jabatan kustom.</p>
+                                </div>
                             </div>
                             <button type="button" @click="addSigner()"
-                                class="inline-flex items-center gap-1 text-sm font-medium text-indigo-600 border border-indigo-300 rounded-lg px-3 py-1.5 hover:bg-indigo-50 transition-colors">
+                                class="inline-flex items-center gap-1 text-xs font-semibold text-indigo-600 bg-indigo-50 border border-indigo-200 rounded-lg px-3 py-1.5 hover:bg-indigo-100 transition-colors">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-                                Tambah Penandatangan
+                                + Tambah Penandatangan
                             </button>
                         </div>
-                        <p class="text-xs text-gray-500 mb-4">Penandatangan internal memakai nama dari profil dan mendapat tanda tangan digital. Pilih "Pihak Luar" untuk nama di luar sistem.</p>
 
                         <template x-for="(signer, idx) in signers" :key="idx">
-                            <div class="flex gap-3 items-start mb-3 p-3 bg-white rounded-lg border border-gray-200">
-                                <div class="flex-none">
-                                    <span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-indigo-100 text-indigo-700 text-xs font-bold" x-text="idx + 1"></span>
+                            <div class="mb-3 p-4 bg-white rounded-xl border border-slate-200 shadow-2xs space-y-3">
+                                <div class="flex items-center justify-between border-b border-slate-100 pb-2">
+                                    <div class="flex items-center gap-2">
+                                        <span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-indigo-100 text-indigo-700 text-xs font-bold" x-text="idx + 1"></span>
+                                        <span class="text-xs font-bold text-slate-700" x-text="'Penandatangan ke-' + (idx + 1)"></span>
+                                        <template x-if="signer.jenis === 'internal' && isProfileRole(signer.role)">
+                                            <span class="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+                                                ✓ Otomatis terisi dari profil
+                                            </span>
+                                        </template>
+                                    </div>
+                                    <button type="button" @click="removeSigner(idx)"
+                                            x-show="signers.length > 1"
+                                            class="text-xs text-rose-500 hover:text-rose-700 font-semibold p-1"
+                                            title="Hapus penandatangan ini">
+                                        Hapus
+                                    </button>
                                 </div>
-                                <div class="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-3">
+
+                                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
                                     <div>
-                                        <label class="block text-xs font-semibold text-gray-600 mb-1">Jenis</label>
+                                        <label class="block text-xs font-semibold text-slate-600 mb-1">Jenis Pihak</label>
                                         <select :name="'penandatangan_jenis[' + idx + ']'"
                                                 x-model="signer.jenis"
                                                 @change="onJenisChange(idx)"
-                                                class="block w-full border-gray-300 rounded-md shadow-sm text-sm">
-                                            <option value="internal">Internal (dari profil)</option>
-                                            <option value="eksternal">Pihak Luar (manual)</option>
+                                                class="block w-full border-slate-300 rounded-lg shadow-2xs text-xs">
+                                            <option value="internal">Internal (Ormawa ITG)</option>
+                                            <option value="eksternal">Pihak Luar (Manual)</option>
                                         </select>
                                     </div>
+
                                     <div x-show="signer.jenis === 'internal'">
-                                        <label class="block text-xs font-semibold text-gray-600 mb-1">Jabatan</label>
+                                        <label class="block text-xs font-semibold text-slate-600 mb-1">Pilihan Jabatan</label>
                                         <select :name="'penandatangan_role[' + idx + ']'"
                                                 x-model="signer.role"
-                                                @change="updateNama(idx)"
-                                                class="block w-full border-gray-300 rounded-md shadow-sm text-sm">
-                                            <option value="ketua">Ketua</option>
-                                            <option value="sekretaris">Sekretaris</option>
-                                            <option value="bendahara">Bendahara</option>
+                                                @change="updateRole(idx)"
+                                                class="block w-full border-slate-300 rounded-lg shadow-2xs text-xs">
+                                            <optgroup label="Pengurus Inti (Otomatis dari Profil)">
+                                                <option value="ketua">Ketua Ormawa</option>
+                                                <option value="sekretaris">Sekretaris Ormawa</option>
+                                                <option value="bendahara">Bendahara Ormawa</option>
+                                            </optgroup>
+                                            <optgroup label="Kepanitiaan Kegiatan">
+                                                <option value="ketua_pelaksana">Ketua Pelaksana</option>
+                                                <option value="sekretaris_pelaksana">Sekretaris Pelaksana</option>
+                                                <option value="bendahara_pelaksana">Bendahara Pelaksana</option>
+                                            </optgroup>
+                                            <optgroup label="Lainnya">
+                                                <option value="custom">Jabatan Lainnya (Input Manual)...</option>
+                                            </optgroup>
                                         </select>
                                     </div>
-                                    <div x-show="signer.jenis === 'eksternal'">
-                                        <label class="block text-xs font-semibold text-gray-600 mb-1">Jabatan / Keterangan</label>
+
+                                    <!-- Kolom Jabatan Kustom / Eksternal -->
+                                    <div x-show="signer.jenis === 'eksternal' || signer.role === 'custom'">
+                                        <label class="block text-xs font-semibold text-slate-600 mb-1">Nama Jabatan</label>
                                         <input type="text"
                                                :name="'penandatangan_jabatan[' + idx + ']'"
                                                x-model="signer.jabatan"
-                                               placeholder="Contoh: Pembina UKM"
-                                               class="block w-full border-gray-300 rounded-md shadow-sm text-sm" />
+                                               placeholder="Contoh: Koordinator Sie Acara / Pembina UKM"
+                                               class="block w-full border-slate-300 rounded-lg shadow-2xs text-xs" />
                                     </div>
-                                    <div :class="signer.jenis === 'internal' ? '' : 'sm:col-span-2'">
-                                        <label class="block text-xs font-semibold text-gray-600 mb-1">Nama</label>
+                                    <!-- Hidden fallback input jabatan untuk preset -->
+                                    <template x-if="signer.jenis === 'internal' && signer.role !== 'custom'">
+                                        <input type="hidden" :name="'penandatangan_jabatan[' + idx + ']'" :value="signer.jabatan">
+                                    </template>
+                                </div>
+
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                                    <div>
+                                        <label class="block text-xs font-semibold text-slate-600 mb-1">Nama Lengkap</label>
                                         <input type="text"
                                                :name="'penandatangan_nama[' + idx + ']'"
                                                x-model="signer.nama"
-                                               :placeholder="signer.jenis === 'internal' ? 'Dari profil' : 'Masukkan nama pihak luar...'"
-                                               class="block w-full border-gray-300 rounded-md shadow-sm text-sm" />
+                                               :readonly="signer.jenis === 'internal' && isProfileRole(signer.role)"
+                                               :class="signer.jenis === 'internal' && isProfileRole(signer.role) ? 'bg-slate-100 cursor-not-allowed text-slate-700' : 'bg-white text-slate-900'"
+                                               :placeholder="signer.jenis === 'internal' && isProfileRole(signer.role) ? 'Nama terisi dari profil' : 'Masukkan nama lengkap...'"
+                                               class="block w-full border-slate-300 rounded-lg shadow-2xs text-xs font-medium" />
                                     </div>
-                                </div>
-                                <div class="flex-none mt-5">
-                                    <button type="button" @click="removeSigner(idx)"
-                                            x-show="signers.length > 1"
-                                            class="p-1.5 text-gray-400 hover:text-red-500 rounded transition-colors"
-                                            title="Hapus penandatangan ini">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-                                    </button>
-                                    <div x-show="signers.length === 1" class="w-7 h-7"></div>
+
+                                    <div>
+                                        <label class="block text-xs font-semibold text-slate-600 mb-1" x-text="signer.jenis === 'internal' ? 'Nomor Induk Mahasiswa (NIM)' : 'NIM / NIDN / Identitas'"></label>
+                                        <input type="text"
+                                               :name="'penandatangan_nim[' + idx + ']'"
+                                               x-model="signer.nim"
+                                               :readonly="signer.jenis === 'internal' && isProfileRole(signer.role)"
+                                               :class="signer.jenis === 'internal' && isProfileRole(signer.role) ? 'bg-slate-100 cursor-not-allowed text-slate-700' : 'bg-white text-slate-900'"
+                                               :placeholder="signer.jenis === 'internal' && isProfileRole(signer.role) ? 'NIM terisi dari profil' : 'Contoh: 2106001'"
+                                               class="block w-full border-slate-300 rounded-lg shadow-2xs text-xs font-mono" />
+                                    </div>
                                 </div>
                             </div>
                         </template>
 
-                        <p class="mt-4 text-xs text-gray-500 italic">Penandatangan internal mendapat tanda tangan digital yang dapat diverifikasi via QR code pada dokumen yang dicetak.</p>
+                        <p class="mt-4 text-xs text-slate-500 italic">Penandatangan internal mendapat tanda tangan digital kriptografis yang dapat diverifikasi melalui QR code pada lembar pengesahan proposal.</p>
                     </div>
 
                     <div class="flex justify-end items-center gap-3 mt-8">

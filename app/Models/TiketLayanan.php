@@ -15,6 +15,10 @@ class TiketLayanan extends Model
         'kode_tiket',
         'kategori',
         'sub_kategori',
+        'jenis_kepesertaan',
+        'nama_tim',
+        'dosen_pembimbing',
+        'anggota_tim',
         'nim',
         'nama_mahasiswa',
         'email',
@@ -62,7 +66,23 @@ class TiketLayanan extends Model
         'deskripsi_masalah' => 'encrypted',
         'tanggapan_bkhm' => 'encrypted',
         'catatan_konfirmasi_mahasiswa' => 'encrypted',
+        'anggota_tim' => 'array',
     ];
+
+    public function isKelompok(): bool
+    {
+        return $this->jenis_kepesertaan === 'kelompok';
+    }
+
+    public function getDaftarAnggotaAttribute(): array
+    {
+        return is_array($this->anggota_tim) ? $this->anggota_tim : [];
+    }
+
+    public function getTotalPesertaAttribute(): int
+    {
+        return 1 + count($this->daftar_anggota);
+    }
 
     /**
      * Generate Kode Tiket unik format berkeamanan tinggi (High-Entropy Non-Sequential): SKIN-TKT-YYYY-XXXXXX

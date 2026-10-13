@@ -168,6 +168,13 @@ class TiketPublicController extends Controller
             'no_hp' => 'required|string|min:9|max:20',
             'prodi' => 'required|string|in:Teknik Informatika,Sistem Informasi,Teknik Sipil,Teknik Industri,Arsitektur',
             'sub_kategori' => 'required|in:lapor_prestasi,pengajuan_dana_delegasi',
+            'jenis_kepesertaan' => 'nullable|in:individu,kelompok',
+            'nama_tim' => 'nullable|string|max:255',
+            'dosen_pembimbing' => 'nullable|string|max:255',
+            'anggota_tim' => 'nullable|array',
+            'anggota_tim.*.nim' => 'nullable|string|max:30',
+            'anggota_tim.*.nama' => 'nullable|string|max:255',
+            'anggota_tim.*.prodi' => 'nullable|string|max:100',
             'nama_kegiatan' => 'required|string|max:255',
             'penyelenggara' => 'required|string|max:255',
             'url_penyelenggara' => 'nullable|url|max:500',
@@ -197,12 +204,36 @@ class TiketPublicController extends Controller
             $fotoPenyerahanPath = $request->file('foto_penyerahan')->store('tiket-prestasi-foto', 'public');
         }
 
+        $jenisKepesertaan = $validated['jenis_kepesertaan'] ?? 'individu';
+        $namaTim = $jenisKepesertaan === 'kelompok' ? ($validated['nama_tim'] ?? null) : null;
+        $dosenPembimbing = $validated['dosen_pembimbing'] ?? null;
+
+        $anggotaTim = [];
+        if ($jenisKepesertaan === 'kelompok' && !empty($validated['anggota_tim']) && is_array($validated['anggota_tim'])) {
+            foreach ($validated['anggota_tim'] as $agt) {
+                $nim = trim((string) ($agt['nim'] ?? ''));
+                $nama = trim((string) ($agt['nama'] ?? ''));
+                $prodi = trim((string) ($agt['prodi'] ?? ''));
+                if ($nim !== '' || $nama !== '') {
+                    $anggotaTim[] = [
+                        'nim' => $nim,
+                        'nama' => $nama,
+                        'prodi' => $prodi,
+                    ];
+                }
+            }
+        }
+
         $kodeTiket = TiketLayanan::generateKodeTiket();
 
         $tiket = TiketLayanan::create([
             'kode_tiket' => $kodeTiket,
             'kategori' => 'prestasi',
             'sub_kategori' => $validated['sub_kategori'],
+            'jenis_kepesertaan' => $jenisKepesertaan,
+            'nama_tim' => $namaTim,
+            'dosen_pembimbing' => $dosenPembimbing,
+            'anggota_tim' => count($anggotaTim) > 0 ? $anggotaTim : null,
             'nim' => $validated['nim'],
             'nama_mahasiswa' => $validated['nama_mahasiswa'],
             'email' => $validated['email'],

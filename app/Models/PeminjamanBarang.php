@@ -39,4 +39,9 @@ class PeminjamanBarang extends Model
     {
         return $this->morphMany(TandaTanganDigital::class, 'signable')->latest();
     }
+
+    public function suratPermohonan(): \Illuminate\Database\Eloquent\Relations\MorphOne
+    {
+        return $this->morphOne(Letter::class, 'peminjaman');
+    }
 }

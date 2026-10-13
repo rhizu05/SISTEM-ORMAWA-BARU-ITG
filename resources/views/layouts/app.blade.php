@@ -176,5 +176,8 @@
 
         {{-- Modal Asisten Si Ujang & Panduan Interaktif --}}
         <x-panduan-modal />
+
+        {{-- Modal Tentang Sistem & Pengembang --}}
+        <x-about-modal />
     </body>
 </html>

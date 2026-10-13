@@ -38,7 +38,15 @@
             <form action="{{ route('layanan.prestasi.store') }}" method="POST" enctype="multipart/form-data" class="space-y-6"
                 x-data="{ 
                     jenis: '{{ old('sub_kategori', 'lapor_prestasi') }}', 
+                    kepesertaan: '{{ old('jenis_kepesertaan', 'individu') }}',
+                    anggotaList: {{ json_encode(old('anggota_tim', [])) }},
                     submitting: false,
+                    tambahAnggota() {
+                        this.anggotaList.push({ nim: '', nama: '', prodi: '' });
+                    },
+                    hapusAnggota(index) {
+                        this.anggotaList.splice(index, 1);
+                    },
                     inputFocus() {
                         return this.jenis === 'lapor_prestasi' 
                             ? 'focus:border-amber-600 focus:ring-amber-600' 
@@ -75,22 +83,82 @@
                     </div>
                 </div>
 
+                {{-- Pilihan Kategori Kepesertaan: Individu vs Kelompok / Tim --}}
+                <div class="pt-1">
+                    <span class="block text-sm font-semibold text-slate-700 mb-2">Kategori Kepesertaan <span class="text-rose-600">*</span></span>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <label class="relative flex items-center p-3.5 rounded-xl border-2 cursor-pointer transition"
+                            :class="kepesertaan === 'individu' ? (jenis === 'lapor_prestasi' ? 'border-amber-500 bg-amber-50/70 shadow-sm ring-2 ring-amber-500/20' : 'border-indigo-600 bg-indigo-50/70 shadow-sm ring-2 ring-indigo-500/20') : (jenis === 'lapor_prestasi' ? 'border-slate-200 hover:border-amber-300 hover:bg-amber-50/30' : 'border-slate-200 hover:border-indigo-300 hover:bg-indigo-50/30')">
+                            <input type="radio" name="jenis_kepesertaan" value="individu" x-model="kepesertaan"
+                                class="w-4 h-4 border-slate-300"
+                                :class="jenis === 'lapor_prestasi' ? 'text-amber-600 focus:ring-amber-500' : 'text-indigo-600 focus:ring-indigo-500'">
+                            <div class="ml-3">
+                                <span class="block font-bold text-slate-900 text-xs sm:text-sm">Individu / Perorangan</span>
+                                <span class="block text-[11px] text-slate-500">Diikuti oleh 1 orang mahasiswa mandiri.</span>
+                            </div>
+                        </label>
+
+                        <label class="relative flex items-center p-3.5 rounded-xl border-2 cursor-pointer transition"
+                            :class="kepesertaan === 'kelompok' ? (jenis === 'lapor_prestasi' ? 'border-amber-500 bg-amber-50/70 shadow-sm ring-2 ring-amber-500/20' : 'border-indigo-600 bg-indigo-50/70 shadow-sm ring-2 ring-indigo-500/20') : (jenis === 'lapor_prestasi' ? 'border-slate-200 hover:border-amber-300 hover:bg-amber-50/30' : 'border-slate-200 hover:border-indigo-300 hover:bg-indigo-50/30')">
+                            <input type="radio" name="jenis_kepesertaan" value="kelompok" x-model="kepesertaan"
+                                class="w-4 h-4 border-slate-300"
+                                :class="jenis === 'lapor_prestasi' ? 'text-amber-600 focus:ring-amber-500' : 'text-indigo-600 focus:ring-indigo-500'">
+                            <div class="ml-3">
+                                <span class="block font-bold text-slate-900 text-xs sm:text-sm">Kelompok / Tim Delegasi</span>
+                                <span class="block text-[11px] text-slate-500">Diikuti oleh 1 regu / tim berisi banyak mahasiswa.</span>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                {{-- Khusus Tim / Kelompok: Nama Tim & Dosen Pembimbing --}}
+                <div x-show="kepesertaan === 'kelompok'" x-transition class="space-y-4 p-4 rounded-xl border transition-colors"
+                    :class="jenis === 'lapor_prestasi' ? 'bg-amber-50/40 border-amber-200/90' : 'bg-indigo-50/40 border-indigo-200/90'">
+                    <div class="flex items-center gap-2">
+                        <span class="w-2.5 h-2.5 rounded-full" :class="jenis === 'lapor_prestasi' ? 'bg-amber-500' : 'bg-indigo-600'"></span>
+                        <span class="text-xs font-bold uppercase tracking-wider" :class="jenis === 'lapor_prestasi' ? 'text-amber-900' : 'text-indigo-950'">Informasi Regu / Tim Delegasi</span>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label for="nama_tim" class="block text-sm font-semibold text-slate-700 mb-1.5">Nama Tim / Delegasi <span class="text-rose-600">*</span></label>
+                            <input type="text" name="nama_tim" id="nama_tim" value="{{ old('nama_tim') }}" placeholder="Contoh: Tim Robotika ITG 01"
+                                :required="kepesertaan === 'kelompok'"
+                                class="w-full text-sm rounded-lg border-slate-300 py-2.5 px-3.5 placeholder-slate-400 transition-colors bg-white"
+                                :class="inputFocus()">
+                        </div>
+                        <div>
+                            <label for="dosen_pembimbing" class="block text-sm font-semibold text-slate-700 mb-1.5">Dosen Pembimbing / Pendamping <span class="text-[11px] text-slate-500 font-normal">(Opsional)</span></label>
+                            <input type="text" name="dosen_pembimbing" id="dosen_pembimbing" value="{{ old('dosen_pembimbing') }}" placeholder="Nama Dosen Pembimbing jika ada"
+                                class="w-full text-sm rounded-lg border-slate-300 py-2.5 px-3.5 placeholder-slate-400 transition-colors bg-white"
+                                :class="inputFocus()">
+                        </div>
+                    </div>
+                </div>
+
                 <div class="border-b border-slate-100 pt-4 pb-4">
-                    <h2 class="text-base font-bold text-slate-900">1. Data Mahasiswa</h2>
-                    <p class="text-xs text-slate-600" x-text="jenis === 'lapor_prestasi' ? 'Identitas mahasiswa pengaju laporan prestasi.' : 'Identitas ketua delegasi / perwakilan tim permohonan dana bantuan.'">
+                    <h2 class="text-base font-bold text-slate-900" x-text="kepesertaan === 'kelompok' ? '1. Identitas Ketua Tim / Perwakilan Delegasi' : '1. Identitas Mahasiswa'">
+                        1. Data Mahasiswa
+                    </h2>
+                    <p class="text-xs text-slate-600" x-text="kepesertaan === 'kelompok' 
+                        ? 'Ketua tim bertindak sebagai narahubung utama, penerima kode tiket, serta penanggung jawab pengajuan.' 
+                        : (jenis === 'lapor_prestasi' ? 'Identitas mahasiswa pengaju laporan prestasi.' : 'Identitas mahasiswa pemohon dana bantuan delegasi.')">
                         Identitas pengaju tiket.
                     </p>
                 </div>
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
                     <div>
-                        <label for="nim" class="block text-sm font-semibold text-slate-700 mb-1.5">NIM <span class="text-rose-600">*</span></label>
+                        <label for="nim" class="block text-sm font-semibold text-slate-700 mb-1.5">
+                            <span x-text="kepesertaan === 'kelompok' ? 'NIM Ketua Tim' : 'NIM'">NIM</span> <span class="text-rose-600">*</span>
+                        </label>
                         <input type="text" name="nim" id="nim" value="{{ old('nim') }}" required placeholder="Contoh: 2106001"
                             class="w-full text-sm rounded-lg border-slate-300 py-3 px-3.5 placeholder-slate-500 transition-colors"
                             :class="inputFocus()">
                     </div>
                     <div>
-                        <label for="nama_mahasiswa" class="block text-sm font-semibold text-slate-700 mb-1.5">Nama Lengkap <span class="text-rose-600">*</span></label>
+                        <label for="nama_mahasiswa" class="block text-sm font-semibold text-slate-700 mb-1.5">
+                            <span x-text="kepesertaan === 'kelompok' ? 'Nama Lengkap Ketua Tim' : 'Nama Lengkap'">Nama Lengkap</span> <span class="text-rose-600">*</span>
+                        </label>
                         <input type="text" name="nama_mahasiswa" id="nama_mahasiswa" value="{{ old('nama_mahasiswa') }}" required placeholder="Nama lengkap Anda"
                             class="w-full text-sm rounded-lg border-slate-300 py-3 px-3.5 placeholder-slate-500 transition-colors"
                             :class="inputFocus()">
@@ -125,6 +193,61 @@
                         <option value="Teknik Industri" {{ old('prodi') == 'Teknik Industri' ? 'selected' : '' }}>Teknik Industri</option>
                         <option value="Arsitektur" {{ old('prodi') == 'Arsitektur' ? 'selected' : '' }}>Arsitektur</option>
                     </select>
+                </div>
+
+                {{-- Khusus Tim / Kelompok: Input Anggota Tim Tambahan Dinamis --}}
+                <div x-show="kepesertaan === 'kelompok'" x-transition class="pt-2">
+                    <div class="border-t border-slate-200/80 pt-4 pb-2 flex items-center justify-between">
+                        <div>
+                            <h3 class="text-sm font-bold text-slate-900">Daftar Anggota Tim Lainnya</h3>
+                            <p class="text-xs text-slate-500">Ketua tim sudah tercatat di atas. Tambahkan seluruh anggota tim lainnya di bawah ini.</p>
+                        </div>
+                        <button type="button" @click="tambahAnggota()"
+                            class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-xl border transition focus:outline-none focus-visible:ring-2 cursor-pointer"
+                            :class="jenis === 'lapor_prestasi' 
+                                ? 'text-amber-800 bg-amber-50 hover:bg-amber-100 border-amber-300 focus-visible:ring-amber-500' 
+                                : 'text-indigo-700 bg-indigo-50 hover:bg-indigo-100 border-indigo-200 focus-visible:ring-indigo-500'">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
+                            <span>+ Tambah Anggota</span>
+                        </button>
+                    </div>
+
+                    <div class="space-y-3 mt-3">
+                        <template x-for="(anggota, index) in anggotaList" :key="index">
+                            <div class="p-3.5 rounded-xl border flex flex-col sm:flex-row items-start sm:items-center gap-3 transition-colors"
+                                :class="jenis === 'lapor_prestasi' ? 'bg-amber-50/40 border-amber-200/90' : 'bg-slate-50 border-slate-200'">
+                                <span class="w-6 h-6 rounded-full text-xs font-bold flex items-center justify-center shrink-0"
+                                    :class="jenis === 'lapor_prestasi' ? 'bg-amber-200 text-amber-900' : 'bg-indigo-100 text-indigo-700'"
+                                    x-text="index + 2"></span>
+                                <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 flex-1 w-full">
+                                    <input type="text" :name="'anggota_tim[' + index + '][nim]'" x-model="anggota.nim" placeholder="NIM Anggota" required
+                                        class="w-full text-xs rounded-lg border-slate-300 py-2 px-3 placeholder-slate-400 bg-white transition-colors"
+                                        :class="inputFocus()">
+                                    <input type="text" :name="'anggota_tim[' + index + '][nama]'" x-model="anggota.nama" placeholder="Nama Lengkap Anggota" required
+                                        class="w-full text-xs rounded-lg border-slate-300 py-2 px-3 placeholder-slate-400 bg-white transition-colors"
+                                        :class="inputFocus()">
+                                    <select :name="'anggota_tim[' + index + '][prodi]'" x-model="anggota.prodi" required
+                                        class="w-full text-xs rounded-lg border-slate-300 py-2 px-3 bg-white transition-colors"
+                                        :class="inputFocus()">
+                                        <option value="">-- Pilih Prodi --</option>
+                                        <option value="Teknik Informatika">Teknik Informatika</option>
+                                        <option value="Sistem Informasi">Sistem Informasi</option>
+                                        <option value="Teknik Sipil">Teknik Sipil</option>
+                                        <option value="Teknik Industri">Teknik Industri</option>
+                                        <option value="Arsitektur">Arsitektur</option>
+                                    </select>
+                                </div>
+                                <button type="button" @click="hapusAnggota(index)"
+                                    class="p-2 text-rose-600 hover:text-rose-800 hover:bg-rose-50 rounded-lg transition shrink-0" title="Hapus Anggota Ini">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                                </button>
+                            </div>
+                        </template>
+
+                        <div x-show="anggotaList.length === 0" class="p-3 text-center rounded-xl border border-dashed border-slate-300 text-xs text-slate-500">
+                            Belum ada anggota tambahan yang didaftarkan. Klik tombol <strong>"+ Tambah Anggota"</strong> di atas bila ada anggota lain selain ketua.
+                        </div>
+                    </div>
                 </div>
 
                 <div class="border-b border-slate-100 pt-4 pb-4">

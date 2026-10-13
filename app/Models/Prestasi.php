@@ -14,6 +14,10 @@ class Prestasi extends Model
 
     protected $fillable = [
         'user_id',
+        'jenis_kepesertaan',
+        'nama_tim',
+        'dosen_pembimbing',
+        'anggota_tim',
         'nama_kegiatan',
         'penyelenggara',
         'tingkat',
@@ -35,7 +39,18 @@ class Prestasi extends Model
         'tanggal' => 'date',
         'tanggal_mulai' => 'date',
         'tanggal_selesai' => 'date',
+        'anggota_tim' => 'array',
     ];
+
+    public function isKelompok(): bool
+    {
+        return $this->jenis_kepesertaan === 'kelompok';
+    }
+
+    public function getDaftarAnggotaAttribute(): array
+    {
+        return is_array($this->anggota_tim) ? $this->anggota_tim : [];
+    }
 
     public const TINGKAT = ['Fakultas', 'Universitas', 'Regional', 'Nasional', 'Internasional'];
     public const AFILIASI = ['individu', 'ormawa', 'bem', 'ukm', 'lainnya'];

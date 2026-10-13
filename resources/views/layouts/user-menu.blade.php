@@ -94,6 +94,12 @@
                             <span class="ml-auto px-1.5 py-0.5 rounded-full bg-rose-100 text-rose-700 text-[10px] font-bold">{{ $unreadNotifCount }}</span>
                         @endif
                     </x-dropdown-link>
+                    <button type="button"
+                            @click="$dispatch('open-about-modal')"
+                            class="w-full text-left flex items-center gap-2 px-4 py-2 text-xs leading-5 text-slate-700 hover:bg-slate-100 focus:outline-none focus:bg-slate-100 transition cursor-pointer">
+                        <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        <span>Tentang Sistem &amp; Pengembang</span>
+                    </button>
                 </div>
 
                 <div class="border-t border-slate-100 py-1">

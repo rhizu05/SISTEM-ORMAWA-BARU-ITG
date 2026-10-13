@@ -1,11 +1,30 @@
-{{-- Kop surat resmi dari Konfigurasi (Q-BKHM-07). Dipakai view PDF & pratinjau. --}}
+@php
+    $isPdfMode = $isPdf ?? ($pdf ?? false);
+    $logoFile = null;
+    $logoUrl = null;
+    if (!empty($konfig['kop_logo']) && file_exists(public_path('storage/' . $konfig['kop_logo']))) {
+        $logoFile = public_path('storage/' . $konfig['kop_logo']);
+        $logoUrl = asset('storage/' . $konfig['kop_logo']);
+    } elseif (file_exists(public_path('images/logos/logo_itg.png'))) {
+        $logoFile = public_path('images/logos/logo_itg.png');
+        $logoUrl = asset('images/logos/logo_itg.png');
+    } elseif (file_exists(public_path('images/logo_itg.png'))) {
+        $logoFile = public_path('images/logo_itg.png');
+        $logoUrl = asset('images/logo_itg.png');
+    }
+
+    if ($isPdfMode && $logoFile && file_exists($logoFile)) {
+        $ext = pathinfo($logoFile, PATHINFO_EXTENSION) ?: 'png';
+        $srcLogo = 'data:image/' . $ext . ';base64,' . base64_encode(file_get_contents($logoFile));
+    } else {
+        $srcLogo = $logoUrl;
+    }
+@endphp
 <table class="kop-table" style="width: 100%; border-collapse: collapse; margin-bottom: 4px; border: none;">
     <tr style="border: none;">
         <td style="width: 80px; text-align: center; vertical-align: middle; border: none; padding: 0;">
-            @if(!empty($konfig['kop_logo']) && file_exists(public_path('storage/' . $konfig['kop_logo'])))
-                <img src="{{ public_path('storage/' . $konfig['kop_logo']) }}" class="kop-logo" alt="Logo ITG" width="75" height="75" style="width: 75px; height: 75px; max-width: 75px; max-height: 75px; object-fit: contain; display: block; margin: 0 auto;">
-            @elseif(file_exists(public_path('images/logo_itg.png')))
-                <img src="{{ public_path('images/logo_itg.png') }}" class="kop-logo" alt="Logo ITG" width="75" height="75" style="width: 75px; height: 75px; max-width: 75px; max-height: 75px; object-fit: contain; display: block; margin: 0 auto;">
+            @if(!empty($srcLogo))
+                <img src="{{ $srcLogo }}" class="kop-logo" alt="Logo ITG" width="75" height="75" style="width: 75px; height: 75px; max-width: 75px; max-height: 75px; object-fit: contain; display: block; margin: 0 auto;">
             @else
                 <div style="width: 75px; height: 75px;"></div>
             @endif

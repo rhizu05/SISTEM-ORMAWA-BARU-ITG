@@ -53,6 +53,7 @@ class ProposalOtomatis extends Model
                         'role' => $this->{"ttd_{$n}_role"},
                         'nama' => $nama,
                         'jabatan' => $this->{"ttd_{$n}_jabatan"},
+                        'nim' => $this->{"ttd_{$n}_nim"},
                     ];
                 }
             }
@@ -64,7 +65,8 @@ class ProposalOtomatis extends Model
                 'jenis' => $p['jenis'] ?? 'internal',
                 'role' => $role,
                 'nama' => $p['nama'] ?? '-',
-                'jabatan' => $p['jabatan'] ?? ($role ? ucfirst($role) : 'Penandatangan'),
+                'jabatan' => $p['jabatan'] ?? ($role ? ucfirst(str_replace('_', ' ', $role)) : 'Penandatangan'),
+                'nim' => $p['nim'] ?? null,
             ];
         }, $list);
     }

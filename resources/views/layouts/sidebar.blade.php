@@ -574,6 +574,17 @@
                     <a href="{{ route('informasi.index') }}" class="hover:text-amber-400 transition">&bull; Format LPJ</a>
                     <a href="{{ route('informasi.index') }}" class="hover:text-amber-400 transition">&bull; FAQ Kampus</a>
                 </div>
+
+                <div class="pt-2 border-t border-slate-700/60">
+                    <button type="button"
+                            @click="$dispatch('open-about-modal'); openFlyout = false"
+                            class="w-full py-1.5 px-2 rounded-lg bg-slate-800/80 hover:bg-slate-800 text-slate-300 hover:text-amber-300 text-[11px] font-semibold flex items-center justify-center gap-1.5 transition border border-slate-700/50 cursor-pointer">
+                        <svg class="w-3.5 h-3.5 text-amber-400 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" />
+                        </svg>
+                        <span>Tentang Sistem &amp; Pengembang</span>
+                    </button>
+                </div>
             </div>
         </div>
     </div>

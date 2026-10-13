@@ -307,15 +307,25 @@
                                     {{-- Profil Mahasiswa Penerima --}}
                                     <div class="mt-5 pt-4 border-t border-slate-100 flex items-center gap-3">
                                         <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-[#1E3A8A] text-amber-300 font-extrabold text-xs flex items-center justify-center shrink-0 shadow-2xs border border-blue-400/30">
-                                            {{ strtoupper(substr($item->nama_mahasiswa, 0, 1)) }}
+                                            {{ strtoupper(substr($item->isKelompok() && $item->nama_tim ? $item->nama_tim : $item->nama_mahasiswa, 0, 1)) }}
                                         </div>
                                         <div class="min-w-0 flex-1">
-                                            <div class="text-xs sm:text-sm font-bold text-slate-900 truncate">{{ $item->nama_mahasiswa }}</div>
-                                            <div class="text-[11px] text-slate-500 truncate flex items-center gap-1.5 mt-0.5">
-                                                <span>{{ $item->nim }}</span>
-                                                <span>&bull;</span>
-                                                <span class="font-medium text-slate-700">{{ $item->prodi ?? 'ITG' }}</span>
-                                            </div>
+                                            @if ($item->isKelompok())
+                                                <div class="flex items-center gap-1.5 flex-wrap">
+                                                    <span class="text-xs sm:text-sm font-bold text-slate-900 truncate">{{ $item->nama_tim ?? $item->nama_mahasiswa }}</span>
+                                                    <span class="px-1.5 py-0.2 rounded text-[9px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-200">Regu / Tim</span>
+                                                </div>
+                                                <div class="text-[11px] text-slate-500 truncate mt-0.5">
+                                                    Ketua: <span class="font-semibold text-slate-800">{{ $item->nama_mahasiswa }}</span> ({{ $item->total_peserta }} Mahasiswa)
+                                                </div>
+                                            @else
+                                                <div class="text-xs sm:text-sm font-bold text-slate-900 truncate">{{ $item->nama_mahasiswa }}</div>
+                                                <div class="text-[11px] text-slate-500 truncate flex items-center gap-1.5 mt-0.5">
+                                                    <span>{{ $item->nim }}</span>
+                                                    <span>&bull;</span>
+                                                    <span class="font-medium text-slate-700">{{ $item->prodi ?? 'ITG' }}</span>
+                                                </div>
+                                            @endif
                                         </div>
                                     </div>
                                 </div>

@@ -46,10 +46,10 @@
             flex-grow: 1;
             padding: 0 10px;
         }
-        .header-line-1 { font-size: 10pt; }
-        .header-line-2 { font-size: 12pt; font-weight: bold; text-transform: uppercase; }
-        .header-line-3 { font-size: 9.5pt; font-style: italic; line-height: 1.3; }
-        .header-line-4 { font-size: 9.5pt; line-height: 1.3; }
+        .header-line-1 { font-size: 12pt; font-weight: bold; text-transform: uppercase; color: #0b1528; letter-spacing: 0.5px; }
+        .header-line-2 { font-size: 12pt; font-weight: bold; text-transform: uppercase; color: #0b1528; letter-spacing: 0.5px; }
+        .header-line-3 { font-size: 9pt; line-height: 1.3; color: #333; }
+        .header-line-4 { font-size: 8.5pt; font-style: italic; line-height: 1.3; color: #555; }
         .title {
             text-align: center;
             font-weight: bold;
@@ -167,10 +167,22 @@
     @endif
 
     <div class="paper">
-        <!-- KOP SURAT -->
+        <!-- KOP SURAT PROPOSAL RESMI -->
+        @php
+            $propUser = $proposal->user;
+            $namaOrmawaKop = !empty($propUser->nama_kop) ? $propUser->nama_kop : $propUser->name;
+            $alamatKop = !empty($propUser->alamat) ? $propUser->alamat : 'Jalan Mayor Syamsu No. 1 Jayaraga Garut 44151';
+            if (!empty($propUser->telepon)) {
+                $alamatKop .= ' Telepon/WA: ' . $propUser->telepon;
+            }
+            $websiteKop = !empty($propUser->website) ? $propUser->website : 'www.itg.ac.id';
+            $emailKop = !empty($propUser->email_kop) ? $propUser->email_kop : (!empty($propUser->email) ? $propUser->email : 'info@itg.ac.id');
+        @endphp
+
         @if($pdf ?? false)
         <table style="width: 100%; border-collapse: collapse; border: none; margin-bottom: 0;">
             <tr style="border: none;">
+                {{-- Logo Kiri: ITG --}}
                 <td style="width: 80px; vertical-align: middle; text-align: center; border: none; padding: 0;">
                     @php
                         $itgLogoPath = null;
@@ -181,37 +193,59 @@
                         } elseif (file_exists(public_path('images/logo_itg.png'))) {
                             $itgLogoPath = public_path('images/logo_itg.png');
                         }
+                        $itgLogoData = null;
+                        if ($itgLogoPath && file_exists($itgLogoPath)) {
+                            $ext = pathinfo($itgLogoPath, PATHINFO_EXTENSION) ?: 'png';
+                            $itgLogoData = 'data:image/' . $ext . ';base64,' . base64_encode(file_get_contents($itgLogoPath));
+                        }
                     @endphp
-                    @if($itgLogoPath)
-                        <img src="{{ $itgLogoPath }}" style="width: 75px; height: 75px;" alt="Logo ITG">
+                    @if($itgLogoData)
+                        <img src="{{ $itgLogoData }}" style="width: 75px; height: 75px;" alt="Logo ITG">
                     @else
                         <div style="width: 75px;"></div>
                     @endif
                 </td>
-                <td style="text-align: center; vertical-align: middle; border: none; padding: 0 10px;">
-                    <div style="font-size: 10pt;">{{ $konfig['kop_baris1'] ?? 'KEMENTERIAN PENDIDIKAN, KEBUDAYAAN, RISET, DAN TEKNOLOGI' }}</div>
-                    <div style="font-size: 12pt; font-weight: bold; text-transform: uppercase;">{{ $konfig['kop_baris2'] ?? 'INSTITUT TEKNOLOGI GARUT' }}</div>
-                    <div style="font-size: 9.5pt; font-style: italic; line-height: 1.3;">{{ $konfig['kop_baris3'] ?? 'Jalan Mayor Syamsu No. 1 Jayaraga Garut 44151 Telepon/Fax. (0262) 232773' }}</div>
-                    <div style="font-size: 9.5pt; line-height: 1.3;">{{ $konfig['kop_baris4'] ?? 'Website : www.itg.ac.id | Email : info@itg.ac.id' }}</div>
+
+                {{-- Teks Tengah KOP Proposal --}}
+                <td style="text-align: center; vertical-align: middle; border: none; padding: 0 10px; font-family: 'Times New Roman', Times, serif;">
+                    <div style="font-size: 12pt; font-weight: bold; text-transform: uppercase; color: #0b1528; letter-spacing: 0.5px; margin-bottom: 2px;">
+                        {{ $namaOrmawaKop }}
+                    </div>
+                    <div style="font-size: 12pt; font-weight: bold; text-transform: uppercase; color: #0b1528; letter-spacing: 0.5px; margin-bottom: 2px;">
+                        INSTITUT TEKNOLOGI GARUT
+                    </div>
+                    <div style="font-size: 9pt; color: #333; line-height: 1.25;">
+                        {{ $alamatKop }}
+                    </div>
+                    <div style="font-size: 8.5pt; color: #555; font-style: italic; margin-top: 2px;">
+                        Website: {{ $websiteKop }} | Email: {{ $emailKop }}
+                    </div>
                 </td>
+
+                {{-- Logo Kanan: Logo Ormawa (jika ada) --}}
                 <td style="width: 80px; vertical-align: middle; text-align: center; border: none; padding: 0;">
                     @php
                         $ormawaLogoPath = null;
-                        if ($proposal->user->logo_ormawa && file_exists(public_path('storage/' . $proposal->user->logo_ormawa))) {
-                            $ormawaLogoPath = public_path('storage/' . $proposal->user->logo_ormawa);
-                        } elseif ($proposal->user->logo_ormawa && file_exists(storage_path('app/public/' . $proposal->user->logo_ormawa))) {
-                            $ormawaLogoPath = storage_path('app/public/' . $proposal->user->logo_ormawa);
+                        if ($propUser->logo_ormawa && file_exists(public_path('storage/' . $propUser->logo_ormawa))) {
+                            $ormawaLogoPath = public_path('storage/' . $propUser->logo_ormawa);
+                        } elseif ($propUser->logo_ormawa && file_exists(storage_path('app/public/' . $propUser->logo_ormawa))) {
+                            $ormawaLogoPath = storage_path('app/public/' . $propUser->logo_ormawa);
+                        }
+                        $ormawaLogoData = null;
+                        if ($ormawaLogoPath && file_exists($ormawaLogoPath)) {
+                            $ext = pathinfo($ormawaLogoPath, PATHINFO_EXTENSION) ?: 'png';
+                            $ormawaLogoData = 'data:image/' . $ext . ';base64,' . base64_encode(file_get_contents($ormawaLogoPath));
                         }
                     @endphp
-                    @if($ormawaLogoPath)
-                        <img src="{{ $ormawaLogoPath }}" style="width: 75px; height: 75px;" alt="Logo Ormawa">
+                    @if($ormawaLogoData)
+                        <img src="{{ $ormawaLogoData }}" style="width: 75px; height: 75px;" alt="Logo Ormawa">
                     @else
                         <div style="width: 75px;"></div>
                     @endif
                 </td>
             </tr>
         </table>
-        <!-- Garis Pembatas Ganda Khas Surat Resmi -->
+        <!-- Garis Pembatas Ganda Khas Dokumen Resmi -->
         <div style="border-bottom: 3px double #000; margin-top: 8px; margin-bottom: 20px;"></div>
         @else
         <div class="header">
@@ -225,15 +259,15 @@
                 <div style="width: 80px;"></div>
             @endif
             
-            <div class="header-text">
-                <div class="header-line-1">{{ $konfig['kop_baris1'] ?? 'KEMENTERIAN PENDIDIKAN, KEBUDAYAAN, RISET, DAN TEKNOLOGI' }}</div>
-                <div class="header-line-2">{{ $konfig['kop_baris2'] ?? 'INSTITUT TEKNOLOGI GARUT' }}</div>
-                <div class="header-line-3">{{ $konfig['kop_baris3'] ?? 'Jalan Mayor Syamsu No. 1 Jayaraga Garut 44151 Telepon/Fax. (0262) 232773' }}</div>
-                <div class="header-line-4">{{ $konfig['kop_baris4'] ?? 'Website : www.itg.ac.id | Email : info@itg.ac.id' }}</div>
+            <div class="header-text" style="font-family: 'Times New Roman', Times, serif;">
+                <div class="header-line-1">{{ $namaOrmawaKop }}</div>
+                <div class="header-line-2">INSTITUT TEKNOLOGI GARUT</div>
+                <div class="header-line-3">{{ $alamatKop }}</div>
+                <div class="header-line-4">Website: {{ $websiteKop }} | Email: {{ $emailKop }}</div>
             </div>
             
-            @if($proposal->user->logo_ormawa)
-                <img src="{{ asset('storage/' . $proposal->user->logo_ormawa) }}" class="header-logo" alt="Logo Ormawa">
+            @if($propUser->logo_ormawa)
+                <img src="{{ asset('storage/' . $propUser->logo_ormawa) }}" class="header-logo" alt="Logo Ormawa">
             @else
                 <div style="width: 80px;"></div>
             @endif

@@ -4,10 +4,24 @@
     $showQr = $showQr ?? true;
     $count = max(count($items), 1);
     $colWidth = round(100 / $count, 4) . '%';
+    $keteranganPeriode = $keteranganPeriode ?? null;
+    $namaOrganisasi = $namaOrganisasi ?? null;
 @endphp
+
+@if(!empty($keteranganPeriode) || !empty($namaOrganisasi))
+    <div style="text-align: center; margin-top: 30px; margin-bottom: 8px; font-size: 10.5pt; font-weight: bold; text-transform: uppercase;">
+        @if(!empty($namaOrganisasi))
+            <div>PENGURUS {{ $namaOrganisasi }}</div>
+        @endif
+        @if(!empty($keteranganPeriode))
+            <div style="font-size: 9.5pt; font-weight: normal; text-transform: none; margin-top: 2px;">{{ $keteranganPeriode }}</div>
+        @endif
+    </div>
+@endif
+
 {{-- Blok tanda tangan tabel: aman untuk DomPDF (tanpa flexbox).
      Urutan: jabatan, area tanda tangan (QR internal / kosong untuk manual), nama. --}}
-<table style="width: 100%; border-collapse: collapse; margin-top: 40px;">
+<table style="width: 100%; border-collapse: collapse; margin-top: {{ (!empty($keteranganPeriode) || !empty($namaOrganisasi)) ? '15px' : '40px' }};">
     <tr>
         @forelse($items as $idx => $p)
             @php

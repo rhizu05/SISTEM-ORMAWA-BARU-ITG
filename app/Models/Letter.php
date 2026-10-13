@@ -12,10 +12,14 @@ class Letter extends Model
     protected $fillable = [
         'user_id',
         'proposal_otomatis_id',
+        'peminjaman_id',
+        'peminjaman_type',
         'type',
         'nomor_surat',
         'perihal',
+        'lampiran',
         'content',
+        'file_lampiran_pdf',
         'metadata',
     ];
 
@@ -29,6 +33,11 @@ class Letter extends Model
     public function proposal(): BelongsTo
     {
         return $this->belongsTo(ProposalOtomatis::class, 'proposal_otomatis_id');
+    }
+
+    public function peminjaman(): \Illuminate\Database\Eloquent\Relations\MorphTo
+    {
+        return $this->morphTo();
     }
 
     public function tandaTanganDigitals(): MorphMany
@@ -49,25 +58,42 @@ class Letter extends Model
     {
         $meta = $this->metadata ?? [];
         $list = $meta['penandatangan_list'] ?? [];
+        $owner = $this->user ?? Auth::user();
 
         if (empty($list) && ! empty($meta['penandatangan'])) {
-            $owner = $this->user ?? Auth::user();
             $role = $meta['penandatangan'];
             $nama = match ($role) {
                 'sekretaris' => $owner->nama_sekretaris ?? $owner->name ?? null,
                 'bendahara' => $owner->nama_bendahara ?? $owner->name ?? null,
                 default => $owner->nama_ketua ?? $owner->name ?? null,
             };
-            $list = [['role' => $role, 'nama' => $nama]];
+            $nim = match ($role) {
+                'sekretaris' => $owner->nim_sekretaris ?? null,
+                'bendahara' => $owner->nim_bendahara ?? null,
+                default => $owner->nim_ketua ?? null,
+            };
+            $list = [['role' => $role, 'nama' => $nama, 'nim' => $nim]];
         }
 
-        return array_map(function ($p) {
+        return array_map(function ($p) use ($owner) {
             $role = $p['role'] ?? null;
+            $jenis = $p['jenis'] ?? 'internal';
+            $nim = $p['nim'] ?? null;
+            if ($jenis === 'internal' && empty($nim) && $role && $owner) {
+                $nim = match ($role) {
+                    'ketua' => $owner->nim_ketua ?? null,
+                    'sekretaris' => $owner->nim_sekretaris ?? null,
+                    'bendahara' => $owner->nim_bendahara ?? null,
+                    default => null,
+                };
+            }
+
             return [
-                'jenis' => $p['jenis'] ?? 'internal',
+                'jenis' => $jenis,
                 'role' => $role,
                 'nama' => $p['nama'] ?? '-',
                 'jabatan' => $p['jabatan'] ?? ($role ? ucfirst($role) : 'Penandatangan'),
+                'nim' => $nim,
             ];
         }, $list);
     }

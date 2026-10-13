@@ -8,7 +8,19 @@
     <div class="py-12">
         <div class="max-w-5xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-8">
-                
+                <!-- Informasi Konfigurasi KOP Profil -->
+                <div class="mb-6 p-4 rounded-2xl bg-indigo-50/70 border border-indigo-200/80 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+                    <div class="flex items-start gap-2.5">
+                        <svg class="w-5 h-5 text-indigo-600 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        <div class="text-slate-700 leading-relaxed">
+                            <span class="font-bold text-indigo-950">KOP Dokumen LPJ Otomatis:</span> Dokumen LPJ ini otomatis mencantumkan KOP resmi organisasi Anda (Nama Ormawa, Logo, Alamat Kampus, Website, dan Email). Konfigurasi KOP dapat disesuaikan kapan saja di <strong class="text-indigo-900">Halaman Profil</strong>.
+                        </div>
+                    </div>
+                    <a href="{{ route('profile.edit') }}" target="_blank" class="shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 bg-white border border-indigo-300 hover:bg-indigo-50 text-indigo-700 font-semibold rounded-lg shadow-sm transition">
+                        <span>Atur KOP di Profil</span> &rarr;
+                    </a>
+                </div>
+
                 <form action="{{ route('generator.lpj.store') }}" method="POST" enctype="multipart/form-data">
                     @csrf
                     <input type="hidden" name="proposal_id" value="{{ $proposal->id ?? '' }}">
@@ -207,7 +219,7 @@
 
                     <!-- BAGIAN 4: LAMPIRAN DAFTAR HADIR PESERTA -->
                     <div class="mb-10" x-data="hadirHandler()">
-                        <div class="flex items-center justify-between mb-6 pb-2 border-b-2 border-indigo-500">
+                        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6 pb-2 border-b-2 border-indigo-500">
                             <div class="flex items-center">
                                 <span class="bg-indigo-600 text-white w-8 h-8 rounded-full flex items-center justify-center font-bold mr-3 text-sm">4</span>
                                 <div>
@@ -215,9 +227,34 @@
                                     <p class="text-xs text-gray-500">Tabel absensi peserta untuk dicetak pada lembar lampiran terpisah</p>
                                 </div>
                             </div>
-                            <button type="button" @click="addRow()" class="inline-flex items-center text-xs bg-indigo-50 text-indigo-700 border border-indigo-200 px-3 py-1.5 rounded hover:bg-indigo-100 font-semibold">
-                                + Tambah Peserta
-                            </button>
+                            <div class="flex items-center gap-2">
+                                <button type="button" @click="showPasteModal = true" class="inline-flex items-center text-xs bg-emerald-50 text-emerald-700 border border-emerald-300 px-3 py-1.5 rounded-lg hover:bg-emerald-100 font-semibold transition">
+                                    <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
+                                    Paste dari Excel / Spreadsheet
+                                </button>
+                                <button type="button" @click="addRow()" class="inline-flex items-center text-xs bg-indigo-50 text-indigo-700 border border-indigo-200 px-3 py-1.5 rounded-lg hover:bg-indigo-100 font-semibold transition">
+                                    + Tambah Peserta
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Modal Paste Excel -->
+                        <div x-show="showPasteModal" class="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4" style="display: none;" @keydown.escape.window="showPasteModal = false">
+                            <div class="bg-white rounded-2xl max-w-xl w-full p-6 shadow-2xl border border-slate-200 space-y-4" @click.away="showPasteModal = false">
+                                <div class="flex items-center justify-between border-b pb-3">
+                                    <h4 class="font-bold text-slate-800 text-base">Paste Data Peserta dari Excel / Google Sheets</h4>
+                                    <button type="button" @click="showPasteModal = false" class="text-slate-400 hover:text-slate-600 text-lg font-bold">&times;</button>
+                                </div>
+                                <div class="text-xs text-slate-600 space-y-1">
+                                    <p>Salin (Copy) tabel peserta dari Excel atau Spreadsheet Anda, lalu tempel (Paste) pada kotak di bawah.</p>
+                                    <p class="text-slate-500 font-mono text-[11px]">Format didukung: <strong>[Nama] [Tab] [Jabatan/Instansi] [Tab] [No HP]</strong> atau langsung kolom nama.</p>
+                                </div>
+                                <textarea x-model="pasteText" rows="6" placeholder="Contoh salinan Excel:&#10;Muhammad Rasyid	Ketua HIMA	085712345678&#10;Aisyah Zahra	Peserta	081234567890" class="w-full text-xs font-mono border-slate-300 rounded-lg p-3"></textarea>
+                                <div class="flex justify-end gap-2 pt-2">
+                                    <button type="button" @click="showPasteModal = false" class="px-4 py-2 text-xs font-medium text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg">Batal</button>
+                                    <button type="button" @click="parseAndImport()" class="px-4 py-2 text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg shadow-xs">Impor ke Tabel</button>
+                                </div>
+                            </div>
                         </div>
 
                         <div class="overflow-x-auto border rounded-lg">
@@ -254,27 +291,33 @@
                         </div>
                     </div>
 
-                    <!-- BAGIAN 5: UPLOAD DOKUMENTASI KEGIATAN & STRUK KEUANGAN -->
+                    <!-- BAGIAN 5: UPLOAD DOKUMENTASI KEGIATAN & STRUK KEUANGAN (BEBAS / TANPA BATAS) -->
                     <div class="mb-10">
                         <div class="flex items-center mb-6 pb-2 border-b-2 border-indigo-500">
                             <span class="bg-indigo-600 text-white w-8 h-8 rounded-full flex items-center justify-center font-bold mr-3 text-sm">5</span>
                             <div>
-                                <h3 class="text-lg font-bold text-gray-800">Lampiran Foto Dokumentasi &amp; Bukti Struk</h3>
-                                <p class="text-xs text-gray-500">Otomatis ditata ke dalam lembar khusus foto berbingkai pada dokumen PDF</p>
+                                <h3 class="text-lg font-bold text-gray-800">Lampiran Foto Dokumentasi, Struk &amp; Berkas PDF</h3>
+                                <p class="text-xs text-gray-500">Unggah foto kegiatan, bukti kuitansi tanpa batas, serta berkas PDF tambahan opsional</p>
                             </div>
                         </div>
 
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div class="p-5 bg-indigo-50/50 rounded-lg border border-dashed border-indigo-300">
-                                <x-input-label for="foto_dokumentasi" :value="__('Upload Foto Dokumentasi Kegiatan (Maks 6 Foto)')" class="font-bold text-indigo-900" />
+                                <x-input-label for="foto_dokumentasi" :value="__('Upload Foto Dokumentasi Kegiatan (Bebas / Tanpa Batas)')" class="font-bold text-indigo-900" />
                                 <input id="foto_dokumentasi" name="foto_dokumentasi[]" type="file" multiple accept="image/*" class="mt-2 block w-full text-sm text-gray-600 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-indigo-600 file:text-white hover:file:bg-indigo-700" />
-                                <p class="mt-2 text-xs text-gray-500">Format gambar JPEG, PNG. Akan ditata rapi dalam kisi foto dokumentasi.</p>
+                                <p class="mt-2 text-xs text-gray-500">Format gambar JPEG, PNG. Seluruh foto yang diupload otomatis ditata ke dalam lembar kisi foto berbingkai pada PDF.</p>
                             </div>
 
                             <div class="p-5 bg-emerald-50/50 rounded-lg border border-dashed border-emerald-300">
-                                <x-input-label for="bukti_pembayaran" :value="__('Upload Bukti Struk / Kuitansi / Nota (Maks 4 Foto)')" class="font-bold text-emerald-900" />
+                                <x-input-label for="bukti_pembayaran" :value="__('Upload Bukti Struk / Kuitansi / Nota (Bebas / Tanpa Batas)')" class="font-bold text-emerald-900" />
                                 <input id="bukti_pembayaran" name="bukti_pembayaran[]" type="file" multiple accept="image/*,.pdf" class="mt-2 block w-full text-sm text-gray-600 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-emerald-600 file:text-white hover:file:bg-emerald-700" />
-                                <p class="mt-2 text-xs text-gray-500">Format gambar atau PDF kuitansi. Akan disandingkan di lembar Laporan Keuangan.</p>
+                                <p class="mt-2 text-xs text-gray-500">Format gambar atau PDF kuitansi. Seluruh nota/kuitansi akan disandingkan di lembar Laporan Keuangan.</p>
+                            </div>
+
+                            <div class="md:col-span-2 p-5 bg-slate-50 rounded-lg border border-dashed border-slate-300">
+                                <x-input-label for="file_lampiran_pdf" :value="__('Upload Berkas PDF Tambahan untuk Digabungkan (Opsional)')" class="font-bold text-slate-800" />
+                                <input id="file_lampiran_pdf" name="file_lampiran_pdf" type="file" accept="application/pdf" class="mt-2 block w-full text-sm text-slate-600 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-slate-700 file:text-white hover:file:bg-slate-800" />
+                                <p class="mt-2 text-xs text-slate-500">Format PDF maks 10MB. Jika diunggah, seluruh halaman dokumen PDF ini akan otomatis digabungkan (merge) di akhir lembar LPJ.</p>
                             </div>
                         </div>
                     </div>
@@ -391,6 +434,8 @@
 
         function hadirHandler() {
             return {
+                showPasteModal: false,
+                pasteText: '',
                 items: [
                     { nama: 'Ahmad Fauzi, S.Kom.', jabatan: 'Dosen Pembimbing ITG', no_hp: '081234567890' },
                     { nama: 'Muhammad Rasyid', jabatan: 'Ketua HIMA Informatika', no_hp: '085712345678' }
@@ -401,6 +446,54 @@
                 removeRow(idx) {
                     if (this.items.length > 1) {
                         this.items.splice(idx, 1);
+                    }
+                },
+                parseAndImport() {
+                    if (!this.pasteText.trim()) return;
+                    const lines = this.pasteText.trim().split(/\r?\n/);
+                    const parsed = [];
+                    lines.forEach(line => {
+                        if (!line.trim()) return;
+                        let cols = line.split('\t');
+                        if (cols.length === 1 && line.includes(';')) {
+                            cols = line.split(';');
+                        }
+                        cols = cols.map(c => c.trim());
+                        if (cols.length === 0) return;
+
+                        let nama = '';
+                        let jabatan = '';
+                        let no_hp = '';
+
+                        // Jika kolom pertama adalah nomor urut angka
+                        if (/^\d+$/.test(cols[0]) && cols.length > 1) {
+                            nama = cols[1] || '';
+                            jabatan = cols[2] || 'Peserta';
+                            no_hp = cols[3] || '';
+                        } else {
+                            nama = cols[0] || '';
+                            jabatan = cols[1] || 'Peserta';
+                            no_hp = cols[2] || '';
+                        }
+
+                        // Lewatkan baris jika menyerupai header teks kolom excel
+                        if (nama && !/^nama/i.test(nama) && !/^no\b/i.test(nama)) {
+                            parsed.push({
+                                nama: nama,
+                                jabatan: jabatan || 'Peserta',
+                                no_hp: no_hp
+                            });
+                        }
+                    });
+
+                    if (parsed.length > 0) {
+                        if (this.items.length === 2 && this.items[0].nama.includes('Ahmad Fauzi')) {
+                            this.items = parsed;
+                        } else {
+                            this.items = this.items.concat(parsed);
+                        }
+                        this.pasteText = '';
+                        this.showPasteModal = false;
                     }
                 }
             };

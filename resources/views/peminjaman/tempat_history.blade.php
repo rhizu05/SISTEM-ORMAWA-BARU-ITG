@@ -77,12 +77,21 @@
                                 </span>
                             </div>
 
-                            @if(($p->status_bkhm === 'disetujui' && $p->status_sarpras === 'disetujui') || str_contains(strtolower($p->status_akhir), 'selesai') || str_contains(strtolower($p->status_akhir), 'disetujui'))
-                                <a href="{{ route('peminjaman.tempat.cetak', $p) }}" target="_blank" class="min-h-[44px] inline-flex items-center gap-1.5 px-3 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-xs transition">
-                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
-                                    <span>Cetak Izin</span>
-                                </a>
-                            @endif
+                            <div class="inline-flex items-center gap-2 flex-wrap">
+                                @if($p->suratPermohonan)
+                                    <a href="{{ route('generator.letters.pdf', $p->suratPermohonan) }}" target="_blank" class="min-h-[44px] inline-flex items-center gap-1.5 px-3 py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 rounded-xl text-xs font-bold transition">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                                        <span>Surat Permohonan</span>
+                                    </a>
+                                @endif
+
+                                @if(($p->status_bkhm === 'disetujui' && $p->status_sarpras === 'disetujui') || str_contains(strtolower($p->status_akhir), 'selesai') || str_contains(strtolower($p->status_akhir), 'disetujui'))
+                                    <a href="{{ route('peminjaman.tempat.cetak', $p) }}" target="_blank" class="min-h-[44px] inline-flex items-center gap-1.5 px-3 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-xs transition">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
+                                        <span>Cetak Izin</span>
+                                    </a>
+                                @endif
+                            </div>
                         </div>
 
                         @if($p->catatan_penolakan)
@@ -174,14 +183,23 @@
                                 @endif
                             </x-table.td>
                             <x-table.td align="center">
-                                @if(($p->status_bkhm === 'disetujui' && $p->status_sarpras === 'disetujui') || str_contains(strtolower($p->status_akhir), 'selesai') || str_contains(strtolower($p->status_akhir), 'disetujui'))
-                                    <a href="{{ route('peminjaman.tempat.cetak', $p) }}" target="_blank" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-semibold shadow-sm transition-colors">
-                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
-                                        Cetak Izin
-                                    </a>
-                                @else
-                                    <span class="text-xs text-slate-400 italic">Menunggu Izin</span>
-                                @endif
+                                <div class="inline-flex items-center gap-2 justify-center flex-wrap">
+                                    @if($p->suratPermohonan)
+                                        <a href="{{ route('generator.letters.pdf', $p->suratPermohonan) }}" target="_blank" title="Unduh Surat Permohonan Resmi Ber-KOP" class="inline-flex items-center gap-1 px-2.5 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 rounded-lg text-xs font-semibold shadow-2xs transition-colors">
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                                            Surat Permohonan
+                                        </a>
+                                    @endif
+
+                                    @if(($p->status_bkhm === 'disetujui' && $p->status_sarpras === 'disetujui') || str_contains(strtolower($p->status_akhir), 'selesai') || str_contains(strtolower($p->status_akhir), 'disetujui'))
+                                        <a href="{{ route('peminjaman.tempat.cetak', $p) }}" target="_blank" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-semibold shadow-sm transition-colors">
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
+                                            Cetak Izin
+                                        </a>
+                                    @elseif(!$p->suratPermohonan)
+                                        <span class="text-xs text-slate-400 italic">Menunggu Izin</span>
+                                    @endif
+                                </div>
                             </x-table.td>
                         </x-table.tr>
                         @empty

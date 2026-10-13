@@ -435,7 +435,7 @@ class PublicTicketingTest extends TestCase
         $this->assertNull($fresh->rejected_from_state_id);
     }
 
-    public function test_peminjaman_with_surat_prodi_bypasses_bkhm_to_sarpras(): void
+    public function test_peminjaman_tempat_ormawa_always_routes_to_bkhm_queue(): void
     {
         $ormawa = User::factory()->create();
         $ormawa->assignRole('ormawa');
@@ -452,7 +452,6 @@ class PublicTicketingTest extends TestCase
             'tgl_selesai' => now()->addDays(5)->format('Y-m-d'),
             'jam_mulai' => '08:00',
             'jam_selesai' => '16:00',
-            'file_persetujuan_prodi' => UploadedFile::fake()->create('surat_prodi.pdf', 300, 'application/pdf'),
         ];
 
         $response = $this->actingAs($ormawa)->post(route('peminjaman.tempat.store'), $payload);
@@ -460,9 +459,10 @@ class PublicTicketingTest extends TestCase
 
         $peminjaman = \App\Models\PeminjamanTempat::where('user_id', $ormawa->id)->latest()->first();
         $this->assertNotNull($peminjaman);
-        $this->assertEquals('disetujui', $peminjaman->status_bkhm);
+        $this->assertEquals('pending', $peminjaman->status_bkhm);
         $this->assertEquals('pending', $peminjaman->status_sarpras);
-        $this->assertEquals('Proses Sarpras', $peminjaman->status_akhir);
+        $this->assertEquals('Proses BKHM', $peminjaman->status_akhir);
+        $this->assertNull($peminjaman->file_persetujuan_prodi);
     }
 
     public function test_bendahara_and_bkhm_export_excel_and_pdf(): void
@@ -524,5 +524,60 @@ class PublicTicketingTest extends TestCase
             'tingkat' => 'Nasional',
         ]);
         $resPrestasi->assertSessionHasErrors(['prodi', 'no_hp']);
+    }
+
+    public function test_public_can_submit_team_delegation_and_team_prestasi(): void
+    {
+        $payloadTeam = [
+            'nim' => '2306045',
+            'nama_mahasiswa' => 'Rasyid Oktavian',
+            'email' => 'rasyid@itg.ac.id',
+            'no_hp' => '081234567890',
+            'prodi' => 'Teknik Informatika',
+            'sub_kategori' => 'pengajuan_dana_delegasi',
+            'jenis_kepesertaan' => 'kelompok',
+            'nama_tim' => 'Tim Robotika ITG 01',
+            'dosen_pembimbing' => 'Dr. Ir. Hendra, M.T.',
+            'anggota_tim' => [
+                [
+                    'nim' => '2306078',
+                    'nama' => 'Sep Naufal',
+                    'prodi' => 'Teknik Informatika',
+                ],
+                [
+                    'nim' => '2306099',
+                    'nama' => 'Fajar Pratama',
+                    'prodi' => 'Sistem Informasi',
+                ],
+            ],
+            'nama_kegiatan' => 'Kontes Robot Indonesia 2026',
+            'penyelenggara' => 'Puspresnas Kemendikbudristek',
+            'tingkat' => 'Nasional',
+            'estimasi_biaya' => 5000000,
+            'lampiran_bukti' => UploadedFile::fake()->create('proposal_delegasi_tim.pdf', 500, 'application/pdf'),
+        ];
+
+        $response = $this->post(route('layanan.prestasi.store'), $payloadTeam);
+        $response->assertRedirect();
+
+        $tiket = TiketLayanan::where('email', 'rasyid@itg.ac.id')->first();
+        $this->assertNotNull($tiket);
+        $this->assertEquals('kelompok', $tiket->jenis_kepesertaan);
+        $this->assertEquals('Tim Robotika ITG 01', $tiket->nama_tim);
+        $this->assertEquals('Dr. Ir. Hendra, M.T.', $tiket->dosen_pembimbing);
+        $this->assertTrue($tiket->isKelompok());
+        $this->assertCount(2, $tiket->daftar_anggota);
+        $this->assertEquals(3, $tiket->total_peserta); // 1 Ketua + 2 Anggota
+
+        // Test halaman tracking menampilkan detail tim
+        $resTracking = $this->get(route('layanan.cek-status', [
+            'kode' => $tiket->kode_tiket,
+            'email' => $tiket->email,
+        ]));
+        $resTracking->assertStatus(200);
+        $resTracking->assertSee('Susunan Regu / Tim Delegasi: Tim Robotika ITG 01');
+        $resTracking->assertSee('Sep Naufal');
+        $resTracking->assertSee('2306078');
+        $resTracking->assertSee('Ketua Tim');
     }
 }

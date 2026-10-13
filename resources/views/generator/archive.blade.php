@@ -134,6 +134,17 @@
                                             @if($l->nomor_surat)
                                                 <div class="text-[11px] font-mono text-slate-500">{{ $l->nomor_surat }}</div>
                                             @endif
+                                            @php
+                                                $attachmentFile = $l->file_lampiran_pdf ?? ($l->metadata['file_lampiran_pdf'] ?? null);
+                                            @endphp
+                                            @if($attachmentFile)
+                                                <div class="mt-1">
+                                                    <a href="{{ asset('storage/' . $attachmentFile) }}" target="_blank" class="inline-flex items-center gap-1 text-[11px] font-medium text-indigo-600 hover:text-indigo-800 bg-indigo-50/70 hover:bg-indigo-100 px-2 py-0.5 rounded transition">
+                                                        <svg class="w-3 h-3 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"/></svg>
+                                                        <span>Ada Lampiran PDF</span>
+                                                    </a>
+                                                </div>
+                                            @endif
                                             @if($l->user && (Auth::user()->hasAnyRole(['admin', 'bkhm', 'wr3', 'bem', 'bpm']) && $l->user_id !== Auth::id()))
                                                 <div class="text-[11px] text-indigo-600 font-medium mt-0.5">Ormawa: {{ $l->user->name }}</div>
                                             @endif
@@ -177,9 +188,14 @@
                                                     </a>
                                                 </div>
                                             @else
-                                                <a href="{{ route('generator.letters.show', $l) }}" target="_blank" class="inline-flex items-center px-3 py-1.5 bg-indigo-50 text-indigo-700 hover:bg-indigo-100 rounded-lg text-xs font-semibold transition-colors">
-                                                    Lihat / Cetak
-                                                </a>
+                                                <div class="flex items-center justify-end gap-1.5">
+                                                    <a href="{{ route('generator.letters.show', $l) }}" target="_blank" class="inline-flex items-center px-3 py-1.5 bg-indigo-50 text-indigo-700 hover:bg-indigo-100 rounded-lg text-xs font-semibold transition-colors">
+                                                        Lihat / Cetak
+                                                    </a>
+                                                    <a href="{{ route('generator.letters.pdf', $l) }}" class="inline-flex items-center p-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg transition" title="Unduh PDF Surat">
+                                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                                                    </a>
+                                                </div>
                                             @endif
                                         </x-table.td>
                                     </x-table.tr>

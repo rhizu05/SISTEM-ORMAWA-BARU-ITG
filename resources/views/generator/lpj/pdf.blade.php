@@ -243,8 +243,10 @@
         <!-- Baris 1: Ketua Ormawa & Ketua Pelaksana -->
         <table style="width: 100%; border: none; border-collapse: collapse; text-align: center;">
             <tr>
-                <td style="width: 50%; border: none; vertical-align: top; padding: 0 10px;">
                     <div style="font-weight: bold;">{{ $ketuaOrmawa['jabatan'] ?? 'Ketua Ormawa' }}</div>
+                    @if(!empty($ormawaUser?->periode_kepengurusan))
+                        <div style="font-size: 8.5pt; color: #444; font-weight: normal; margin-bottom: 2px;">Periode {{ $ormawaUser->periode_kepengurusan }}</div>
+                    @endif
                     <div style="min-height: 125px; margin-bottom: 6px;">
                         @if($sigOrmawa)
                             @include('generator.partials.qr-verifikasi', ['signature' => $sigOrmawa, 'qrSize' => 65])
@@ -259,6 +261,9 @@
                 </td>
                 <td style="width: 50%; border: none; vertical-align: top; padding: 0 10px;">
                     <div style="font-weight: bold;">{{ $ketuaPelaksana['jabatan'] ?? 'Ketua Pelaksana' }}</div>
+                    @if(!empty($ormawaUser?->periode_kepengurusan))
+                        <div style="font-size: 8.5pt; color: #444; font-weight: normal; margin-bottom: 2px;">Periode {{ $ormawaUser->periode_kepengurusan }}</div>
+                    @endif
                     <div style="min-height: 125px; margin-bottom: 6px;">
                         @if(!empty($lpj?->signatures_by_index[1]))
                             @include('generator.partials.qr-verifikasi', ['signature' => $lpj->signatures_by_index[1], 'qrSize' => 65])
@@ -367,63 +372,63 @@
         <div style="font-size: 9pt;">NIM. {{ $ketuaPelaksana['nim'] ?? '........................' }}</div>
     </div>
 
-    <!-- ================= HALAMAN 3: DOKUMENTASI KEGIATAN ================= -->
-    <div class="page-break"></div>
+    <!-- ================= HALAMAN DOKUMENTASI KEGIATAN (BEBAS / UNLIMITED) ================= -->
+    @php
+        $fotoPages = !empty($fotoDokumentasi) ? array_chunk($fotoDokumentasi, 6) : [[]];
+    @endphp
 
-    <div style="text-align: center; font-weight: bold; font-size: 13pt; margin-bottom: 20px;">
-        Dokumentasi Kegiatan
-    </div>
+    @foreach($fotoPages as $pageIndex => $pagePhotos)
+        <div class="page-break"></div>
 
-    <table class="photo-grid">
-        <tr>
-            <td class="photo-box">
-                @if(isset($fotoDokumentasi[0]) && file_exists(public_path('storage/' . $fotoDokumentasi[0])))
-                    <img src="{{ public_path('storage/' . $fotoDokumentasi[0]) }}" alt="Foto 1">
-                @else
-                    <span style="color: #999; font-size: 9pt;">[ Foto Dokumentasi 1 ]</span>
-                @endif
-            </td>
-            <td class="photo-box">
-                @if(isset($fotoDokumentasi[1]) && file_exists(public_path('storage/' . $fotoDokumentasi[1])))
-                    <img src="{{ public_path('storage/' . $fotoDokumentasi[1]) }}" alt="Foto 2">
-                @else
-                    <span style="color: #999; font-size: 9pt;">[ Foto Dokumentasi 2 ]</span>
-                @endif
-            </td>
-        </tr>
-        <tr>
-            <td class="photo-box">
-                @if(isset($fotoDokumentasi[2]) && file_exists(public_path('storage/' . $fotoDokumentasi[2])))
-                    <img src="{{ public_path('storage/' . $fotoDokumentasi[2]) }}" alt="Foto 3">
-                @else
-                    <span style="color: #999; font-size: 9pt;">[ Foto Dokumentasi 3 ]</span>
-                @endif
-            </td>
-            <td class="photo-box">
-                @if(isset($fotoDokumentasi[3]) && file_exists(public_path('storage/' . $fotoDokumentasi[3])))
-                    <img src="{{ public_path('storage/' . $fotoDokumentasi[3]) }}" alt="Foto 4">
-                @else
-                    <span style="color: #999; font-size: 9pt;">[ Foto Dokumentasi 4 ]</span>
-                @endif
-            </td>
-        </tr>
-        <tr>
-            <td class="photo-box">
-                @if(isset($fotoDokumentasi[4]) && file_exists(public_path('storage/' . $fotoDokumentasi[4])))
-                    <img src="{{ public_path('storage/' . $fotoDokumentasi[4]) }}" alt="Foto 5">
-                @else
-                    <span style="color: #999; font-size: 9pt;">[ Foto Dokumentasi 5 ]</span>
-                @endif
-            </td>
-            <td class="photo-box">
-                @if(isset($fotoDokumentasi[5]) && file_exists(public_path('storage/' . $fotoDokumentasi[5])))
-                    <img src="{{ public_path('storage/' . $fotoDokumentasi[5]) }}" alt="Foto 6">
-                @else
-                    <span style="color: #999; font-size: 9pt;">[ Foto Dokumentasi 6 ]</span>
-                @endif
-            </td>
-        </tr>
-    </table>
+        <div style="text-align: center; font-weight: bold; font-size: 13pt; margin-bottom: 20px;">
+            Dokumentasi Kegiatan {{ $pageIndex > 0 ? '(Lanjutan ' . ($pageIndex + 1) . ')' : '' }}
+        </div>
+
+        @if(!empty($pagePhotos))
+            <table class="photo-grid">
+                @foreach(array_chunk($pagePhotos, 2) as $rowPhotos)
+                    <tr>
+                        @foreach($rowPhotos as $fIdx => $fPath)
+                            @php
+                                $fFullPath = null;
+                                if (file_exists(public_path('storage/' . $fPath))) {
+                                    $fFullPath = public_path('storage/' . $fPath);
+                                } elseif (file_exists(storage_path('app/public/' . $fPath))) {
+                                    $fFullPath = storage_path('app/public/' . $fPath);
+                                }
+                            @endphp
+                            <td class="photo-box">
+                                @if($fFullPath)
+                                    <img src="{{ $fFullPath }}" alt="Foto Kegiatan">
+                                @else
+                                    <span style="color: #999; font-size: 9pt;">[ Foto Dokumentasi ]</span>
+                                @endif
+                            </td>
+                        @endforeach
+                        @if(count($rowPhotos) === 1)
+                            <td class="photo-box" style="border: none;"></td>
+                        @endif
+                    </tr>
+                @endforeach
+            </table>
+        @else
+            {{-- Default placeholder jika belum ada foto diunggah --}}
+            <table class="photo-grid">
+                <tr>
+                    <td class="photo-box"><span style="color: #999; font-size: 9pt;">[ Foto Dokumentasi 1 ]</span></td>
+                    <td class="photo-box"><span style="color: #999; font-size: 9pt;">[ Foto Dokumentasi 2 ]</span></td>
+                </tr>
+                <tr>
+                    <td class="photo-box"><span style="color: #999; font-size: 9pt;">[ Foto Dokumentasi 3 ]</span></td>
+                    <td class="photo-box"><span style="color: #999; font-size: 9pt;">[ Foto Dokumentasi 4 ]</span></td>
+                </tr>
+                <tr>
+                    <td class="photo-box"><span style="color: #999; font-size: 9pt;">[ Foto Dokumentasi 5 ]</span></td>
+                    <td class="photo-box"><span style="color: #999; font-size: 9pt;">[ Foto Dokumentasi 6 ]</span></td>
+                </tr>
+            </table>
+        @endif
+    @endforeach
 
     <!-- ================= HALAMAN 4: LAPORAN KEUANGAN & STRUK ================= -->
     <div class="page-break"></div>
@@ -484,41 +489,60 @@
         </tbody>
     </table>
 
-    <!-- Grid Bukti Struk / Kuitansi -->
-    <table class="photo-grid" style="margin-top: 15px;">
-        <tr>
-            <td class="photo-box" style="height: 160px;">
-                @if(isset($buktiStruk[0]) && file_exists(public_path('storage/' . $buktiStruk[0])))
-                    <img src="{{ public_path('storage/' . $buktiStruk[0]) }}" alt="Struk 1">
-                @else
+    <!-- Grid Bukti Struk / Kuitansi (Bebas / Unlimited) -->
+    @php
+        $strukPairs = !empty($buktiStruk) ? array_chunk($buktiStruk, 2) : [];
+    @endphp
+
+    @if(!empty($strukPairs))
+        <table class="photo-grid" style="margin-top: 15px;">
+            @foreach($strukPairs as $pair)
+                <tr>
+                    @foreach($pair as $sFile)
+                        @php
+                            $sFullPath = null;
+                            if (file_exists(public_path('storage/' . $sFile))) {
+                                $sFullPath = public_path('storage/' . $sFile);
+                            } elseif (file_exists(storage_path('app/public/' . $sFile))) {
+                                $sFullPath = storage_path('app/public/' . $sFile);
+                            }
+                        @endphp
+                        <td class="photo-box" style="height: 160px;">
+                            @if($sFullPath && !str_ends_with(strtolower($sFile), '.pdf'))
+                                <img src="{{ $sFullPath }}" alt="Struk Pembayaran">
+                            @elseif($sFullPath && str_ends_with(strtolower($sFile), '.pdf'))
+                                <span style="font-size: 8.5pt; color: #444;">[ Dokumen Berkas PDF Terlampir ]</span>
+                            @else
+                                <span style="font-size: 8.5pt; color: #888;">&lt;&lt; BUKTI STRUK / KUITANSI &gt;&gt;</span>
+                            @endif
+                        </td>
+                    @endforeach
+                    @if(count($pair) === 1)
+                        <td class="photo-box" style="height: 160px; border: none;"></td>
+                    @endif
+                </tr>
+            @endforeach
+        </table>
+    @else
+        <table class="photo-grid" style="margin-top: 15px;">
+            <tr>
+                <td class="photo-box" style="height: 160px;">
                     <span style="font-size: 8.5pt; color: #888;">&lt;&lt; FOTO STRUK / KUITANSI / NOTA 1 &gt;&gt;</span>
-                @endif
-            </td>
-            <td class="photo-box" style="height: 160px;">
-                @if(isset($buktiStruk[1]) && file_exists(public_path('storage/' . $buktiStruk[1])))
-                    <img src="{{ public_path('storage/' . $buktiStruk[1]) }}" alt="Struk 2">
-                @else
+                </td>
+                <td class="photo-box" style="height: 160px;">
                     <span style="font-size: 8.5pt; color: #888;">&lt;&lt; FOTO STRUK / KUITANSI / NOTA 2 &gt;&gt;</span>
-                @endif
-            </td>
-        </tr>
-        <tr>
-            <td class="photo-box" style="height: 160px;">
-                @if(isset($buktiStruk[2]) && file_exists(public_path('storage/' . $buktiStruk[2])))
-                    <img src="{{ public_path('storage/' . $buktiStruk[2]) }}" alt="Struk 3">
-                @else
+                </td>
+            </tr>
+            <tr>
+                <td class="photo-box" style="height: 160px;">
                     <span style="font-size: 8.5pt; color: #888;">&lt;&lt; FOTO STRUK / KUITANSI / NOTA 3 &gt;&gt;</span>
-                @endif
-            </td>
-            <td class="photo-box" style="height: 160px;">
-                @if(isset($buktiStruk[3]) && file_exists(public_path('storage/' . $buktiStruk[3])))
-                    <img src="{{ public_path('storage/' . $buktiStruk[3]) }}" alt="Struk 4">
-                @else
+                </td>
+                <td class="photo-box" style="height: 160px;">
                     <span style="font-size: 8.5pt; color: #888;">&lt;&lt; FOTO STRUK / KUITANSI / NOTA 4 &gt;&gt;</span>
-                @endif
-            </td>
-        </tr>
-    </table>
+                </td>
+            </tr>
+        </table>
+    @endif
 
     <div class="avoid-break" style="margin-top: 20px; text-align: right; width: 300px; margin-left: auto;">
         <div>Garut, {{ \Carbon\Carbon::now()->translatedFormat('d F Y') }}</div>

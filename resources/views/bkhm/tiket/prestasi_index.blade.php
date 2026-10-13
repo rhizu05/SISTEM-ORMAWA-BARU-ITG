@@ -86,6 +86,27 @@
                                         &bull; Email: <a href="mailto:{{ $tiket->email }}" class="text-indigo-600 hover:underline">{{ $tiket->email }}</a>
                                         &bull; HP: {{ $tiket->no_hp ?? '-' }}
                                     </div>
+                                    @if ($tiket->isKelompok())
+                                        <div class="mt-2 p-2.5 rounded-lg bg-indigo-50/70 border border-indigo-100 text-xs space-y-1">
+                                            <div class="flex items-center justify-between flex-wrap gap-1">
+                                                <span class="font-bold text-indigo-950 flex items-center gap-1">
+                                                    👥 Regu / Tim: {{ $tiket->nama_tim ?? 'Tim' }} ({{ $tiket->total_peserta }} Mahasiswa)
+                                                </span>
+                                                @if ($tiket->dosen_pembimbing)
+                                                    <span class="text-slate-600 text-[11px]">Pembimbing: <strong class="text-slate-800">{{ $tiket->dosen_pembimbing }}</strong></span>
+                                                @endif
+                                            </div>
+                                            <div class="text-[11px] text-slate-600 leading-relaxed">
+                                                <span class="font-semibold text-slate-800">Ketua:</span> {{ $tiket->nama_mahasiswa }} ({{ $tiket->nim }})
+                                                @if (!empty($tiket->daftar_anggota))
+                                                    &bull; <span class="font-semibold text-slate-800">Anggota:</span>
+                                                    @foreach ($tiket->daftar_anggota as $agt)
+                                                        {{ $agt['nama'] ?? '-' }} ({{ $agt['nim'] ?? '-' }}){{ !$loop->last ? ', ' : '' }}
+                                                    @endforeach
+                                                @endif
+                                            </div>
+                                        </div>
+                                    @endif
                                 </div>
 
                                 <div class="flex flex-col justify-between items-start md:items-end gap-2 border-t md:border-t-0 md:border-l border-slate-100 pt-3 md:pt-0 md:pl-4">

@@ -13,8 +13,13 @@ class ProfileDataController extends Controller
         $user = Auth::user();
         
         $request->validate([
+            'nama_kop' => 'nullable|string|max:255',
             'alamat' => 'nullable|string|max:255',
             'telepon' => 'nullable|string|max:20',
+            'prodi' => 'nullable|string|max:255',
+            'website' => 'nullable|string|max:255',
+            'email_kop' => 'nullable|string|max:255',
+            'periode_kepengurusan' => 'nullable|string|max:100',
             'nama_ketua' => 'nullable|string|max:255',
             'nim_ketua' => 'nullable|string|max:50',
             'nama_sekretaris' => 'nullable|string|max:255',
@@ -26,7 +31,9 @@ class ProfileDataController extends Controller
         ]);
 
         $data = $request->only([
+            'nama_kop',
             'alamat', 'telepon',
+            'prodi', 'website', 'email_kop', 'periode_kepengurusan',
             'nama_ketua', 'nim_ketua',
             'nama_sekretaris', 'nim_sekretaris',
             'nama_bendahara', 'nim_bendahara',

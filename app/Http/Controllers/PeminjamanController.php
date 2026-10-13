@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Letter;
 use App\Models\MasterBarang;
 use App\Models\MasterRuangan;
 use App\Models\PeminjamanBarang;
 use App\Models\PeminjamanTempat;
+use App\Services\DigitalSignatureService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -15,7 +17,7 @@ class PeminjamanController extends Controller
     public function historyTempat()
     {
         $peminjaman_tempat = (Auth::user()->hasRole('admin') ? PeminjamanTempat::query() : PeminjamanTempat::where('user_id', Auth::id()))
-            ->with('ruangan')
+            ->with(['ruangan', 'suratPermohonan'])
             ->latest()
             ->get();
         return view('peminjaman.tempat_history', compact('peminjaman_tempat'));
@@ -25,6 +27,7 @@ class PeminjamanController extends Controller
     public function historyBarang()
     {
         $peminjaman_barang = (Auth::user()->hasRole('admin') ? PeminjamanBarang::query() : PeminjamanBarang::where('user_id', Auth::id()))
+            ->with('suratPermohonan')
             ->latest()
             ->get();
         return view('peminjaman.barang_history', compact('peminjaman_barang'));
@@ -143,7 +146,6 @@ class PeminjamanController extends Controller
             'jam_mulai' => 'required',
             'jam_selesai' => 'required|after:jam_mulai',
             'deskripsi_kegiatan' => 'nullable|string',
-            'file_persetujuan_prodi' => 'nullable|file|mimes:pdf|mimetypes:application/pdf|max:5120',
         ];
 
         $request->validate($rules);
@@ -181,16 +183,8 @@ class PeminjamanController extends Controller
             return back()->withInput()->with('error', 'Waktu yang dipilih bentrok dengan jadwal perkuliahan di ruangan tersebut.');
         }
 
-        $dokumenProdi = null;
-        if ($request->hasFile('file_persetujuan_prodi')) {
-            $dokumenProdi = $request->file('file_persetujuan_prodi')
-                ->storeAs('persetujuan-prodi', time() . '_prodi.pdf', 'local');
-        }
-
-        $statusBkhm = $dokumenProdi ? 'disetujui' : 'pending';
-        $statusAkhir = $dokumenProdi ? 'Proses Sarpras' : 'Proses BKHM';
-
-        PeminjamanTempat::create([
+        // Seluruh peminjaman ruangan ormawa (HIMA, UKM, BEM, BPM) wajib melalui verifikasi BKHM
+        $peminjaman = PeminjamanTempat::create([
             'user_id' => Auth::id(),
             'ruangan_id' => $request->ruangan_id,
             'nama_kegiatan' => $request->nama_kegiatan,
@@ -199,18 +193,57 @@ class PeminjamanController extends Controller
             'jam_mulai' => $request->jam_mulai,
             'jam_selesai' => $request->jam_selesai,
             'deskripsi_kegiatan' => $request->deskripsi_kegiatan,
-            'file_persetujuan_prodi' => $dokumenProdi,
-            'status_bkhm' => $statusBkhm,
+            'file_persetujuan_prodi' => null,
+            'status_bkhm' => 'pending',
             'status_sarpras' => 'pending',
-            'status_akhir' => $statusAkhir,
+            'status_akhir' => 'Proses BKHM',
         ]);
 
-        if ($dokumenProdi) {
-            \App\Services\NotifikasiService::kirimKeRole('sarpras', 'Peminjaman ruangan baru dengan persetujuan prodi diajukan oleh ' . Auth::user()->name . ': "' . $request->nama_kegiatan . '".');
-        } else {
-            \App\Services\NotifikasiService::kirimKeRole('bkhm', 'Peminjaman ruangan baru diajukan oleh ' . Auth::user()->name . ': "' . $request->nama_kegiatan . '".');
-        }
-        return redirect()->route('peminjaman.tempat.index')->with('success', 'Pengajuan peminjaman ruangan berhasil dikirim' . ($dokumenProdi ? ' dan diteruskan ke Sarpras.' : ' dan menunggu konfirmasi BKHM.'));
+        // Auto-generate surat permohonan resmi ber-KOP ormawa dan tanda tangan digital
+        $user = Auth::user();
+        $ruangan = MasterRuangan::find($request->ruangan_id);
+        $namaRuangan = $ruangan ? $ruangan->nama_ruangan : 'Ruangan Kampus';
+        $waktuFormatted = $request->tgl_mulai . ($request->tgl_mulai !== $request->tgl_selesai ? ' s/d ' . $request->tgl_selesai : '') . ' (' . $request->jam_mulai . ' - ' . $request->jam_selesai . ' WIB)';
+        $nomorSurat = 'SP/' . strtoupper($user->singkatan ?: ($user->username ?: 'ORMAWA')) . '/' . date('m/Y') . '/' . str_pad($peminjaman->id, 3, '0', STR_PAD_LEFT);
+        $namaKetua = $user->nama_ketua ?: $user->name;
+        $nimKetua = $user->nim_ketua ?: ($user->nim ?: '-');
+
+        $penandatanganList = [
+            [
+                'jenis'   => 'internal',
+                'role'    => 'ketua',
+                'nama'    => $namaKetua,
+                'jabatan' => 'Ketua ' . ($user->nama_singkat ?? $user->name),
+                'nim'     => $nimKetua,
+            ],
+        ];
+
+        $letter = Letter::create([
+            'user_id'         => $user->id,
+            'peminjaman_id'   => $peminjaman->id,
+            'peminjaman_type' => PeminjamanTempat::class,
+            'type'            => 'permohonan',
+            'nomor_surat'     => $nomorSurat,
+            'perihal'         => 'Permohonan Peminjaman Ruangan - ' . $request->nama_kegiatan,
+            'lampiran'        => '1 Berkas',
+            'content'         => "Sehubungan dengan akan dilaksanakannya kegiatan {$request->nama_kegiatan}, kami memohon izin peminjaman sarana dan prasarana kampus berupa {$namaRuangan} pada {$waktuFormatted}.\n\nAlasan/Tujuan: " . ($request->deskripsi_kegiatan ?: $request->nama_kegiatan),
+            'metadata'        => [
+                'tujuan'             => 'Bagian Umum & Perlengkapan (Sarpras) / BKHM ITG',
+                'lampiran'           => '1 Berkas',
+                'nama_alat_tempat'   => $namaRuangan,
+                'waktu_penggunaan'   => $waktuFormatted,
+                'alasan_tujuan'      => $request->deskripsi_kegiatan ?: $request->nama_kegiatan,
+                'kalimat_pembuka'    => 'Sehubungan dengan akan dilaksanakannya kegiatan ' . $request->nama_kegiatan . ', maka bersama surat ini kami mengajukan permohonan izin peminjaman ruangan kampus dengan rincian sebagai berikut:',
+                'kalimat_penutup'    => 'Demikian surat permohonan ini kami sampaikan. Atas perhatian, dukungan, dan izin yang diberikan, kami ucapkan terima kasih.',
+                'penandatangan'      => 'ketua',
+                'penandatangan_list' => $penandatanganList,
+            ],
+        ]);
+
+        DigitalSignatureService::signMany($letter, $penandatanganList, $user);
+
+        \App\Services\NotifikasiService::kirimKeRole('bkhm', 'Peminjaman ruangan baru diajukan oleh ' . Auth::user()->name . ': "' . $request->nama_kegiatan . '".');
+        return redirect()->route('peminjaman.tempat.index')->with('success', 'Pengajuan peminjaman ruangan berhasil dikirim dan menunggu konfirmasi BKHM.');
     }
 
     // Form pinjam barang
@@ -257,24 +290,60 @@ class PeminjamanController extends Controller
             return back()->withInput()->with('error', 'Harap pilih minimal 1 barang dengan quantity > 0.');
         }
 
-        $dokumenProdi = null;
-        if ($request->hasFile('file_persetujuan_prodi')) {
-            $dokumenProdi = $request->file('file_persetujuan_prodi')
-                ->storeAs('persetujuan-prodi', time() . '_prodi.pdf', 'local');
-        }
-
-        // Seluruh peminjaman (HIMA, UKM, BEM, BPM) masuk ke antrian BKHM terlebih dahulu
-        PeminjamanBarang::create([
+        // Seluruh peminjaman barang (HIMA, UKM, BEM, BPM) masuk ke antrian BKHM terlebih dahulu
+        $peminjaman = PeminjamanBarang::create([
             'user_id' => Auth::id(),
             'nama_kegiatan' => $request->nama_kegiatan,
             'tgl_mulai' => $request->tgl_mulai,
             'tgl_selesai' => $request->tgl_selesai,
             'kebutuhan_barang' => $kebutuhan,
-            'file_persetujuan_prodi' => $dokumenProdi,
+            'file_persetujuan_prodi' => null,
             'status_bkhm' => 'pending',
             'status_sarpras' => 'pending',
             'status_akhir' => 'Proses BKHM',
         ]);
+
+        // Auto-generate surat permohonan resmi ber-KOP ormawa dan tanda tangan digital
+        $user = Auth::user();
+        $daftarBarangStr = collect($kebutuhan)->map(fn($k) => $k['nama_barang'] . ' (' . $k['qty'] . ' unit)')->implode(', ');
+        $waktuFormatted = $request->tgl_mulai . ($request->tgl_mulai !== $request->tgl_selesai ? ' s/d ' . $request->tgl_selesai : '');
+        $nomorSurat = 'SP/' . strtoupper($user->singkatan ?: ($user->username ?: 'ORMAWA')) . '/' . date('m/Y') . '/' . str_pad($peminjaman->id, 3, '0', STR_PAD_LEFT);
+        $namaKetua = $user->nama_ketua ?: $user->name;
+        $nimKetua = $user->nim_ketua ?: ($user->nim ?: '-');
+
+        $penandatanganList = [
+            [
+                'jenis'   => 'internal',
+                'role'    => 'ketua',
+                'nama'    => $namaKetua,
+                'jabatan' => 'Ketua ' . ($user->nama_singkat ?? $user->name),
+                'nim'     => $nimKetua,
+            ],
+        ];
+
+        $letter = Letter::create([
+            'user_id'         => $user->id,
+            'peminjaman_id'   => $peminjaman->id,
+            'peminjaman_type' => PeminjamanBarang::class,
+            'type'            => 'permohonan',
+            'nomor_surat'     => $nomorSurat,
+            'perihal'         => 'Permohonan Peminjaman Perlengkapan - ' . $request->nama_kegiatan,
+            'lampiran'        => '1 Berkas',
+            'content'         => "Sehubungan dengan akan dilaksanakannya kegiatan {$request->nama_kegiatan}, kami memohon izin peminjaman peralatan sarpras kampus berupa {$daftarBarangStr} pada rentang tanggal {$waktuFormatted}.\n\nAlasan/Tujuan: Pelaksanaan kegiatan {$request->nama_kegiatan}",
+            'metadata'        => [
+                'tujuan'             => 'Bagian Umum & Perlengkapan (Sarpras) / BKHM ITG',
+                'lampiran'           => '1 Berkas',
+                'nama_alat_tempat'   => $daftarBarangStr,
+                'waktu_penggunaan'   => $waktuFormatted,
+                'alasan_tujuan'      => 'Pelaksanaan kegiatan ' . $request->nama_kegiatan,
+                'kalimat_pembuka'    => 'Sehubungan dengan akan diselenggarakannya kegiatan ' . $request->nama_kegiatan . ', dengan ini kami mengajukan permohonan peminjaman perlengkapan kampus dengan rincian sebagai berikut:',
+                'kalimat_penutup'    => 'Demikian surat permohonan peminjaman ini kami sampaikan. Atas perhatian, bantuan, dan izin yang diberikan kami ucapkan terima kasih.',
+                'penandatangan'      => 'ketua',
+                'penandatangan_list' => $penandatanganList,
+            ],
+        ]);
+
+        DigitalSignatureService::signMany($letter, $penandatanganList, $user);
 
         \App\Services\NotifikasiService::kirimKeRole('bkhm', 'Peminjaman barang baru diajukan oleh ' . Auth::user()->name . ': "' . $request->nama_kegiatan . '".');
         return redirect()->route('peminjaman.barang.index')->with('success', 'Pengajuan peminjaman barang berhasil dikirim dan menunggu konfirmasi BKHM.');
