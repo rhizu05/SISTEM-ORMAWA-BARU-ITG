@@ -81,6 +81,17 @@
                 <div x-show="open && sidebarOpen" class="pl-9 space-y-1 mt-1 border-l border-[#1E2D4A] ml-4">
                     <a href="{{ route('admin.users.index') }}" class="block p-1.5 text-xs rounded-lg transition-colors {{ request()->routeIs('admin.users.*') ? 'text-amber-400 font-bold bg-[#1E3A8A]/50' : 'text-slate-400 hover:text-white hover:bg-[#132342]' }}">Manajemen Pengguna</a>
                     <a href="{{ route('admin.konfigurasi.edit') }}" class="block p-1.5 text-xs rounded-lg transition-colors {{ request()->routeIs('admin.konfigurasi.*') ? 'text-amber-400 font-bold bg-[#1E3A8A]/50' : 'text-slate-400 hover:text-white hover:bg-[#132342]' }}">Konfigurasi Sistem &amp; Kop</a>
+                    <a href="{{ route('admin.bug.index') }}" class="block p-1.5 text-xs rounded-lg transition-colors {{ request()->routeIs('admin.bug.*') ? 'text-amber-400 font-bold bg-[#1E3A8A]/50' : 'text-slate-400 hover:text-white hover:bg-[#132342]' }}">
+                        <div class="flex items-center justify-between">
+                            <span>Evaluasi Bug IT</span>
+                            @php
+                                $itPendingBugCount = \App\Models\LaporanBug::whereIn('status', ['diteruskan_ke_it', 'sedang_diperbaiki'])->count();
+                            @endphp
+                            @if($itPendingBugCount > 0)
+                                <span class="bg-rose-500 text-white text-[10px] font-bold px-1.5 py-0.2 rounded-full">{{ $itPendingBugCount }}</span>
+                            @endif
+                        </div>
+                    </a>
                     <a href="{{ route('bkhm.saldo.index') }}" class="block p-1.5 text-xs rounded-lg transition-colors {{ request()->routeIs('bkhm.saldo.*') ? 'text-amber-400 font-bold bg-[#1E3A8A]/50' : 'text-slate-400 hover:text-white hover:bg-[#132342]' }}">Manajemen Saldo Kas</a>
                 </div>
             </div>
